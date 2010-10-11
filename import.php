@@ -28,9 +28,8 @@ if ( ! $gArchive ) {
 	exit();
 }
 
-echo "Starting to import archive \"$gArchive\" and label \"$gLabel\" and HAR file \"$gHarfile\" in 10 seconds...\n";
-sleep(10);
-
+echo "Starting to import archive \"$gArchive\" and label \"$gLabel\" in 5 seconds...\n";
+sleep(5);
 
 
 
