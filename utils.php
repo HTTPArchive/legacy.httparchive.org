@@ -329,11 +329,16 @@ function doSimpleQuery($query) {
 }
 
 
+function tableExists($tablename) {
+	return ( $tablename == doSimpleQuery("show tables like '$tablename';") );
+}
+
+
 function createTables() {
 	global $gPagesTable, $gRequestsTable;
 	global $ghReqHeaders, $ghRespHeaders;
 
-	if ( 1 == 1 ) {
+	if ( ! tableExists($gPagesTable) ) {
 		$command = "create table $gPagesTable (" .
 			"pageid int unsigned not null auto_increment" .
 			", createDate int(10) unsigned not null" .
@@ -376,7 +381,9 @@ function createTables() {
 			", unique key (startedDateTime, harfile)" .
 			");";
 		doSimpleCommand($command);
+	}
 
+	if ( ! tableExists($gRequestsTable) ) {
 		$sColumns = "";
 		$aColumns = array_values($ghReqHeaders);
 		sort($aColumns);
