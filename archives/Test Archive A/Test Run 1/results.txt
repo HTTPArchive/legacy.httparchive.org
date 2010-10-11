@@ -1,0 +1,3 @@
+URL	Location	Test ID	Test Result	Median Run	Load Time	Start Render Time	Test Results URL	Median Results URL	Filmstrip URL
+http://www.wikipedia.org/	Dulles_IE8	101005_6Y9S	0	4	1775	1042	http://www.webpagetest.org/result/101005_6Y9S/	http://www.webpagetest.org/result/101005_6Y9S/4/details/	http://www.webpagetest.org/video/compare.php?tests=101005_6Y9S-r:4-c:0
+http://www.w3.org/	Dulles_IE8	101005_6YMM	0	4	1386	851	http://www.webpagetest.org/result/101005_6YMM/	http://www.webpagetest.org/result/101005_6YMM/4/details/	http://www.webpagetest.org/video/compare.php?tests=101005_6YMM-r:4-c:0
