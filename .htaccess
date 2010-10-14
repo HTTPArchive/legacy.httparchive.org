@@ -1,0 +1,21 @@
+DirectoryIndex index.php
+Options -Indexes
+
+
+# Compress/gzip html, XML, css and js and fonts and CSV
+AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/x-javascript application/javascript font/ttf application/octet-stream
+
+
+# Add a far future Expires header to .gif, .jpg, .css and .js.
+<FilesMatch "\.(png|gif|jpg|js|css|ico)$">
+  ExpiresActive On
+  ExpiresDefault "access plus 10 years"
+  Header set ETag ""
+</FilesMatch>
+
+
+<FilesMatch "harviewer.js">
+SetHandler application/x-httpd-php5
+Header set Content-Encoding "gzip"
+Header set Content-Type "application/javascript"
+</FilesMatch> 
