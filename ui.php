@@ -34,11 +34,11 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true) {
 	if ( $bNavlinks ) {
 		$navlinks = <<<OUTPUT
 <div style="float: right; font-size: 0.8em;">
-<a href="index.php">Home</a>
+<a href="index.php">home</a>
 &nbsp;|&nbsp;
-<a href="viewarchive.php">Archives</a>
+<a href="viewarchive.php">archives</a>
 &nbsp;|&nbsp;
-<a href="about.php">About</a>
+<a href="about.php">about</a>
 </div>
 OUTPUT;
 	}
