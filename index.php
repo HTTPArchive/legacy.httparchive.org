@@ -22,15 +22,14 @@ $gTitle = "HTTP Archive";
 ?>
 <!doctype html>
 <html>
-
 <head>
-<title><?php echo $gTitle ?></title>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<?php echo globalCss(); ?>
+	<link type="text/css" rel="stylesheet" href="style.css" />
+	
+	<title><?php echo $gTitle ?></title>
+	<meta charset="UTF-8">
 </head>
 
 <body>
-
 <?php echo uiHeader($gTitle); ?>
 
 <div style="width: 800px;"> <!-- contents -->

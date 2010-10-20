@@ -22,25 +22,13 @@ $gTitle = "About the HTTP Archive";
 <!doctype html>
 <html>
 <head>
-<title><?php echo $gTitle ?></title>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<?php echo globalCss(); ?>
-
-<style>
-#results { display: none; }
-.category { font-size: 1.2em; font-weight: bold; }
-.questions LI { margin-bottom: 2px; }
-.questions A, .questions A:visited { text-decoration: none; }
-.questions A:hover { text-decoration: underline; }
-.question { font-weight: bold; font-size: 1.1em; vertical-align: top; padding-top: 16px; }
-.answer {}
-.comment { font-style: italic; font-size: 0.9em; }
-H1 { margin-bottom: 0; }
-</style>
+	<link type="text/css" rel="stylesheet" href="style.css" />
+	
+	<title><?php echo $gTitle ?></title>
+	<meta charset="UTF-8">
 </head>
 
 <body>
-
 <?php echo uiHeader($gTitle); ?>
 
 <h1>Mission</h1>

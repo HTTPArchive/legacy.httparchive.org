@@ -36,19 +36,10 @@ $gTitle = "View Site";
 <!doctype html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>HTTP Archive - <?php echo $gTitle ?></title>
-<link rel="stylesheet" href="har.css" type="text/css">
-
-<?php echo globalCss() ?>
-<style>
-#stats { font-size: 0.8em; font-family: Arial; }
-#stats TD { border-left: 1px solid #CCC; padding: 4px; }
-#stats TH { border-left: 1px solid #CCC; padding: 4px; }
-.odd { background: #F0F0F0; }
-.avg { background: #FDE0B5; }
-.nobr { white-space: nowrap; }
-</style>
+	<link type="text/css" rel="stylesheet" href="style.css" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>HTTP Archive - <?php echo $gTitle ?></title>
+	<link rel="stylesheet" href="har.css" type="text/css">
 </head>
 
 <body>

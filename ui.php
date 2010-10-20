@@ -68,14 +68,14 @@ OUTPUT;
 
 function uiFooter() {
 	return <<<OUTPUT
-    <div style="margin: 30px 60px 30px 60px; border-top: 1px solid #CCC; padding-top: 8px; font-size: 0.8em; text-align: center; width: 680px;">
-      <a href="about.php">about</a> |
-      <a href="http://code.google.com/p/httparchive/issues/list">bugs</a> |
-      <a href="http://code.google.com/p/httparchive/source/checkout">code</a> |
-      <a href="http://groups.google.com/group/httparchive/topics">contact us</a>
-
-    </div>
-
+	<footer>
+		<ul>
+			<li><a href="about.php">about</a></li>
+			<li><a href="http://code.google.com/p/httparchive/issues/list">bugs</a></li>
+			<li><a href="http://code.google.com/p/httparchive/source/checkout">code</a></li>
+			<li><a href="http://groups.google.com/group/httparchive/topics">contact us</a></li>
+		</ul>
+	</footer>
 OUTPUT;
 }
 

@@ -25,8 +25,10 @@ $gTitle = $gArchive . " stats";
 <!doctype html>
 <html>
 <head>
-<title>HTTP Archive - <?php echo $gTitle ?></title>
-<?php echo globalCss() ?>
+	<link type="text/css" rel="stylesheet" href="style.css" />
+	
+	<title><?php echo $gTitle ?></title>
+	<meta charset="UTF-8">
 </head>
 
 <body>
@@ -50,7 +52,7 @@ OUTPUT;
 choose an archive:
 </td>
 <td style="padding-left: 4px;">
-<select onchange="document.location='viewarchive.php?a='+escape(this.options[this.selectedIndex].value)">
+<select onChange="document.location='viewarchive.php?a='+escape(this.options[this.selectedIndex].value)">
   <option>
 <?php
 $aNames = archiveNames();

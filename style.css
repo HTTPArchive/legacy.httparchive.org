@@ -1,0 +1,76 @@
+/* HTTP Archive styles */
+/* CSS reset thanks to Eric Meyer, http://meyerweb.com/eric/tools/css/reset/ */
+
+html, body, div, span, applet, object, iframe, 
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	font-size: 100%;
+	vertical-align: baseline;
+	background: transparent; }
+body {
+	line-height: 1; }
+ol, ul {
+	list-style: none; }
+blockquote, q {
+	quotes: none; }
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none; }
+:focus {
+	outline: 0; }
+ins {
+	text-decoration: none; }
+del {
+	text-decoration: line-through; }
+table {
+	border-collapse: collapse;
+	border-spacing: 0; }
+
+
+/* Main styles */
+BODY { font-family: Arial; }
+.header { border-bottom: 4px groove #17598F; font-size: 3em; color: #17598F; }
+.preheader { font-size: 0.8em; }
+.notification { color: #C00; }
+.tdnum { text-align: right; }
+#stats { font-size: 0.8em; font-family: Arial; }
+#stats TD { border-left: 1px solid #CCC; padding: 4px; }
+#stats TH { border-left: 1px solid #CCC; padding: 4px; }
+.odd { background: #F0F0F0; }
+.avg { background: #FDE0B5; }
+.nobr { white-space: nowrap; }
+#results { display: none; }
+.category { font-size: 1.2em; font-weight: bold; }
+.questions LI { margin-bottom: 2px; }
+.questions A, .questions A:visited { text-decoration: none; }
+.questions A:hover { text-decoration: underline; }
+.question { font-weight: bold; font-size: 1.1em; vertical-align: top; padding-top: 16px; }
+.answer {}
+.comment { font-style: italic; font-size: 0.9em; }
+H1 { margin-bottom: 0; }
+
+footer {
+	margin: 30px 60px 30px 60px;
+	border-top: 1px solid #CCC;
+	padding-top: 8px;
+	font-size: 0.8em;
+	width: 680px; }
+footer li {
+	display: block;
+	float: left;
+	border-right: 1px solid #ccc;
+	padding-right: 1em;
+	margin-right: 1em; }
+footer li + li + li + li {
+	border: none; }
