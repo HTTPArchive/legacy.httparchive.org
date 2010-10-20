@@ -21,10 +21,15 @@ require_once("utils.php");
 $gPageid = ( array_key_exists('pageid', $_GET) ? $_GET['pageid'] : "" );
 $gArchive = ( array_key_exists("a", $_GET) ? $_GET["a"] : "" );
 // TODO - better error handling starting here!
-$query = "select harfile from $gPagesTable where pageid=$gPageid;";
-$harfile = doSimpleQuery($query);
-$query = "select url from $gPagesTable where pageid=$gPageid;";
-$url = doSimpleQuery($query);
+$query = "select harfile, url, wptid, wptrun, onLoad, renderStart from $gPagesTable where pageid=$gPageid;";
+$result = doQuery($query);
+$row = mysql_fetch_assoc($result);
+$harfile = $row['harfile'];
+$url = $row['url'];
+$wptid = $row['wptid'];
+$wptrun = $row['wptrun'];
+$onLoad = $row['onLoad'];
+$renderStart = $row['renderStart'];
 
 $gTitle = "View Site";
 ?>
@@ -51,8 +56,72 @@ $gTitle = "View Site";
 
 <div style="margin-top: 16px;">
 <span style="font-size: 1.5em;"><?php echo siteLink($url) ?></span>
-<span style='margin-left: 20px; font-size: 0.8em;'><a href='viewarchive.php?a=<?php echo $gArchive ?>'>back to <?php echo $gArchive ?></a></div>
 </div>
+<div style='margin-top: 4px; font-size: 0.8em;'>
+<a href='viewarchive.php?a=<?php echo $gArchive ?>'><< back to <?php echo $gArchive ?></a>
+&nbsp;|&nbsp;
+<a href='<?php echo $harfile ?>'>download HAR file</a>
+</div>
+
+
+
+
+
+<div style="margin-top: 20px; margin-bottom: 10px; font-weight: bold; font-size: 1.5em; border-bottom: 0px solid;">
+Video, Filmstrip
+</div>
+
+<?php 
+// Build a table that has empty cells to be filled in later.
+$sTh = "";
+$sTd = "";
+$aMatches = array();
+for ( $i = 0; $i < ($onLoad + 100); $i += 100 ) {
+	$sTh .= "<th id=th$i>&nbsp;</th> ";
+	$sTd .= "<td id=td$i></td>\n";
+}
+?>
+
+<style type="text/css">
+#video { margin-left: auto; margin-right: auto; }
+#videoDiv { overflow-y: hidden; position: relative; overflow: auto; width: 100%; height: 100%; padding-bottom: 1em; }
+#videoContainer { table-layout: fixed; margin-left: auto; margin-right: auto; width: 99%; height: 190px; }
+#videoContainer td { margin: 2px; } 
+#videoContainer th{ font-weight: normal; } 
+div.content { text-align:center; background: black; color: white; font-family: arial,sans-serif }
+.thumb{ border: none; }
+.thumbChanged{border: 3px solid #FEB301;}
+</style>
+
+<div class=content>
+<div id="videoContainer">
+<div id="videoDiv">
+<table id="video">
+<thead>
+<tr><?php echo $sTh ?></tr>
+</thead>
+<tbody>
+<tr><?php echo $sTd ?></tr>
+</table>
+</div>
+</div>
+</div>
+
+<div>
+show screenshots every 
+<select id=interval>
+<option value=100> 0.1
+<option vlaue=500> 0.5
+</select>
+seconds
+</div>
+<div style='font-size: 0.9em;'>
+<a href="http://www.webpagetest.org/video/compare.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0">WPT filmstrip</a>
+&nbsp;|&nbsp;
+<a href="http://www.webpagetest.org/video/view.php?id=<?php echo $wptid ?>.<?php echo $wptrun ?>.0">watch video</a>
+</div>
+
+<script src="filmstrip.js?pageid=<?php echo $gPageid ?>"></script>
 
 <div style="margin-top: 20px; margin-bottom: 10px; font-weight: bold; font-size: 1.5em; border-bottom: 0px solid;">
 HTTP Waterfall
