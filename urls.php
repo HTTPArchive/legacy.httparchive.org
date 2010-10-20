@@ -66,7 +66,7 @@ if ( $gArchive ) {
 <ol style="font-size: 0.9em;">
 <?php
 if ( $gArchive ) {
-	$sUrls = file_get_contents($gArchive . ".txt");
+	$sUrls = file_get_contents("./lists/$gArchive.txt");
 	$aUrls = explode("\n", $sUrls);
 	for ( $i = 0; $i < count($aUrls); $i++ ) {
 		$url = $aUrls[$i];
