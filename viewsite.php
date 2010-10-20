@@ -394,15 +394,30 @@ function fixUrls($line) {
 var curDetails;
 
 function toggleDetails(elem) {
-	if ( curDetails ) {
+	if ( "undefined" != typeof(curDetails) ) {
 		curDetails.style.display = "none";
 	}
 
 	var div = elem.parentNode.getElementsByTagName('DIV')[0];
-	if ( div ) {
+	if ( "undefined" != typeof(div) ) {
+		var aPosition = findPos(elem);
+		div.style.top = aPosition[1] + "px";
 		div.style.display = "block";
 		curDetails = div;
 	}
+}
+
+
+// from http://www.quirksmode.org/js/findpos.html
+function findPos(obj) {
+	var curleft = curtop = 0;
+	if (obj.offsetParent) {
+		do {
+			curleft += obj.offsetLeft;
+			curtop += obj.offsetTop;
+		} while (obj = obj.offsetParent);
+	}
+	return [curleft,curtop];
 }
 </script>
 
