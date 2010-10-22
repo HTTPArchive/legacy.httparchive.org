@@ -1,6 +1,7 @@
 /* HTTP Archive styles */
 /* CSS reset thanks to Eric Meyer, http://meyerweb.com/eric/tools/css/reset/ */
 
+/*
 html, body, div, span, applet, object, iframe, 
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -36,7 +37,7 @@ del {
 table {
 	border-collapse: collapse;
 	border-spacing: 0; }
-
+*/
 
 /* Main styles */
 BODY { font-family: Arial; }
