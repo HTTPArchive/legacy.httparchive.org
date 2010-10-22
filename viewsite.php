@@ -468,9 +468,4 @@ function tdStat($row, $field, $suffix = "", $class = "tdnum") {
 	
 	return ( $suffix ? "<td$class>$value&nbsp;$suffix</td>" : "<td$class>$value</td>" );
 }
-
-function formatSize($num) {
-	return round($num / 1000);
-}
-
 ?>
