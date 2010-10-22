@@ -27,6 +27,22 @@ $gTitle = "HTTP Archive";
 	
 	<title><?php echo $gTitle ?></title>
 	<meta charset="UTF-8">
+
+<style>
+#stats { font-size: 0.8em; font-family: Arial; margin-top: 8px; }
+#stats TD { border-left: 1px solid #CCC; padding: 4px; }
+#stats TH { border-left: 1px solid #CCC; padding: 4px; }
+.odd { background: #F0F0F0; }
+.iwps { border: 1px solid #CCC; width: 23px; height: 16px; }
+</style>
+<style>
+.iquestion { font-weight: bold; }
+.iquestion A { text-decoration: none; }
+.ianswer { font-size: 0.9em; position: absolute; border: 1px solid #CCC; background: #FFFFB9; padding: 6px; border-radius: 8px; -webkit-border-radius: 8px; -moz-border-radius: 8px; opacity: 0; filter: alpha(opacity = 0); }
+#interestingnav { margin-left: 20px; font-size: 0.9em; font-weight: bold; }
+.ianswer TD { padding: 0 4px 0 4px; }
+.itagline { font-weight: bold; margin-bottom: 4px; }
+</style>
 </head>
 
 <body>
@@ -46,33 +62,35 @@ and
 <a style="margin-left: 4px; font-size: 0.8em;" href="about.php">read more</a>
 </p>
 
-<p>
+<table border=0 cellpadding=0 cellspacing=0>
+<tr>
+<td valign=top>
+<p style="margin: 0;">
 <strong>Choose an archive:</strong>
-<select onchange="document.location='viewarchive.php?a='+escape(this.options[this.selectedIndex].value)">
-  <option>
+</p>
+<ul style="margin-top: 0;">
 <?php
 $aNames = archiveNames();
 for ( $i = 0; $i < count($aNames); $i++ ) {
 	$name = $aNames[$i];
-	echo "  <option value='$name'" . ( $name == $gArchive ? " selected" : "" ) . ">$name\n";
+	echo "  <li> <a href='viewarchive.php?a=" . urlencode($name) . "'>$name</a>\n";
 }
 ?>
-</select>
-</p>
-
+</ul>
+</td>
+<td valign=top style="padding-left: 100px;">
+<div id=interesting>
+<!-- interesting.js will insert interesting stats here -->
+</div>
+</td>
+</tr>
+</table>
 </div> <!-- contents -->
 
 <div style="margin-top: 30px;">
 <span style="font-weight: bold; font-size: 1.2em;">Archive Averages</span>
 </div>
 
-<style>
-#stats { font-size: 0.8em; font-family: Arial; margin-top: 8px; }
-#stats TD { border-left: 1px solid #CCC; padding: 4px; }
-#stats TH { border-left: 1px solid #CCC; padding: 4px; }
-.odd { background: #F0F0F0; }
-.iwps { border: 1px solid #CCC; width: 23px; height: 16px; }
-</style>
 
 <table id=stats class=sortable border=0 cellpadding=0 cellspacing=0 style="border: 1px solid #CCC; border-left: 0;">
 	<tr>
@@ -142,6 +160,11 @@ var script = document.createElement('script');
 script.src = "sorttable-async.js";
 script.text = "sorttable.init()";  // this is optional - without it, "sorttable.init()" is called during onload
 document.getElementsByTagName('head')[0].appendChild(script);
+
+var script2 = document.createElement('script');
+script2.src = "interesting.js";
+script2.onload = function() { showSnippet('interesting'); };
+document.getElementsByTagName('head')[0].appendChild(script2);
 </script>
 
 <?php echo uiFooter() ?>
