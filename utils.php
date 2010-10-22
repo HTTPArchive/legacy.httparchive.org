@@ -199,6 +199,11 @@ function onBlacklist($url) {
 	return $bBlacklisted;
 }
 
+// Convert bytes to kB
+function formatSize($num) {
+	return round($num / 1000);
+}
+
 
 // Logic to shorten a URL while retaining readability.
 function shortenUrl($url) {
