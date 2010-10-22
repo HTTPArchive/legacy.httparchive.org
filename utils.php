@@ -131,6 +131,7 @@ function archiveNames() {
 			array_push($aNames, $archive);
 		}
 	}
+	mysql_free_result($result);
 
 	return $aNames;
 }
@@ -201,7 +202,20 @@ function onBlacklist($url) {
 
 // Convert bytes to kB
 function formatSize($num) {
-	return round($num / 1000);
+	return round($num / 1024);
+}
+
+
+// add commas to a big number
+function commaize($num) {
+	$sNum = "$num";
+	$len = strlen($sNum);
+
+	if ( $len <= 3 ) {
+		return $sNum;
+	}
+
+	return commaize(substr($sNum, 0, $len-3)) . "," . substr($sNum, $len-3);
 }
 
 
