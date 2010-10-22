@@ -25,12 +25,39 @@ rotating divs of interesting stats.
 
 
 /*
-most popular image format
 most popular script & stylesheet
 who's doing JSON?
-404s, 301s
 correlation of time to X
 */
+
+
+function redirects() {
+	global $gPagesTable, $gRequestsTable;
+	$sHtml = "<div class=itagline>pages containing redirects:</div><table border=0 cellpadding=0 cellspacing=0>";
+	foreach (archiveNames() as $archive) {
+		$label = latestLabel($archive);
+		$archivecond = "archive='$archive' and label='$label'";
+		$num = doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and ($archivecond) and status >= 300 and status < 400;");
+		$total = doSimpleQuery("select count(*) from $gPagesTable where $archivecond;");
+		$sHtml .= "<tr><td align=right>$archive:</td> <td align=right>" . round(100*$num/$total) . "%</td></tr>";
+	}
+	return $sHtml . "</table>";
+}
+
+
+function requestErrors() {
+	global $gPagesTable, $gRequestsTable;
+	$sHtml = "<div class=itagline>pages containing errors (4xx, 5xx):</div><table border=0 cellpadding=0 cellspacing=0>";
+	foreach (archiveNames() as $archive) {
+		$label = latestLabel($archive);
+		$archivecond = "archive='$archive' and label='$label'";
+		$num = doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and ($archivecond) and status >= 400;");
+		$total = doSimpleQuery("select count(*) from $gPagesTable where $archivecond;");
+		$sHtml .= "<tr><td align=right>$archive:</td> <td align=right>" . round(100*$num/$total) . "%</td></tr>";
+	}
+	return $sHtml . "</table>";
+}
+
 
 function imageFormats() {
 	global $gPagesTable, $gRequestsTable;
@@ -83,7 +110,7 @@ function imageFormats() {
 		mysql_free_result($result);
 	}
 
-	$sHtml = "<div class=itagline>most popular image formats:</div><table border=0 cellpadding=0 cellspacing=0><tr><th>&nbsp;</th><th>% requests</th><th style='padding-left: 16px;'># requests</th><th style='padding-left: 16px;'><nobr>avg size</nobr></th></tr>";
+	$sHtml = "<div class=itagline>most popular image formats:</div><table border=0 cellpadding=0 cellspacing=0><tr><th></th><th style='font-weight: normal; text-decoration: underline;'>% requests</th><th style='font-weight: normal; text-decoration: underline; padding-left: 16px;'># requests</th><th style='font-weight: normal; text-decoration: underline; padding-left: 16px;'><nobr>avg size</nobr></th></tr>";
 	foreach(array_keys($hData) as $format) {
 		$numrequests = $hData[$format][0];
 		$totalbytes = $hData[$format][1];
@@ -99,7 +126,7 @@ function imageFormats() {
 
 function percentFlash() {
 	global $gPagesTable, $gRequestsTable;
-	$sHtml = "<div class=itagline>sites using Flash:</div><table border=0 cellpadding=0 cellspacing=0>";
+	$sHtml = "<div class=itagline>pages using Flash:</div><table border=0 cellpadding=0 cellspacing=0>";
 	foreach (archiveNames() as $archive) {
 		$label = latestLabel($archive);
 		$archivecond = "archive='$archive' and label='$label'";
@@ -111,18 +138,34 @@ function percentFlash() {
 }
 
 
+function popularScripts() {
+	global $gPagesTable, $gRequestsTable;
+	$sHtml = "<div class=itagline>most popular scripts:</div><table border=0 cellpadding=0 cellspacing=0>";
+
+	// We only want to look at requests from the most recent run of each archive.
+	$archivecond = "";
+	foreach (archiveNames() as $archive) {
+		$label = latestLabel($archive);
+		$archivecond .= ( $archivecond ? " or " : "" ) . "archive='$archive' and label='$label'";
+	}
+
+	$result = doQuery("select $gRequestsTable.url, count(*) as num from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and ($archivecond) and resp_content_type like '%script%' group by $gRequestsTable.url order by num desc limit 5;");
+	while ($row = mysql_fetch_assoc($result)) {
+		$url = $row['url'];
+		$sHtml .= "<tr><td>$url</td></tr>";
+	}
+	mysql_free_result($result);
+	return $sHtml . "</table>";
+}
+
+
 function percentGA() {
 	global $gPagesTable, $gRequestsTable;
-	$sHtml = "<div class=itagline>sites using Google Analytics:</div><table border=0 cellpadding=0 cellspacing=0>";
+	$sHtml = "<div class=itagline>pages using Google Analytics:</div><table border=0 cellpadding=0 cellspacing=0>";
 	foreach (archiveNames() as $archive) {
 		$label = latestLabel($archive);
 		$archivecond = "archive='$archive' and label='$label'";
-		$result = doQuery("select $gRequestsTable.pageid from $gPagesTable, $gRequestsTable where $archivecond and $gRequestsTable.pageid=$gPagesTable.pageid and ($gRequestsTable.url like '%/ga.js%' or $gRequestsTable.url like '%/urchin.js%') group by pageid;");
-		$num = 0;
-		while ($row = mysql_fetch_assoc($result)) {
-			$num++;
-		}
-		mysql_free_result($result);
+		$num = doSimpleQuery("select count(distinct $gRequestsTable.pageid) from $gPagesTable, $gRequestsTable where $archivecond and $gRequestsTable.pageid=$gPagesTable.pageid and ($gRequestsTable.url like '%/ga.js%' or $gRequestsTable.url like '%/urchin.js%');");
 		$total = doSimpleQuery("select count(*) from $gPagesTable where $archivecond;");
 		$sHtml .= "<tr><td align=right>$archive:</td> <td align=right>" . round(100*$num/$total) . "%</td></tr>";
 	}
@@ -132,7 +175,7 @@ function percentGA() {
 
 function percentNoJS() {
 	global $gPagesTable, $gRequestsTable;
-	$sHtml = "<div class=itagline>sites with no scripts:</div><table border=0 cellpadding=0 cellspacing=0>";
+	$sHtml = "<div class=itagline>pages with no scripts:</div><table border=0 cellpadding=0 cellspacing=0>";
 	foreach (archiveNames() as $archive) {
 		$label = latestLabel($archive);
 		$archivecond = "archive='$archive' and label='$label'";
@@ -146,7 +189,7 @@ function percentNoJS() {
 
 function percentNoCSS() {
 	global $gPagesTable, $gRequestsTable;
-	$sHtml = "<div class=itagline>sites with no stylesheets:</div><table border=0 cellpadding=0 cellspacing=0>";
+	$sHtml = "<div class=itagline>pages with no stylesheets:</div><table border=0 cellpadding=0 cellspacing=0>";
 	foreach (archiveNames() as $archive) {
 		$label = latestLabel($archive);
 		$archivecond = "archive='$archive' and label='$label'";
@@ -160,7 +203,7 @@ function percentNoCSS() {
 
 function mostJS() {
 	global $gPagesTable, $gRequestsTable;
-	$sHtml = "<div class=itagline>sites with the most JavaScript:</div><table border=0 cellpadding=0 cellspacing=0>";
+	$sHtml = "<div class=itagline>pages with the most JavaScript:</div><table border=0 cellpadding=0 cellspacing=0>";
 	foreach (archiveNames() as $archive) {
 		$label = latestLabel($archive);
 		$archivecond = "archive='$archive' and label='$label'";
@@ -179,7 +222,7 @@ function mostJS() {
 
 function mostCSS() {
 	global $gPagesTable, $gRequestsTable;
-	$sHtml = "<div class=itagline>sites with the most CSS:</div><table border=0 cellpadding=0 cellspacing=0>";
+	$sHtml = "<div class=itagline>pages with the most CSS:</div><table border=0 cellpadding=0 cellspacing=0>";
 	foreach (archiveNames() as $archive) {
 		$label = latestLabel($archive);
 		$archivecond = "archive='$archive' and label='$label'";
@@ -198,7 +241,7 @@ function mostCSS() {
 
 function mostFlash() {
 	global $gPagesTable, $gRequestsTable;
-	$sHtml = "<div class=itagline>sites with the most Flash:</div><table border=0 cellpadding=0 cellspacing=0>";
+	$sHtml = "<div class=itagline>pages with the most Flash files:</div><table border=0 cellpadding=0 cellspacing=0>";
 	foreach (archiveNames() as $archive) {
 		$label = latestLabel($archive);
 		$archivecond = "archive='$archive' and label='$label'";
@@ -225,28 +268,33 @@ gaSnippets.push("<?php echo mostCSS() ?>");
 gaSnippets.push("<?php echo mostFlash() ?>");
 gaSnippets.push("<?php echo percentGA() ?>");
 gaSnippets.push("<?php echo imageFormats() ?>");
+gaSnippets.push("<?php echo requestErrors() ?>");
+gaSnippets.push("<?php echo redirects() ?>");
+gaSnippets.push("<?php echo popularScripts() ?>");
 
 // The DOM element that is created from each snippet.
 var gaSnippetElems = new Array();
 var curSnippet;
 
-function showSnippet(parentId, iSnippet) {
+function showSnippet(parentId, bPrev) {
 	var parent = document.getElementById(parentId);
 	if ( ! parent ) {
 		return;
 	}
 
+	insertNav(parentId);
+
+	var iSnippet = Math.floor(gaSnippets.length * Math.random());
 	if ( curSnippet ) {
+		iSnippet = parseInt(curSnippet.id)
 		fade(curSnippet, true);
 	}
 
-	if ( "undefined" === typeof(iSnippet) ) {
-		iSnippet = Math.floor(gaSnippets.length * Math.random());
-	}
-	else if ( iSnippet >= gaSnippets.length ) {
+	iSnippet = ( bPrev ? iSnippet-1 : iSnippet+1 );
+	if ( iSnippet >= gaSnippets.length ) {
 		iSnippet = 0;
 	}
-	else if ( 0 > iSnippet ) {
+	else if ( iSnippet < 0 ) {
 		iSnippet = gaSnippets.length - 1;
 	}
 
@@ -256,12 +304,7 @@ function showSnippet(parentId, iSnippet) {
 		newSnippet.id = iSnippet;
 		gaSnippetElems[iSnippet] = newSnippet;
 		newSnippet.className = "ianswer";
-		newSnippet.innerHTML = gaSnippets[iSnippet] + 
-			"<div style='margin-top: 4px;'>" +
-			"<a href='javascript:showSnippet(\"" + parentId + "\"," + (iSnippet-1) + ")'>&lt;&lt; prev</a>" +
-			"<span style='margin: 0 16px 0 16px;'>more stats</span>" +
-			"<a href='javascript:showSnippet(\"" + parentId + "\"," + (iSnippet+1) + ")'>next &gt;&gt;</a>" +
-			"</div>";
+		newSnippet.innerHTML = gaSnippets[iSnippet];
 		var aPosition = findPos(parent);
 		newSnippet.style.left = aPosition[0] + "px";
 		newSnippet.style.top = aPosition[1] + "px";
@@ -273,6 +316,22 @@ function showSnippet(parentId, iSnippet) {
 
 	curSnippet = newSnippet;
 	fade(newSnippet);
+}
+
+
+function insertNav(parentId) {
+	if ( document.getElementById('interestingnav') ) {
+		return;
+	}
+
+	var elem = document.getElementById(parentId);
+	var nav = document.createElement('div');
+	nav.id = "interestingnav";
+	nav.innerHTML = 
+		"<a style='outline: 0;' href='javascript:showSnippet(\"" + parentId + "\", 1)'><img src='images/arrow-left-16x16.gif' width=16 height=16 border=0></a>" +
+		"<a href='interesting.php' style='margin: 0 8px; vertical-align: top;'>interesting stats</a>" +
+		"<a style='outline: 0;' href='javascript:showSnippet(\"" + parentId + "\")'><img src='images/arrow-right-16x16.gif' width=16 height=16 border=0></a>";
+	elem.parentNode.insertBefore(nav, elem);
 }
 
 
