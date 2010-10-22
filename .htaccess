@@ -7,15 +7,17 @@ AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application
 
 
 # Add a far future Expires header to .gif, .jpg, .css and .js.
+# TODO - Need to add a versioning system to resource URLs to make them cacheable.
 <FilesMatch "\.(png|gif|jpg|js|css|ico)$">
-  ExpiresActive On
-  ExpiresDefault "access plus 10 years"
-  Header set ETag ""
+ExpiresActive On
+ExpiresDefault "access plus 1 day"
+Header set ETag ""
 </FilesMatch>
 
 
-<FilesMatch "harviewer.js">
+<FilesMatch "(filmstrip|harviewer|interesting).js">
 SetHandler application/x-httpd-php5
 Header set Content-Encoding "gzip"
 Header set Content-Type "application/javascript"
 </FilesMatch> 
+
