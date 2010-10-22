@@ -48,16 +48,18 @@ and
 
 <p>
 <strong>Choose an archive:</strong>
-</p>
-<ul>
+<select onchange="document.location='viewarchive.php?a='+escape(this.options[this.selectedIndex].value)">
+  <option>
 <?php
 $aNames = archiveNames();
 for ( $i = 0; $i < count($aNames); $i++ ) {
 	$name = $aNames[$i];
-	echo "  <li> <a href='viewarchive.php?a=" . urlencode($name) . "'>$name</a>\n";
+	echo "  <option value='$name'" . ( $name == $gArchive ? " selected" : "" ) . ">$name\n";
 }
 ?>
-</ul>
+</select>
+</p>
+
 </div> <!-- contents -->
 
 <div style="margin-top: 30px;">
@@ -131,10 +133,6 @@ function tdStat($row, $field, $suffix = "", $class = "tdnum") {
 	}
 
 	return ( $suffix ? "<td class=$class>$value&nbsp;$suffix</td>" : "<td class=$class>$value</td>" );
-}
-
-function formatSize($num) {
-	return round($num / 1000);
 }
 ?>
 </table>
