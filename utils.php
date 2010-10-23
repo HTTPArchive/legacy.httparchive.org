@@ -72,6 +72,27 @@ $ghRespHeaders = array(
 					   "x-powered-by" => "resp_x_powered_by"
 					   );
 
+// map a human-readable title to each DB column
+// (right now just $gPagesTable)
+$ghColumnTitles = array (
+						 "onLoad" => "load time",
+						 "renderStart" => "start render",
+						 "PageSpeed" => "Page Speed score",
+						 "reqTotal" => "total reqs",
+						 "bytesTotal" => "total xfer size",
+						 "reqHtml" => "html reqs",
+						 "bytesHtml" => "html xfer size",
+						 "reqJS" => "JS reqs",
+						 "bytesJS" => "JS xfer size",
+						 "reqCSS" => "CSS reqs",
+						 "bytesCSS" => "CSS xfer size",
+						 "reqImg" => "image reqs",
+						 "bytesImg" => "image xfer size",
+						 "reqFlash" => "Flash reqs",
+						 "bytesFlash" => "Flash xfer size",
+						 "numDomains" => "num domains"
+						 );
+;
 
 // Don't link to some websites.
 $ghBlackList = array(
