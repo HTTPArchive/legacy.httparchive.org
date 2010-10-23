@@ -51,12 +51,14 @@ if ( preg_match($pattern, $wptid, $aMatches) ) {
 $lastFrameTime = 0;
 for ( $i = 0; $i < $onLoad; $i += 100 ) {
 	$sTh .= "<th id=th$i>" . ($i/1000) . "s</th> ";
+	$border = "";
 	if ( array_key_exists($i, $aTimes) ) {
 		$lastFrameTime = $i;
+		$border = "style='border: 3px solid #FEB301;'";
 	}
 	$f = "0000" . ($lastFrameTime/100);
 	$f = substr($f, strlen($f)-4);
-	$sTd .= "<td id=td$i><a target='_blank' href='$url$f.jpg'><img class=thumb width=200 height=140 src='http://www.webpagetest.org/thumbnail.php?test=$wptid&width=200&file=video_$wptrun/frame_$f.jpg'></a></td>";
+	$sTd .= "<td id=td$i><a target='_blank' href='$url$f.jpg'><img class=thumb $border width=200 height=140 src='http://www.webpagetest.org/thumbnail.php?test=$wptid&width=200&file=video_$wptrun/frame_$f.jpg'></a></td>";
 }
 ?>
 
