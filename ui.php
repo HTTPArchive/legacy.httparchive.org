@@ -33,34 +33,23 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true) {
 	$navlinks = "";
 	if ( $bNavlinks ) {
 		$navlinks = <<<OUTPUT
-<div style="float: right; font-size: 0.8em;">
-<a href="index.php">home</a>
-&nbsp;|&nbsp;
-<a href="viewarchive.php">archives</a>
-&nbsp;|&nbsp;
-<a href="about.php">about</a>
-</div>
+<nav>
+	<ul>
+		<li><a href="index.php">home</a></li>
+		<li><a href="viewarchive.php">archives</a></li>
+		<li><a href="about.php">about</a></li>
+	</ul>
+</nav>
+
 OUTPUT;
 	}
 	
 	return <<<OUTPUT
-<table cellpadding=0 cellspacing=0 border=0 style="width: 800px;">
-  <tr>
-    <td valign=top style="padding-right: 10px; text-align:center;">
-      <a href="index.php"><img border=0 src='images/httparchive-49x47.png' width=49 height=47 style="margin-top: 4px;"></a>
-<div style="line-height: 90%; margin-top: 2px; font-size: 11pt;">
-<a href="index.php" style="text-decoration: none; color: #17598F; font-weight: bold;">HTTP
-<br>
-Archive
-</a>
-</div>
-    </td>
-    <td valign=top style="width: 100%">
-	  $navlinks
-      <div class=header><nobr><strong>$title</strong></nobr></div>
-    </td>
-  </tr>
-</table>
+    <header>
+		<a href="index.php" id=logo>HTTP Archive</a>
+		<h1>$title</h1>
+		$navlinks
+	</header>
 
 OUTPUT;
 }

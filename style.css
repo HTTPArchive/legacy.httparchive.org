@@ -61,6 +61,38 @@ BODY { font-family: Arial; }
 .comment { font-style: italic; font-size: 0.9em; }
 H1 { margin-bottom: 0; }
 
+body {
+	with: 800px; }
+
+header {
+	position: relative;
+	clear: both; }
+#logo {
+	color: #17598F;
+	font-weight: bold;
+	float: left;
+	display: block;
+	width: 75px;
+	text-align: center;
+	padding-top: 50px;
+	background: url(images/httparchive-49x47.png) no-repeat center top;
+	text-decoration: none; }
+header h1 {
+	border-bottom: 4px groove #17598F;
+	font-size: 3em;
+	color: #17598F;
+	margin-left: 100px; }
+nav {
+	font-size: .8em;
+	position: absolute;
+	top: 0;
+	right: 0; }
+nav li {
+	list-style: none;
+	display: block;
+	float: left;
+	margin-right: 1em; }
+
 footer {
 	margin: 30px 60px 30px 60px;
 	border-top: 1px solid #CCC;
