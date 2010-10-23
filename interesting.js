@@ -24,11 +24,56 @@ rotating divs of interesting stats.
 */
 
 
-/*
-most popular script & stylesheet
-who's doing JSON?
-correlation of time to X
-*/
+function onloadCorrelation() {
+	return findCorrelation("onLoad", "load");
+}
+
+
+function renderCorrelation() {
+	return findCorrelation("renderStart", "render");
+}
+
+
+function findCorrelation($var1, $tname) {
+	global $gPagesTable, $gRequestsTable, $ghColumnTitles;
+	$sHtml = "<div class=itagline>highest correlation to <em>$tname</em> time:</div><table border=0 cellpadding=0 cellspacing=0>";
+	$aVars = array("PageSpeed", "reqTotal", "reqHtml", "reqJS", "reqCSS", "reqImg", "reqFlash", "reqJson", "reqOther", "bytesTotal", "bytesHtml", "bytesJS", "bytesCSS", "bytesImg", "bytesFlash", "bytesJson", "bytesOther", "numDomains");
+	$hCC = array();
+	foreach ($aVars as $var2) {
+		// from http://www.freeopenbook.com/mysqlcookbook/mysqlckbk-chp-13-sect-6.html
+		$cmd = "SELECT @n := COUNT($var1) AS N, @sumX := SUM($var2) AS 'X sum', @sumXX := SUM($var2*$var2) 'X sum of squares', @sumY := SUM($var1) AS 'Y sum', @sumYY := SUM($var1*$var1) 'Y sum of square', @sumXY := SUM($var2*$var1) AS 'X*Y sum' FROM $gPagesTable where label = 'Oct 2010' and $var2 is not null and $var2 > 0;";
+		doSimpleCommand($cmd);
+		$query = "SELECT (@n*@sumXY - @sumX*@sumY) / SQRT((@n*@sumXX - @sumX*@sumX) * (@n*@sumYY - @sumY*@sumY)) AS correlation;";
+		$cc = doSimpleQuery($query);
+
+		// I want to sort the results by correlation coefficient ($cc),
+		// so I use $cc as the hash key. But, $cc is not unique 
+		// (it's possible for two variables to have the same $cc).
+		// So the value for each hash entry is an array of variable name(s).
+		if ( ! array_key_exists($cc, $hCC) ) {
+			$hCC[$cc] = array();
+		}
+		array_push($hCC[$cc], $var2);
+	}
+
+	$aCC = array_keys($hCC);
+	rsort($aCC, SORT_NUMERIC);
+	$iRows = 0;
+	foreach($aCC as $cc) {
+		$prettyCC = round($cc*100)/100;
+		foreach($hCC[$cc] as $var2) {
+			$sHtml .= "<tr><td align=right>" . $ghColumnTitles[$var2] . ":</td> <td align=right>$prettyCC</td></tr>";
+			$iRows++;
+			if ( 5 <= $iRows ) {
+				break;
+			}
+		}
+		if ( 5 <= $iRows ) {
+			break;
+		}
+	}
+	return $sHtml . "</table>";
+}
 
 
 function redirects() {
@@ -38,6 +83,20 @@ function redirects() {
 		$label = latestLabel($archive);
 		$archivecond = "archive='$archive' and label='$label'";
 		$num = doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and ($archivecond) and status >= 300 and status < 400;");
+		$total = doSimpleQuery("select count(*) from $gPagesTable where $archivecond;");
+		$sHtml .= "<tr><td align=right>$archive:</td> <td align=right>" . round(100*$num/$total) . "%</td></tr>";
+	}
+	return $sHtml . "</table>";
+}
+
+
+function percentJson() {
+	global $gPagesTable, $gRequestsTable;
+	$sHtml = "<div class=itagline>pages using JSON:</div><table border=0 cellpadding=0 cellspacing=0>";
+	foreach (archiveNames() as $archive) {
+		$label = latestLabel($archive);
+		$archivecond = "archive='$archive' and label='$label'";
+		$num = doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and ($archivecond) and resp_content_type like '%json%';");
 		$total = doSimpleQuery("select count(*) from $gPagesTable where $archivecond;");
 		$sHtml .= "<tr><td align=right>$archive:</td> <td align=right>" . round(100*$num/$total) . "%</td></tr>";
 	}
@@ -110,13 +169,12 @@ function imageFormats() {
 		mysql_free_result($result);
 	}
 
-	$sHtml = "<div class=itagline>most popular image formats:</div><table border=0 cellpadding=0 cellspacing=0><tr><th></th><th style='font-weight: normal; text-decoration: underline;'>% requests</th><th style='font-weight: normal; text-decoration: underline; padding-left: 16px;'># requests</th><th style='font-weight: normal; text-decoration: underline; padding-left: 16px;'><nobr>avg size</nobr></th></tr>";
+	$sHtml = "<div class=itagline>most popular image formats:</div><table border=0 cellpadding=0 cellspacing=0><tr><th></th><th style='font-weight: normal; text-decoration: underline;'>% requests</th><th style='font-weight: normal; text-decoration: underline; padding-left: 16px;'><nobr>avg size</nobr></th></tr>";
 	foreach(array_keys($hData) as $format) {
 		$numrequests = $hData[$format][0];
 		$totalbytes = $hData[$format][1];
 		$sHtml .= "<tr><td style='padding-right: 16px;'>$format</td>" .
 			"<td align=right>" . round(100*$numrequests/$totalrequests) . "%</td>" .
-			"<td align=right>" . commaize($numrequests) . "</td>" .
 			"<td align=right>" . formatSize(round($totalbytes/$numrequests)) . "kB</td>" .
 			"</tr>";
 	}
@@ -166,6 +224,34 @@ function percentGA() {
 		$label = latestLabel($archive);
 		$archivecond = "archive='$archive' and label='$label'";
 		$num = doSimpleQuery("select count(distinct $gRequestsTable.pageid) from $gPagesTable, $gRequestsTable where $archivecond and $gRequestsTable.pageid=$gPagesTable.pageid and ($gRequestsTable.url like '%/ga.js%' or $gRequestsTable.url like '%/urchin.js%');");
+		$total = doSimpleQuery("select count(*) from $gPagesTable where $archivecond;");
+		$sHtml .= "<tr><td align=right>$archive:</td> <td align=right>" . round(100*$num/$total) . "%</td></tr>";
+	}
+	return $sHtml . "</table>";
+}
+
+
+function percentJQuery() {
+	global $gPagesTable, $gRequestsTable;
+	$sHtml = "<div class=itagline>pages using jQuery:</div><table border=0 cellpadding=0 cellspacing=0>";
+	foreach (archiveNames() as $archive) {
+		$label = latestLabel($archive);
+		$archivecond = "archive='$archive' and label='$label'";
+		$num = doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gPagesTable, $gRequestsTable where $archivecond and $gRequestsTable.pageid=$gPagesTable.pageid and resp_content_type like '%script%' and $gRequestsTable.url like '%jquery%';");
+		$total = doSimpleQuery("select count(*) from $gPagesTable where $archivecond;");
+		$sHtml .= "<tr><td align=right>$archive:</td> <td align=right>" . round(100*$num/$total) . "%</td></tr>";
+	}
+	return $sHtml . "</table>";
+}
+
+
+function percentGoogleLibrariesAPI() {
+	global $gPagesTable, $gRequestsTable;
+	$sHtml = "<div class=itagline>pages using Google Libraries API:</div><table border=0 cellpadding=0 cellspacing=0>";
+	foreach (archiveNames() as $archive) {
+		$label = latestLabel($archive);
+		$archivecond = "archive='$archive' and label='$label'";
+		$num = doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gPagesTable, $gRequestsTable where $archivecond and $gRequestsTable.pageid=$gPagesTable.pageid and $gRequestsTable.url like '%googleapis.com%';");
 		$total = doSimpleQuery("select count(*) from $gPagesTable where $archivecond;");
 		$sHtml .= "<tr><td align=right>$archive:</td> <td align=right>" . round(100*$num/$total) . "%</td></tr>";
 	}
@@ -257,20 +343,44 @@ function mostFlash() {
 	return $sHtml . "</table>";
 }
 
+$gCacheFile = "interesting.js.cache";
+$snippets = "";
+if ( file_exists($gCacheFile) ) {
+	$snippets = file_get_contents($gCacheFile);
+}
+
+if ( ! $snippets ) {
+	$aSnippetFunctions = array(
+							   "percentFlash",
+							   "percentNoJS",
+							   "percentNoCSS",
+							   "percentGA",
+							   "popularScripts",
+							   "mostJS",
+							   "mostCSS",
+							   "mostFlash",
+							   "imageFormats",
+							   "percentJQuery",
+							   "percentGoogleLibrariesAPI",
+							   "requestErrors",
+							   "onloadCorrelation",
+							   "renderCorrelation",
+							   "redirects"
+							   );
+	$snippets = "";
+	foreach($aSnippetFunctions as $func) {
+		$snippets .= 'gaSnippets.push("' . call_user_func($func) . '");' . "\n";
+	}
+	// This won't work for web site users because of permissions.
+	// Run "php interesting.js" from the commandline to generate the cache file.
+	// I'll leave this line generating errors as a reminder to create the cache file.
+	file_put_contents("./interesting.js.cache", $snippets);
+}
 ?>
 // HTML strings for each snippet
 var gaSnippets = new Array();
-gaSnippets.push("<?php echo percentFlash() ?>");
-gaSnippets.push("<?php echo percentNoJS() ?>");
-gaSnippets.push("<?php echo percentNoCSS() ?>");
-gaSnippets.push("<?php echo mostJS() ?>");
-gaSnippets.push("<?php echo mostCSS() ?>");
-gaSnippets.push("<?php echo mostFlash() ?>");
-gaSnippets.push("<?php echo percentGA() ?>");
-gaSnippets.push("<?php echo imageFormats() ?>");
-gaSnippets.push("<?php echo requestErrors() ?>");
-gaSnippets.push("<?php echo redirects() ?>");
-gaSnippets.push("<?php echo popularScripts() ?>");
+<?php echo $snippets ?>
+
 
 // The DOM element that is created from each snippet.
 var gaSnippetElems = new Array();
