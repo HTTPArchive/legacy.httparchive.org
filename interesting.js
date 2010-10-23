@@ -351,20 +351,20 @@ if ( file_exists($gCacheFile) ) {
 
 if ( ! $snippets ) {
 	$aSnippetFunctions = array(
-							   "percentFlash",
-							   "percentNoJS",
-							   "percentNoCSS",
-							   "percentGA",
-							   "popularScripts",
 							   "mostJS",
 							   "mostCSS",
 							   "mostFlash",
+							   "percentFlash",
 							   "imageFormats",
+							   "popularScripts",
+							   "percentGA",
 							   "percentJQuery",
 							   "percentGoogleLibrariesAPI",
-							   "requestErrors",
 							   "onloadCorrelation",
 							   "renderCorrelation",
+							   "requestErrors",
+							   "percentNoJS",
+							   "percentNoCSS",
 							   "redirects"
 							   );
 	$snippets = "";
