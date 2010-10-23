@@ -37,8 +37,11 @@ $gTitle = "Interesting Stats";
 
 <?php echo uiHeader($gTitle); ?>
 
-<p>
+<p style='width: 800px;'>
 Here are some interesting stats culled from the archives.
+<a href="http://groups.google.com/group/httparchive/topics">Contact us</a> with suggestions for other stats you'd like to see.
+A <a href="http://code.google.com/p/httparchive/issues/detail?id=2">SQL Viewer</a> is on the todo list
+that will provide the ability to do ad hoc SQL queries via a web UI.
 </p>
 
 <div id=interesting>
