@@ -17,7 +17,6 @@ limitations under the License.
 
 require_once("ui.php");
 require_once("utils.php");
-require_once("queries.php");
 
 $gTitle = "Interesting Stats";
 ?>
@@ -27,7 +26,11 @@ $gTitle = "Interesting Stats";
 <title><?php echo $gTitle ?></title>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <?php echo globalCss(); ?>
-
+<style>
+.ianswer { font-size: 0.9em; padding: 6px; margin-bottom: 20px; }
+.ianswer TD { padding: 0 4px 0 4px; }
+.itagline { font-weight: bold; margin-bottom: 4px; }
+</style>
 </head>
 
 <body>
@@ -35,11 +38,33 @@ $gTitle = "Interesting Stats";
 <?php echo uiHeader($gTitle); ?>
 
 <p>
-<?php
-echo interestingQueries(true);
-?>
+Here are some interesting stats culled from the archives.
+</p>
+
+<div id=interesting>
+<!-- interesting.js will insert interesting stats here -->
+</div>
+
 
 <?php echo uiFooter() ?>
+
+<script>
+function showSnippets() {
+	parent = document.getElementById('interesting');
+	for ( var iSnippet = 0; iSnippet < gaSnippets.length; iSnippet++ ) {
+		newSnippet = document.createElement('div');
+		newSnippet.id = iSnippet;
+		newSnippet.className = "ianswer";
+		newSnippet.innerHTML = gaSnippets[iSnippet];
+		parent.appendChild(newSnippet);
+	}
+}
+
+var script2 = document.createElement('script');
+script2.src = "interesting.js";
+script2.onload = showSnippets;
+document.getElementsByTagName('head')[0].appendChild(script2);
+</script>
 
 </body>
 
