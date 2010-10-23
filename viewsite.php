@@ -98,11 +98,42 @@ div.content { text-align:center; background: black; color: white; font-family: a
 </div>
 </div>
 
-<div>
+
+<script>
+function showInterval(ms) {
+	var table = document.getElementById('video');
+	var aThs = table.getElementsByTagName('th');
+	var aTds = table.getElementsByTagName('td');
+	var len = aTds.length;
+	var prevSrc;
+	for ( var i = 0; i < len; i++ ) {
+		var t = aTds[i].id.substring(2);
+		var sDisplay = "none";
+		var sBorder = "0px";
+		var img = aTds[i].getElementsByTagName('img')[0];
+		if ( 0 === ( t % ms ) ) {
+			sDisplay = "table-cell";
+			if ( prevSrc != img.src ) {
+				prevSrc = img.src;
+				if ( 0 < t ) {
+					sBorder = "3px solid #FEB301";
+				}
+			}
+		}
+		aTds[i].style.display = sDisplay;
+		aThs[i].style.display = sDisplay;
+		img.style.border = sBorder;
+	}
+}
+</script>
+
+<div style='margin-top: 20px;'>
 show screenshots every 
-<select id=interval>
-<option value=100> 0.1
-<option vlaue=500> 0.5
+<select id=interval onchange='showInterval(this.options[this.selectedIndex].label)'>
+<option label=100> 0.1
+<option label=500> 0.5
+<option label=1000> 1
+<option label=5000> 5
 </select>
 seconds
 </div>
