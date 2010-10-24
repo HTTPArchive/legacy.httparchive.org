@@ -21,3 +21,7 @@ Header set Content-Encoding "gzip"
 Header set Content-Type "application/javascript"
 </FilesMatch> 
 
+
+# earlier I handed out http://httparchive.org/dev/ and http://httparchive.org/beta/
+RedirectMatch ^/dev/(.*)$ http://dev.httparchive.org/$1
+RedirectMatch ^/beta/(.*)$ http://beta.httparchive.org/$1
