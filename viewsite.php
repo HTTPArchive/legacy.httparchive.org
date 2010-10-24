@@ -21,7 +21,8 @@ require_once("utils.php");
 $gPageid = ( array_key_exists('pageid', $_GET) ? $_GET['pageid'] : "" );
 $gArchive = ( array_key_exists("a", $_GET) ? $_GET["a"] : "" );
 // TODO - better error handling starting here!
-$query = "select harfile, url, wptid, wptrun, onLoad, renderStart from $gPagesTable where pageid=$gPageid;";
+// Changed to select * to allow summary paragraph
+$query = "select * from $gPagesTable where pageid=$gPageid;";
 $result = doQuery($query);
 $row = mysql_fetch_assoc($result);
 $harfile = $row['harfile'];
@@ -46,6 +47,8 @@ $gTitle = "View Site";
 <?php echo uiHeader($gTitle); ?>
 
 	<h1><?php echo str_replace('>http://', '><span class="protocol">http://</span>', siteLink($url)) ?></h1>
+	
+	<p class="summary">took <?php echo round(($onLoad / 1000), 1) ?> seconds to load <?php echo round(($row['bytesTotal']/1024)) ?>kB of data over <?php echo $row['reqTotal'] ?> requests.</p>
 
 <div style='margin-top: 4px; font-size: 0.8em;'>
 <a href='viewarchive.php?a=<?php echo $gArchive ?>'><< back to <?php echo $gArchive ?></a>
