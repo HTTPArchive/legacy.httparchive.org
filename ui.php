@@ -35,7 +35,6 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true) {
 		$navlinks = <<<OUTPUT
 <nav>
 	<ul>
-		<li><a href="index.php">home</a></li>
 		<li><a href="viewarchive.php">archives</a></li>
 		<li><a href="about.php">about</a></li>
 	</ul>
@@ -46,8 +45,7 @@ OUTPUT;
 	
 	return <<<OUTPUT
     <header>
-		<a href="index.php" id=logo>HTTP Archive</a>
-		<h1>$title</h1>
+		<a href="index.php" id="logo"><span class="protocol">HTTP</span> Archive</a>
 		$navlinks
 	</header>
 

@@ -45,9 +45,8 @@ $gTitle = "View Site";
 <body>
 <?php echo uiHeader($gTitle); ?>
 
-<div style="margin-top: 16px;">
-<span style="font-size: 1.5em;"><?php echo siteLink($url) ?></span>
-</div>
+	<h1><?php echo str_replace('>http://', '><span class="protocol">http://</span>', siteLink($url)) ?></h1>
+
 <div style='margin-top: 4px; font-size: 0.8em;'>
 <a href='viewarchive.php?a=<?php echo $gArchive ?>'><< back to <?php echo $gArchive ?></a>
 &nbsp;|&nbsp;
@@ -72,17 +71,6 @@ for ( $i = 0; $i < ($onLoad + 100); $i += 100 ) {
 	$sTd .= "<td id=td$i></td>\n";
 }
 ?>
-
-<style type="text/css">
-#video { margin-left: auto; margin-right: auto; }
-#videoDiv { overflow-y: hidden; position: relative; overflow: auto; width: 100%; height: 100%; padding-bottom: 1em; }
-#videoContainer { table-layout: fixed; margin-left: auto; margin-right: auto; width: 99%; height: 190px; }
-#videoContainer td { margin: 2px; } 
-#videoContainer th{ font-weight: normal; } 
-div.content { text-align:center; background: black; color: white; font-family: arial,sans-serif }
-.thumb{ border: none; }
-.thumbChanged{border: 3px solid #FEB301;}
-</style>
 
 <div class=content>
 <div id="videoContainer">
