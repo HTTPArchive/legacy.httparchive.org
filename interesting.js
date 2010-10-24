@@ -38,10 +38,16 @@ function findCorrelation($var1, $tname) {
 	global $gPagesTable, $gRequestsTable, $ghColumnTitles;
 	$sHtml = "<div class=itagline>highest correlation to <em>$tname</em> time:</div><table border=0 cellpadding=0 cellspacing=0>";
 	$aVars = array("PageSpeed", "reqTotal", "reqHtml", "reqJS", "reqCSS", "reqImg", "reqFlash", "reqJson", "reqOther", "bytesTotal", "bytesHtml", "bytesJS", "bytesCSS", "bytesImg", "bytesFlash", "bytesJson", "bytesOther", "numDomains");
+	// We only want to look at requests from the most recent run of each archive.
+	$archivecond = "";
+	foreach (archiveNames() as $archive) {
+		$label = latestLabel($archive);
+		$archivecond .= ( $archivecond ? " or " : "" ) . "archive='$archive' and label='$label'";
+	}
 	$hCC = array();
 	foreach ($aVars as $var2) {
 		// from http://www.freeopenbook.com/mysqlcookbook/mysqlckbk-chp-13-sect-6.html
-		$cmd = "SELECT @n := COUNT($var1) AS N, @sumX := SUM($var2) AS 'X sum', @sumXX := SUM($var2*$var2) 'X sum of squares', @sumY := SUM($var1) AS 'Y sum', @sumYY := SUM($var1*$var1) 'Y sum of square', @sumXY := SUM($var2*$var1) AS 'X*Y sum' FROM $gPagesTable where label = 'Oct 2010' and $var2 is not null and $var2 > 0;";
+		$cmd = "SELECT @n := COUNT($var1) AS N, @sumX := SUM($var2) AS 'X sum', @sumXX := SUM($var2*$var2) 'X sum of squares', @sumY := SUM($var1) AS 'Y sum', @sumYY := SUM($var1*$var1) 'Y sum of square', @sumXY := SUM($var2*$var1) AS 'X*Y sum' FROM $gPagesTable where ($archivecond) and $var2 is not null and $var2 > 0;";
 		doSimpleCommand($cmd);
 		$query = "SELECT (@n*@sumXY - @sumX*@sumY) / SQRT((@n*@sumXX - @sumX*@sumX) * (@n*@sumYY - @sumY*@sumY)) AS correlation;";
 		$cc = doSimpleQuery($query);
