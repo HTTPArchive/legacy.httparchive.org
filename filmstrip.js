@@ -49,7 +49,7 @@ if ( preg_match($pattern, $wptid, $aMatches) ) {
 	$url = "http://www.webpagetest.org/results/" . $aMatches[1] . "/" . $aMatches[2] . "/" . $aMatches[3] . "/" . $aMatches[4] . "/video_$wptrun/frame_";
 }
 $lastFrameTime = 0;
-for ( $i = 0; $i < $onLoad; $i += 100 ) {
+for ( $i = 0; $i < ($onLoad+100); $i += 100 ) {
 	$sTh .= "<th id=th$i>" . ($i/1000) . "s</th> ";
 	$border = "";
 	if ( array_key_exists($i, $aTimes) ) {
