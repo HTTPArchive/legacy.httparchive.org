@@ -102,7 +102,7 @@ function showInterval(ms) {
 		var sDisplay = "none";
 		var sBorder = "0px";
 		var img = aTds[i].getElementsByTagName('img')[0];
-		if ( 0 === ( t % ms ) ) {
+		if ( 0 === ( t % ms ) || i === len-1 ) {
 			sDisplay = "table-cell";
 			if ( prevSrc != img.src ) {
 				prevSrc = img.src;
