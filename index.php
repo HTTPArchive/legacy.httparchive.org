@@ -50,11 +50,15 @@ $gTitle = "HTTP Archive";
 
 <div style="width: 800px;"> <!-- contents -->
 <p>
-The <a href="http://httparchive.org">HTTP Archive</a> provides information about website performance such as
-# of HTTP requests, use of gzip, and amount of JavaScript.
-This information is recorded over time revealing trends in how the Internet is performing.
-Built using Open Source software, the code and data are available to everyone allowing
-researchers large and small to work from a common base.
+The <a href="http://httparchive.org">HTTP Archive</a> tracks how the Web is built.
+<ul>
+  <li> trends in web technology &mdash; the use of JavaScript, CSS, and new image formats
+  <li> performance of the Web &mdash; page speed, size, and errors
+  <li> Open &mdash; the <a href="http://code.google.com/p/httparchive/source/checkout">code</a> is open source, the data is <a href="downloads.php">downloadable</a>
+</ul>
+
+<p>
+This open dataset provides a common base for web research.
 The websites that are analyzed come from popular lists including the 
 <a href="http://money.cnn.com/magazines/fortune/fortune500/2010/full_list/">Fortune 500</a>
 and 
@@ -95,20 +99,13 @@ for ( $i = 0; $i < count($aNames); $i++ ) {
 <table id=stats class=sortable border=0 cellpadding=0 cellspacing=0 style="border: 1px solid #CCC; border-left: 0;">
 	<tr>
 <th>Archive</th> 
-<th class="sorttable_numeric">load<br>time</th> 
-<th class="sorttable_numeric">start<br>render</th> 
-<th class="sorttable_numeric">Page<br>Speed<br>Score</th> 
-<th class="sorttable_numeric">total<br>reqs</th> 
-<th class="sorttable_numeric">total<br>xfer<br>size</th> 
-<th class="sorttable_numeric">html<br>reqs</th> 
-<th class="sorttable_numeric">html<br>xfer<br>size</th> 
-<th class="sorttable_numeric">JS<br>reqs</th> 
-<th class="sorttable_numeric">JS<br>xfer<br>size</th> 
-<th class="sorttable_numeric">CSS<br>reqs</th> 
-<th class="sorttable_numeric">CSS<br>xfer<br>size</th> 
-<th class="sorttable_numeric">image<br>reqs</th> 
-<th class="sorttable_numeric">image<br>xfer<br>size</th> 
-<th class="sorttable_numeric">num<br>domains</th> 
+<?php
+	// column headers
+	$aColumns = array("onLoad", "renderStart", "PageSpeed", "reqTotal", "bytesTotal", "reqHtml", "bytesHtml", "reqJS", "bytesJS", "reqCSS", "bytesCSS", "reqImg", "bytesImg", "numDomains");
+	foreach($aColumns as $column) {
+		echo "<th class='sorttable_numeric'>" . str_replace(" ", "<br>", $ghColumnTitles[$column]) . "</th> ";
+	}
+?>
 </tr>
 
 <?php
