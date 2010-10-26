@@ -90,7 +90,7 @@ $ghColumnTitles = array (
 						 "bytesImg" => "image xfer size",
 						 "reqFlash" => "Flash reqs",
 						 "bytesFlash" => "Flash xfer size",
-						 "numDomains" => "num domains"
+						 "numDomains" => "domains"
 						 );
 ;
 
