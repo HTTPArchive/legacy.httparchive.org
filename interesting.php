@@ -23,9 +23,10 @@ $gTitle = "Interesting Stats";
 <!doctype html>
 <html>
 <head>
-<title><?php echo $gTitle ?></title>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<?php echo globalCss(); ?>
+	<link type="text/css" rel="stylesheet" href="style.css" />
+	
+	<title><?php echo $gTitle ?></title>
+	<meta charset="UTF-8">
 <style>
 .ianswer { font-size: 0.9em; padding: 6px; margin-bottom: 20px; }
 .ianswer TD { padding: 0 4px 0 4px; }
