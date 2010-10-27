@@ -27,18 +27,14 @@ $gTitle = "HTTP Archive";
 	
 	<title><?php echo $gTitle ?></title>
 	<meta charset="UTF-8">
-
+	
 <style>
-#stats { font-size: 0.8em; font-family: Arial; margin-top: 8px; }
-#stats TD { border-left: 1px solid #CCC; padding: 4px; }
-#stats TH { border-left: 1px solid #CCC; padding: 4px; }
-.odd { background: #F0F0F0; }
-.iwps { border: 1px solid #CCC; width: 23px; height: 16px; }
-</style>
-<style>
+#interestingnav, #interesting { position: absolute; left: 50%; }
+#interesting { margin-top: -2.8em; }
+#interestingnav { margin-top: -4.2em; }
 .iquestion { font-weight: bold; }
 .iquestion A { text-decoration: none; }
-.ianswer { font-size: 0.9em; position: absolute; border: 1px solid #CCC; background: #FFFFB9; padding: 6px; border-radius: 8px; -webkit-border-radius: 8px; -moz-border-radius: 8px; opacity: 0; filter: alpha(opacity = 0); }
+.ianswer { font-size: 0.9em; border: 1px solid #CCC; background: #FFFFB9; padding: 6px; border-radius: 8px; -webkit-border-radius: 8px; -moz-border-radius: 8px; opacity: 0; filter: alpha(opacity = 0); }
 #interestingnav { margin-left: 20px; font-size: 0.9em; font-weight: bold; }
 .ianswer TD { padding: 0 4px 0 4px; }
 .itagline { font-weight: bold; margin-bottom: 4px; }
@@ -48,31 +44,16 @@ $gTitle = "HTTP Archive";
 <body>
 <?php echo uiHeader($gTitle); ?>
 
-<div style="width: 800px;"> <!-- contents -->
-<p>
-The <a href="http://httparchive.org">HTTP Archive</a> tracks how the Web is built.
+<p class="summary">
+The <a href="http://httparchive.org">HTTP Archive</a> tracks how the Web is built.</p>
 <ul>
-  <li> trends in web technology &mdash; the use of JavaScript, CSS, and new image formats
-  <li> performance of the Web &mdash; page speed, size, and errors
-  <li> Open &mdash; the <a href="http://code.google.com/p/httparchive/source/checkout">code</a> is open source, the data is <a href="downloads.php">downloadable</a>
+  <li>Trends in web technology &mdash; the use of JavaScript, CSS, and new image formats
+  <li>Performance of the Web &mdash; page speed, size, and errors
+  <li>Open &mdash; the <a href="http://code.google.com/p/httparchive/source/checkout">code</a> is open source, the data is <a href="downloads.php">downloadable</a>
 </ul>
 
-<p>
-This open dataset provides a common base for web research.
-The websites that are analyzed come from popular lists including the 
-<a href="http://money.cnn.com/magazines/fortune/fortune500/2010/full_list/">Fortune 500</a>
-and 
-<a href="http://www.alexa.com/topsites">Alexa Top 500</a>.
-<a style="margin-left: 4px; font-size: 0.8em;" href="about.php">read more</a>
-</p>
-
-<table border=0 cellpadding=0 cellspacing=0>
-<tr>
-<td valign=top>
-<p style="margin: 0;">
-<strong>Choose an archive:</strong>
-</p>
-<ul style="margin-top: 0;">
+<h2>Choose an archive:</h2>
+<ul>
 <?php
 $aNames = archiveNames();
 for ( $i = 0; $i < count($aNames); $i++ ) {
@@ -81,29 +62,22 @@ for ( $i = 0; $i < count($aNames); $i++ ) {
 }
 ?>
 </ul>
-</td>
-<td valign=top style="padding-left: 100px;">
+
 <div id=interesting>
 <!-- interesting.js will insert interesting stats here -->
 </div>
-</td>
-</tr>
-</table>
-</div> <!-- contents -->
 
-<div style="margin-top: 30px;">
-<span style="font-weight: bold; font-size: 1.2em;">Archive Averages</span>
-</div>
+<h2>Archive Averages</h2>
 
-
-<table id=stats class=sortable border=0 cellpadding=0 cellspacing=0 style="border: 1px solid #CCC; border-left: 0;">
+<table id=stats class=sortable>
 	<tr>
 <th>Archive</th> 
 <?php
 	// column headers
-	$aColumns = array("onLoad", "renderStart", "PageSpeed", "reqTotal", "bytesTotal", "reqHtml", "bytesHtml", "reqJS", "bytesJS", "reqCSS", "bytesCSS", "reqImg", "bytesImg", "numDomains");
+	//$aColumns = array("onLoad", "renderStart", "PageSpeed", "reqTotal", "bytesTotal", "reqHtml", "bytesHtml", "reqJS", "bytesJS", "reqCSS", "bytesCSS", "reqImg", "bytesImg", "numDomains");
+	$aColumns = array("onLoad", "renderStart", "PageSpeed", "reqTotal", "bytesTotal", "numDomains");
 	foreach($aColumns as $column) {
-		echo "<th class='sorttable_numeric'>" . str_replace(" ", "<br>", $ghColumnTitles[$column]) . "</th> ";
+		echo "<th class='sorttable_numeric'>" . $ghColumnTitles[$column] . "</th> ";
 	}
 ?>
 </tr>
@@ -120,20 +94,20 @@ for ( $i = 0; $i < count($aArchives); $i++ ) {
 	$result = doQuery($query);
 	$row = mysql_fetch_assoc($result);
 	$sRow = "<tr" . ( $iRow % 2 == 0 ? "" : " class=odd" ) . ">";
-	$sRow .= "<td><a href='viewarchive.php?a=$archive'><nobr>$archive</nobr></a></td> ";
+	$sRow .= "<td><a href='viewarchive.php?a=$archive'>$archive</a></td> ";
 	$sRow .= tdStat($row, "onLoad", "ms");
 	$sRow .= tdStat($row, "renderStart", "ms");
 	$sRow .= tdStat($row, "PageSpeed");
 	$sRow .= tdStat($row, "reqTotal");
 	$sRow .= tdStat($row, "bytesTotal", "kB");
-	$sRow .= tdStat($row, "reqHtml");
-	$sRow .= tdStat($row, "bytesHtml", "kB");
-	$sRow .= tdStat($row, "reqJS");
-	$sRow .= tdStat($row, "bytesJS", "kB");
-	$sRow .= tdStat($row, "reqCSS");
-	$sRow .= tdStat($row, "bytesCSS", "kB");
-	$sRow .= tdStat($row, "reqImg");
-	$sRow .= tdStat($row, "bytesImg", "kB");
+	//$sRow .= tdStat($row, "reqHtml");
+	//$sRow .= tdStat($row, "bytesHtml", "kB");
+	//$sRow .= tdStat($row, "reqJS");
+	//$sRow .= tdStat($row, "bytesJS", "kB");
+	//$sRow .= tdStat($row, "reqCSS");
+	//$sRow .= tdStat($row, "bytesCSS", "kB");
+	//$sRow .= tdStat($row, "reqImg");
+	//$sRow .= tdStat($row, "bytesImg", "kB");
 	$sRow .= tdStat($row, "numDomains");
 	$sRow .= "</tr>\n";
 	$sRows .= $sRow;
