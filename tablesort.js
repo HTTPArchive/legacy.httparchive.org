@@ -14,6 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+/* 
+Steps to make your tables sortable:
+	- Set the class of your table to "tablesort" (no other classnames allowed)
+    - Optional: set the class of TH to "sortnum" for numeric columns
+	- Add tablesort.js to your page and call TS.init() when the table is present
+
+You can add tablesort.js asynchronously this way:
+	var script = document.createElement('script');
+	script.src = "tablesort.js";
+	script.onload = function() { TS.init(); };
+	document.getElementsByTagName('head')[0].appendChild(script);
+
+*/
+
 var TS = {};
 TS.bIE = ( -1 != navigator.userAgent.indexOf("MSIE"));
 
