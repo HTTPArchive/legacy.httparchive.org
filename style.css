@@ -146,7 +146,6 @@ ul, ol {
 table {
 	width: 100%;
 	border-bottom: 1px solid #e0e0e0;
-	font-size: .875em;
 	margin-left: -.75em; }
 th {
 	padding: 1.75em .75em .25em .75em; }
@@ -155,19 +154,64 @@ thead th {
 tbody th {
 	border-bottom: 1px solid #b0b0b0;
 	font-weight: bold; }
-tbody th[colspan] {
-	}
 td {
 	border-bottom: 1px solid #e0e0e0;
 	padding: 1em .75em .5em .75em; }
-td[colspan] {
-	font-weight: bold;
-	vertical-align: bottom; }
 tr:nth-child(2n) td {
 	background: #f1f4f3;
 	border-bottom: none; }
 tr:nth-child(2n+1) td {
 	border-bottom: none; }
+
+#stats {
+	font-size: .875em; }
+
+fieldset {
+	overflow: hidden; }
+legend {
+	margin: 0;
+	padding: 0;
+	font-size: 1em;
+	font-weight: bold; }
+label {
+	clear: left;
+	font-weight: normal;
+	cursor: pointer; }
+input, textarea {
+	color: #999;
+	background: #fcfcfc;
+	border: 1px solid #dadada;
+	padding: 4px 2px;
+	vertical-align: middle;
+	margin: .3em 0 1.2em 0; }
+input:focus, textarea:focus {
+	border: 1px solid #bababa;
+	background: #fafafa;
+	color: #333; }
+textarea {
+	min-height: 12em; }
+.main input, .main textarea {
+	width: 514px; }
+button, .button {
+	background: #fcfcfc;
+	border: 1px solid #dadada;
+	padding: .4em .4em .25em .4em;
+	display: block;
+	color: #ed1c24;
+	text-transform: uppercase;
+	font-weight: bold;
+	font-family: "Lucida Grande", Arial, "Trebuchet MS", Trebuchet, sans-serif;
+	font-size: .9em; }
+button::-moz-focus-inner { 
+    border: 0;
+    padding: 0; }
+.button {
+	display: block;
+	text-decoration: none; }
+button:hover, button:focus, .button:hover, .button:focus {
+	background: #fafafa;
+	color: #3399cc;
+	border-color: #bababa; }
 
 footer {
 	margin-top: 7em;

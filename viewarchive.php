@@ -34,7 +34,6 @@ $gTitle = $gArchive . " stats";
 <body>
 <?php echo uiHeader($gTitle); ?>
 
-<div style="width: 800px; margin-top: 10px;">
 <?php
 if ( $gArchive ) {
 	echo <<<OUTPUT
@@ -46,53 +45,37 @@ if ( $gArchive ) {
 OUTPUT;
 }
 ?>
-<table cellpadding=0 cellspacing=0>
-<tr>
-<td>
-choose an archive:
-</td>
-<td style="padding-left: 4px;">
-<select onChange="document.location='viewarchive.php?a='+escape(this.options[this.selectedIndex].value)">
-  <option>
+
+<form>
+	<label>Choose an archive:</label>
+	<select onChange="document.location='viewarchive.php?a='+escape(this.options[this.selectedIndex].value)">
 <?php
 $aNames = archiveNames();
 for ( $i = 0; $i < count($aNames); $i++ ) {
 	$name = $aNames[$i];
-	echo "  <option value='$name'" . ( $name == $gArchive ? " selected" : "" ) . ">$name\n";
+	echo "  <option value='$name'" . ( $name == $gArchive ? " selected" : "" ) . ">$name</option>\n";
 }
 ?>
-</select>
-</td>
-</tr>
+	</select>
+
 <?php
-if ( $gArchive ) {
-	echo "<tr>\n<td align=right style='padding-top: 4px;'>choose a run:</td>\n<td align=right style='padding-top: 4px; padding-left: 4px;'>" . selectArchiveLabel($gArchive, $gLabel) . "</td></tr>\n";
-}
-?>
-</table>
-</div>
+if ( $gArchive ) { ?>
+	<label>Chose a run:</label>
 
-
-
-<style>
-#stats { font-size: 0.8em; font-family: Arial; margin-top: 20px; }
-#stats TD { border-left: 1px solid #CCC; padding: 4px; }
-#stats TH { border-left: 1px solid #CCC; padding: 4px; }
-.odd { background: #F0F0F0; }
-.avg { background: #FDE0B5; }
-.iwps { border: 1px solid #CCC; width: 23px; height: 16px; }
-#avg TD { border-top: 2px solid #000; border-bottom: 2px solid #000; }
-</style>
+	<?php echo selectArchiveLabel($gArchive, $gLabel);
+ } ?>
+</form>
 
 <?php
 if ( $gArchive ) {
-	echo "<table id=stats class=sortable border=0 cellpadding=0 cellspacing=0 style='border: 1px solid #CCC; border-left: 0;'>\n" .
-		"<tr> <th>Website</th> <th style='border-left: 0;'>&nbsp;</th>";
+	echo "<table id=stats class=sortable>\n" .
+		"<tr><th>Website</th>";
 
 	// column headers
-	$aColumns = array("onLoad", "renderStart", "PageSpeed", "reqTotal", "bytesTotal", "reqHtml", "bytesHtml", "reqJS", "bytesJS", "reqCSS", "bytesCSS", "reqImg", "bytesImg", "numDomains");
+	//$aColumns = array("onLoad", "renderStart", "PageSpeed", "reqTotal", "bytesTotal", "reqHtml", "bytesHtml", "reqJS", "bytesJS", "reqCSS", "bytesCSS", "reqImg", "bytesImg", "numDomains");
+	$aColumns = array("onLoad", "renderStart", "PageSpeed", "reqTotal", "bytesTotal", "numDomains");
 	foreach($aColumns as $column) {
-		echo "<th class='sorttable_numeric'>" . str_replace(" ", "<br>", $ghColumnTitles[$column]) . "</th> ";
+		echo "<th class='sorttable_numeric'>" . $ghColumnTitles[$column] . "</th> ";
 	}
 	echo "</tr>\n";
 
@@ -105,22 +88,21 @@ if ( $gArchive ) {
 		$result = doQuery($query);
 		$row = mysql_fetch_assoc($result);
 		$sRow = "<tr id=avg class=avg>";
-		$sRow .= "<td style='border-left: 2px solid #000;'>average overall</td> ";
-		$sRow .= "<td style='border-left: 0;'>&nbsp;</td>";
+		$sRow .= "<td>average overall</td> ";
 		$sRow .= tdStat($row, "onLoad", "ms");
 		$sRow .= tdStat($row, "renderStart", "ms");
 		$sRow .= tdStat($row, "PageSpeed");
 		$sRow .= tdStat($row, "reqTotal");
 		$sRow .= tdStat($row, "bytesTotal", "kB");
-		$sRow .= tdStat($row, "reqHtml");
-		$sRow .= tdStat($row, "bytesHtml", "kB");
-		$sRow .= tdStat($row, "reqJS");
-		$sRow .= tdStat($row, "bytesJS", "kB");
-		$sRow .= tdStat($row, "reqCSS");
-		$sRow .= tdStat($row, "bytesCSS", "kB");
-		$sRow .= tdStat($row, "reqImg");
-		$sRow .= tdStat($row, "bytesImg", "kB");
-		$sRow .= str_replace("<td", "<td style='border-right: 2px solid #000;'", tdStat($row, "numDomains")); // hack
+		//$sRow .= tdStat($row, "reqHtml");
+		//$sRow .= tdStat($row, "bytesHtml", "kB");
+		//$sRow .= tdStat($row, "reqJS");
+		//$sRow .= tdStat($row, "bytesJS", "kB");
+		//$sRow .= tdStat($row, "reqCSS");
+		//$sRow .= tdStat($row, "bytesCSS", "kB");
+		//$sRow .= tdStat($row, "reqImg");
+		//$sRow .= tdStat($row, "bytesImg", "kB");
+		$sRow .= tdStat($row, "numDomains");
 		$sRow .= "</tr>\n";
 		$sRows .= $sRow;
 		mysql_free_result($result);
@@ -131,21 +113,20 @@ if ( $gArchive ) {
 			while ($row = mysql_fetch_assoc($result)) {
 				$iRow++;
 				$sRow = "<tr" . ( $iRow % 2 == 0 ? " class=odd" : "" ) . ">";
-				$sRow .= "<td><a href='viewsite.php?pageid=" . $row['pageid'] . "&a=$gArchive'>" . shortenUrl($row['url']) . "</a></td> ";
-				$sRow .= "<td style='border-left: 0;'><a href='viewsite.php?pageid=" . $row['pageid'] . "&a=$gArchive'><img class=iwps src='images/waterfall-23x16.png' title='Waterfall &amp; Page Speed'></a></td>";
+				$sRow .= "<td><a href='viewsite.php?pageid=" . $row['pageid'] . "&a=$gArchive'>" . shortenUrl($row['url']) . "</a><a href='viewsite.php?pageid=" . $row['pageid'] . "&a=$gArchive'><img class=iwps src='images/waterfall-23x16.png' title='Waterfall &amp; Page Speed'></a></td>";
 				$sRow .= tdStat($row, "onLoad", "ms");
 				$sRow .= tdStat($row, "renderStart", "ms");
 				$sRow .= tdStat($row, "PageSpeed");
 				$sRow .= tdStat($row, "reqTotal");
 				$sRow .= tdStat($row, "bytesTotal", "kB");
-				$sRow .= tdStat($row, "reqHtml");
-				$sRow .= tdStat($row, "bytesHtml", "kB");
-				$sRow .= tdStat($row, "reqJS");
-				$sRow .= tdStat($row, "bytesJS", "kB");
-				$sRow .= tdStat($row, "reqCSS");
-				$sRow .= tdStat($row, "bytesCSS", "kB");
-				$sRow .= tdStat($row, "reqImg");
-				$sRow .= tdStat($row, "bytesImg", "kB");
+				//$sRow .= tdStat($row, "reqHtml");
+				//$sRow .= tdStat($row, "bytesHtml", "kB");
+				//$sRow .= tdStat($row, "reqJS");
+				//$sRow .= tdStat($row, "bytesJS", "kB");
+				//$sRow .= tdStat($row, "reqCSS");
+				//$sRow .= tdStat($row, "bytesCSS", "kB");
+				//$sRow .= tdStat($row, "reqImg");
+				//$sRow .= tdStat($row, "bytesImg", "kB");
 				$sRow .= tdStat($row, "numDomains");
 				$sRow .= "</tr>\n";
 				$sRows .= $sRow;
@@ -166,7 +147,6 @@ script.src = "sorttable-async.js";
 script.text = "sorttable.init()";  // this is optional - without it, "sorttable.init()" is called during onload
 document.getElementsByTagName('head')[0].appendChild(script);
 </script>
-
 
 <?php echo uiFooter() ?>
 
