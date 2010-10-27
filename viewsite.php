@@ -131,7 +131,7 @@ seconds
 <div style='font-size: 0.9em;'>
 <a href="http://www.webpagetest.org/video/compare.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0">WPT filmstrip</a>
 &nbsp;|&nbsp;
-<a href="http://www.webpagetest.org/video/view.php?id=<?php echo $wptid ?>.<?php echo $wptrun ?>.0">watch video</a>
+<a href="http://www.webpagetest.org/video/create.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0&id=<?php echo $wptid ?>.<?php echo $wptrun ?>.0">watch video</a>
 </div>
 
 <script src="filmstrip.js?pageid=<?php echo $gPageid ?>"></script>
@@ -176,17 +176,17 @@ initHAR();
 <a style="font-size: 0.8em; margin-left: 20px;" href="download.php?p=<?php echo $gPageid ?>&format=csv">download CSV</a>
 </div>
 
-<table id=stats class=sortable border=0 cellpadding=0 cellspacing=0 style="border: 1px solid #CCC; border-left: 0; margin-bottom: 20px;">
+<table id=stats class=tablesort border=0 cellpadding=0 cellspacing=0 style="border: 1px solid #CCC; border-left: 0; margin-bottom: 20px;">
 	<tr>
-<th class="sorttable_numeric">req#</th> 
+<th class="sortnum">req#</th> 
 <th>URL</th> 
 <th>mime type</th>
 <th>method</th>
-<th class=sorttable_numeric>status</th>
-<th class="sorttable_numeric">time</th> 
-<th class=sorttable_numeric>response<br>Size</th>
-<th class=sorttable_numeric>request<br>Cookie Len</th>
-<th class=sorttable_numeric>response<br>Cookie Len</th>
+<th class=sortnum>status</th>
+<th class="sortnum">time</th> 
+<th class=sortnum>response<br>Size</th>
+<th class=sortnum>request<br>Cookie Len</th>
+<th class=sortnum>response<br>Cookie Len</th>
 <th>request<br>Http&nbsp;Ver</th>
 <th>response<br>Http&nbsp;Ver</th>
 <th>request Accept</th>
@@ -285,8 +285,8 @@ echo $sRows;
 
 <script type="text/javascript">
 var script = document.createElement('script');
-script.src = "sorttable-async.js";
-script.text = "sorttable.init()";  // this is optional - without it, "sorttable.init()" is called during onload
+script.src = "tablesort.js";
+script.onload = function() { TS.init(); };
 document.getElementsByTagName('head')[0].appendChild(script);
 </script>
 
