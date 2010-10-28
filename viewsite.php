@@ -73,17 +73,18 @@ for ( $i = 0; $i < ($onLoad + 100); $i += 100 ) {
 	$sTh .= "<th id=th$i>&nbsp;</th> ";
 	$sTd .= "<td id=td$i></td>\n";
 }
-?>
 
+if ( ! onBlacklist($url) ) {
+	echo <<<OUTPUT
 <div class=content>
 <div id="videoContainer">
 <div id="videoDiv">
 <table id="video">
 <thead>
-<tr><?php echo $sTh ?></tr>
+<tr>$sTh</tr>
 </thead>
 <tbody>
-<tr><?php echo $sTd ?></tr>
+<tr>$sTd</tr>
 </table>
 </div>
 </div>
@@ -128,13 +129,17 @@ show screenshots every
 </select>
 seconds
 </div>
+<script src="filmstrip.js?pageid=$gPageid"></script>
+OUTPUT;
+}
+?>
+
 <div style='font-size: 0.9em;'>
 <a href="http://www.webpagetest.org/video/compare.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0">WPT filmstrip</a>
 &nbsp;|&nbsp;
 <a href="http://www.webpagetest.org/video/create.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0&id=<?php echo $wptid ?>.<?php echo $wptrun ?>.0">watch video</a>
 </div>
 
-<script src="filmstrip.js?pageid=<?php echo $gPageid ?>"></script>
 
 <div style="margin-top: 20px; margin-bottom: 10px; font-weight: bold; font-size: 1.5em; border-bottom: 0px solid;">
 HTTP Waterfall
