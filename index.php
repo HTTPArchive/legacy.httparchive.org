@@ -69,7 +69,7 @@ for ( $i = 0; $i < count($aNames); $i++ ) {
 
 <h2>Archive Averages</h2>
 
-<table id=stats class=sortable>
+<table id=stats class=tablesort>
 	<tr>
 <th>Archive</th> 
 <?php
@@ -77,7 +77,7 @@ for ( $i = 0; $i < count($aNames); $i++ ) {
 	//$aColumns = array("onLoad", "renderStart", "PageSpeed", "reqTotal", "bytesTotal", "reqHtml", "bytesHtml", "reqJS", "bytesJS", "reqCSS", "bytesCSS", "reqImg", "bytesImg", "numDomains");
 	$aColumns = array("onLoad", "renderStart", "PageSpeed", "reqTotal", "bytesTotal", "numDomains");
 	foreach($aColumns as $column) {
-		echo "<th class='sorttable_numeric'>" . $ghColumnTitles[$column] . "</th> ";
+		echo "<th class='sortnum'>" . $ghColumnTitles[$column] . "</th> ";
 	}
 ?>
 </tr>
@@ -128,8 +128,8 @@ function tdStat($row, $field, $suffix = "", $class = "tdnum") {
 
 <script type="text/javascript">
 var script = document.createElement('script');
-script.src = "sorttable-async.js";
-script.text = "sorttable.init()";  // this is optional - without it, "sorttable.init()" is called during onload
+script.src = "tablesort.js";
+script.onload = function() { TS.init(); };
 document.getElementsByTagName('head')[0].appendChild(script);
 
 var script2 = document.createElement('script');
