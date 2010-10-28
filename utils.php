@@ -21,7 +21,7 @@ $gPagesTable = "pages";
 $gRequestsTable = "requests";
 
 // Use a dev version of the database tables if "dev/" is in the path.
-$gbDev = ( strpos($_SERVER["SCRIPT_FILENAME"], "dev/") || strpos(getcwd(), "dev/") );
+$gbDev = ( strpos(getcwd(), "/dev/") || strpos(getcwd(), "/trunk") );
 if ( $gbDev ) {
 	$gPagesTable = "pagesdev";
 	$gRequestsTable = "requestsdev";
