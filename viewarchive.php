@@ -68,14 +68,14 @@ if ( $gArchive ) { ?>
 
 <?php
 if ( $gArchive ) {
-	echo "<table id=stats class=sortable>\n" .
+	echo "<table id=stats class=tablesort>\n" .
 		"<tr><th>Website</th>";
 
 	// column headers
 	//$aColumns = array("onLoad", "renderStart", "PageSpeed", "reqTotal", "bytesTotal", "reqHtml", "bytesHtml", "reqJS", "bytesJS", "reqCSS", "bytesCSS", "reqImg", "bytesImg", "numDomains");
 	$aColumns = array("onLoad", "renderStart", "PageSpeed", "reqTotal", "bytesTotal", "numDomains");
 	foreach($aColumns as $column) {
-		echo "<th class='sorttable_numeric'>" . $ghColumnTitles[$column] . "</th> ";
+		echo "<th class='sortnum'>" . $ghColumnTitles[$column] . "</th> ";
 	}
 	echo "</tr>\n";
 
@@ -87,7 +87,7 @@ if ( $gArchive ) {
 		$query = "select ROUND(AVG(onLoad)) as onLoad, ROUND(AVG(renderStart)) as renderStart, ROUND(AVG(PageSpeed)) as PageSpeed, ROUND(AVG(reqTotal)) as reqTotal, ROUND(AVG(reqHtml)) as reqHtml, ROUND(AVG(reqJS)) as reqJS, ROUND(AVG(reqCSS)) as reqCSS, ROUND(AVG(reqImg)) as reqImg, ROUND(AVG(bytesTotal)) as bytesTotal, ROUND(AVG(bytesHtml)) as bytesHtml, ROUND(AVG(bytesJS)) as bytesJS, ROUND(AVG(bytesCSS)) as bytesCSS, ROUND(AVG(bytesImg)) as bytesImg, ROUND(AVG(numDomains)) as numDomains from $gPagesTable where archive = '$gArchive' and label = '$gLabel';";
 		$result = doQuery($query);
 		$row = mysql_fetch_assoc($result);
-		$sRow = "<tr id=avg class=avg>";
+		$sRow = "<tr id=avg>";
 		$sRow .= "<td>average overall</td> ";
 		$sRow .= tdStat($row, "onLoad", "ms");
 		$sRow .= tdStat($row, "renderStart", "ms");
@@ -143,8 +143,8 @@ if ( $gArchive ) {
 
 <script type="text/javascript">
 var script = document.createElement('script');
-script.src = "sorttable-async.js";
-script.text = "sorttable.init()";  // this is optional - without it, "sorttable.init()" is called during onload
+script.src = "tablesort.js";
+script.onload = function() { TS.init(); };
 document.getElementsByTagName('head')[0].appendChild(script);
 </script>
 
