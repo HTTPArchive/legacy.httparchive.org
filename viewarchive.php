@@ -20,14 +20,14 @@ require_once("ui.php");
 
 $gArchive = ( array_key_exists("a", $_GET) ? $_GET["a"] : "" );
 $gLabel = ( array_key_exists("l", $_GET) ? $_GET["l"] : latestLabel($gArchive) );
-$gTitle = $gArchive . " stats";
+$gTitle = $gArchive;
 ?>
 <!doctype html>
 <html>
 <head>
 	<link type="text/css" rel="stylesheet" href="style.css" />
 	
-	<title><?php echo $gTitle ?></title>
+	<title>HTTP Archive - <?php echo $gTitle ?></title>
 	<meta charset="UTF-8">
 </head>
 
