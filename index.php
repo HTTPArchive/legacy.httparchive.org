@@ -29,9 +29,16 @@ $gTitle = "HTTP Archive";
 	<meta charset="UTF-8">
 	
 <style>
-#interestingnav, #interesting { position: absolute; left: 50%; }
-#interesting { margin-top: -2.8em; }
-#interestingnav { margin-top: -4.2em; }
+.column {
+	float: left;
+	width: 50%; }
+h2 {
+	clear: both; }
+/*#interestingnav, #interesting { position: absolute; left: 50%; }
+#interesting { margin-top: -2.8em; }*/
+#interestingnav { margin-top: 39px; }
+#interesting tr {
+	background: none; }
 .iquestion { font-weight: bold; }
 .iquestion A { text-decoration: none; }
 .ianswer { font-size: 0.9em; border: 1px solid #CCC; background: #FFFFB9; padding: 6px; border-radius: 8px; -webkit-border-radius: 8px; -moz-border-radius: 8px; opacity: 0; filter: alpha(opacity = 0); }
@@ -52,20 +59,24 @@ The <a href="http://httparchive.org">HTTP Archive</a> tracks how the Web is buil
   <li>Open &mdash; the <a href="http://code.google.com/p/httparchive/source/checkout">code</a> is open source, the data is <a href="downloads.php">downloadable</a>
 </ul>
 
+<section class="column">
 <h2>Choose an archive:</h2>
-<ul>
-<?php
-$aNames = archiveNames();
-for ( $i = 0; $i < count($aNames); $i++ ) {
-	$name = $aNames[$i];
-	echo "  <li> <a href='viewarchive.php?a=" . urlencode($name) . "'>$name</a>\n";
-}
-?>
-</ul>
+	<ul>
+	<?php
+	$aNames = archiveNames();
+	for ( $i = 0; $i < count($aNames); $i++ ) {
+		$name = $aNames[$i];
+		echo "  <li> <a href='viewarchive.php?a=" . urlencode($name) . "'>$name</a>\n";
+	}
+	?>
+	</ul>
+</section>
 
-<div id=interesting>
-<!-- interesting.js will insert interesting stats here -->
-</div>
+<section class="column">
+	<div id=interesting>
+	<!-- interesting.js will insert interesting stats here -->
+	</div>
+</section>
 
 <h2>Archive Averages</h2>
 
