@@ -31,15 +31,13 @@ $wptid = $row['wptid'];
 $wptrun = $row['wptrun'];
 $onLoad = $row['onLoad'];
 $renderStart = $row['renderStart'];
-
-$gTitle = "View Site";
 ?>
 <!doctype html>
 <html>
 <head>
 	<link type="text/css" rel="stylesheet" href="style.css" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>HTTP Archive - <?php echo $gTitle ?></title>
+	<title>HTTP Archive - <?php echo htmlentities($url) ?></title>
 	<link rel="stylesheet" href="har.css" type="text/css">
 </head>
 
