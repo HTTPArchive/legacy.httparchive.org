@@ -57,14 +57,6 @@ table {
 .answer {}
 .comment { font-style: italic; font-size: 0.9em; }
 H1 { margin-bottom: 0; }*/
-#video { margin-left: auto; margin-right: auto; }
-#videoDiv { overflow-y: hidden; position: relative; overflow: auto; width: 100%; height: 100%; padding-bottom: 1em; }
-#videoContainer { table-layout: fixed; margin-left: auto; margin-right: auto; width: 99%; height: 200px; }
-#videoContainer td { margin: 2px; } 
-#videoContainer th{ font-weight: normal; } 
-.content { text-align:center; background: black; color: white; font-family: arial,sans-serif;  }
-.thumb{ border: none; }
-.thumbChanged{border: 3px solid #FEB301;}
 
 /* New styles, work in progress */
 body {
@@ -158,13 +150,44 @@ td {
 	border-bottom: 1px solid #e0e0e0;
 	padding: 1em .75em .5em .75em; }
 tr:nth-child(2n) td {
-	background: #f1f4f3;
+	background: #f2f2f2;
 	border-bottom: none; }
 tr:nth-child(2n+1) td {
 	border-bottom: none; }
 
 #stats {
 	font-size: .875em; }
+
+#video {
+	margin-left: auto;
+	margin-right: auto; }
+#videoDiv {
+	/*overflow-y: hidden;*/
+	position: relative;
+	overflow: auto;
+	width: 100%;
+	height: 100%;
+	/*padding-bottom: 1em;*/ }
+#videoContainer {
+	/*table-layout: fixed;
+	margin-left: auto;
+	margin-right: auto;
+	width: 99%;
+	height: 200px;*/ }
+#videoContainer {
+	text-align: center; }
+#videoContainer table {
+	border-bottom: none; }
+.thumb a:focus, .thumb a:hover {
+	border-bottom: none; }
+.thumb a img {
+	border: 2px solid #f2f2f2; }
+.thumb a:focus img, .thumb a:hover img {
+	border-color: #3c7dc8; }
+.changed a img {
+	border: 2px solid #FEB301; }
+.changed a:focus img, .changed a:hover img {
+	border-color: #3c7dc8; }
 
 fieldset {
 	overflow: hidden; }

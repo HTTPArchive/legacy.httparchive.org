@@ -55,12 +55,45 @@ $renderStart = $row['renderStart'];
 </div>
 
 
-
-
-
 <div style="margin-top: 20px; margin-bottom: 10px; font-weight: bold; font-size: 1.5em; border-bottom: 0px solid;">
-Video, Filmstrip
+HTTP Waterfall
 </div>
+
+<div id=harviewer>
+<div id=pageliststeve></div>
+<div class=tabDOMBody id=tabDOMBody></div>
+</div>
+
+
+<script src='schema.js'></script>
+<script src='har.js'></script>
+<script src='harviewer.js?f=<?php echo $harfile ?>'></script>
+
+<script>
+function initHAR() {
+	var _3cb = document.getElementById('pageliststeve');
+	var _3cc = HARjson;
+	if ( _3cc ) {
+		// in IE there's a race condition
+		if ( "undefined" === typeof(HAR.Model) ) {
+			setTimeout(initHAR, 1000);
+			return;
+		}
+
+		HAR.Model.appendData(_3cc);
+		HAR.Tab.Preview.append(_3cc, _3cb);
+		var _3ce = document.getElementById("tabDOMBody");
+		_3ce.updated = false;
+	}
+};
+
+initHAR();
+</script>
+
+
+
+
+<h2>Video, Filmstrip</h2>
 
 <?php 
 // Build a table that has empty cells to be filled in later.
@@ -74,8 +107,7 @@ for ( $i = 0; $i < ($onLoad + 100); $i += 100 ) {
 
 if ( ! onBlacklist($url) ) {
 	echo <<<OUTPUT
-<div class=content>
-<div id="videoContainer">
+<section id="videoContainer">
 <div id="videoDiv">
 <table id="video">
 <thead>
@@ -85,8 +117,7 @@ if ( ! onBlacklist($url) ) {
 <tr>$sTd</tr>
 </table>
 </div>
-</div>
-</div>
+</section>
 
 
 <script>
@@ -125,7 +156,7 @@ show screenshots every
 <option label=1000> 1
 <option label=5000> 5
 </select>
-seconds
+milliseconds
 </div>
 <script src="filmstrip.js?pageid=$gPageid"></script>
 OUTPUT;
@@ -139,40 +170,6 @@ OUTPUT;
 </div>
 
 
-<div style="margin-top: 20px; margin-bottom: 10px; font-weight: bold; font-size: 1.5em; border-bottom: 0px solid;">
-HTTP Waterfall
-</div>
-
-<div id=harviewer>
-<div id=pageliststeve></div>
-<div class=tabDOMBody id=tabDOMBody></div>
-</div>
-
-
-<script src='schema.js'></script>
-<script src='har.js'></script>
-<script src='harviewer.js?f=<?php echo $harfile ?>'></script>
-
-<script>
-function initHAR() {
-	var _3cb = document.getElementById('pageliststeve');
-	var _3cc = HARjson;
-	if ( _3cc ) {
-		// in IE there's a race condition
-		if ( "undefined" === typeof(HAR.Model) ) {
-			setTimeout(initHAR, 1000);
-			return;
-		}
-
-		HAR.Model.appendData(_3cc);
-		HAR.Tab.Preview.append(_3cc, _3cb);
-		var _3ce = document.getElementById("tabDOMBody");
-		_3ce.updated = false;
-	}
-};
-
-initHAR();
-</script>
 
 <div style="margin-top: 20px; margin-bottom: 10px; border-bottom: 0px solid;">
 <span style="font-weight: bold; font-size: 1.5em;">Requests</span>
