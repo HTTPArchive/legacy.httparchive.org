@@ -58,9 +58,9 @@ a:visited {
 	color: #004d92; }
 a:focus, a:hover {
 	color: #3c7dc8;
-	border-bottom: 2px solid #3c7dc8; }
+	border-bottom: 2px solid #e0e0e0; }
 p, ul, ol {
-	margin: 1.4em 0;
+	margin-bottom: 1.4em;
 	max-width: 600px; }
 
 header {
@@ -84,7 +84,7 @@ nav {
 	display: block;
 	position: absolute;
 	left: 300px;
-	top: 0; }
+	top: 1.4em; }
 nav ul {
 	overflow: auto; }
 nav li {
@@ -115,17 +115,30 @@ h2, .summary {
 	font-size: 1.625em; /*26px*/
 	line-height: .86em; /*22.4*/ }
 h2 {
-	margin: 1.5em 0 .22em 0; }
+	margin: 3.11em 0 .22em 0; }
 h2 + ul, h2 +ol {
 	margin-top: 0; }
 .summary {
-	margin: .86em 0; }
+	margin: .86em 0;
+	max-width: none; }
+
+h1 + h2 {
+	margin: .64em 0 .22em 0; }
+
+h3 {
+	font-size: 1.3em;
+	line-height: .93em;
+	margin: .53em 0 .4em 0;
+	font-weight: normal;
+	font-family: "Helvetica LT 65 Medium", "HelveticaNeue LT 65 Medium", Helvetica, Arial, sans-serif; }
 
 ul, ol {
 	list-style: outside square; }
 ul ul, ul ol, ol ul, ol ol {
 	margin: 0 0 1.4em 2.8em;
 	list-style: outside circle; }
+p + ul, p + ol {
+	margin: -.7em 0 .7em 0; }
 
 .even-columns {
 	overflow: hidden;
@@ -214,7 +227,8 @@ input:focus, textarea:focus {
 textarea {
 	min-height: 12em; }
 select {
-	margin: 0; }
+	margin: 0;
+	color: #666; }
 button, .button {
 	background: #fcfcfc;
 	border: 1px solid #dadada;

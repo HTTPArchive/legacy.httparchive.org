@@ -135,9 +135,7 @@ OUTPUT;
 </div>
 
 
-<div style="margin-top: 20px; margin-bottom: 10px; font-weight: bold; font-size: 1.5em; border-bottom: 0px solid;">
-HTTP Waterfall
-</div>
+<h2>HTTP Waterfall</h2>
 
 <div id=harviewer>
 <div id=pageliststeve></div>
@@ -170,12 +168,10 @@ function initHAR() {
 initHAR();
 </script>
 
-<div style="margin-top: 20px; margin-bottom: 10px; border-bottom: 0px solid;">
-<span style="font-weight: bold; font-size: 1.5em;">Requests</span>
-<a style="font-size: 0.8em; margin-left: 20px;" href="download.php?p=<?php echo $gPageid ?>&format=csv">download CSV</a>
-</div>
+<h2>Requests</h2>
+<a href="download.php?p=<?php echo $gPageid ?>&format=csv">download CSV</a>
 
-<table id=stats class=tablesort border=0 cellpadding=0 cellspacing=0 style="border: 1px solid #CCC; border-left: 0; margin-bottom: 20px;">
+<table id=stats class=tablesort border=0 cellpadding=0 cellspacing=0>
 	<tr>
 <th class="sortnum">req#</th> 
 <th>URL</th> 
