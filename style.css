@@ -49,7 +49,8 @@ body {
 	padding: 0 0 25px 125px;
 	font: 16px/1.4 "Helvetica Nueue", HelveticaNueue, Helvetica, Arial, sans-serif;
 	color: #666;
-	-webkit-font-smoothing: antialiased;  }
+	-webkit-font-smoothing: antialiased; 
+	background: #fff; }
 a {
 	color: #0c64ac;
 	text-decoration: none; }
@@ -71,26 +72,27 @@ header {
 	line-height: 1em;
 	font-family: "Helvetica LT 67 Medium Condensed", "HelveticaNeue LT 67 MdCn", Helvetica, Arial, sans-serif;
 	color: #000;
-	max-width: 300px;
+	width: 262px;
+	display: block;
 	margin-left: -125px; }
 #logo:focus, #logo:hover {
 	background: url(images/logo-hover.png) no-repeat left center;
-	border: none;
-	color: #0c64ac; }
+	border: none; }
 #logo:focus img, #logo:hover img {
 	visibility: hidden; }
-#logo:focus:after, #logo:hover:after {
-	content: "."; }
 nav {
 	display: block;
 	position: absolute;
-	left: 350px;
+	left: 300px;
 	top: 0; }
+nav ul {
+	overflow: auto; }
 nav li {
 	list-style: none;
 	display: block;
 	float: left;
-	width: 150px; }
+	width: 125px;
+	margin-right: 25px; }
 
 h1 {
 	display: block;
@@ -121,6 +123,24 @@ h2 + ul, h2 +ol {
 
 ul, ol {
 	list-style: outside square; }
+
+.three-col {
+	overflow: hidden; }
+.three-col > * {
+	float: left;
+	display: block;
+	height: 100%;
+	width: 250px;
+	padding-right: 24px;
+	margin-right: 24px;
+	border-right: 2px solid #e0e0e0;
+	/* OneTrueLayout hacks */
+	margin-bottom: -99999px;
+	padding-bottom: 99999px; }
+.three-col > * + * + * {
+	border: none; }
+.three-col li {
+	list-style: none; }
 
 table {
 	width: 100%;

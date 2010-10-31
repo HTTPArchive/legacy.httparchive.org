@@ -51,12 +51,12 @@ h2 {
 <body>
 <?php echo uiHeader($gTitle); ?>
 
-<p class="summary">
-The <a href="http://httparchive.org">HTTP Archive</a> tracks how the Web is built.</p>
-<ul>
-  <li>Trends in web technology &mdash; the use of JavaScript, CSS, and new image formats
-  <li>Performance of the Web &mdash; page speed, size, and errors
-  <li>Open &mdash; the <a href="http://code.google.com/p/httparchive/source/checkout">code</a> is open source, the data is <a href="downloads.php">downloadable</a>
+<p class="summary">The <a href="http://httparchive.org">HTTP Archive</a> tracks how the Web is built.</p>
+
+<ul class="three-col">
+  <li>Trends in web technology&mdash;use of JavaScript, CSS, and new image formats
+  <li>Performance of the Web&mdash;page speed, size, and errors
+  <li>Open&mdash;the <a href="http://code.google.com/p/httparchive/source/checkout">code</a> is open source, the data is <a href="downloads.php">downloadable</a>
 </ul>
 
 <section class="column">
