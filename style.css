@@ -68,6 +68,7 @@ header {
 	height: 100px; }
 #logo {
 	font-size: 2.875em;
+	line-height: 1em;
 	font-family: "Helvetica LT 67 Medium Condensed", "HelveticaNeue LT 67 MdCn", Helvetica, Arial, sans-serif;
 	color: #000;
 	max-width: 300px;

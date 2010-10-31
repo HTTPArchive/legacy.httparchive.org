@@ -37,6 +37,7 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true) {
 	<ul>
 		<li><a href="viewarchive.php">archives</a></li>
 		<li><a href="about.php">about</a></li>
+		<li><a href="http://code.google.com/p/httparchive/source/checkout">code</a></li>
 	</ul>
 </nav>
 
@@ -55,14 +56,6 @@ OUTPUT;
 
 function uiFooter() {
 	return <<<OUTPUT
-	<footer>
-		<ul>
-			<li><a href="about.php">about</a></li>
-			<li><a href="http://code.google.com/p/httparchive/issues/list">bugs</a></li>
-			<li><a href="http://code.google.com/p/httparchive/source/checkout">code</a></li>
-			<li><a href="http://groups.google.com/group/httparchive/topics">contact us</a></li>
-		</ul>
-	</footer>
 OUTPUT;
 }
 
