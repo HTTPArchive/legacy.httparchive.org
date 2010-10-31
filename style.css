@@ -60,8 +60,8 @@ a:focus, a:hover {
 	color: #3c7dc8;
 	border-bottom: 2px solid #3c7dc8; }
 p, ul, ol {
-	margin: 1.4em 0; }
-
+	margin: 1.4em 0;
+	max-width: 600px; }
 
 header {
 	display: block;
@@ -123,10 +123,14 @@ h2 + ul, h2 +ol {
 
 ul, ol {
 	list-style: outside square; }
+ul ul, ul ol, ol ul, ol ol {
+	margin: 0 0 1.4em 2.8em;
+	list-style: outside circle; }
 
-.three-col {
-	overflow: hidden; }
-.three-col > * {
+.even-columns {
+	overflow: hidden;
+	max-width: none; }
+.even-columns > * {
 	float: left;
 	display: block;
 	height: 100%;
@@ -137,9 +141,9 @@ ul, ol {
 	/* OneTrueLayout hacks */
 	margin-bottom: -99999px;
 	padding-bottom: 99999px; }
-.three-col > * + * + * {
+.even-columns > * + * + * {
 	border: none; }
-.three-col li {
+.even-columns li {
 	list-style: none; }
 
 table {
@@ -194,8 +198,10 @@ label {
 	clear: left;
 	font-weight: normal;
 	cursor: pointer; }
-input, textarea {
+input, textarea, select {
 	color: #999;
+	font-size: 1em;
+	line-height: 1.4em;
 	background: #fcfcfc;
 	border: 1px solid #dadada;
 	padding: 4px 2px;
@@ -207,8 +213,8 @@ input:focus, textarea:focus {
 	color: #333; }
 textarea {
 	min-height: 12em; }
-.main input, .main textarea {
-	width: 514px; }
+select {
+	margin: 0; }
 button, .button {
 	background: #fcfcfc;
 	border: 1px solid #dadada;
