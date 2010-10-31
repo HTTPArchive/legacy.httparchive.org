@@ -38,25 +38,8 @@ table {
 	border-spacing: 0; }
 
 /* Old styles, probably will be replaced */
-/*.header { border-bottom: 4px groove #17598F; font-size: 3em; color: #17598F; }
-.preheader { font-size: 0.8em; }
-.notification { color: #C00; }*/
 .tdnum { text-align: right; }
-/*#stats { font-size: 0.8em; font-family: Arial; }
-#stats TD { border-left: 1px solid #CCC; padding: 4px; }
-#stats TH { border-left: 1px solid #CCC; padding: 4px; }
-.odd { background: #F0F0F0; }
-.avg { background: #FDE0B5; }*/
 .nobr { white-space: nowrap; }
-/*#results { display: none; }
-.category { font-size: 1.2em; font-weight: bold; }
-.questions LI { margin-bottom: 2px; }
-.questions A, .questions A:visited { text-decoration: none; }
-.questions A:hover { text-decoration: underline; }
-.question { font-weight: bold; font-size: 1.1em; vertical-align: top; padding-top: 16px; }
-.answer {}
-.comment { font-style: italic; font-size: 0.9em; }
-H1 { margin-bottom: 0; }*/
 
 /* New styles, work in progress */
 body {
@@ -158,24 +141,8 @@ tr:nth-child(2n+1) td {
 #stats {
 	font-size: .875em; }
 
-#video {
-	margin-left: auto;
-	margin-right: auto; }
 #videoDiv {
-	/*overflow-y: hidden;*/
-	position: relative;
-	overflow: auto;
-	width: 100%;
-	height: 100%;
-	/*padding-bottom: 1em;*/ }
-#videoContainer {
-	/*table-layout: fixed;
-	margin-left: auto;
-	margin-right: auto;
-	width: 99%;
-	height: 200px;*/ }
-#videoContainer {
-	text-align: center; }
+	overflow: auto; }
 #videoContainer table {
 	border-bottom: none; }
 .thumb a:focus, .thumb a:hover {
@@ -188,6 +155,9 @@ tr:nth-child(2n+1) td {
 	border: 2px solid #FEB301; }
 .changed a:focus img, .changed a:hover img {
 	border-color: #3c7dc8; }
+
+.questions {
+	margin-bottom: 2.8em; }
 
 fieldset {
 	overflow: hidden; }

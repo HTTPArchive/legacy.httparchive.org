@@ -225,7 +225,7 @@ OUTPUT
 
 
 // print the list of questions
-echo "<ul class=questions style='list-style-type: none; margin-left: 0 0 8px 20px; padding-left: 0;'>\n";
+echo "<ul class='questions'>\n";
 for ( $i = 0; $i < count($gFaqs); $i++ ) {
 	$q = $gFaqs[$i][0];
 	if ( "category" == $q ) {
@@ -241,8 +241,6 @@ echo "</ul>\n\n";
 
 
 // print the list of Q&A
-echo "<hr style='margin-top: 20px; margin-bottom: 20px;'>\n\n";
-echo "<table border=0 cellpadding=2 cellspacing=0>\n";
 for ( $i = 0; $i < count($gFaqs); $i++ ) {
 	$q = $gFaqs[$i][0];
 
@@ -252,10 +250,9 @@ for ( $i = 0; $i < count($gFaqs); $i++ ) {
 
 	$a = $gFaqs[$i][1];
 	$anchor = $gFaqs[$i][2];
-	echo "<a name='$anchor'></a>\n<tr><td align=right class=question>Q:</td> <td class=question>$q</td></tr>\n";
-	echo "<tr><td align=right valign=top><b>A:</b></td> <td class=answer>$a</td></tr>\n\n";
+	echo "<h2 id='$anchor'>$q</h2>\n";
+	echo "<p>$a</p>\n\n";
 }
-echo "</table>\n\n";
 ?>
 
 <?php echo uiFooter() ?>
