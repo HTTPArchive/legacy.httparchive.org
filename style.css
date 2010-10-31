@@ -67,16 +67,19 @@ header {
 	position: relative;
 	height: 100px; }
 #logo {
-	position: relative;
 	font-size: 2.875em;
 	font-family: "Helvetica LT 67 Medium Condensed", "HelveticaNeue LT 67 MdCn", Helvetica, Arial, sans-serif;
 	color: #000;
-	max-width: 300px; }
+	max-width: 300px;
+	margin-left: -125px; }
 #logo:focus, #logo:hover {
+	background: url(images/logo-hover.png) no-repeat left center;
 	border: none;
 	color: #0c64ac; }
-#logo .protocol {
-	letter-spacing: .05em; }
+#logo:focus img, #logo:hover img {
+	visibility: hidden; }
+#logo:focus:after, #logo:hover:after {
+	content: "."; }
 nav {
 	display: block;
 	position: absolute;

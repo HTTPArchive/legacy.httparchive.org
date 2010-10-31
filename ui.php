@@ -45,7 +45,7 @@ OUTPUT;
 	
 	return <<<OUTPUT
     <header>
-		<a href="index.php" id="logo"><span class="protocol">HTTP</span> Archive</a>
+		<a href="index.php" id="logo"><img src="images/logo.png" alt="HTTP Archive" /></a>
 		$navlinks
 	</header>
 
