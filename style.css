@@ -45,8 +45,8 @@ table {
 body {
 	width: 900px;
 	position: relative;
-	margin: 25px 0 0 25px;
-	padding: 0 0 25px 125px;
+	margin: 0 0 0 25px;
+	padding: 150px 0 25px 125px;
 	font: 16px/1.4 "Helvetica Nueue", HelveticaNueue, Helvetica, Arial, sans-serif;
 	color: #666;
 	-webkit-font-smoothing: antialiased; 
@@ -65,16 +65,25 @@ p, ul, ol {
 
 header {
 	display: block;
-	position: relative;
-	height: 100px; }
+	position: fixed;
+	height: 75px;
+	left: 0;
+	top: 0;
+	z-index: 199;
+	background: #f1f1f1;
+	border-bottom: 4px dashed #fff;
+	width: 100%;
+	padding: 25px 0 0 25px; }
 #logo {
 	font-size: 2.875em;
 	line-height: 1em;
 	font-family: "Helvetica LT 67 Medium Condensed", "HelveticaNeue LT 67 MdCn", Helvetica, Arial, sans-serif;
 	color: #000;
-	width: 262px;
+	width: 260px;
 	display: block;
-	margin-left: -125px; }
+	float: left; }
+#logo .protocol {
+	left: 0; }
 #logo:focus, #logo:hover {
 	background: url(images/logo-hover.png) no-repeat left center;
 	border: none; }
@@ -83,16 +92,24 @@ header {
 nav {
 	display: block;
 	position: absolute;
-	left: 300px;
-	top: 1.4em; }
+	left: 450px;
+	font-size: 1.125em; /* 18px */
+	line-height: 2.55;
+	margin-top: .55em; }
 nav ul {
-	overflow: auto; }
+	overflow: auto;
+	margin: 0; }
 nav li {
 	list-style: none;
 	display: block;
 	float: left;
 	width: 125px;
 	margin-right: 25px; }
+nav a, nav a:visited {
+	color: #666; }
+nav a:focus, nav a:hover {
+	border-bottom: none;
+	color: #3c7dc8; }
 
 h1 {
 	display: block;
