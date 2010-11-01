@@ -882,11 +882,11 @@
 /* See license.txt for terms of usage */
 
 #harviewer {
-    margin: 0 0 20px 20px;
+    /*margin: 0 0 20px 20px;
     font-family: Lucida Grande, Tahoma, sans-serif;
-    font-size: 13px;
+    font-size: 13px;*/
     overflow: hidden;
-	border: 3px solid #CCC;
+	/*border: 2px solid #CCC;*/
 }
 
 #harviewer h1 {
@@ -1071,3 +1071,15 @@
     outline: none;
     -moz-user-focus: ignore;
 }
+
+
+
+/* HTTP Archive tweaks */
+#harviewer tr td {
+	background-color: transparent; }
+.pageInfoCol {
+	padding-left: 2.8em; }
+.netTable {
+	border: none; }
+.netInfoParamName {
+	padding: 1em .75em .5em .75em; }

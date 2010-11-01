@@ -142,7 +142,8 @@ p + ul, p + ol {
 
 .even-columns {
 	overflow: hidden;
-	max-width: none; }
+	max-width: none;
+	margin: 1.4em 0; }
 .even-columns > * {
 	float: left;
 	display: block;
