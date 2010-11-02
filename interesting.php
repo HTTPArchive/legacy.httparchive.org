@@ -25,7 +25,7 @@ $gTitle = "Interesting Stats";
 <head>
 	<link type="text/css" rel="stylesheet" href="style.css" />
 	
-	<title><?php echo $gTitle ?></title>
+	<title>HTTP Archive - <?php echo $gTitle ?></title>
 	<meta charset="UTF-8">
 <style>
 .ianswer { font-size: 0.9em; padding: 6px; margin-bottom: 20px; }
@@ -38,7 +38,9 @@ $gTitle = "Interesting Stats";
 
 <?php echo uiHeader($gTitle); ?>
 
-<p style='width: 800px;'>
+<h1>Interesting stats</h1>
+
+<p>
 Here are some interesting stats culled from the archives.
 <a href="http://groups.google.com/group/httparchive/topics">Contact us</a> with suggestions for other stats you'd like to see.
 A <a href="http://code.google.com/p/httparchive/issues/detail?id=2">SQL Viewer</a> is on the todo list

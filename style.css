@@ -1,15 +1,17 @@
 /* HTTP Archive styles */
 
-/* CSS reset thanks to Eric Meyer, http://meyerweb.com/eric/tools/css/reset/ */
+/* CSS reset from Eric Meyer, http://meyerweb.com/eric/tools/css/reset/ & HTML5 Doctor http://html5doctor.com/html-5-reset-stylesheet/ */
 html, body, div, span, applet, object, iframe, 
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
 del, dfn, em, font, img, ins, kbd, q, s, samp,
 small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td {
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section, summary,
+time, mark, audio, video  {
 	margin: 0;
 	padding: 0;
 	border: 0;
@@ -19,6 +21,9 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 	background: transparent; }
 body {
 	line-height: 1; }
+article,aside,details,figcaption,figure,
+footer,header,hgroup,menu,nav,section { 
+    display: block; }
 ol, ul {
 	list-style: none; }
 blockquote, q {
@@ -62,7 +67,7 @@ a:focus, a:hover {
 	border-bottom: 2px solid #e0e0e0; }
 p, ul, ol {
 	margin-bottom: 1.4em;
-	max-width: 600px; }
+	max-width: 575px; }
 
 header {
 	display: block;
@@ -71,7 +76,7 @@ header {
 	left: 0;
 	top: 0;
 	z-index: 199;
-	background: #f1f1f1;
+	background: #eaeaea;
 	border-bottom: 4px dashed #fff;
 	width: 100%;
 	padding: 25px 0 0 25px; }
@@ -99,7 +104,8 @@ nav {
 	margin-top: .55em; }
 nav ul {
 	overflow: auto;
-	margin: 0; }
+	margin: 0;
+	max-width: none; }
 nav li {
 	list-style: none;
 	display: block;
@@ -107,7 +113,7 @@ nav li {
 	width: 125px;
 	margin-right: 25px; }
 nav a, nav a:visited {
-	color: #666; }
+	color: #999; }
 nav a:focus, nav a:hover {
 	border-bottom: none;
 	color: #3c7dc8; }
