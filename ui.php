@@ -29,7 +29,7 @@ OUTPUT;
 }
 
 
-function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav) {
+function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
 	$navlinks = "";
 	if ( $bNavlinks ) {
 		$navlinks = '
