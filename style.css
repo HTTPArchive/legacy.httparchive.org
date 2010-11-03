@@ -105,18 +105,25 @@ nav {
 nav ul {
 	overflow: auto;
 	margin: 0;
-	max-width: none; }
+	max-width: 600px; }
 nav li {
 	list-style: none;
 	display: block;
 	float: left;
 	width: 125px;
 	margin-right: 25px; }
+nav li + li + li + li + li { /* Styles for the secnd nav row */
+	margin-top: -.7em;
+	font-size: .889em;
+	line-height: 1.4em; }
 nav a, nav a:visited {
 	color: #999; }
 nav a:focus, nav a:hover {
 	border-bottom: none;
 	color: #3c7dc8; }
+nav .return {
+	padding-left: 20px;
+	background: url(images/return-arrow.png) no-repeat left center; }
 
 h1 {
 	display: block;
@@ -140,7 +147,9 @@ h2, .summary {
 	line-height: .86em; /*22.4*/ }
 h2 {
 	margin: 1.5em 0 .22em 0; }
-h2 + ul, h2 +ol {
+.viewsite h2 {
+	margin-top: 2.36em; }
+h2 + ul, h2 + ol {
 	margin-top: 0; }
 .summary {
 	margin: .86em 0;

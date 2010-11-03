@@ -41,16 +41,14 @@ $renderStart = $row['renderStart'];
 	<link rel="stylesheet" href="har.css" type="text/css">
 </head>
 
-<body>
-<?php echo uiHeader($gTitle); ?>
+<body class="viewsite">
+<?php echo uiHeader($gTitle, true, "<li><a href='viewarchive.php?a=$gArchive' class='return'>$gArchive</a></li>"); ?>
 
 	<h1><?php echo str_replace('>http://', '><span class="protocol">http://</span>', siteLink($url)) ?></h1>
 	
 	<p class="summary">took <?php echo round(($onLoad / 1000), 1) ?> seconds to load <?php echo round(($row['bytesTotal']/1024)) ?>kB of data over <?php echo $row['reqTotal'] ?> requests.</p>
 
 <div style='margin-top: 4px; font-size: 0.8em;'>
-<a href='viewarchive.php?a=<?php echo $gArchive ?>'><< back to <?php echo $gArchive ?></a>
-&nbsp;|&nbsp;
 <a href='<?php echo $harfile ?>'>download HAR file</a>
 </div>
 

@@ -29,20 +29,22 @@ OUTPUT;
 }
 
 
-function uiHeader($title = "HTTP Archive", $bNavlinks = true) {
+function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav) {
 	$navlinks = "";
 	if ( $bNavlinks ) {
-		$navlinks = <<<OUTPUT
+		$navlinks = '
 <nav>
 	<ul>
 		<li><a href="viewarchive.php">archives</a></li>
 		<li><a href="about.php">about</a></li>
 		<li><a href="http://groups.google.com/group/httparchive/topics">contact</a></li>
-		<li><a href="http://code.google.com/p/httparchive/">code</a></li>
-	</ul>
-</nav>
+		<li><a href="http://code.google.com/p/httparchive/">code</a></li>';
 
-OUTPUT;
+		if( !empty($extraNav) )
+			$navlinks .= $extraNav;
+	
+		$navlinks .= '</ul>
+</nav>';
 	}
 	
 	return <<<OUTPUT
