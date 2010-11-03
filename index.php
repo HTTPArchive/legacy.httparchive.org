@@ -39,6 +39,8 @@ h2 {
 #interestingnav { margin-top: 39px; }
 #interesting tr {
 	background: none; }
+#interesting tr td {
+	background: none; }
 .iquestion { font-weight: bold; }
 .iquestion A { text-decoration: none; }
 .ianswer { font-size: 0.9em; border: 1px solid #CCC; background: #FFFFB9; padding: 6px; border-radius: 8px; -webkit-border-radius: 8px; -moz-border-radius: 8px; opacity: 0; filter: alpha(opacity = 0); }
