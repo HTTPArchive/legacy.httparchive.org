@@ -37,6 +37,8 @@ h2 {
 /*#interestingnav, #interesting { position: absolute; left: 50%; }
 #interesting { margin-top: -2.8em; }*/
 #interestingnav { margin-top: 39px; }
+#interesting table {
+	border-bottom: none; }
 #interesting tr {
 	background: none; }
 #interesting tr td {
