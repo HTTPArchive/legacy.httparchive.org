@@ -34,18 +34,7 @@ $gTitle = $gArchive;
 <body>
 <?php echo uiHeader($gTitle); ?>
 
-<?php
-if ( $gArchive ) {
-	echo <<<OUTPUT
-<div style='float: right; font-size: 0.8em; text-align: right;'>
-<a href='urls.php?a=$gArchive'>list of URLs</a>
-<br>
-<a href='download.php?a=$gArchive&l=$gLabel&format=csv'>download CSV</a>
-</div>
-OUTPUT;
-}
-?>
-
+<section class="even-columns">
 <form>
 	<label>Choose an archive:</label>
 	<select onChange="document.location='viewarchive.php?a='+escape(this.options[this.selectedIndex].value)">
@@ -57,14 +46,26 @@ for ( $i = 0; $i < count($aNames); $i++ ) {
 }
 ?>
 	</select>
+</form>
 
 <?php
 if ( $gArchive ) { ?>
+<form>
 	<label>Chose a run:</label>
 
-	<?php echo selectArchiveLabel($gArchive, $gLabel);
- } ?>
+	<?php echo selectArchiveLabel($gArchive, $gLabel); ?>
 </form>
+<?php } ?>
+
+
+<?php
+if ( $gArchive ) {
+	echo <<<OUTPUT
+	<p><a href='urls.php?a=$gArchive'>list of URLs</a><br><a href='download.php?a=$gArchive&l=$gLabel&format=csv'>download CSV</a></p>
+OUTPUT;
+}
+?>
+</section>
 
 <?php
 if ( $gArchive ) {
