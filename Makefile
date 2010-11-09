@@ -6,6 +6,7 @@ push :
 	echo "PUSH .htaccess MANUALLY IF YOU WANT!!"
 
 pushbeta :
+	mkdir -p ~/beta.httparchive.org
 	cp -p *.php settings.inc *.js *.css favicon.ico har_to_pagespeed .htaccess ~/beta.httparchive.org/.
 	mkdir -p ~/beta.httparchive.org/images
 	cp -p images/*.* ~/beta.httparchive.org/images/.
