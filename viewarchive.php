@@ -38,6 +38,7 @@ $gTitle = $gArchive;
 <form>
 	<label>Choose an archive:</label>
 	<select onChange="document.location='viewarchive.php?a='+escape(this.options[this.selectedIndex].value)">
+	<option> <?php //leave this so the first time the user goes to the page without a selection nothing is selected ?>
 <?php
 $aNames = archiveNames();
 for ( $i = 0; $i < count($aNames); $i++ ) {
@@ -70,7 +71,7 @@ OUTPUT;
 <?php
 if ( $gArchive ) {
 	echo "<table id=stats class=tablesort>\n" .
-		"<tr><th>Website</th>";
+		"<tr><th colspan=2>Website</th>";
 
 	// column headers
 	//$aColumns = array("onLoad", "renderStart", "PageSpeed", "reqTotal", "bytesTotal", "reqHtml", "bytesHtml", "reqJS", "bytesJS", "reqCSS", "bytesCSS", "reqImg", "bytesImg", "numDomains");
@@ -90,6 +91,7 @@ if ( $gArchive ) {
 		$row = mysql_fetch_assoc($result);
 		$sRow = "<tr id=avg>";
 		$sRow .= "<td>average overall</td> ";
+		$sRow .= "<td style='border-left: 0;'>&nbsp;</td>"; // leave this - it's a placeholder for the chart image column
 		$sRow .= tdStat($row, "onLoad", "ms");
 		$sRow .= tdStat($row, "renderStart", "ms");
 		$sRow .= tdStat($row, "PageSpeed");
@@ -114,7 +116,7 @@ if ( $gArchive ) {
 			while ($row = mysql_fetch_assoc($result)) {
 				$iRow++;
 				$sRow = "<tr" . ( $iRow % 2 == 0 ? " class=odd" : "" ) . ">";
-				$sRow .= "<td><a href='viewsite.php?pageid=" . $row['pageid'] . "&a=$gArchive'>" . shortenUrl($row['url']) . "</a><a href='viewsite.php?pageid=" . $row['pageid'] . "&a=$gArchive'><img class=iwps src='images/waterfall-23x16.png' title='Waterfall &amp; Page Speed'></a></td>";
+				$sRow .= "<td><a href='viewsite.php?pageid=" . $row['pageid'] . "&a=$gArchive'>" . shortenUrl($row['url']) . "</a></td><td><a href='viewsite.php?pageid=" . $row['pageid'] . "&a=$gArchive'><img class=iwps src='images/waterfall-23x16.png' title='Waterfall &amp; Page Speed'></a></td>";
 				$sRow .= tdStat($row, "onLoad", "ms");
 				$sRow .= tdStat($row, "renderStart", "ms");
 				$sRow .= tdStat($row, "PageSpeed");
