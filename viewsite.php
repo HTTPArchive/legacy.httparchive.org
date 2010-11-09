@@ -406,7 +406,8 @@ function toggleDetails(elem) {
 
 	var div = elem.parentNode.getElementsByTagName('DIV')[0];
 	if ( "undefined" != typeof(div) ) {
-		var aPosition = findPos(elem);
+		var aPosition = findPos(elem.parentNode);
+		div.style.left = (aPosition[0] + elem.parentNode.clientWidth) + "px";
 		div.style.top = aPosition[1] + "px";
 		div.style.display = "block";
 		curDetails = div;
