@@ -57,11 +57,15 @@ header {
 	color: #000;
 	width: 260px;
 	display: block;
-	float: left; }
+	float: left;
+	text-indent: -999em;
+	background: url(images/logo-sprite.png) no-repeat 0 0;
+	height: 33px;
+	margin-top: 6px; }
 #logo .protocol {
 	left: 0; }
 #logo:focus, #logo:hover {
-	background: url(images/logo-hover.png) no-repeat left center;
+	background: url(images/logo-sprite.png) no-repeat 0 -33px;
 	border: none; }
 #logo:focus img, #logo:hover img {
 	visibility: hidden; }
