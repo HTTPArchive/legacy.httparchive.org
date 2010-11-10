@@ -1083,3 +1083,12 @@
 	border: none; }
 .netInfoParamName {
 	padding: 1em .75em .5em .75em; }
+.timeInfoTip {
+	margin-left: 0; }
+.infoTip table td {
+	padding: 0;
+	background-color: transparent; }
+.timeInfoTipCell.startTime {
+	padding-left: 5px; }
+.timeInfoTipBar, .timeInfoTipEventBar {
+	top: 3px; }
