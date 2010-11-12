@@ -35,6 +35,7 @@ a:visited {
 a:focus, a:hover {
 	color: #3c7dc8;
 	border-bottom: 2px solid #e0e0e0; }
+a.image-link:focus, a.image-link:hover { border: none; }
 p, ul, ol {
 	margin-bottom: 1.4em;
 	max-width: 575px; }

@@ -116,7 +116,7 @@ if ( $gArchive ) {
 			while ($row = mysql_fetch_assoc($result)) {
 				$iRow++;
 				$sRow = "<tr" . ( $iRow % 2 == 0 ? " class=odd" : "" ) . ">";
-				$sRow .= "<td><a href='viewsite.php?pageid=" . $row['pageid'] . "&a=$gArchive'>" . shortenUrl($row['url']) . "</a></td><td><a href='viewsite.php?pageid=" . $row['pageid'] . "&a=$gArchive'><img class=iwps src='images/waterfall-23x16.png' title='Waterfall &amp; Page Speed'></a></td>";
+				$sRow .= "<td><a href='viewsite.php?pageid=" . $row['pageid'] . "&a=$gArchive'>" . shortenUrl($row['url']) . "</a></td><td><a class='image-link' href='viewsite.php?pageid=" . $row['pageid'] . "&a=$gArchive'><img src='images/waterfall-23x16.png' title='Waterfall &amp; Page Speed'></a></td>";
 				$sRow .= tdStat($row, "onLoad", "ms");
 				$sRow .= tdStat($row, "renderStart", "ms");
 				$sRow .= tdStat($row, "PageSpeed");

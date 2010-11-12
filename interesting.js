@@ -444,9 +444,9 @@ function insertNav(parentId) {
 	var nav = document.createElement('div');
 	nav.id = "interestingnav";
 	nav.innerHTML = 
-		"<a style='outline: 0;' href='javascript:showSnippet(\"" + parentId + "\", 1)'><img src='images/arrow-left-16x16.gif' width=16 height=16 border=0></a>" +
+		"<a class='image-link' href='javascript:showSnippet(\"" + parentId + "\", 1)'><img src='images/arrow-left-16x16.gif' width=16 height=16 border=0></a>" +
 		"<a href='interesting.php' style='margin: 0 8px; vertical-align: top;'>interesting stats</a>" +
-		"<a style='outline: 0;' href='javascript:showSnippet(\"" + parentId + "\")'><img src='images/arrow-right-16x16.gif' width=16 height=16 border=0></a>";
+		"<a class='image-link' href='javascript:showSnippet(\"" + parentId + "\")'><img src='images/arrow-right-16x16.gif' width=16 height=16 border=0></a>";
 	elem.parentNode.insertBefore(nav, elem);
 }
 
