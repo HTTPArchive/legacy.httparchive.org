@@ -178,6 +178,22 @@ function selectArchiveLabel($archive, $curLabel) {
 }
 
 
+// Return an array of label names (in chrono order?) for an archive.
+function archiveLabels($archive = "All") {
+	global $gPagesTable;
+
+	$query = "select label from $gPagesTable where archive = '$archive' group by label order by startedDateTime asc;";
+	$result = doQuery($query);
+	$aLabels = array();
+	while ($row = mysql_fetch_assoc($result)) {
+		$label = $row['label'];
+		array_push($aLabels, $label);
+	}
+
+	return $aLabels;
+}
+
+
 // Return the latest (most recent) label for an archive 
 // based on when the pages in that label were analyzed.
 function latestLabel($archive) {
