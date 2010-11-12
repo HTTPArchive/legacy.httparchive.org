@@ -403,7 +403,8 @@ function showSnippet(parentId, bPrev) {
 	var iSnippet = Math.floor(gaSnippets.length * Math.random());
 	if ( curSnippet ) {
 		iSnippet = parseInt(curSnippet.id)
-		fade(curSnippet, true);
+		//fade(curSnippet, true);
+		curSnippet.style.display = 'none';
 	}
 
 	iSnippet = ( bPrev ? iSnippet-1 : iSnippet+1 );
