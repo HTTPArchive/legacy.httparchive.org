@@ -362,17 +362,22 @@ function doQuery($query) {
 }
 
 
-function doSimpleQuery($query) {
-	global $gMysqlServer, $gMysqlDb, $gMysqlUsername, $gMysqlPassword;
+// return the first row
+function doRowQuery($query) {
+	$result = doQuery($query);
+	if ( $result ) {
+		$row = mysql_fetch_assoc($result);
+		mysql_free_result($result);
+	}
 
-	$value = NULL;
-	$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword);
-	if ( mysql_select_db($gMysqlDb) ) {
-		//error_log("doSimpleQuery: $query");
-		$result = mysql_query($query, $link);
-		if ( ! $result ) {
-			dprint("ERROR in doSimpleQuery: '" . mysql_error() . "' for query: " . $query);
-		}
+	return $row;
+}
+
+
+// return the first value from the first row
+function doSimpleQuery($query) {
+	$result = doQuery($query);
+	if ( $result ) {
 		$row = mysql_fetch_assoc($result);
 		if ( $row ) {
 			$aKeys = array_keys($row);
