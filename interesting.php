@@ -39,14 +39,14 @@ $gTitle = "Interesting Stats";
 
 <?php echo uiHeader($gTitle); ?>
 
-<div id=interesting>
+<h1>Interesting stats</h1>
+
+<div id=interesting style="margin-top: 40px;">
 <!-- interesting.js will insert interesting stats here -->
 </div>
 
 
 <?php echo uiFooter() ?>
-
-<h1>Interesting stats</h1>
 
 <script>
 function showSnippets() {
