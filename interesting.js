@@ -23,31 +23,29 @@ Return a JavaScript file that contains code for creating
 rotating divs of interesting stats.
 */
 
+$gArchive = "All";
+$gLabel = latestLabel($gArchive);
 
 function onloadCorrelation() {
-	return findCorrelation("onLoad", "load");
+	return findCorrelation("onLoad", "load", "Highest Correlation to Load Time");
 }
 
 
 function renderCorrelation() {
-	return findCorrelation("renderStart", "render");
+	return findCorrelation("renderStart", "render", "Highest Correlation to Render Time");
 }
 
 
-function findCorrelation($var1, $tname) {
+function findCorrelation($var1, $tname, $title) {
 	global $gPagesTable, $gRequestsTable, $ghColumnTitles;
-	$sHtml = "<div class=itagline>highest correlation to <em>$tname</em> time:</div><table border=0 cellpadding=0 cellspacing=0>";
+	global $gArchive, $gLabel;
+
+	// TODO - make this more flexible
 	$aVars = array("PageSpeed", "reqTotal", "reqHtml", "reqJS", "reqCSS", "reqImg", "reqFlash", "reqJson", "reqOther", "bytesTotal", "bytesHtml", "bytesJS", "bytesCSS", "bytesImg", "bytesFlash", "bytesJson", "bytesOther", "numDomains");
-	// We only want to look at requests from the most recent run of each archive.
-	$archivecond = "";
-	foreach (archiveNames() as $archive) {
-		$label = latestLabel($archive);
-		$archivecond .= ( $archivecond ? " or " : "" ) . "archive='$archive' and label='$label'";
-	}
 	$hCC = array();
 	foreach ($aVars as $var2) {
 		// from http://www.freeopenbook.com/mysqlcookbook/mysqlckbk-chp-13-sect-6.html
-		$cmd = "SELECT @n := COUNT($var1) AS N, @sumX := SUM($var2) AS 'X sum', @sumXX := SUM($var2*$var2) 'X sum of squares', @sumY := SUM($var1) AS 'Y sum', @sumYY := SUM($var1*$var1) 'Y sum of square', @sumXY := SUM($var2*$var1) AS 'X*Y sum' FROM $gPagesTable where ($archivecond) and $var2 is not null and $var2 > 0;";
+		$cmd = "SELECT @n := COUNT($var1) AS N, @sumX := SUM($var2) AS 'X sum', @sumXX := SUM($var2*$var2) 'X sum of squares', @sumY := SUM($var1) AS 'Y sum', @sumYY := SUM($var1*$var1) 'Y sum of square', @sumXY := SUM($var2*$var1) AS 'X*Y sum' FROM $gPagesTable where archive='$gArchive' and label='$gLabel' and $var2 is not null and $var2 > 0;";
 		doSimpleCommand($cmd);
 		$query = "SELECT (@n*@sumXY - @sumX*@sumY) / SQRT((@n*@sumXX - @sumX*@sumX) * (@n*@sumYY - @sumY*@sumY)) AS correlation;";
 		$cc = doSimpleQuery($query);
@@ -65,10 +63,13 @@ function findCorrelation($var1, $tname) {
 	$aCC = array_keys($hCC);
 	rsort($aCC, SORT_NUMERIC);
 	$iRows = 0;
+	$aVarNames = array();
+	$aVarValues = array();
 	foreach($aCC as $cc) {
 		$prettyCC = round($cc*100)/100;
 		foreach($hCC[$cc] as $var2) {
-			$sHtml .= "<tr><td align=right>" . $ghColumnTitles[$var2] . ":</td> <td align=right>$prettyCC</td></tr>";
+			array_push($aVarNames, $ghColumnTitles[$var2]);
+			array_push($aVarValues, $prettyCC);
 			$iRows++;
 			if ( 5 <= $iRows ) {
 				break;
@@ -78,26 +79,41 @@ function findCorrelation($var1, $tname) {
 			break;
 		}
 	}
-	return $sHtml . "</table>";
+
+	return correlationColumnChart($title, $aVarNames, $aVarValues, "80C65A");
 }
 
 
 function redirects() {
 	global $gPagesTable, $gRequestsTable;
-	$sHtml = "<div class=itagline>pages containing redirects:</div><table border=0 cellpadding=0 cellspacing=0>";
-	foreach (archiveNames() as $archive) {
-		$label = latestLabel($archive);
-		$archivecond = "archive='$archive' and label='$label'";
-		$num = doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and ($archivecond) and status >= 300 and status < 400;");
-		$total = doSimpleQuery("select count(*) from $gPagesTable where $archivecond;");
-		$sHtml .= "<tr><td align=right>$archive:</td> <td align=right>" . round(100*$num/$total) . "%</td></tr>";
+	global $gArchive, $gLabel;
+
+	// get redirects for each label
+	$result = doQuery("select label, count(distinct $gPagesTable.pageid) as num from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and status >= 300 and status < 400 group by label order by $gPagesTable.startedDateTime asc;");
+	$aVarNames = array();
+	$hNum = array();
+	while ($row = mysql_fetch_assoc($result)) {
+		array_push($aVarNames, $row['label']);
+		$hNum[$row['label']] = $row['num'];
 	}
-	return $sHtml . "</table>";
+	mysql_free_result($result);
+
+	// get totals for each label
+	$result = doQuery("select label, count(*) as total from $gPagesTable where archive='$gArchive' group by label order by startedDateTime asc;");
+	$aVarValues = array();
+	while ($row = mysql_fetch_assoc($result)) {
+		array_push($aVarValues, round((100*$hNum[$row['label']])/$row['total']));
+	}
+	mysql_free_result($result);
+
+	return percentageColumnChart("Pages containg Redirects", $aVarNames, $aVarValues, "008000");
 }
 
 
 function percentJson() {
 	global $gPagesTable, $gRequestsTable;
+	global $gArchive, $gLabel;
+
 	$sHtml = "<div class=itagline>pages using JSON:</div><table border=0 cellpadding=0 cellspacing=0>";
 	foreach (archiveNames() as $archive) {
 		$label = latestLabel($archive);
@@ -112,84 +128,84 @@ function percentJson() {
 
 function requestErrors() {
 	global $gPagesTable, $gRequestsTable;
-	$sHtml = "<div class=itagline>pages containing errors (4xx, 5xx):</div><table border=0 cellpadding=0 cellspacing=0>";
-	foreach (archiveNames() as $archive) {
-		$label = latestLabel($archive);
-		$archivecond = "archive='$archive' and label='$label'";
-		$num = doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and ($archivecond) and status >= 400;");
-		$total = doSimpleQuery("select count(*) from $gPagesTable where $archivecond;");
-		$sHtml .= "<tr><td align=right>$archive:</td> <td align=right>" . round(100*$num/$total) . "%</td></tr>";
+	global $gArchive, $gLabel;
+
+	// get errors for each label
+	$result = doQuery("select label, count(distinct $gPagesTable.pageid) as num from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and status >= 400 group by label order by $gPagesTable.startedDateTime asc;");
+	$aVarNames = array();
+	$hNum = array();
+	while ($row = mysql_fetch_assoc($result)) {
+		array_push($aVarNames, $row['label']);
+		$hNum[$row['label']] = $row['num'];
 	}
-	return $sHtml . "</table>";
+	mysql_free_result($result);
+
+	// get totals for each label
+	$result = doQuery("select label, count(*) as total from $gPagesTable where archive='$gArchive' group by label order by startedDateTime asc;");
+	$aVarValues = array();
+	while ($row = mysql_fetch_assoc($result)) {
+		array_push($aVarValues, round((100*$hNum[$row['label']])/$row['total']));
+	}
+	mysql_free_result($result);
+
+	return percentageColumnChart("Pages with Request Errors (4xx, 5xx)", $aVarNames, $aVarValues, "B09542");
 }
 
 
-function imageFormats() {
+function responseSizes() {
 	global $gPagesTable, $gRequestsTable;
+	global $gArchive, $gLabel;
 
-	$hData = array();
-	$totalrequests = 0;
+	$gif = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%image/gif%';") );
+	$jpg = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and (resp_content_type like '%image/jpg%' or resp_content_type like '%image/jpeg%');") );
+	$png = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%image/png%';") );
+	$js = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%script%';") );
+	$css = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%css%';") );
+	$flash = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%flash%';") );
+	$html = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%html%';") );
 
-	// We only want to look at requests from the most recent run of each archive.
-	$archivecond = "";
-	foreach (archiveNames() as $archive) {
-		$label = latestLabel($archive);
-		$archivecond .= ( $archivecond ? " or " : "" ) . "archive='$archive' and label='$label'";
-	}
+	$aVarNames = array("GIF", "JPEG", "PNG", "HTML", "JS", "CSS", "Flash");
+	$aVarValues = array($gif, $jpg, $png, $html, $js, $css, $flash);
 
-	// TODO - Figure out a way to sort these based on numrequests - for now we know it's GIF, JPG, PNG.
+	return horizontalBarChart("Response Size", $aVarNames, $aVarValues, "3B356A", 0, max(array($gif, $jpg, $png, $html, $js, $css, $flash))+10, 
+							  "average response size (kB)");
+}
 
-	// GIF
-	$query = "select count(*) as numrequests, sum(respSize) as totalbytes from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and ($archivecond) and resp_content_type like '%image/gif%';";
-	$result = doQuery($query);
-	if ( $result ) {
-		$row = mysql_fetch_assoc($result);
-		if ( $row ) {
-			$hData['GIF'] = array($row['numrequests'], $row['totalbytes']);
-			$totalrequests += $row['numrequests'];
-		}
-		mysql_free_result($result);
-	}
 
-	// JPG
-	$query = "select count(*) as numrequests, sum(respSize) as totalbytes from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and ($archivecond) and (resp_content_type like '%image/jpg%' or resp_content_type like '%image/jpeg%');";
-	$result = doQuery($query);
-	if ( $result ) {
-		$row = mysql_fetch_assoc($result);
-		if ( $row ) {
-			$hData['JPG'] = array($row['numrequests'], $row['totalbytes']);
-			$totalrequests += $row['numrequests'];
-		}
-		mysql_free_result($result);
-	}
+function popularImageFormats() {
+	global $gPagesTable, $gRequestsTable;
+	global $gArchive, $gLabel;
 
-	// PNG
-	$query = "select count(*) as numrequests, sum(respSize) as totalbytes from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and ($archivecond) and resp_content_type like '%image/png%';";
-	$result = doQuery($query);
-	if ( $result ) {
-		$row = mysql_fetch_assoc($result);
-		if ( $row ) {
-			$hData['PNG'] = array($row['numrequests'], $row['totalbytes']);
-			$totalrequests += $row['numrequests'];
-		}
-		mysql_free_result($result);
-	}
+	$total = doSimpleQuery("select count(*) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%image%';");
+	$gif = round( 100*doSimpleQuery("select count(*) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%image/gif%';") / $total);
+	$jpg = round( 100*doSimpleQuery("select count(*) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and (resp_content_type like '%image/jpg%' or resp_content_type like '%image/jpeg%');") / $total);
+	$png = round( 100*doSimpleQuery("select count(*) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%image/png%';") / $total);
 
-	$sHtml = "<div class=itagline>most popular image formats:</div><table border=0 cellpadding=0 cellspacing=0><tr><th></th><th style='font-weight: normal; text-decoration: underline;'>% requests</th><th style='font-weight: normal; text-decoration: underline; padding-left: 16px;'><nobr>avg size</nobr></th></tr>";
-	foreach(array_keys($hData) as $format) {
-		$numrequests = $hData[$format][0];
-		$totalbytes = $hData[$format][1];
-		$sHtml .= "<tr><td style='padding-right: 16px;'>$format</td>" .
-			"<td align=right>" . round(100*$numrequests/$totalrequests) . "%</td>" .
-			"<td align=right>" . formatSize(round($totalbytes/$numrequests)) . "kB</td>" .
-			"</tr>";
-	}
-	return $sHtml . "</table>";
+	$aVarNames = array("GIF $gif%", "JPEG $jpg%", "PNG $png%");
+	$aVarValues = array($gif, $jpg, $png);
+
+	return pieChart("Image Formats", $aVarNames, $aVarValues, "CF557B");
+}
+
+
+function bytesContentType() {
+	global $gPagesTable, $gRequestsTable;
+	global $gArchive, $gLabel;
+
+	$row = doRowQuery("select avg(bytesTotal) as total, avg(bytesHtml) as html, avg(bytesJS) as js, avg(bytesCSS) as css, avg(bytesImg) as img, avg(bytesFlash) as flash, avg(bytesJson) as json, avg(bytesOther) as other from $gPagesTable where archive='$gArchive' and label='$gLabel';");
+	$total = $row['total'];
+	$aVarValues = array( formatSize($row['html']), formatSize($row['img']), formatSize($row['js']), 
+						 formatSize($row['css']), formatSize($row['flash']), formatSize($row['json']+$row['other']) );
+	$aVarNames = array("HTML - " . $aVarValues[0] . " kB", "Images - " . $aVarValues[1] . " kB", "Scripts - " . $aVarValues[2] . " kB", 
+					   "Stylesheets - " . $aVarValues[3] . " kB", "Flash - " . $aVarValues[4] . " kB", "Other - " . $aVarValues[5] . " kB");
+	return pieChart("Average Bytes per Page by Content Type", $aVarNames, $aVarValues, "007099");
 }
 
 
 function percentFlash() {
 	global $gPagesTable, $gRequestsTable;
+	global $gArchive, $gLabel;
+
 	$sHtml = "<div class=itagline>pages using Flash:</div><table border=0 cellpadding=0 cellspacing=0>";
 	foreach (archiveNames() as $archive) {
 		$label = latestLabel($archive);
@@ -204,55 +220,61 @@ function percentFlash() {
 
 function popularScripts() {
 	global $gPagesTable, $gRequestsTable;
-	$sHtml = "<div class=itagline>most popular scripts:</div><table border=0 cellpadding=0 cellspacing=0>";
+	global $gArchive, $gLabel;
 
-	// We only want to look at requests from the most recent run of each archive.
-	$archivecond = "";
-	foreach (archiveNames() as $archive) {
-		$label = latestLabel($archive);
-		$archivecond .= ( $archivecond ? " or " : "" ) . "archive='$archive' and label='$label'";
-	}
+	$total = doSimpleQuery("select count(*) from $gPagesTable where archive='$gArchive' and label='$gLabel';");
+	$result = doQuery("select $gRequestsTable.url, count(distinct $gPagesTable.pageid) as num from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%script%' group by $gRequestsTable.url order by num desc limit 5;");
 
-	$result = doQuery("select $gRequestsTable.url, count(*) as num from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and ($archivecond) and resp_content_type like '%script%' group by $gRequestsTable.url order by num desc limit 5;");
+	$aVarNames = array();
+	$aVarValues = array();
 	while ($row = mysql_fetch_assoc($result)) {
 		$url = $row['url'];
-		$sHtml .= "<tr><td>$url</td></tr>";
+		$num = $row['num'];
+		array_push($aVarNames, $url);
+		array_push($aVarValues, round(100*$num/$total));
 	}
 	mysql_free_result($result);
-	return $sHtml . "</table>";
+
+	return horizontalBarChart("Most Popular Scripts", $aVarNames, $aVarValues, "1D7D61", 0, 100, "sites using the script", true);
 }
 
 
-function percentGA() {
-	global $gPagesTable, $gRequestsTable;
-	$sHtml = "<div class=itagline>pages using Google Analytics:</div><table border=0 cellpadding=0 cellspacing=0>";
-	foreach (archiveNames() as $archive) {
-		$label = latestLabel($archive);
-		$archivecond = "archive='$archive' and label='$label'";
-		$num = doSimpleQuery("select count(distinct $gRequestsTable.pageid) from $gPagesTable, $gRequestsTable where $archivecond and $gRequestsTable.pageid=$gPagesTable.pageid and ($gRequestsTable.url like '%/ga.js%' or $gRequestsTable.url like '%/urchin.js%');");
-		$total = doSimpleQuery("select count(*) from $gPagesTable where $archivecond;");
-		$sHtml .= "<tr><td align=right>$archive:</td> <td align=right>" . round(100*$num/$total) . "%</td></tr>";
-	}
-	return $sHtml . "</table>";
-}
 
 
-function percentJQuery() {
+function jsLibraries() {
 	global $gPagesTable, $gRequestsTable;
-	$sHtml = "<div class=itagline>pages using jQuery:</div><table border=0 cellpadding=0 cellspacing=0>";
-	foreach (archiveNames() as $archive) {
-		$label = latestLabel($archive);
-		$archivecond = "archive='$archive' and label='$label'";
-		$num = doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gPagesTable, $gRequestsTable where $archivecond and $gRequestsTable.pageid=$gPagesTable.pageid and resp_content_type like '%script%' and $gRequestsTable.url like '%jquery%';");
-		$total = doSimpleQuery("select count(*) from $gPagesTable where $archivecond;");
-		$sHtml .= "<tr><td align=right>$archive:</td> <td align=right>" . round(100*$num/$total) . "%</td></tr>";
+	global $gArchive, $gLabel;
+
+	$hCond = array();
+	$hCond["jQuery"] = "$gRequestsTable.url like '%jquery%'";
+	$hCond["YUI"] = "$gRequestsTable.url like '%/yui/%'";
+	$hCond["Dojo"] = "$gRequestsTable.url like '%dojo%'";
+	$hCond["Google Analytics"] = "($gRequestsTable.url like '%/ga.js%' or $gRequestsTable.url like '%/urchin.js%')";
+	$hCond["Quantcast"] = "$gRequestsTable.url like '%quant.js%'";
+	$hCond["AddThis"] = "$gRequestsTable.url like '%addthis.com%'";
+	$hCond["Facebook"] = "($gRequestsTable.url like '%facebook.net/%' or $gRequestsTable.url like '%fbcdn.net/%' or $gRequestsTable.url like '%connect.facebook.com/%')";
+	$hCond["Twitter"] = "$gRequestsTable.url like '%twitter%'";
+	$hCond["ShareThis"] = "$gRequestsTable.url like '%sharethis%'";
+	$hCond["Chrome Frame"] = "$gRequestsTable.url like '%chrome-frame%'";
+	$hCond["Google Libraries API"] = "$gRequestsTable.url like '%googleapis.com%'";
+
+	$aVarNames = array();
+	$aVarValues = array();
+	$total = doSimpleQuery("select count(*) from $gPagesTable where archive='$gArchive' and label='$gLabel';");
+	foreach (array_keys($hCond) as $key) {
+		$cond = $hCond[$key];
+		array_push($aVarNames, $key);
+		array_push($aVarValues, round( 100*doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gPagesTable, $gRequestsTable where archive='$gArchive' and label='$gLabel' and $gRequestsTable.pageid=$gPagesTable.pageid and resp_content_type like '%script%' and $cond;") / $total ));
 	}
-	return $sHtml . "</table>";
+
+	return horizontalBarChart("Popular JavaScript Libraries", $aVarNames, $aVarValues, "1D7D61", 0, 100, "sites using the JS library", true);
 }
 
 
 function percentGoogleLibrariesAPI() {
 	global $gPagesTable, $gRequestsTable;
+	global $gArchive, $gLabel;
+
 	$sHtml = "<div class=itagline>pages using Google Libraries API:</div><table border=0 cellpadding=0 cellspacing=0>";
 	foreach (archiveNames() as $archive) {
 		$label = latestLabel($archive);
@@ -267,6 +289,8 @@ function percentGoogleLibrariesAPI() {
 
 function percentNoJS() {
 	global $gPagesTable, $gRequestsTable;
+	global $gArchive, $gLabel;
+
 	$sHtml = "<div class=itagline>pages with no scripts:</div><table border=0 cellpadding=0 cellspacing=0>";
 	foreach (archiveNames() as $archive) {
 		$label = latestLabel($archive);
@@ -281,6 +305,8 @@ function percentNoJS() {
 
 function percentNoCSS() {
 	global $gPagesTable, $gRequestsTable;
+	global $gArchive, $gLabel;
+
 	$sHtml = "<div class=itagline>pages with no stylesheets:</div><table border=0 cellpadding=0 cellspacing=0>";
 	foreach (archiveNames() as $archive) {
 		$label = latestLabel($archive);
@@ -295,59 +321,112 @@ function percentNoCSS() {
 
 function mostJS() {
 	global $gPagesTable, $gRequestsTable;
-	$sHtml = "<div class=itagline>pages with the most JavaScript:</div><table border=0 cellpadding=0 cellspacing=0>";
-	foreach (archiveNames() as $archive) {
-		$label = latestLabel($archive);
-		$archivecond = "archive='$archive' and label='$label'";
-		$result = doQuery("select url, bytesJS from $gPagesTable where $archivecond order by bytesJS desc limit 1;");
-		if ( $result ) {
-			$row = mysql_fetch_assoc($result);
-			if ( $row ) {
-				$sHtml .= "<tr><td align=right>$archive:</td> <td>" . siteLink($row['url']) . "</td> <td align=right>" . formatSize($row['bytesJS']) . "kB</td></tr>";
-			}
-			mysql_free_result($result);
+	global $gArchive, $gLabel;
+
+	$result = doQuery("select url, bytesJS from $gPagesTable where archive='$gArchive' and label='$gLabel' order by bytesJS desc limit 5;");
+	$aVarNames = array();
+	$aVarValues = array();
+	$maxValue = 0;
+	while ($row = mysql_fetch_assoc($result)) {
+		array_push($aVarNames, $row['url']);
+		array_push($aVarValues, round($row['bytesJS']/1024));
+		if ( ! $maxValue ) {
+			$maxValue = round($row['bytesJS']/1024);
 		}
 	}
-	return $sHtml . "</table>";
+	mysql_free_result($result);
+	array_push($aVarNames, "average");
+	array_push($aVarValues, round(doSimpleQuery("select avg(bytesJS) from $gPagesTable where archive='$gArchive' and label='$gLabel';")/1024));
+
+	return horizontalBarChart("Pages with the Most JavaScript", $aVarNames, $aVarValues, "1D7D61", 0, $maxValue+100, "size of all scripts (kB)");
 }
 
 
 function mostCSS() {
 	global $gPagesTable, $gRequestsTable;
-	$sHtml = "<div class=itagline>pages with the most CSS:</div><table border=0 cellpadding=0 cellspacing=0>";
-	foreach (archiveNames() as $archive) {
-		$label = latestLabel($archive);
-		$archivecond = "archive='$archive' and label='$label'";
-		$result = doQuery("select url, bytesCSS from $gPagesTable where $archivecond order by bytesCSS desc limit 1;");
-		if ( $result ) {
-			$row = mysql_fetch_assoc($result);
-			if ( $row ) {
-				$sHtml .= "<tr><td align=right>$archive:</td> <td>" . siteLink($row['url']) . "</td> <td align=right>" . formatSize($row['bytesCSS']) . "kB</td></tr>";
-			}
-			mysql_free_result($result);
+	global $gArchive, $gLabel;
+
+	$result = doQuery("select url, bytesCSS from $gPagesTable where archive='$gArchive' and label='$gLabel' order by bytesCSS desc limit 5;");
+	$aVarNames = array();
+	$aVarValues = array();
+	$maxValue = 0;
+	while ($row = mysql_fetch_assoc($result)) {
+		array_push($aVarNames, $row['url']);
+		array_push($aVarValues, round($row['bytesCSS']/1024));
+		if ( ! $maxValue ) {
+			$maxValue = round($row['bytesCSS']/1024);
 		}
 	}
-	return $sHtml . "</table>";
+	mysql_free_result($result);
+	array_push($aVarNames, "average");
+	array_push($aVarValues, round(doSimpleQuery("select avg(bytesCSS) from $gPagesTable where archive='$gArchive' and label='$gLabel';")/1024));
+
+	return horizontalBarChart("Pages with the Most CSS", $aVarNames, $aVarValues, "E94E19", 0, $maxValue+100, "size of all stylesheets (kB)");
 }
 
 
 function mostFlash() {
 	global $gPagesTable, $gRequestsTable;
-	$sHtml = "<div class=itagline>pages with the most Flash files:</div><table border=0 cellpadding=0 cellspacing=0>";
-	foreach (archiveNames() as $archive) {
-		$label = latestLabel($archive);
-		$archivecond = "archive='$archive' and label='$label'";
-		$result = doQuery("select url, reqFlash from $gPagesTable where $archivecond order by reqFlash desc limit 1;");
-		if ( $result ) {
-			$row = mysql_fetch_assoc($result);
-			if ( $row ) {
-				$sHtml .= "<tr><td align=right>$archive:</td> <td>" . siteLink($row['url']) . "</td> <td align=right>" . $row['reqFlash'] . "</td></tr>";
-			}
-			mysql_free_result($result);
+	global $gArchive, $gLabel;
+
+	$result = doQuery("select url, reqFlash from $gPagesTable where archive='$gArchive' and label='$gLabel' order by reqFlash desc limit 5;");
+	$aVarNames = array();
+	$aVarValues = array();
+	$maxValue = 0;
+	while ($row = mysql_fetch_assoc($result)) {
+		array_push($aVarNames, $row['url']);
+		array_push($aVarValues, $row['reqFlash']);
+		if ( ! $maxValue ) {
+			$maxValue = $row['reqFlash'];
 		}
 	}
-	return $sHtml . "</table>";
+	mysql_free_result($result);
+	array_push($aVarNames, "average");
+	array_push($aVarValues, doSimpleQuery("select avg(reqFlash) from $gPagesTable where archive='$gArchive' and label='$gLabel';"));
+
+	return horizontalBarChart("Pages with the Most Flash Files", $aVarNames, $aVarValues, "AA0033", 0, $maxValue+10);
 }
+
+
+function pieChart($title, $aNames, $aValues, $color="007099") {
+	return "<img src='http://chart.apis.google.com/chart?chs=400x225&cht=p&chco=$color&chd=t:" .
+		implode(",", $aValues) .
+		"&chl=" .
+		urlencode(implode("|", $aNames)) .
+		"&chma=|5&chtt=" . urlencode($title) . "'>";
+}
+
+
+function percentageColumnChart($title, $aNames, $aValues, $color="80C65A") {
+	return "<img src='http://chart.apis.google.com/chart?chxl=0:|20%25|40%25|60%25|80%25|100%25|1:|" .
+		urlencode(implode("|", $aNames)) .
+		"&chxp=0,20,40,60,80,100&chxs=0,$color,11.5,0,lt,$color|1,676767,11.5,0,lt,67676700&chxtc=0,4|1,4&chxt=y,x&chbh=60,30,20&chs=300x225&cht=bvg&chco=$color&chd=t:" .
+		implode(",", $aValues) .
+		"&chtt=" . urlencode($title) . ">";
+}
+
+
+function correlationColumnChart($title, $aNames, $aValues, $color="80C65A") {
+	return "<img src='http://chart.apis.google.com/chart?chxl=1:|" .
+		urlencode(implode("|", $aNames)) .
+		"&chxr=0,0,1&chxs=1,676767,11.5,0,lt,67676700&chxtc=1,5&chxt=y,x&chbh=60,30,20&chs=500x225&cht=bvg&chco=$color&chds=0,1&chd=t:" .
+		implode(",", $aValues) .
+		"&chtt=" . urlencode($title) . "'>";
+}
+
+
+function horizontalBarChart($title, $aNames, $aValues, $color="80C65A", $min, $max, $xtitle = "", $bPercentage = false) {
+	return "<img src='http://chart.apis.google.com/chart?" .
+		( $bPercentage ? "chxp=0,20,40,60,80,100&chxl=0:|20%|40%|60%|80%|100%|1:|" : "chxl=1:|" ) .
+		urlencode(implode("|", array_reverse($aNames))) .
+		( $xtitle ? "&chdlp=b&chdl=$xtitle" : "" ) .
+		"&chxtc=0,6&chxs=0,676767,11.5,0,l&chxr=1,0,160|0,$min,$max&chxt=x,y&chbh=22&chs=640x" .
+		( count($aValues) > 7 ? 400 : ( count($aValues) > 5 ? 260 : 220 ) ) . "&cht=bhg&chco=$color&chds=$min,$max&chd=t:" .
+		implode(",", $aValues) .
+		"&chma=|0,5&chtt=" . urlencode($title) . "'>";
+}
+
+
 
 $gCacheFile = "interesting.js.cache";
 $snippets = "";
@@ -357,21 +436,22 @@ if ( file_exists($gCacheFile) ) {
 
 if ( ! $snippets ) {
 	$aSnippetFunctions = array(
+							   "jsLibraries",
 							   "mostJS",
 							   "mostCSS",
-							   "mostFlash",
-							   "percentFlash",
-							   "imageFormats",
+							   //"mostFlash",
+							   //"percentFlash",
+							   "bytesContentType",
+							   "popularImageFormats",
+							   "responseSizes",
 							   "popularScripts",
-							   "percentGA",
-							   "percentJQuery",
-							   "percentGoogleLibrariesAPI",
+							   //"percentGoogleLibrariesAPI",
+							   //"requestErrors",
+							   //"percentNoJS",
+							   //"percentNoCSS",
+							   //"redirects"
 							   "onloadCorrelation",
-							   "renderCorrelation",
-							   "requestErrors",
-							   "percentNoJS",
-							   "percentNoCSS",
-							   "redirects"
+							   "renderCorrelation"
 							   );
 	$snippets = "";
 	foreach($aSnippetFunctions as $func) {
@@ -420,7 +500,6 @@ function showSnippet(parentId, bPrev) {
 		newSnippet = document.createElement('div');
 		newSnippet.id = iSnippet;
 		gaSnippetElems[iSnippet] = newSnippet;
-		newSnippet.className = "ianswer";
 		newSnippet.innerHTML = gaSnippets[iSnippet];
 		var aPosition = findPos(parent);
 		newSnippet.style.left = aPosition[0] + "px";
