@@ -420,7 +420,7 @@ function horizontalBarChart($title, $aNames, $aValues, $color="80C65A", $min, $m
 		( $bPercentage ? "chxp=0,20,40,60,80,100&chxl=0:|20%|40%|60%|80%|100%|1:|" : "chxl=1:|" ) .
 		urlencode(implode("|", array_reverse($aNames))) .
 		( $xtitle ? "&chdlp=b&chdl=$xtitle" : "" ) .
-		"&chxtc=0,6&chxs=0,676767,11.5,0,l&chxr=1,0,160|0,$min,$max&chxt=x,y&chbh=22&chs=640x" .
+		"&chxtc=0,6&chxs=0,676767,11.5,0,l|1,676767,11.5,1,lt,67676700&chxr=1,0,160|0,$min,$max&chxt=x,y&chbh=22&chs=640x" .
 		( count($aValues) > 7 ? 400 : ( count($aValues) > 5 ? 260 : 220 ) ) . "&cht=bhg&chco=$color&chds=$min,$max&chd=t:" .
 		implode(",", $aValues) .
 		"&chma=|0,5&chtt=" . urlencode($title) . "'>";
@@ -524,9 +524,9 @@ function insertNav(parentId) {
 	var nav = document.createElement('div');
 	nav.id = "interestingnav";
 	nav.innerHTML = 
-		"<a class='image-link' href='javascript:showSnippet(\"" + parentId + "\", 1)'><img src='images/arrow-left-16x16.gif' width=16 height=16 border=0></a>" +
-		"<a href='interesting.php' style='margin: 0 8px; vertical-align: top;'>interesting stats</a>" +
-		"<a class='image-link' href='javascript:showSnippet(\"" + parentId + "\")'><img src='images/arrow-right-16x16.gif' width=16 height=16 border=0></a>";
+		"<a class='image-link' href='javascript:showSnippet(\"" + parentId + "\", 1)'><img src='images/tri-lft-t-14x28.gif' width=14 height=28 border=0 style='vertical-align: middle;'></a>" +
+		"<a href='interesting.php' style='margin: 0 8px; font-size: 1.4em; vertical-align: top;'>interesting stats</a>" +
+		"<a class='image-link' href='javascript:showSnippet(\"" + parentId + "\")'><img src='images/tri-rt-t-14x28.gif' width=14 height=28 border=0 style='vertical-align: middle;'></a>";
 	elem.parentNode.insertBefore(nav, elem);
 }
 
