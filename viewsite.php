@@ -100,7 +100,7 @@ function showInterval(ms) {
 			if ( prevSrc != img.src ) {
 				prevSrc = img.src;
 				if ( 0 < t ) {
-					sBorder = "3px solid #FEB301";
+					sBorder = "3px solid #000";
 				}
 			}
 		}
