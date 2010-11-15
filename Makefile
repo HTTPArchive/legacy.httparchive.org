@@ -14,5 +14,6 @@ pushbeta :
 	cp -p lists/*.txt ~/beta.httparchive.org/lists/.
 	mkdir -p ~/beta.httparchive.org/archives
 	cp -pRu archives ~/beta.httparchive.org/.
-	cd ~/beta.httparchive.org/
+	mkdir -p ~/beta.httparchive.org/cache
+	chmod 777 ~/beta.httparchive.org/cache
 	echo "CREATE interesting.js.cache !!!!!!!!!!!"
