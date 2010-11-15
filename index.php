@@ -34,7 +34,6 @@ $gTitle = "HTTP Archive";
 	width: 50%; }
 h2 {
 	clear: both; }
-#interestingnav { margin-top: 39px; margin-bottom: 30px; font-size: 0.9em; font-weight: bold; text-align: center; }
 </style>
 </head>
 
@@ -43,10 +42,16 @@ h2 {
 
 <p class="summary">The <a href="http://httparchive.org">HTTP Archive</a> tracks how the Web is built.</p>
 
-<ul class="even-columns">
+<ul class="even-columns keypoints">
   <li>Trends in web technology&mdash;use of JavaScript, CSS, and new image formats
   <li>Performance of the Web&mdash;page speed, size, and errors
   <li>Open&mdash;the <a href="http://code.google.com/p/httparchive/source/checkout">code</a> is open source, the data is <a href="downloads.php">downloadable</a>
+</ul>
+
+<ul class="even-columns keylinks">
+  <li> <a href="viewarchive.php?a=All">websites</a>
+  <li id=interestingnavstatic> <a href="interesting.php">interesting stats</a>
+  <li> <a href="trends.php?a=All">trends</a>
 </ul>
 
 <div id=interesting style="text-align: center;">
