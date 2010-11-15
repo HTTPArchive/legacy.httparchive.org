@@ -24,7 +24,8 @@ rotating divs of interesting stats.
 */
 
 $gArchive = "All";
-$gLabel = latestLabel($gArchive);
+$gLabel = ( array_key_exists("l", $_GET) ? $_GET["l"] : latestLabel($gArchive) );
+$gRev = "$Rev$";
 
 function onloadCorrelation() {
 	return findCorrelation("onLoad", "load", "Highest Correlation to Load Time");
