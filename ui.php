@@ -39,11 +39,7 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
 		<li><a href="about.php">about</a></li>
 		<li><a href="http://groups.google.com/group/httparchive/topics">contact</a></li>
 		<li><a href="http://code.google.com/p/httparchive/">code</a></li>';
-
-		if( !empty($extraNav) )
-			$navlinks .= $extraNav;
-	
-		$navlinks .= '</ul>
+    </ul>
 </nav>';
 	}
 	
