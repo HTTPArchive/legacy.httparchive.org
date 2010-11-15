@@ -159,12 +159,13 @@ function archiveNames() {
 
 
 // Return HTML to create a select list of archive labels (eg, "Oct 2010", "Nov 2010").
-function selectArchiveLabel($archive, $curLabel) {
+function selectArchiveLabel($archive, $curLabel, $bReverse=true) {
 	global $gPagesTable;
 
 	$sSelect = "<select onchange='document.location=\"?a=$archive&l=\"+escape(this.options[this.selectedIndex].value)'>\n";
 
-	$query = "select label, startedDateTime from $gPagesTable where archive = '$archive' group by label order by startedDateTime asc;";
+	$query = "select label, startedDateTime from $gPagesTable where archive = '$archive' group by label order by startedDateTime " . 
+		( $bReverse ? "desc" : "asc" ) . ";";
 	$result = doQuery($query);
 	while ($row = mysql_fetch_assoc($result)) {
 		$label = $row['label'];
