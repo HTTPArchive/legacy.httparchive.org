@@ -520,14 +520,18 @@ function insertNav(parentId) {
 		return;
 	}
 
-	var elem = document.getElementById(parentId);
-	var nav = document.createElement('div');
+	var nav = document.getElementById('interestingnavstatic');
+	if ( ! nav ) {
+		nav = document.createElement('div');
+		var elem = document.getElementById(parentId);
+		elem.parentNode.insertBefore(nav, elem);
+	}
+
 	nav.id = "interestingnav";
 	nav.innerHTML = 
-		"<a class='image-link' href='javascript:showSnippet(\"" + parentId + "\", 1)'><img src='images/tri-lft-t-14x28.gif' width=14 height=28 border=0 style='vertical-align: middle;'></a>" +
-		"<a href='interesting.php' style='margin: 0 8px; font-size: 1.4em; vertical-align: top;'>interesting stats</a>" +
-		"<a class='image-link' href='javascript:showSnippet(\"" + parentId + "\")'><img src='images/tri-rt-t-14x28.gif' width=14 height=28 border=0 style='vertical-align: middle;'></a>";
-	elem.parentNode.insertBefore(nav, elem);
+		"<a class='image-link' href='javascript:showSnippet(\"" + parentId + "\", 1)'><img src='images/tri-lft-t-14x28.gif' width=14 height=28 border=0></a>" +
+		"&nbsp;<a href='interesting.php'>interesting stats</a>&nbsp;" +
+		"<a class='image-link' href='javascript:showSnippet(\"" + parentId + "\")'><img src='images/tri-rt-t-14x28.gif' width=14 height=28 border=0></a>";
 }
 
 
