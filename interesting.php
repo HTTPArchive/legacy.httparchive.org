@@ -41,6 +41,11 @@ $gTitle = "Interesting Stats";
 
 <h1>Interesting stats</h1>
 
+<p>
+Got a stat you'd like to see?
+<a href="http://code.google.com/p/httparchive/issues/entry?summary=New+Interesting+Stat&comment=Here%27s%20an%20interesting%20stat%20I%27d%20like%20to%20see%3A" target="_blank">Suggest it!</a>
+</p>
+
 <div id=interesting style="margin-top: 40px;">
 <!-- interesting.js will insert interesting stats here -->
 </div>
