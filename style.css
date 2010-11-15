@@ -160,7 +160,6 @@ p + ul, p + ol {
 	margin-left: 25px;
 	/*border-right: 2px solid #e0e0e0;*/
 	padding: .7em 15px;
-	background: #f5f5f5;
 	/* OneTrueLayout hacks */
 	margin-bottom: -998.3em;
 	padding-bottom: 999em; }
@@ -168,6 +167,14 @@ p + ul, p + ol {
 	margin-left: 0; }
 .even-columns li {
 	list-style: none; }
+
+.keypoints > li {
+	background: #f5f5f5; }
+.keylinks * {
+	font-size: 1.2em;
+	font-weight: bold;
+	text-align: center;	
+	vertical-align: top; }
 
 table {
 	width: 100%;
