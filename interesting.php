@@ -18,6 +18,8 @@ limitations under the License.
 require_once("ui.php");
 require_once("utils.php");
 
+$gArchive = "All";
+$gLabel = ( array_key_exists("l", $_GET) ? $_GET["l"] : latestLabel($gArchive) );
 $gTitle = "Interesting Stats";
 ?>
 <!doctype html>
@@ -46,6 +48,11 @@ Got a stat you'd like to see?
 <a href="http://code.google.com/p/httparchive/issues/entry?summary=New+Interesting+Stat&comment=Here%27s%20an%20interesting%20stat%20I%27d%20like%20to%20see%3A" target="_blank">Suggest it!</a>
 </p>
 
+<form>
+	<label>Choose a run:</label>
+	<?php echo selectArchiveLabel($gArchive, $gLabel); ?>
+</form>
+
 <div id=interesting style="margin-top: 40px;">
 <!-- interesting.js will insert interesting stats here -->
 </div>
@@ -66,7 +73,7 @@ function showSnippets() {
 }
 
 var script2 = document.createElement('script');
-script2.src = "interesting.js";
+script2.src = "interesting.js?l=<?php echo $gLabel ?>";
 script2.onload = showSnippets;
 document.getElementsByTagName('head')[0].appendChild(script2);
 </script>
