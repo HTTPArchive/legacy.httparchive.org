@@ -34,6 +34,14 @@ $gTitle = "HTTP Archive";
 	width: 50%; }
 h2 {
 	clear: both; }
+.arrow { 
+	vertical-align: top;
+	padding-top: 100px; }
+#rightarrow {
+	text-align: left; }
+#interestingcontainer {
+	width: auto; 
+	border: 0; }
 </style>
 </head>
 
@@ -50,18 +58,27 @@ h2 {
 
 <ul class="even-columns keylinks">
   <li> <a href="viewarchive.php?a=All">websites</a>
-  <li id=interestingnavstatic> <a href="interesting.php">interesting stats</a>
+  <li> <a href="interesting.php">interesting stats</a>
   <li> <a href="trends.php?a=All">trends</a>
 </ul>
 
-<div id=interesting style="text-align: center;">
+<center>
+<table id=interestingcontainer cellspacing=0 cellpadding=0 border=0>
+<tr>
+<td id=leftarrow class=arrow></td>
+<td>
+<div id=interesting>
 <!-- interesting.js will insert interesting stats here -->
 </div>
+</td>
+<td id=rightarrow class=arrow></td>
+</table>
+</center>
 
 <script type="text/javascript">
 var script2 = document.createElement('script');
 script2.src = "interesting.js";
-script2.onload = function() { showSnippet('interesting'); };
+script2.onload = function() { showSnippet('interesting'); insertNav('interesting'); };
 document.getElementsByTagName('head')[0].appendChild(script2);
 </script>
 
