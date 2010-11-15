@@ -478,8 +478,6 @@ function showSnippet(parentId, bPrev) {
 		return;
 	}
 
-	insertNav(parentId);
-
 	var iSnippet = Math.floor(gaSnippets.length * Math.random());
 	if ( curSnippet ) {
 		iSnippet = parseInt(curSnippet.id)
@@ -516,22 +514,15 @@ function showSnippet(parentId, bPrev) {
 
 
 function insertNav(parentId) {
-	if ( document.getElementById('interestingnav') ) {
-		return;
+	var arrow = document.getElementById('leftarrow');
+	if ( arrow ) {
+		arrow.innerHTML = "<a class='image-link' href='javascript:showSnippet(\"" + parentId + "\", 1)'><img src='images/tri-lft-t-14x28.gif' width=14 height=28 border=0></a>";
 	}
 
-	var nav = document.getElementById('interestingnavstatic');
-	if ( ! nav ) {
-		nav = document.createElement('div');
-		var elem = document.getElementById(parentId);
-		elem.parentNode.insertBefore(nav, elem);
+	arrow = document.getElementById('rightarrow');
+	if ( arrow ) {
+		arrow.innerHTML = "<a class='image-link' href='javascript:showSnippet(\"" + parentId + "\")'><img src='images/tri-rt-t-14x28.gif' width=14 height=28 border=0></a>";
 	}
-
-	nav.id = "interestingnav";
-	nav.innerHTML = 
-		"<a class='image-link' href='javascript:showSnippet(\"" + parentId + "\", 1)'><img src='images/tri-lft-t-14x28.gif' width=14 height=28 border=0></a>" +
-		"&nbsp;<a href='interesting.php'>interesting stats</a>&nbsp;" +
-		"<a class='image-link' href='javascript:showSnippet(\"" + parentId + "\")'><img src='images/tri-rt-t-14x28.gif' width=14 height=28 border=0></a>";
 }
 
 
