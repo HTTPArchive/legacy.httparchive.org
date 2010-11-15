@@ -57,7 +57,7 @@ h2 {
 </ul>
 
 <ul class="even-columns keylinks">
-  <li> <a href="viewarchive.php?a=All">websites</a>
+  <li> <a href="websites.php?a=All">websites</a>
   <li> <a href="interesting.php">interesting stats</a>
   <li> <a href="trends.php?a=All">trends</a>
 </ul>
