@@ -25,7 +25,10 @@ rotating divs of interesting stats.
 
 $gArchive = "All";
 $gLabel = ( array_key_exists("l", $_GET) ? $_GET["l"] : latestLabel($gArchive) );
-$gRev = "$Rev$";
+$gRev = '$Rev$';
+if ( ereg('Rev: ([0-9]*) ', $gRev, $regs) ) {
+	$gRev = $regs[1];
+}
 
 function onloadCorrelation() {
 	return findCorrelation("onLoad", "load", "Highest Correlation to Load Time");
@@ -429,7 +432,7 @@ function horizontalBarChart($title, $aNames, $aValues, $color="80C65A", $min, $m
 
 
 
-$gCacheFile = "interesting.js.cache";
+$gCacheFile = "./cache/interesting.js.$gRev.$gLabel.cache";
 $snippets = "";
 if ( file_exists($gCacheFile) ) {
 	$snippets = file_get_contents($gCacheFile);
@@ -461,7 +464,7 @@ if ( ! $snippets ) {
 	// This won't work for web site users because of permissions.
 	// Run "php interesting.js" from the commandline to generate the cache file.
 	// I'll leave this line generating errors as a reminder to create the cache file.
-	file_put_contents("./interesting.js.cache", $snippets);
+	file_put_contents($gCacheFile, $snippets);
 }
 ?>
 // HTML strings for each snippet
