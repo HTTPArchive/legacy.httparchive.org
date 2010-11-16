@@ -281,10 +281,11 @@ echo $sRows;
 </table>
 
 <script type="text/javascript">
-var script = document.createElement('script');
-script.src = "tablesort.js";
-script.onload = function() { TS.init(); };
-document.getElementsByTagName('head')[0].appendChild(script);
+var tsjs = document.createElement('script');
+tsjs.src = "tablesort.js";
+tsjs.onload = function() { TS.init(); };
+tsjs.onreadystatechange = function() { if ( tsjs.readyState == 'complete' || tsjs.readyState == 'loaded' ) { TS.init(); } };
+document.getElementsByTagName('head')[0].appendChild(tsjs);
 </script>
 
 <?php
