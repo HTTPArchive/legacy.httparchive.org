@@ -27,6 +27,7 @@ $url = $row['url'];
 $wptid = $row['wptid'];
 $wptrun = $row['wptrun'];
 $onLoad = $row['onLoad'];
+$interval = ( $onLoad > 15000 ? 5000 : ( $onLoad > 4000 ? 1000 : ( $onLoad > 1000 ? 500 : 100 ) ) );
 $renderStart = $row['renderStart'];
 
 $xmlurl = "http://www.webpagetest.org/xmlResult.php?test=$wptid";
@@ -50,7 +51,7 @@ if ( preg_match($pattern, $wptid, $aMatches) ) {
 }
 $lastFrameTime = 0;
 for ( $i = 0; $i < ($onLoad+100); $i += 100 ) {
-	$sTh .= "<th id=th$i>" . ($i/1000) . "s</th> ";
+	$sTh .= "<th id=th$i style='display: none;'>" . ($i/1000) . "s</th> ";
 	//$border = "";
 	$class = "thumb";
 	if ( array_key_exists($i, $aTimes) ) {
@@ -60,14 +61,11 @@ for ( $i = 0; $i < ($onLoad+100); $i += 100 ) {
 	}
 	$f = "0000" . ($lastFrameTime/100);
 	$f = substr($f, strlen($f)-4);
-	$sTd .= "<td id=td$i class='$class'><a target='_blank' href='$url$f.jpg'><img width=200 height=140 src='http://www.webpagetest.org/thumbnail.php?test=$wptid&width=200&file=video_$wptrun/frame_$f.jpg'></a></td>";
+	$sTd .= "<td id=td$i class='$class' style='display: none;'><a target='_blank' href='$url$f.jpg'><img width=200 height=140 id='http://www.webpagetest.org/thumbnail.php?test=$wptid&width=200&file=video_$wptrun/frame_$f.jpg'></a></td>";
 }
 ?>
 
 var sTh = "<?php echo $sTh ?>";
 var sTd = "<?php echo $sTd ?>";
 document.getElementById('videoDiv').innerHTML = "<table id='video'><tr>" + sTh + "</tr><tr>" + sTd + "</tr></table>";
-
-var renderStart = <?php echo $renderStart ?>;
-var scrollPos = (parseInt(renderStart/100))*200;
-document.getElementById("videoDiv").scrollLeft = scrollPos;
+showInterval(<?php echo $interval ?>);
