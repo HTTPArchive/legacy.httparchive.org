@@ -76,10 +76,11 @@ h2 {
 </center>
 
 <script type="text/javascript">
-var script2 = document.createElement('script');
-script2.src = "interesting.js";
-script2.onload = function() { showSnippet('interesting'); insertNav('interesting'); };
-document.getElementsByTagName('head')[0].appendChild(script2);
+var interestingjs = document.createElement('script');
+interestingjs.src = "interesting.js";
+interestingjs.onload = function() { showSnippet('interesting'); insertNav('interesting'); };
+interestingjs.onreadystatechange = function() { if ( interestingjs.readyState == 'complete' || interestingjs.readyState == 'loaded' ) { showSnippet('interesting'); insertNav('interesting'); } };
+document.getElementsByTagName('head')[0].appendChild(interestingjs);
 </script>
 
 <?php echo uiFooter() ?>
