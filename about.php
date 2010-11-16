@@ -43,13 +43,12 @@ As a result he founded the <a href="http://archive.org/">Internet Archive</a> wh
 Because digitized content is so prevalent in and significant to today's society, 
 it follows that peoples' ability to successfully access that information is critical - 
 a website that has errors or takes too long is affecting the ability of people to see its content. 
-The Internet Archive provides a history of digitized content, but there is no history of how that content was constructed and served. 
 </p>
 
 <p>
-The <a href="http://httparchive.org">HTTP Archive</a> fills this gap by recording this performance meta information about Internet content. 
+The <a href="http://httparchive.org">HTTP Archive</a> provides a record of how this digitized content is constructed and served. 
 It provides permanent storage for web performance information such as size of pages, failed requests, and technologies utilized. 
-With this web performance information we can begin to see trends in how successful and easy it is to access this pervasive source of information. 
+This performance information allows us to see trends in how the Web is built.
 </p>
 
 
