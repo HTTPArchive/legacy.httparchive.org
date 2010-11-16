@@ -38,7 +38,7 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
 		<li><a href="viewarchive.php">archives</a></li>
 		<li><a href="about.php">about</a></li>
 		<li><a href="http://groups.google.com/group/httparchive/topics">contact</a></li>
-		<li><a href="http://code.google.com/p/httparchive/">code</a></li>';
+		<li><a href="http://code.google.com/p/httparchive/">code</a></li>
     </ul>
 </nav>';
 	}
