@@ -60,25 +60,10 @@ $renderStart = $row['renderStart'];
 
 <?php 
 // Build a table that has empty cells to be filled in later.
-$sTh = "";
-$sTd = "";
-$aMatches = array();
-for ( $i = 0; $i < ($onLoad + 100); $i += 100 ) {
-	$sTh .= "<th id=th$i>&nbsp;</th> ";
-	$sTd .= "<td id=td$i></td>\n";
-}
-
 if ( ! onBlacklist($url) ) {
 	echo <<<OUTPUT
 <section id="videoContainer">
 <div id="videoDiv">
-<table id="video">
-<thead>
-<tr>$sTh</tr>
-</thead>
-<tbody>
-<tr>$sTd</tr>
-</table>
 </div>
 </section>
 
@@ -97,6 +82,9 @@ function showInterval(ms) {
 		var img = aTds[i].getElementsByTagName('img')[0];
 		if ( 0 === ( t % ms ) || i === len-1 ) {
 			sDisplay = "table-cell";
+			if ( !img.src && img.id ) {
+				img.src = img.id;
+			}
 			if ( prevSrc != img.src ) {
 				prevSrc = img.src;
 				if ( 0 < t ) {
@@ -107,6 +95,15 @@ function showInterval(ms) {
 		aTds[i].style.display = sDisplay;
 		aThs[i].style.display = sDisplay;
 		img.style.border = sBorder;
+	}
+
+	var sel = document.getElementById('interval');
+	for ( var i = 0; i < sel.options.length; i++ ) {
+		var option = sel.options[i];
+		if ( option.label == ms ) {
+			option.selected = true;
+			break;
+		}
 	}
 }
 </script>
@@ -121,7 +118,14 @@ show screenshots every
 </select>
 seconds
 </div>
-<script src="filmstrip.js?pageid=$gPageid"></script>
+
+<script type="text/javascript">
+// Load this async since it does an RPC for the filmstrip XML.
+var filmstripjs = document.createElement('script');
+filmstripjs.src = "filmstrip.js?pageid=$gPageid";
+document.getElementsByTagName('head')[0].appendChild(filmstripjs);
+</script>
+
 OUTPUT;
 }
 ?>
