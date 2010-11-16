@@ -96,6 +96,8 @@ $ghColumnTitles = array (
 
 // Don't link to some websites.
 $ghBlackList = array(
+					 "adultfriendfinder.com" => 1,
+					 "www.adultfriendfinder.com" => 1,
 					 "xvideos.com" => 1,
 					 "www.xvideos.com" => 1,
 					 "pornhub.com" => 1,
