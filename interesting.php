@@ -62,7 +62,7 @@ Got a stat you'd like to see?
 
 <script>
 function showSnippets() {
-	parent = document.getElementById('interesting');
+	var parent = document.getElementById('interesting');
 	for ( var iSnippet = 0; iSnippet < gaSnippets.length; iSnippet++ ) {
 		newSnippet = document.createElement('div');
 		newSnippet.id = iSnippet;
@@ -72,10 +72,11 @@ function showSnippets() {
 	}
 }
 
-var script2 = document.createElement('script');
-script2.src = "interesting.js?l=<?php echo $gLabel ?>";
-script2.onload = showSnippets;
-document.getElementsByTagName('head')[0].appendChild(script2);
+var interestingjs = document.createElement('script');
+interestingjs.src = "interesting.js?l=<?php echo $gLabel ?>";
+interestingjs.onload = showSnippets;
+interestingjs.onreadystatechange = function() { if ( interestingjs.readyState == 'complete' || interestingjs.readyState == 'loaded' ) { showSnippets(); } };
+document.getElementsByTagName('head')[0].appendChild(interestingjs);
 </script>
 
 </body>
