@@ -100,6 +100,21 @@ nav .return {
 	padding-left: 20px;
 	background: url(images/return-arrow.png) no-repeat left center; }
 
+.horizlist {
+	overflow: auto;
+	font-size: 0.8em;
+	margin: 0;
+	max-width: 600px; }
+.horizlist li {
+	list-style: none;
+	margin-right: 16px;
+	display: block;
+	float: left; }
+.horizlist a, .horizlist a:visited {
+	text-decoration: underline; }
+.horizlist a:focus, .horizlist a:hover {
+	border-bottom: none; }
+
 h1 {
 	display: block;
 	position: relative;
