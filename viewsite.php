@@ -48,15 +48,18 @@ $renderStart = $row['renderStart'];
 	
 	<p class="summary">took <?php echo round(($onLoad / 1000), 1) ?> seconds to load <?php echo round(($row['bytesTotal']/1024)) ?>kB of data over <?php echo $row['reqTotal'] ?> requests.</p>
 
-<div style='margin-top: 4px; font-size: 0.8em;'>
-<a href='<?php echo $harfile ?>'>download HAR file</a>
-</div>
+
+<ul class=horizlist style="font-size: 0.9em;">
+  <li> <a href="#filmstrip">Filmstrip, Video</a>
+  <li> <a href="#waterfall">HTTP Waterfall</a>
+  <li> <a href="#requests">Requests</a>
+  <li> <a href="#pagespeed">Page Speed</a>
+  <li> <a href="#downloads">Downloads</a>
+</ul>
 
 
-
-
-
-<h2>Video, Filmstrip</h2>
+<a name="filmstrip"></a>
+<h2>Filmstrip, Video</h2>
 
 <?php 
 // Build a table that has empty cells to be filled in later.
@@ -130,13 +133,13 @@ OUTPUT;
 }
 ?>
 
-<div style='font-size: 0.9em;'>
-<a href="http://www.webpagetest.org/video/compare.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0">WPT filmstrip</a>
-&nbsp;|&nbsp;
-<a href="http://www.webpagetest.org/video/create.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0&id=<?php echo $wptid ?>.<?php echo $wptrun ?>.0">watch video</a>
-</div>
+<ul class=horizlist>
+  <li> <a href="http://www.webpagetest.org/video/compare.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0">WPT filmstrip</a>
+  <li> <a href="http://www.webpagetest.org/video/create.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0&id=<?php echo $wptid ?>.<?php echo $wptrun ?>.0">watch video</a>
+</ul>
 
 
+<a name="waterfall"></a>
 <h2>HTTP Waterfall</h2>
 
 <div id=harviewer>
@@ -170,6 +173,9 @@ function initHAR() {
 initHAR();
 </script>
 
+
+
+<a name="requests"></a>
 <h2>Requests</h2>
 <a href="download.php?p=<?php echo $gPageid ?>&format=csv">download CSV</a>
 
@@ -288,6 +294,11 @@ tsjs.onreadystatechange = function() { if ( tsjs.readyState == 'complete' || tsj
 document.getElementsByTagName('head')[0].appendChild(tsjs);
 </script>
 
+
+
+<a name="pagespeed"></a>
+<h2>Page Speed</h2>
+
 <?php
 // Page Speed
 doFile($harfile);
@@ -346,7 +357,7 @@ function displayRules($rules) {
 	}
 
 	$overallScore = intval(0.5 + ($totalScore/count($rules)));
-	echo "<table cellpadding=0 cellspacing=0 border=0>\n" .
+	echo "<table cellpadding=0 cellspacing=0 border=0 style='width: auto;'>\n" .
 		"  <tr><td style='padding-top: 40px; border-bottom: 2px solid; padding-bottom: 8px;'><span style='font-size: 1.2em; padding: 0 2px 0 2px; font-weight: bold; border: 2px solid; color: " . 
 		scoreColor($overallScore) .
 		"'>$overallScore</span></td>" .
@@ -432,6 +443,15 @@ function findPos(obj) {
 	return [curleft,curtop];
 }
 </script>
+
+
+
+<a name="downloads"></a>
+<h2>Downloads</h2>
+
+<div style='margin-top: 4px; font-size: 0.8em;'>
+<a href='<?php echo $harfile ?>'>download HAR file</a>
+</div>
 
 
 <?php echo uiFooter() ?>
