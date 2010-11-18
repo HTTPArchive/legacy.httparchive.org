@@ -30,12 +30,17 @@ $gMaxUrls = 20000;
 	
 	<title>HTTP Archive - <?php echo $gTitle ?></title>
 	<meta charset="UTF-8">
+
+<style>
+.websites { 
+	list-style-type: none; }
+</style>
 </head>
 
 <body>
 <?php echo uiHeader($gTitle); ?>
 
-<ul>
+<ul class=websites>
 <?php
 $query = "select pageid, url from $gPagesTable where archive = '$gArchive' group by url order by urlShort asc limit $gMaxUrls;";
 $result = doQuery($query);
