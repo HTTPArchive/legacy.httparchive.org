@@ -40,12 +40,52 @@ $gMaxUrls = 20000;
 <body>
 <?php echo uiHeader($gTitle); ?>
 
+<style>
+#alphaindex { 
+	text-align: center;
+	position: fixed; 
+	left: 0; }
+#alphaindex > UL { 
+	list-style-type: none; }
+#alphaindex a {
+	font-weight: bold;
+	color: #004D92;
+	padding: 0 20px 0 10px; }
+#alphaindex a:focus, #alphaindex a:hover {
+	color: #004D92;
+    border-bottom: 0; }
+#alphaindex li:focus, #alphaindex li:hover {
+	background: #FFCA66; }
+</style>
+
+<div id=alphaindex>
+<ul>
+  <li> <a href='#top'>top</a>
+<?php
+for ( $i = 65; $i <= 90; $i++ ) {
+	$char = chr($i);
+	echo "<li> <a href='#$char'>$char</a>\n";
+}
+?>
+</ul>
+</div>
+
+<a name='top'></a>
 <ul class=websites>
 <?php
 $query = "select pageid, url from $gPagesTable where archive = '$gArchive' group by url order by urlShort asc limit $gMaxUrls;";
 $result = doQuery($query);
+$lastMark = "";
 while ($row = mysql_fetch_assoc($result)) {
-	echo "<li> <a href='viewsite.php?pageid=" . $row['pageid'] . "&a=$gArchive&l=$gLabel'>" . shortenUrl($row['url']) . "</a>\n";
+	$url = $row['url'];
+	if ( ereg('http://www\.([a-z])', $url, $regs) ) {
+		$curMark = $regs[1];
+		if ( $curMark != $lastMark ) {
+			echo "<a name='" . strtoupper($curMark) . "'></a>\n";
+			$lastMark = $curMark;
+		}
+	}
+	echo "<li> <a href='viewsite.php?pageid=" . $row['pageid'] . "&a=$gArchive&l=$gLabel'>" . shortenUrl($url) . "</a>\n";
 }
 mysql_free_result($result);
 ?>
