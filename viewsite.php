@@ -57,25 +57,22 @@ $renderStart = $row['renderStart'];
 <body class="viewsite">
 <?php echo uiHeader($gTitle, true, "<li><a href='viewarchive.php?a=$gArchive' class='return'>$gArchive</a></li>"); ?>
 
-<div style='float: right;'>
-<?php echo selectSiteLabel($url, $gLabel) ?>
-</div>
-	<h1 style='z-index: 1;'><?php echo str_replace('>http://', '><span class="protocol">http://</span>', siteLink($url)) ?></h1>
+	<h1><?php echo str_replace('>http://', '><span class=protocol>http://</span>', siteLink($url)) ?></h1>
 	
-	<p class="summary">took <?php echo round(($onLoad / 1000), 1) ?> seconds to load <?php echo round(($row['bytesTotal']/1024)) ?>kB of data over <?php echo $row['reqTotal'] ?> requests.</p>
+	<p class=summary>took <?php echo round(($onLoad / 1000), 1) ?> seconds to load <?php echo round(($row['bytesTotal']/1024)) ?>kB of data over <?php echo $row['reqTotal'] ?> requests.</p>
+
+	<ul class=horizlist style="font-size: 0.9em;">
+		<li><a href="#filmstrip">Filmstrip, Video</a>
+		<li><a href="#waterfall">HTTP Waterfall</a>
+		<li><a href="#requests">Requests</a>
+		<li><a href="#pagespeed">Page Speed</a>
+		<li><a href="#downloads">Downloads</a>
+	</ul>
+	
+	<?php echo selectSiteLabel($url, $gLabel) ?>
 
 
-<ul class=horizlist style="font-size: 0.9em;">
-  <li> <a href="#filmstrip">Filmstrip, Video</a>
-  <li> <a href="#waterfall">HTTP Waterfall</a>
-  <li> <a href="#requests">Requests</a>
-  <li> <a href="#pagespeed">Page Speed</a>
-  <li> <a href="#downloads">Downloads</a>
-</ul>
-
-
-<a name="filmstrip"></a>
-<h2>Filmstrip, Video</h2>
+<h2 id=filmstrip>Filmstrip, Video</h2>
 
 <?php 
 // Build a table that has empty cells to be filled in later.

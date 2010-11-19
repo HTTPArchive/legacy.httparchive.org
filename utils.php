@@ -185,7 +185,7 @@ function selectArchiveLabel($archive, $curLabel, $bReverse=true) {
 function selectSiteLabel($url, $curLabel="", $bReverse=true) {
 	global $gPagesTable;
 
-	$sSelect = "<select onchange='document.location=\"?u=" . urlencode($url) . "&l=\" + escape(this.options[this.selectedIndex].value)'>\n";
+	$sSelect = "<select class=selectSite onchange='document.location=\"?u=" . urlencode($url) . "&l=\" + escape(this.options[this.selectedIndex].value)'>\n";
 
 	$query = "select label, startedDateTime from $gPagesTable where url = '$url' group by label order by startedDateTime " . 
 		( $bReverse ? "desc" : "asc" ) . ";";

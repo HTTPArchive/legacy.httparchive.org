@@ -20,8 +20,8 @@ table { border-collapse: collapse; border-spacing: 0; }
 body {
 	width: 900px;
 	position: relative;
-	margin: 0 0 0 25px;
-	padding: 150px 0 25px 125px;
+	margin: 150px 0 0 25px;
+	padding: 0 0 25px 125px;
 	font: 16px/1.4 "Helvetica Nueue", HelveticaNueue, Helvetica, Arial, sans-serif;
 	color: #666;
 	-webkit-font-smoothing: antialiased; 
@@ -121,7 +121,8 @@ h1 {
 	font-family: "Helvetica LT 65 Medium", "HelveticaNeue LT 65 Medium", Helvetica, Arial, sans-serif;
 	font-size: 1.875em; /* 30px */
 	color: #000;
-	font-weight: 900; }
+	font-weight: 900;
+	width: 750px; }
 h1 a {
 	color: #000; }
 h1 a:focus, h1 a:hover {
@@ -284,6 +285,11 @@ button:hover, button:focus, .button:hover, .button:focus {
 	background: #fafafa;
 	color: #3399cc;
 	border-color: #bababa; }
+
+.viewsite .selectSite {
+	position: absolute;
+	top: 9px;
+	right: 0; }
 
 footer {
 	margin-top: 7em;
