@@ -18,13 +18,26 @@ limitations under the License.
 require_once("ui.php");
 require_once("utils.php");
 
-$gPageid = ( array_key_exists('pageid', $_GET) ? $_GET['pageid'] : "" );
-$gArchive = ( array_key_exists("a", $_GET) ? $_GET["a"] : "" );
+if ( array_key_exists('pageid', $_GET) ) {
+	$gPageid = ( array_key_exists('pageid', $_GET) ? $_GET['pageid'] : "" );
+	$query = "select * from $gPagesTable where pageid=$gPageid;";
+}
+else if ( ! $gPageid && array_key_exists('u', $_GET) && array_key_exists('l', $_GET) ) {
+	$url = $_GET['u'];
+	$gLabel = $_GET['l'];
+	$query = "select * from $gPagesTable where url='$url' and label='$gLabel';";
+}
+else {
+	// TODO - error handling - not sure how you'd ever get here
+}
+
 // TODO - better error handling starting here!
 // Changed to select * to allow summary paragraph
-$query = "select * from $gPagesTable where pageid=$gPageid;";
-$result = doQuery($query);
-$row = mysql_fetch_assoc($result);
+$row = doRowQuery($query);
+
+$gPageid = $row['pageid'];
+$gArchive = $row['archive'];
+$gLabel = $row['label'];
 $harfile = $row['harfile'];
 $url = $row['url'];
 $wptid = $row['wptid'];
@@ -44,7 +57,10 @@ $renderStart = $row['renderStart'];
 <body class="viewsite">
 <?php echo uiHeader($gTitle, true, "<li><a href='viewarchive.php?a=$gArchive' class='return'>$gArchive</a></li>"); ?>
 
-	<h1><?php echo str_replace('>http://', '><span class="protocol">http://</span>', siteLink($url)) ?></h1>
+<div style='float: right;'>
+<?php echo selectSiteLabel($url, $gLabel) ?>
+</div>
+	<h1 style='z-index: 1;'><?php echo str_replace('>http://', '><span class="protocol">http://</span>', siteLink($url)) ?></h1>
 	
 	<p class="summary">took <?php echo round(($onLoad / 1000), 1) ?> seconds to load <?php echo round(($row['bytesTotal']/1024)) ?>kB of data over <?php echo $row['reqTotal'] ?> requests.</p>
 
