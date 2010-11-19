@@ -85,7 +85,7 @@ while ($row = mysql_fetch_assoc($result)) {
 			$lastMark = $curMark;
 		}
 	}
-	echo "<li> <a href='viewsite.php?pageid=" . $row['pageid'] . "&a=$gArchive&l=$gLabel'>" . shortenUrl($url) . "</a>\n";
+	echo "<li> <a href='viewsite.php?pageid=" . $row['pageid'] . "'>" . shortenUrl($url) . "</a>\n";
 }
 mysql_free_result($result);
 ?>
