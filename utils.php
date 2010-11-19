@@ -181,6 +181,27 @@ function selectArchiveLabel($archive, $curLabel, $bReverse=true) {
 }
 
 
+// Return HTML to create a select list of archive labels (eg, "Oct 2010", "Nov 2010").
+function selectSiteLabel($url, $curLabel="", $bReverse=true) {
+	global $gPagesTable;
+
+	$sSelect = "<select onchange='document.location=\"?u=" . urlencode($url) . "&l=\" + escape(this.options[this.selectedIndex].value)'>\n";
+
+	$query = "select label, startedDateTime from $gPagesTable where url = '$url' group by label order by startedDateTime " . 
+		( $bReverse ? "desc" : "asc" ) . ";";
+	$result = doQuery($query);
+	while ($row = mysql_fetch_assoc($result)) {
+		$label = $row['label'];
+		$epoch = $row['startedDateTime'];
+		$sSelect .= "  <option value='$label'" . ( $curLabel == $label ? " selected" : "" ) . "> $label\n";
+	}
+
+	$sSelect .= "</select>\n";
+
+	return $sSelect;
+}
+
+
 // Return an array of label names (in chrono order?) for an archive.
 function archiveLabels($archive = "All") {
 	global $gPagesTable;
