@@ -73,7 +73,7 @@ for ( $i = 65; $i <= 90; $i++ ) {
 <a name='top'></a>
 <ul class=websites>
 <?php
-$query = "select pageid, url from $gPagesTable where archive = '$gArchive' group by url order by urlShort asc limit $gMaxUrls;";
+$query = "select max(pageid) as pageid, url from $gPagesTable where archive = '$gArchive' group by url order by url asc limit $gMaxUrls;";
 $result = doQuery($query);
 $lastMark = "";
 while ($row = mysql_fetch_assoc($result)) {
