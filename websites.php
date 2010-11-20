@@ -58,6 +58,16 @@ $gMaxUrls = 20000;
 	background: #FFCA66; }
 </style>
 
+
+<p style="font-weight: bold;">
+<?php
+$query = "select count(distinct(url)) from $gPagesTable where archive = '$gArchive';";
+$count = doSimpleQuery($query);
+echo "$count total URLs";
+?>
+</p>
+
+
 <div id=alphaindex>
 <ul>
   <li> <a href='#top'>top</a>
