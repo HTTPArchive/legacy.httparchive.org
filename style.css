@@ -86,7 +86,8 @@ nav li {
 	display: block;
 	float: left;
 	width: 125px;
-	margin-right: 25px; }
+	margin-right: 25px;
+	text-transform: lowercase; }
 nav li + li + li + li + li { /* Styles for the secnd nav row */
 	margin-top: -.7em;
 	font-size: .889em;
