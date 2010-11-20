@@ -218,6 +218,20 @@ tr:nth-child(2n+1) td {
 #stats {
 	font-size: .875em; }
 
+.pagespeed {
+	width: 300px; }
+.pagespeed .score {
+	text-align: right;
+	font-weight: bold; }
+.pagespeed .popup {
+	position: absolute;
+	top: 220px;
+	padding: .7em;
+	left: 325px;
+	width: 563px;
+	background: #F3F3F3;
+	border: 1px solid #CCC; }
+
 #videoDiv {
 	overflow: auto; }
 #videoContainer table {

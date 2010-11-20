@@ -309,8 +309,7 @@ document.getElementsByTagName('head')[0].appendChild(tsjs);
 
 
 
-<a name="pagespeed"></a>
-<h2>Page Speed</h2>
+<h2 id=pagespeed>Page Speed</h2>
 
 <?php
 // Page Speed
@@ -370,11 +369,11 @@ function displayRules($rules) {
 	}
 
 	$overallScore = intval(0.5 + ($totalScore/count($rules)));
-	echo "<table cellpadding=0 cellspacing=0 border=0 style='width: auto;'>\n" .
-		"  <tr><td style='padding-top: 40px; border-bottom: 2px solid; padding-bottom: 8px;'><span style='font-size: 1.2em; padding: 0 2px 0 2px; font-weight: bold; border: 2px solid; color: " . 
+	echo "<table class=pagespeed>\n" .
+		"  <tr><th style='padding-top: 40px; border-bottom: 2px solid; padding-bottom: 8px;'><span style='font-size: 1.2em; padding: 0 2px 0 2px; font-weight: bold; border: 2px solid; color: " . 
 		scoreColor($overallScore) .
 		"'>$overallScore</span></td>" .
-		"<td style='padding-top: 40px; border-bottom: 2px solid; font-weight: bold; font-size: 1.5em;'>Page Speed score</td></tr>\n";
+		"<th style='padding-top: 40px; border-bottom: 2px solid; font-weight: bold; font-size: 1.5em;'>Page Speed score</td></tr>\n";
 
 	$scores = array_keys($ruleStrings);
 	sort($scores);
@@ -393,13 +392,11 @@ function displayRule($rule) {
 
 	$detailsHtml = "";
 	if ( $details ) {
-		$detailsHtml = "<a href='show details' alt='show details' onclick='toggleDetails(this); return false;' style='text-decoration: none;'><img src='images/right-arrow-17x14.gif' width=17 height=14 style='vertical-align: middle;' border=0></a>" .
-			"<div style='position: absolute; top: 220px; padding: 8px; left: 360px; width: 500px; background: #F3F3F3; border: 1px solid #CCC; padding-left: 20px; font-size: 0.9em; display: none;'>$details</div>\n";
+		$detailsHtml = "<a href='show details' alt='show details' onclick='toggleDetails(this); return false;' style='text-decoration: none;'><img src='images/right-arrow-17x14.gif' width=17 height=14></a>" .
+			"<div class=popup style='display: none;'>$details</div>\n";
 	}
 
-	$html = "<tr><td valign=top style='padding-top: 0; padding-right: 8px; text-align: right; font-weight: bold; color: " . 
-		scoreColor($score) .
-		";'>$score</td><td style='padding-top: 0;'>$title $detailsHtml</td></tr>\n";
+	$html = "<tr><td class=score style='color: " . scoreColor($score) . ";'>$score</td><td>$title $detailsHtml</td></tr>\n";
 
 	return $html;
 }
@@ -436,7 +433,7 @@ function toggleDetails(elem) {
 	var div = elem.parentNode.getElementsByTagName('DIV')[0];
 	if ( "undefined" != typeof(div) ) {
 		var aPosition = findPos(elem.parentNode);
-		div.style.left = (aPosition[0] + elem.parentNode.clientWidth) + "px";
+		div.style.left = (aPosition[0] + elem.parentNode.clientWidth) + 25 + "px";
 		div.style.top = aPosition[1] + "px";
 		div.style.display = "block";
 		curDetails = div;
