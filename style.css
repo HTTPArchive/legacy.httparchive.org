@@ -239,6 +239,8 @@ tr:nth-child(2n+1) td {
 	overflow: auto; }
 #videoContainer table {
 	border-bottom: none; }
+#video tr + tr {
+	height: 180px; }
 .thumb a:focus, .thumb a:hover {
 	border-bottom: none; }
 .thumb a img {
