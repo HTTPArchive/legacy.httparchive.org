@@ -158,6 +158,8 @@ h3 {
 
 ul, ol {
 	list-style: outside square; }
+li {
+	margin-bottom: .35em; }
 ul ul, ul ol, ol ul, ol ol {
 	margin: 0 0 1.4em 2.8em;
 	list-style: outside circle; }
