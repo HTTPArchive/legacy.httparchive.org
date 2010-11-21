@@ -124,7 +124,8 @@ h2, .summary {
 h2 {
 	margin: 1.5em 0 .22em 0; }
 .viewsite h2 {
-	margin-top: 2.36em; }
+	padding-top: 2.36em;
+	margin-top: 0; }
 h2 + ul, h2 + ol {
 	margin-top: 0; }
 .summary {

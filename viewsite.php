@@ -54,7 +54,7 @@ $renderStart = $row['renderStart'];
 	<link rel="stylesheet" href="har.css" type="text/css">
 </head>
 
-<body class="viewsite">
+<body class=viewsite id=top>
 <?php echo uiHeader($gTitle, true, "<li><a href='viewarchive.php?a=$gArchive' class='return'>$gArchive</a></li>"); ?>
 
 	<h1><?php echo str_replace('>http://', '><span class=protocol>http://</span>', siteLink($url)) ?></h1>
@@ -62,11 +62,12 @@ $renderStart = $row['renderStart'];
 	<p class=summary>took <?php echo round(($onLoad / 1000), 1) ?> seconds to load <?php echo round(($row['bytesTotal']/1024)) ?>kB of data over <?php echo $row['reqTotal'] ?> requests.</p>
 
 	<ul class=quicklinks>
-		<li><a href="#filmstrip">Filmstrip</a>
-		<li><a href="#waterfall">Waterfall</a>
-		<li><a href="#requests">Requests</a>
-		<li><a href="#pagespeed">Page Speed</a>
-		<li><a href="#downloads">Downloads</a>
+		<li><a href="#top">Top of page</a></li>
+		<li><a href="#filmstrip">Filmstrip</a></li>
+		<li><a href="#waterfall">Waterfall</a></li>
+		<li><a href="#requests">Requests</a></li>
+		<li><a href="#pagespeed">Page Speed</a></li>
+		<li><a href="#downloads">Downloads</a></li>
 	</ul>
 	
 	<?php echo selectSiteLabel($url, $gLabel) ?>
@@ -124,16 +125,15 @@ function showInterval(ms) {
 }
 </script>
 
-<div style='margin-top: 20px;'>
-show screenshots every 
+<form>
+<label for=interval>Show screenshots every:</label>
 <select id=interval onchange='showInterval(this.options[this.selectedIndex].label)'>
-<option label=100> 0.1
-<option label=500> 0.5
-<option label=1000> 1
-<option label=5000> 5
+<option label=100>0.1 seconds</option>
+<option label=500>0.5 seconds</option>
+<option label=1000>1 seconds</option>
+<option label=5000>5 seconds</option>
 </select>
-seconds
-</div>
+</form>
 
 <script type="text/javascript">
 // Load this async since it does an RPC for the filmstrip XML.
@@ -152,8 +152,7 @@ OUTPUT;
 </ul>
 
 
-<a name="waterfall"></a>
-<h2>HTTP Waterfall</h2>
+<h2 id=waterfall>HTTP Waterfall</h2>
 
 <div id=harviewer>
 <div id=pageliststeve></div>
@@ -188,8 +187,7 @@ initHAR();
 
 
 
-<a name="requests"></a>
-<h2>Requests</h2>
+<h2 id=requests>Requests</h2>
 <a href="download.php?p=<?php echo $gPageid ?>&format=csv">download CSV</a>
 
 <table id=stats class=tablesort border=0 cellpadding=0 cellspacing=0>
@@ -456,8 +454,7 @@ function findPos(obj) {
 
 
 
-<a name="downloads"></a>
-<h2>Downloads</h2>
+<h2 id=downloads>Downloads</h2>
 
 <div style='margin-top: 4px; font-size: 0.8em;'>
 <a href='<?php echo $harfile ?>'>download HAR file</a>
