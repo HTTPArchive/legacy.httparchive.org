@@ -19,9 +19,8 @@ table { border-collapse: collapse; border-spacing: 0; }
 /* New styles, work in progress */
 body {
 	width: 900px;
-	position: relative;
-	margin: 150px 0 0 25px;
-	padding: 0 0 25px 125px;
+	margin: 0 0 0 25px;
+	padding: 150px 0 25px 125px;
 	font: 16px/1.4 "Helvetica Nueue", HelveticaNueue, Helvetica, Arial, sans-serif;
 	color: #666;
 	-webkit-font-smoothing: antialiased; 
@@ -42,7 +41,7 @@ p, ul, ol {
 
 header {
 	display: block;
-	position: fixed;
+	position: absolute;
 	height: 75px;
 	left: 0;
 	top: 0;
@@ -50,7 +49,7 @@ header {
 	background: #eaeaea;
 	border-bottom: 4px dashed #fff;
 	width: 100%;
-	padding: 25px 0 0 25px; }
+	padding: 25px 0 0 0; }
 #logo {
 	font-size: 2.875em;
 	line-height: 1em;
@@ -62,7 +61,7 @@ header {
 	text-indent: -999em;
 	background: url(images/logo-sprite.png) no-repeat 0 0;
 	height: 33px;
-	margin-top: 6px; }
+	margin: 6px 0 0 25px; }
 #logo .protocol {
 	left: 0; }
 #logo:focus, #logo:hover {
@@ -307,9 +306,8 @@ button:hover, button:focus, .button:hover, .button:focus {
 	border-color: #bababa; }
 
 .viewsite .selectSite {
-	position: absolute;
-	top: 9px;
-	right: 0; }
+	float: right;
+	margin-top: -6em; }
 
 footer {
 	margin-top: 7em;
