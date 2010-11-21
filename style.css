@@ -156,7 +156,14 @@ p + ul, p + ol {
 	left: 25px;
 	width: 95px;
 	text-align: right;
-	margin-top: -3.5em; }
+	margin-top: -2.8em;
+	list-style: none; }
+.quicklinks a, .quicklinks a:visited {
+	color: #999; }
+.quicklinks a:focus, .quicklinks a:hover {
+	color: #3c7dc8;
+	border-bottom: 2px solid #e0e0e0; }
+
 .horizlist li {
 	list-style: none;
 	margin-right: .7em;

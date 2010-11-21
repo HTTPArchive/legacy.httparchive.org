@@ -62,8 +62,8 @@ $renderStart = $row['renderStart'];
 	<p class=summary>took <?php echo round(($onLoad / 1000), 1) ?> seconds to load <?php echo round(($row['bytesTotal']/1024)) ?>kB of data over <?php echo $row['reqTotal'] ?> requests.</p>
 
 	<ul class=quicklinks>
-		<li><a href="#filmstrip">Filmstrip, Video</a>
-		<li><a href="#waterfall">HTTP Waterfall</a>
+		<li><a href="#filmstrip">Filmstrip</a>
+		<li><a href="#waterfall">Waterfall</a>
 		<li><a href="#requests">Requests</a>
 		<li><a href="#pagespeed">Page Speed</a>
 		<li><a href="#downloads">Downloads</a>
