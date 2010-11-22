@@ -171,7 +171,7 @@ function responseSizes() {
 	$aVarNames = array("GIF", "JPEG", "PNG", "HTML", "JS", "CSS", "Flash");
 	$aVarValues = array($gif, $jpg, $png, $html, $js, $css, $flash);
 
-	return horizontalBarChart("Response Size", $aVarNames, $aVarValues, "3B356A", 0, max(array($gif, $jpg, $png, $html, $js, $css, $flash))+10, 
+	return horizontalBarChart("Resource Response Size", $aVarNames, $aVarValues, "3B356A", 0, max(array($gif, $jpg, $png, $html, $js, $css, $flash))+10, 
 							  "average response size (kB)");
 }
 
