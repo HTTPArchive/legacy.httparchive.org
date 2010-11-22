@@ -20,6 +20,8 @@ require_once("ui.php");
 
 $gArchive = "All";
 $gLabel = ( array_key_exists("l", $_GET) ? $_GET["l"] : latestLabel($gArchive) );
+$gChar = ( array_key_exists("c", $_GET) ? $_GET["c"] : "A" );
+$gLcChar = strtolower($gChar);
 $gTitle = "Web Sites";
 $gMaxUrls = 20000;
 ?>
@@ -31,16 +33,14 @@ $gMaxUrls = 20000;
 	<title>HTTP Archive - <?php echo $gTitle ?></title>
 	<meta charset="UTF-8">
 
-<style>
-.websites { 
-	list-style-type: none; }
-</style>
 </head>
 
 <body>
 <?php echo uiHeader($gTitle); ?>
 
 <style>
+.websites { 
+	list-style-type: none; }
 #alphaindex { 
 	text-align: center;
 	position: fixed; 
@@ -56,6 +56,8 @@ $gMaxUrls = 20000;
     border-bottom: 0; }
 #alphaindex li:focus, #alphaindex li:hover {
 	background: #FFCA66; }
+#alphaindex .selected {
+	background: #FDF568; }
 </style>
 
 
@@ -70,11 +72,11 @@ echo "$count total URLs";
 
 <div id=alphaindex>
 <ul>
-  <li> <a href='#top'>top</a>
+  <li<?php echo ( $gChar === "0" ? " class=selected" : "" ) ?>> <a href='?c=0'>0-9</a>
 <?php
 for ( $i = 65; $i <= 90; $i++ ) {
 	$char = chr($i);
-	echo "<li> <a href='#$char'>$char</a>\n";
+	echo "<li" . ( $gChar === $char ? " class=selected" : "" ) . "> <a href='?c=$char'>$char</a>\n";
 }
 ?>
 </ul>
@@ -83,7 +85,10 @@ for ( $i = 65; $i <= 90; $i++ ) {
 <a name='top'></a>
 <ul class=websites>
 <?php
-$query = "select max(pageid) as pageid, url from $gPagesTable where archive = '$gArchive' group by url order by url asc limit $gMaxUrls;";
+$query = "select max(pageid) as pageid, url from $gPagesTable where archive = '$gArchive' and (url like 'http://$gLcChar%' or url like 'http://www.$gLcChar%') group by url order by url asc limit $gMaxUrls;";
+if ( "0" === $gChar ) {
+	$query = "select max(pageid) as pageid, url from $gPagesTable where archive = '$gArchive' and url like 'http://www.%' and url not regexp 'http://www.[a-z]' and url not regexp 'http://www.[A-Z]' group by url order by url asc limit $gMaxUrls;";
+}
 $result = doQuery($query);
 $lastMark = "";
 while ($row = mysql_fetch_assoc($result)) {
