@@ -78,18 +78,18 @@ $ghColumnTitles = array (
 						 "onLoad" => "load time",
 						 "renderStart" => "start render",
 						 "PageSpeed" => "Page Speed score",
-						 "reqTotal" => "total reqs",
-						 "bytesTotal" => "total xfer size",
-						 "reqHtml" => "html reqs",
-						 "bytesHtml" => "html xfer size",
-						 "reqJS" => "JS reqs",
-						 "bytesJS" => "JS xfer size",
-						 "reqCSS" => "CSS reqs",
-						 "bytesCSS" => "CSS xfer size",
-						 "reqImg" => "image reqs",
-						 "bytesImg" => "image xfer size",
-						 "reqFlash" => "Flash reqs",
-						 "bytesFlash" => "Flash xfer size",
+						 "reqTotal" => "total requests",
+						 "bytesTotal" => "total transfer size",
+						 "reqHtml" => "HTML requests",
+						 "bytesHtml" => "HTML transfer size",
+						 "reqJS" => "JS requests",
+						 "bytesJS" => "JS transfer size",
+						 "reqCSS" => "CSS requests",
+						 "bytesCSS" => "CSS transfer size",
+						 "reqImg" => "image requests",
+						 "bytesImg" => "image transfer size",
+						 "reqFlash" => "Flash requests",
+						 "bytesFlash" => "Flash transfer size",
 						 "numDomains" => "domains"
 						 );
 ;
@@ -277,6 +277,55 @@ function commaize($num) {
 	}
 
 	return commaize(substr($sNum, 0, $len-3)) . "," . substr($sNum, $len-3);
+}
+
+
+$ghFieldColors = array("onLoad" => "7777CC",
+					   "renderStart" => "80C65A",
+					   "PageSpeed" => "008000",
+					   "reqTotal" => "B09542",
+					   "reqHtml" => "3B356A",
+					   "reqJS" => "E94E19",
+					   "reqCSS" => "007099",
+					   "reqImg" => "AA0033",
+					   "bytesTotal" => "1D7D61",
+					   "bytesHtml" => "3399CC",
+					   "bytesJS" => "7777CC",
+					   "bytesCSS" => "B4B418",
+					   "bytesImg" => "CF557B",
+					   "numDomains" => "AA0033"
+					   );
+
+$ghFieldUnits = array("onLoad" => "ms",
+					  "renderStart" => "ms",
+					  "bytesTotal" => "kB",
+					  "bytesHtml" => "kB",
+					  "bytesJS" => "kB",
+					  "bytesCSS" => "kB",
+					  "bytesImg" => "kB"
+					  );
+
+// Return the same color for a given database field.
+function fieldColor($field) {
+	global $ghFieldColors;
+
+	return ( array_key_exists($field, $ghFieldColors) ? $ghFieldColors[$field] : "80C65A" );
+}
+
+
+// Return a pretty string mapped to a DB field.
+function fieldTitle($field) {
+	global $ghColumnTitles;
+
+	return ( array_key_exists($field, $ghColumnTitles) ? $ghColumnTitles[$field] : $field );
+}
+
+
+// Return a pretty string mapped to a DB field.
+function fieldUnits($field) {
+	global $ghFieldUnits;
+
+	return ( array_key_exists($field, $ghFieldUnits) ? $ghFieldUnits[$field] : "" );
 }
 
 
