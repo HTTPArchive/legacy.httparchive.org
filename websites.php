@@ -54,10 +54,17 @@ $gMaxUrls = 20000;
 #alphaindex a:focus, #alphaindex a:hover {
 	color: #004D92;
     border-bottom: 0; }
+#alphaindex li {
+	border: 1px solid #FFF;
+	margin-bottom: 0; }
 #alphaindex li:focus, #alphaindex li:hover {
-	background: #FFCA66; }
+	border: 1px solid #3C7DC8; }
 #alphaindex .selected {
-	background: #FDF568; }
+	background: #3C7DC8; }
+#alphaindex .selected A {
+	color: #FFF; }
+#alphaindex LI.selected {
+	border: 1px solid #3C7DC8; }
 </style>
 
 
