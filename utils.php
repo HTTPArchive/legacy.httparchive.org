@@ -75,22 +75,22 @@ $ghRespHeaders = array(
 // map a human-readable title to each DB column
 // (right now just $gPagesTable)
 $ghColumnTitles = array (
-						 "onLoad" => "load time",
-						 "renderStart" => "start render",
-						 "PageSpeed" => "Page Speed score",
-						 "reqTotal" => "total requests",
-						 "bytesTotal" => "total transfer size",
-						 "reqHtml" => "HTML requests",
-						 "bytesHtml" => "HTML transfer size",
-						 "reqJS" => "JS requests",
-						 "bytesJS" => "JS transfer size",
-						 "reqCSS" => "CSS requests",
-						 "bytesCSS" => "CSS transfer size",
-						 "reqImg" => "image requests",
-						 "bytesImg" => "image transfer size",
-						 "reqFlash" => "Flash requests",
-						 "bytesFlash" => "Flash transfer size",
-						 "numDomains" => "domains"
+						 "onLoad" => "Load Time",
+						 "renderStart" => "Start Render",
+						 "PageSpeed" => "Page Speed Score",
+						 "reqTotal" => "Total Requests",
+						 "bytesTotal" => "Total Transfer Size",
+						 "reqHtml" => "HTML Requests",
+						 "bytesHtml" => "HTML Transfer Size",
+						 "reqJS" => "JS Requests",
+						 "bytesJS" => "JS Transfer Size",
+						 "reqCSS" => "CSS Requests",
+						 "bytesCSS" => "CSS Transfer Size",
+						 "reqImg" => "Image Requests",
+						 "bytesImg" => "Image Transfer Size",
+						 "reqFlash" => "Flash Requests",
+						 "bytesFlash" => "Flash Transfer Size",
+						 "numDomains" => "Domains"
 						 );
 ;
 
@@ -280,8 +280,8 @@ function commaize($num) {
 }
 
 
-$ghFieldColors = array("onLoad" => "7777CC",
-					   "renderStart" => "80C65A",
+$ghFieldColors = array("onLoad" => "229942",
+					   "renderStart" => "224499",
 					   "PageSpeed" => "008000",
 					   "reqTotal" => "B09542",
 					   "reqHtml" => "3B356A",
