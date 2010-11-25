@@ -84,9 +84,9 @@ foreach($aFields as $field) {
 	$url = "http://chart.apis.google.com/chart?chxl=0:|$labels&chxt=x&chs=600x300&cht=lxy&chco=$color" .
 		"&chd=t:-1|" . 
 		fieldValues($field, $hStats, $aLabels, $min, $max) . 
-		"&chm=N" . ( $suffix ? "**+$suffix" : "" ) .
-		",$color,0,,12,,::8&chds=0,100,$min,$max&chdl=" . urlencode(fieldTitle($field)) . "&chdlp=b&chls=2&chma=5,5,5,25";
-	echo "<div style='margin-top: 40px;'><img src=$url></div>\n";
+		"&chxs=0,676767,11.5,0,lt,676767&chxtc=0,8&chm=N" . ( $suffix ? "**+$suffix" : "" ) .
+		",$color,0,,12,,::8&chds=0,100,$min,$max&chts=$color,32&chtt=" . urlencode(fieldTitle($field)) . "&chls=2&chma=5,5,5,25";
+	echo "<div style='margin: 40px 0 60px 0;'><img src=$url></div>\n";
 }
 
 $stats = $hStats[$gLabel];
