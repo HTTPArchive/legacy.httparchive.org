@@ -188,6 +188,13 @@ Definitions for each of the HTTP headers can be found in the
 			   <h2>How is the HTTP waterfall chart generated?</h2>
 					<p>The HTTP waterfall chart is generated from the HAR file via JavaScript. The code is from Jan Odvarko's <a href='http://www.softwareishard.com/har/viewer/'>HAR Viewer</a>. Jan is also one of the creators of the HAR specification. Thanks Jan!</p>
 
+			   <h2>How do I report inappropriate (adult only) content?</h2>
+					 <p>Please report any inappropriate content by
+<a href="http://code.google.com/p/httparchive/issues/entry?summary=Inappropriate+Content">creating a new issue</a>.
+This typically happens when viewing the filmstrip screenshots of adult only websites. 
+Screenshots are not shown for websites with adult only content.
+</p>
+
 			   <h2>Who created the HTTP Archive?</h2>
 					 <p>Steve Souders with the help of the Open Source community and particular support from Pat Meenan.</p>
 
