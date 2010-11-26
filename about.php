@@ -191,8 +191,9 @@ Definitions for each of the HTTP headers can be found in the
 			   <h2>How do I report inappropriate (adult only) content?</h2>
 					 <p>Please report any inappropriate content by
 <a href="http://code.google.com/p/httparchive/issues/entry?summary=Inappropriate+Content">creating a new issue</a>.
-This typically happens when viewing the filmstrip screenshots of adult only websites. 
-Screenshots are not shown for websites with adult only content.
+You may come across this issue when viewing the filmstrip screenshots of adult only websites. 
+You can help us flag these websites.
+Screenshots are not shown for websites flagged as adult only.
 </p>
 
 			   <h2>Who created the HTTP Archive?</h2>
