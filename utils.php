@@ -75,6 +75,7 @@ $ghRespHeaders = array(
 // map a human-readable title to each DB column
 // (right now just $gPagesTable)
 $ghColumnTitles = array (
+						 "numurls" => "# of URLs",
 						 "onLoad" => "Load Time",
 						 "renderStart" => "Start Render",
 						 "PageSpeed" => "Page Speed Score",
@@ -280,7 +281,9 @@ function commaize($num) {
 }
 
 
-$ghFieldColors = array("onLoad" => "229942",
+$ghFieldColors = array(
+					   "numurls" => "000000",
+					   "onLoad" => "229942",
 					   "renderStart" => "224499",
 					   "PageSpeed" => "008000",
 					   "reqTotal" => "B09542",
