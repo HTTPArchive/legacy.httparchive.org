@@ -63,7 +63,7 @@ $aFields = array("onLoad",
 				 "bytesImg",
 				 "numDomains"
 				 );
-$query = "select label";
+$query = "select label, count(*) as numurls";
 foreach($aFields as $field) {
 	$div = ( false === strpos($field, "bytes") ? 1 : 1024 );
 	$query .= ", ROUND(AVG($field)/$div) as $field";
@@ -78,12 +78,14 @@ mysql_free_result($result);
 
 $aLabels = archiveLabels($gArchive);
 $labels = urlencode(implode("|", $aLabels));
+array_unshift($aFields, "numurls");
 foreach($aFields as $field) {
 	$color = fieldColor($field);
 	$suffix = fieldUnits($field);
-	$url = "http://chart.apis.google.com/chart?chxl=0:|$labels&chxt=x&chs=600x300&cht=lxy&chco=$color" .
-		"&chd=t:-1|" . 
+	$url = "http://chart.apis.google.com/chart" .
+		"?chd=t:-1|" . 
 		fieldValues($field, $hStats, $aLabels, $min, $max) . 
+		"&chxl=0:|$labels&chxt=x&chs=600x300&cht=lxy&chco=$color" .
 		"&chxs=0,676767,11.5,0,lt,676767&chxtc=0,8&chm=N" . ( $suffix ? "**+$suffix" : "" ) .
 		",$color,0,,12,,::8&chds=0,100,$min,$max&chts=$color,32&chtt=" . urlencode(fieldTitle($field)) . "&chls=2&chma=5,5,5,25";
 	echo "<div style='margin: 40px 0 60px 0;'><img src=$url></div>\n";
@@ -97,17 +99,29 @@ function fieldValues($field, $hStats, $aLabels, &$min, &$max) {
 	foreach($aLabels as $label) {
 		$aValues[] = $hStats[$label][$field];
 	}
-	$min = findScale($aValues, true);
-	$max = findScale($aValues, false);
+	findScale($aValues, $min, $max);
 
 	return implode(",", $aValues);
 }
 
 
-function findScale($aValues, $bDown) {
+function findScale($aValues, &$min, &$max) {
+	// Power of 10 less than the min - eg 4719 ==> 1000
+	$min = 0;
+	/* Do we ever want to change the min from 0?
 	$minValue = min($aValues);
-	$base = intval(pow(10, strlen("$minValue")-($bDown?1:0)));
-	return $base;
+	if ( $minValue > 100 ) {
+		$min = pow(10, strlen("$minValue")-1);
+	}
+	*/
+
+	// Multiple of power of 10 less than max value - eg 4719 ==> 5000
+	$max = 10;
+	$maxValue = max($aValues);
+	if ( $maxValue > 10 ) {
+		$base = pow(10, strlen("$maxValue")-1);
+		$max = $base * ceil($maxValue/$base);
+	}
 }
 ?>
 
