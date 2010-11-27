@@ -75,9 +75,9 @@ $ghRespHeaders = array(
 // map a human-readable title to each DB column
 // (right now just $gPagesTable)
 $ghColumnTitles = array (
-						 "numurls" => "# of URLs",
+						 "numurls" => "URLs Analyzed",
 						 "onLoad" => "Load Time",
-						 "renderStart" => "Start Render",
+						 "renderStart" => "Start Render Time",
 						 "PageSpeed" => "Page Speed Score",
 						 "reqTotal" => "Total Requests",
 						 "bytesTotal" => "Total Transfer Size",
@@ -91,7 +91,7 @@ $ghColumnTitles = array (
 						 "bytesImg" => "Image Transfer Size",
 						 "reqFlash" => "Flash Requests",
 						 "bytesFlash" => "Flash Transfer Size",
-						 "numDomains" => "Domains"
+						 "numDomains" => "Domains Used in Page"
 						 );
 ;
 
