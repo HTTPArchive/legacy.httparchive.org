@@ -20,9 +20,13 @@ include './settings.inc';
 require_once("../settings.inc");
 require_once("../utils.php");
 
-// CVSNO - hardwired
 $gArchive = "All";
-$gLabel = "Nov 22 2010";
+$gLabel = $argv[1];
+$gStartUrl = $argv[2];
+if ( !$gLabel ) {
+	echo "You must specify a label.\n";
+	exit();
+}
 $ghReqOtherHeaders = array();
 $ghRespOtherHeaders = array();
 
@@ -46,9 +50,16 @@ if( LoadResults($results) ) {
 		}
 
         $count = 0;
+		$bStart = ( ! $gStartUrl );   // don't start if there's a "start" URL parameter
         foreach( $results as &$result ) {
             if( strlen($result['id']) && strlen($result['result']) && $result['medianRun'] ) {
                 $count++;
+
+				$bStart = ( $bStart || $gStartUrl === $result['url'] );
+				if ( ! $bStart ) {
+					echo "skipping " . $result['url'] . "\n";
+					continue;
+				}
 
                 $file = BuildFileName($result['url']);
 				$fullpath = "./archives/$gArchive/$gLabel/$file.har";
