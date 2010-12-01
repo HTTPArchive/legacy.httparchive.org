@@ -389,6 +389,11 @@ function getHarDir($archive, $label) {
 }
 
 
+function getHarFileContents($filename) {
+	return file_get_contents($filename);
+}
+
+
 // Delete all rows related to a specific page.
 function purgePage($pageid) {
 	global $gPagesTable, $gRequestsTable;
@@ -471,6 +476,15 @@ function tableExists($tablename) {
 }
 
 
+/*******************************************************************************
+SCHEMA CHANGES:
+  This is a record of changes to the schema and how the tables were updated 
+  in place.
+
+12/1/10 - Added the "pageid" index to requestsdev. 
+  This made the aggregateStats function 10x faster during import.
+  mysql> create index pageid on requestsdev (pageid);
+*******************************************************************************/
 function createTables() {
 	global $gPagesTable, $gRequestsTable;
 	global $ghReqHeaders, $ghRespHeaders;
@@ -570,6 +584,7 @@ function createTables() {
 			$sColumns .
 
 			", primary key (requestid)" .
+			", index(pageid)" .
 			", unique key (startedDateTime, pageid, urlShort)" .
 			");";
 		doSimpleCommand($command);
