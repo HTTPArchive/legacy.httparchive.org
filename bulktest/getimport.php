@@ -23,12 +23,16 @@ require_once("../utils.php");
 $gArchive = "All";
 $gLabel = $argv[1];
 $gStartUrl = $argv[2];
+$gDbMax = $argv[3];
 if ( !$gLabel ) {
 	echo "You must specify a label.\n";
 	exit();
 }
 $ghReqOtherHeaders = array();
 $ghRespOtherHeaders = array();
+$gMarks = array();
+$gAggTimes = array();
+$gAggCounts = array();
 
 $results = array();
 
@@ -50,7 +54,9 @@ if( LoadResults($results) ) {
 		}
 
         $count = 0;
+		$dbcount = 0;
 		$bStart = ( ! $gStartUrl );   // don't start if there's a "start" URL parameter
+		t_mark('overall time');
         foreach( $results as &$result ) {
             if( strlen($result['id']) && strlen($result['result']) && $result['medianRun'] ) {
                 $count++;
@@ -61,14 +67,17 @@ if( LoadResults($results) ) {
 					continue;
 				}
 
+				t_mark('single url');
                 $file = BuildFileName($result['url']);
 				$fullpath = "./archives/$gArchive/$gLabel/$file.har";
                 if( strlen($file) && !is_file("$fullpath") ) {
+					t_mark('download HAR');
 					echo "Retrieving HAR for test $count of $testCount...                  $file.har\n";
                     $response = file_get_contents("{$server}export.php?test={$result['id']}&run={$result['medianRun']}&cached=0");
                     if( strlen($response) ) {
                         file_put_contents("$fullpath", $response);
 					}
+					t_aggregate('download HAR');
                 }
 				else {
 					//echo "\rSkipping HAR for test $count of $testCount...                  ";
@@ -77,11 +86,20 @@ if( LoadResults($results) ) {
 				// Check if this is in the DB
 				$pageid = doSimpleQuery("select pageid from $gPagesTable where archive='$gArchive' and label='$gLabel' and harfile = '$fullpath';");
 				if ( ! $pageid ) {
+					t_mark('import to DB');
 					echo "importing $fullpath...\n";
 					importHarFile($fullpath, $result);
+					t_aggregate('import to DB');
+					$dbcount++;
 				}
+				t_aggregate('single url');
             }
+			if ( $gDbMax && $gDbMax <= $dbcount ) {
+				break;
+			}
         }
+		t_echo('overall time');
+		t_echoagg();
 
         // clear the progress text
         echo "\nDone\r\n";
@@ -93,6 +111,42 @@ if( LoadResults($results) ) {
 else {
     echo "No tests found in results.txt\r\n";  
 }
+
+function t_mark($name) {
+	global $gMarks;
+	$gMarks[$name] = time();
+}
+
+function t_measure($name) {
+	global $gMarks;
+	return ( array_key_exists($name, $gMarks) ? time() - $gMarks[$name] : 0 );
+}
+
+function t_aggregate($name) {
+	global $gAggTimes, $gAggCounts;
+
+	$delta = t_measure($name);
+	if ( ! array_key_exists($name, $gAggTimes) ) {
+		$gAggTimes[$name] = 0;
+		$gAggCounts[$name] = 0;
+	}
+
+	$gAggTimes[$name] += $delta;
+	$gAggCounts[$name]++;
+}
+
+function t_echo($name) {
+	echo "$name: " . t_measure($name) . "\n";
+}
+
+function t_echoagg() {
+	global $gAggTimes, $gAggCounts;
+
+	foreach(array_keys($gAggTimes) as $key) {
+		echo "$key: total=" . $gAggTimes[$key] . ", avg=" . round($gAggTimes[$key]/$gAggCounts[$key]) . "\n";
+	}
+}
+
 
 
 /**
@@ -134,19 +188,26 @@ function importHarFile($filename, $result) {
 	}
 
 	// STEP 1: Create a partial "page" record so we get a pageid.
+	t_mark('importPage');
 	$pageid = importPage($pages[0], $filename);
+	t_aggregate('importPage');
 	if ( $pageid ) {
 		$entries = $log->{ 'entries' };
 		// STEP 2: Create all the resources & associate them with the pageid.
 		$firstUrl = "";
 		$firstHtmlUrl = "";
-		if ( false === importEntries($entries, $pageid, $firstUrl, $firstHtmlUrl) ) {
+		t_mark('importEntries');
+		$bEntries = importEntries($entries, $pageid, $firstUrl, $firstHtmlUrl);
+		t_aggregate('importEntries');
+		if ( false === $bEntries ) {
 			dprint("ERROR: importEntries failed. Purging pageid $pageid");
 			purgePage($pageid);
 		}
 		else {
 			// STEP 3: Go back and fill out the rest of the "page" record based on all the resources.
+			t_mark('aggregateStats');
 			$url = aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $result);
+			t_aggregate('aggregateStats');
 			if ( false === $url ) {
 				dprint("ERROR: aggregateStats failed. Purging pageid $pageid");
 				purgePage($pageid);
@@ -200,6 +261,7 @@ function importPage($page, $filename) {
 	}
 
 	// Page Speed score
+	t_mark('Page Speed');
 	$output = array();
 	$return_var = 128;
 	exec("../har_to_pagespeed '$filename' 2>/dev/null", $output, $return_var);
@@ -218,6 +280,7 @@ function importPage($page, $filename) {
 		$overallScore = round($totalScore/$iScores);
 		array_push($aTuples, "PageSpeed = $overallScore");
 	}
+	t_aggregate('Page Speed');
 
 	$cmd = "replace into $gPagesTable set " . implode(", ", $aTuples) . ";";
 	//dprint("$cmd");
@@ -369,66 +432,53 @@ function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 }
 
 
+// Parse out the pithy mime type from the long HTTP response header.
+function prettyMimetype($mimeType) {
+	$mimeType = strtolower($mimeType);
+
+	// do most unique first
+	foreach(array("flash", "css", "image", "script", "html") as $type) {
+		if ( false !== strpos($mimeType, $type) ) {
+			return $type;
+		}
+	}
+
+	return "other";
+}
+
+
 // Collect all the aggregate stats for a single website.
 function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultTxt) {
 	global $gPagesTable, $gRequestsTable;
 
-	// CVSNO - do this faster - request all the rows in one query and then iterate over them
-    $result = doQuery("select count(*) as reqs, sum(respSize) as bytes from $gRequestsTable where pageid = $pageid;");
-	$row = mysql_fetch_assoc($result);
-	$reqTotal = $row['reqs'];
-	$bytesTotal = $row['bytes'];
-	if ( ! $bytesTotal ) $bytesTotal = 0;
-	mysql_free_result($result);
-
-	$result = doQuery("select count(*) as reqs, sum(respSize) as bytes from $gRequestsTable where pageid = $pageid and mimeType like '%html%';");
-	$row = mysql_fetch_assoc($result);
-	$reqHtml = $row['reqs'];
-	$bytesHtml = $row['bytes'];
-	if ( ! $bytesHtml ) $bytesHtml = 0;
-	mysql_free_result($result);
-
-	$result = doQuery("select count(*) as reqs, sum(respSize) as bytes from $gRequestsTable where pageid = $pageid and mimeType like '%script%';");
-	$row = mysql_fetch_assoc($result);
-	$reqJS = $row['reqs'];
-	$bytesJS = $row['bytes'];
-	if ( ! $bytesJS ) $bytesJS = 0;
-	mysql_free_result($result);
-
-	$result = doQuery("select count(*) as reqs, sum(respSize) as bytes from $gRequestsTable where pageid = $pageid and mimeType like '%css%';");
-	$row = mysql_fetch_assoc($result);
-	$reqCSS = $row['reqs'];
-	$bytesCSS = $row['bytes'];
-	if ( ! $bytesCSS ) $bytesCSS = 0;
-	mysql_free_result($result);
-
-	$result = doQuery("select count(*) as reqs, sum(respSize) as bytes from $gRequestsTable where pageid = $pageid and mimeType like '%image%';");
-	$row = mysql_fetch_assoc($result);
-	$reqImg = $row['reqs'];
-	$bytesImg = $row['bytes'];
-	if ( ! $bytesImg ) $bytesImg = 0;
-	mysql_free_result($result);
-
-	$result = doQuery("select count(*) as reqs, sum(respSize) as bytes from $gRequestsTable where pageid = $pageid and mimeType like '%flash%';");
-	$row = mysql_fetch_assoc($result);
-	$reqFlash = $row['reqs'];
-	$bytesFlash = $row['bytes'];
-	if ( ! $bytesFlash ) $bytesFlash = 0;
-	mysql_free_result($result);
-
-	$reqOther = $reqTotal - ($reqHtml + $reqJS + $reqCSS + $reqImg + $reqFlash);
-	$bytesOther = $bytesTotal - ($bytesHtml + $bytesJS + $bytesCSS + $bytesImg + $bytesFlash);
-
-	// count unique domains (really hostnames)
-	$query = "select urlShort from $gRequestsTable where pageid = $pageid;";
-	$result = doQuery($query);
+	$bytesTotal = 0;
+	$reqTotal = 0;
+	$hSize = array();
+	$hCount = array();
+	foreach(array("flash", "css", "image", "script", "html", "other") as $type) {
+		// initialize the hashes
+		$hSize[$type] = 0;
+		$hCount[$type] = 0;
+	}
 	$hDomains = array();
+
+	t_mark('aggregateStats query');
+    $result = doQuery("select mimeType, urlShort, respSize from $gRequestsTable where pageid = $pageid;");
+	t_aggregate('aggregateStats query');
 	while ($row = mysql_fetch_assoc($result)) {
+		$mimeType = prettyMimetype($row['mimeType']);
+		$respSize = intval($row['respSize']);
+		$reqTotal++;
+		$bytesTotal += $respSize;
+		$hCount[$mimeType]++;
+		$hSize[$mimeType] += $respSize;
+
+		// count unique domains (really hostnames)
 		$url = $row['urlShort'];
 		$aMatches = array();
 		if ( $url && preg_match('/http[s]*:\/\/([^\/]*)/', $url, $aMatches) ) {
 			$hostname = $aMatches[1];
-			$hDomains[$hostname] = 1;
+			$hDomains[$hostname] = 1; // don't need to count, just find unique domains
 		}
 		else { 
 			dprint("ERROR: No hostname found in URL: $url");
@@ -437,6 +487,7 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultTxt) {
 	mysql_free_result($result);
 	$numDomains = count(array_keys($hDomains));
 
+	// CVSNO - move this error checking to the point before this function is called
 	if ( ! $firstUrl ) {
 		dprint("ERROR: no first URL found for pageref $pageref.");
 		return false;
@@ -451,7 +502,14 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultTxt) {
 	$urlHtml = $firstHtmlUrl;
 	$urlHtmlShort = substr($urlHtml, 0, 255);
 		
-	$cmd = "update $gPagesTable set url = '$url', urlShort = '$urlShort', urlHtml = '$urlHtml', urlHtmlShort = '$urlHtmlShort', reqTotal = $reqTotal, reqHtml = $reqHtml, reqJS = $reqJS, reqCSS = $reqCSS, reqImg = $reqImg, reqFlash = $reqFlash, reqOther = $reqOther, bytesTotal = $bytesTotal, bytesHtml = $bytesHtml, bytesJS = $bytesJS, bytesCSS = $bytesCSS, bytesImg = $bytesImg, bytesFlash = $bytesFlash, bytesOther = $bytesOther, numDomains = $numDomains" .
+	$cmd = "update $gPagesTable set url = '$url', urlShort = '$urlShort', urlHtml = '$urlHtml', urlHtmlShort = '$urlHtmlShort', reqTotal = $reqTotal, bytesTotal = $bytesTotal" .
+		", reqHtml = " . $hCount['html'] . ", bytesHtml = " . $hSize['html'] . 
+		", reqJS = " . $hCount['script'] . ", bytesJS = " . $hSize['script'] . 
+		", reqCSS = " . $hCount['css'] . ", bytesCSS = " . $hSize['css'] . 
+		", reqImg = " . $hCount['image'] . ", bytesImg = " . $hSize['image'] . 
+		", reqFlash = " . $hCount['flash'] . ", bytesFlash = " . $hSize['flash'] . 
+		", reqOther = " . $hCount['other'] . ", bytesOther = " . $hSize['other'] . 
+		", numDomains = $numDomains" .
 		", wptid = '" . $resultTxt['id'] . "', wptrun = " . $resultTxt['medianRun'] . ", renderStart = " . $resultTxt['startRender'] .
 		" where pageid = $pageid;";
 	//dprint($cmd);
