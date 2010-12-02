@@ -40,6 +40,7 @@ h2 {
 #rightarrow {
 	text-align: left; }
 #interestingcontainer {
+	margin-top: 80px;
 	width: auto; 
 	border: 0; }
 </style>
@@ -51,16 +52,11 @@ h2 {
 <p class="summary">The <a href="http://httparchive.org">HTTP Archive</a> tracks how the Web is built.</p>
 
 <ul class="even-columns keypoints">
-  <li>Trends in web technology&mdash;use of JavaScript, CSS, and new image formats
-  <li>Performance of the Web&mdash;page speed, size, and errors
-  <li>Open&mdash;the <a href="http://code.google.com/p/httparchive/source/checkout">code</a> is open source, the data is <a href="downloads.php">downloadable</a>
+  <li><strong>Performance of the Web</strong><br>page speed, bytes downloaded, and errors
+  <li><strong>Trends in web technology</strong><br>use of JavaScript, CSS, and new image formats
+  <li><strong>Open</strong><br>the <a href="http://code.google.com/p/httparchive/source/checkout">code</a> is open source, the data is <a href="downloads.php">downloadable</a>
 </ul>
 
-<ul class="even-columns keylinks">
-  <li> <a href="websites.php?a=All">websites</a>
-  <li> <a href="interesting.php">interesting stats</a>
-  <li> <a href="trends.php?a=All">trends</a>
-</ul>
 
 <center>
 <table id=interestingcontainer cellspacing=0 cellpadding=0 border=0>
