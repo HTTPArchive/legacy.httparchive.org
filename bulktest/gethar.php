@@ -2,7 +2,11 @@
 include './settings.inc';
 
 $gArchive = "All";
-$gLabel = "Nov 15 2010";
+$gLabel = $argv[1];
+if ( !$gLabel ) {
+	echo "You must specify a label.\n";
+	exit();
+}
 $results = array();
 
 // see if there is an existing test we are working with
