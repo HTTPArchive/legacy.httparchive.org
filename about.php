@@ -31,24 +31,29 @@ $gTitle = "About the HTTP Archive";
 <body>
 <?php echo uiHeader($gTitle); ?>
 
+
+<ul class="aboutlinks">
+  <li> <a href="downloads.php">Download data</a>
+  <li> <a href="http://code.google.com/p/httparchive/source/browse">Source code</a>
+  <li> <a href="http://code.google.com/p/httparchive/issues/list">Bug list</a>
+  <li> <a href="http://groups.google.com/group/httparchive/topics">Contact us</a>
+</ul>
+
+
 <h1>Mission</h1>
 
 <p>
 Successful societies and institutions recognize the need to record their history - this provides a way to review the past, spot emerging trends, and find explanations for current behavior. 
 In 1996 <a href="http://en.wikipedia.org/wiki/Brewster_Kahle">Brewster Kahle</a> realized the cultural significance of the Internet and the need to record its history. 
-As a result he founded the <a href="http://archive.org/">Internet Archive</a> which collects and permanently stores digitized information. 
+As a result he founded the <a href="http://archive.org/">Internet Archive</a> which collects and permanently stores the Web's digitized content.
 </p>
 
 <p>
-Because digitized content is so prevalent in and significant to today's society, 
-it follows that peoples' ability to successfully access that information is critical - 
-a website that has errors or takes too long is affecting the ability of people to see its content. 
-</p>
-
-<p>
-The <a href="http://httparchive.org">HTTP Archive</a> provides a record of how this digitized content is constructed and served. 
+In addition to the content of web pages, it's important to record how this digitized content is constructed and served.
+The <a href="http://httparchive.org">HTTP Archive</a> provides this record.
 It provides permanent storage for web performance information such as size of pages, failed requests, and technologies utilized. 
-This performance information allows us to see trends in how the Web is built.
+This performance information allows us to see trends in how the Web is built
+and provides a common data set from which to conduct web performance research.
 </p>
 
 
@@ -61,7 +66,7 @@ This performance information allows us to see trends in how the Web is built.
 <p>The list of URLs is fed to <a href="http://webpagetest.org">WebPagetest.org</a>. (Huge thanks to Pat Meenan!)</p>
 
 <p>The WebPagetest settings are:</p>
-<ul>
+<ul class=indent>
   <li> <strong>Internet Explorer 8</strong>
   <li> Dulles, VA
   <li> DSL
@@ -78,7 +83,7 @@ The HTTP Archive collects these HAR files, parses them, and populates our databa
 
 <p>
 The time measurements are gathered in a test environment, and thus have all the potential biases that come with that:</p>
-<ul> 
+<ul class=indent> 
 <li>browser - All tests are performed using Internet Explorer 8. 
 Page load times can vary depending on browser.
 <li>location - The HAR files are generated from WebPagetest.org's location in Dulles, Virginia.
@@ -100,7 +105,7 @@ and
 <a href="http://www.alexa.com/topsites">Alexa Top 500</a>
 for example,
 are well known they don't necessarily map well to a single URL. </p>
-<ul>
+<ul class=indent>
 <li>Most websites are comprised of many separate web pages. The landing page may not be representative of the overall site.
 <li>Some websites, such as <a href="http://www.facebook.com/">http://www.facebook.com/</a>, require logging in to see typical content.
 <li>Some websites, such as <a href="http://www.googleusercontent.com/">http://www.googleusercontent.com/</a>, don't have a landing page. Instead, they are used for hosting other URLs and resources. In this case <a href="http://www.googleusercontent.com/">http://www.googleusercontent.com/</a> is the domain path used for resources inserted by users into Google documents, etc.</li>
@@ -116,7 +121,7 @@ are well known they don't necessarily map well to a single URL. </p>
 
 <h3>Archive table:</h3>
 
-<ul>
+<ul class=indent>
 	<li>Website - The URL that was tested.
 	<li>load time - The time from when the URL was requested to when the window load event fired.
 	<li>start render - The time from when the URL was requested to when the first content was rendered.
@@ -133,7 +138,7 @@ are well known they don't necessarily map well to a single URL. </p>
 <h3>
 Site table:
 </h3>
-<ul>
+<ul class=indent>
 	<li> req# - The sequence number for each HTTP request - 1 = first, 2 = second, etc.
 	<li> URL - The URL of the HTTP request. These are often truncated in the display. Hold your mouse over the link to see the full URL in the browser's status bar.
 	<li> mime type - The request's mime type.
@@ -144,7 +149,7 @@ Site table:
 	<li> request/response Cookie Len - The size of the Cookie: request header and Set-Cookie: response header.
 	<li> response/response Http Ver - The HTTP version number sent in the request and received in the response.
 	<li> other HTTP request headers:
-	  <ul>
+	  <ul class=indent>
 	  <li> Accept
 	  <li> Accept-Encoding
 	  <li> Accept-Language
@@ -153,7 +158,7 @@ Site table:
 	  <li> Referer
 	  </ul>
 	<li> other HTTP response headers:
-	  <ul>
+	  <ul class=indent>
 	  <li> Accept-Ranges
 	  <li> Age
 	  <li> Cache-Control
