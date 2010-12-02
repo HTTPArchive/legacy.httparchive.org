@@ -96,9 +96,6 @@ nav a, nav a:visited {
 nav a:focus, nav a:hover {
 	border-bottom: none;
 	color: #3c7dc8; }
-nav .return {
-	padding-left: 20px;
-	background: url(images/return-arrow.png) no-repeat left center; }
 
 h1 {
 	display: block;
@@ -107,6 +104,7 @@ h1 {
 	font-size: 1.875em; /* 30px */
 	color: #000;
 	font-weight: 900;
+	margin: 1.5em 0 .22em 0; 
 	width: 750px; }
 h1 a {
 	color: #000; }
@@ -142,18 +140,21 @@ h3 {
 	font-weight: normal;
 	font-family: "Helvetica LT 65 Medium", "HelveticaNeue LT 65 Medium", Helvetica, Arial, sans-serif; }
 
-ul, ol {
-	list-style: outside square; }
+ol, ul {
+	list-style-type: square; }
+ol.indent, ul.indent {
+	padding-left: 2em; }
 li {
 	margin-bottom: .35em; }
 ul ul, ul ol, ol ul, ol ol {
 	margin: 0 0 1.4em 2.8em;
-	list-style: outside circle; }
+	list-style-type: circle; }
 p + ul, p + ol {
 	margin: -.7em 0 .7em 0; }
 
 .quicklinks {
 	font-size: 0.9em;
+	font-weight: bold;
 	position: fixed;
 	left: 25px;
 	width: 95px;
@@ -161,10 +162,14 @@ p + ul, p + ol {
 	margin-top: -2.8em;
 	list-style: none; }
 .quicklinks a, .quicklinks a:visited {
-	color: #999; }
+	color: #004D92; }
 .quicklinks a:focus, .quicklinks a:hover {
 	color: #3c7dc8;
 	border-bottom: 2px solid #e0e0e0; }
+
+.aboutlinks li {
+	list-style: none;
+	font-size: 1.1em; }
 
 .horizlist li {
 	list-style: none;
