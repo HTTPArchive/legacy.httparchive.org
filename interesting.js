@@ -439,7 +439,7 @@ function showSnippet(parentId, bPrev) {
 		newSnippet = document.createElement('div');
 		newSnippet.id = iSnippet;
 		gaSnippetElems[iSnippet] = newSnippet;
-		newSnippet.innerHTML = gaSnippets[iSnippet];
+		newSnippet.innerHTML = "<a class=image-link href='interesting.php'>" + gaSnippets[iSnippet] + "</a>";
 		var aPosition = findPos(parent);
 		newSnippet.style.left = aPosition[0] + "px";
 		newSnippet.style.top = aPosition[1] + "px";
