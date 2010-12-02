@@ -1,6 +1,8 @@
 var HARjson = 
 <?php
+require_once("utils.php");
+
 $target = $_GET['f'];
-echo file_get_contents($target) . ";\n";
+echo getHarFileContents($target) . ";\n";
 ?>
 
