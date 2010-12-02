@@ -20,6 +20,7 @@ require_once("utils.php");
 
 $gArchive = "All";
 $gLabel = ( array_key_exists("l", $_GET) ? $_GET["l"] : latestLabel($gArchive) );
+$gSet = ( array_key_exists("s", $_GET) ? $_GET["s"] : "All" );
 $gTitle = "Trends";
 ?>
 <!doctype html>
@@ -43,11 +44,33 @@ $gTitle = "Trends";
 
 <h1>Trends</h1>
 
+<form>
+	<label>Choose URLs:</label>
+	<select onchange='document.location="?s="+escape(this.options[this.selectedIndex].value)'>
+	    <option value='All'<?php echo ( "constant" != $gSet ? " selected" : "" ) ?>> All
+	    <option value='constant'<?php echo ( "constant" == $gSet ? " selected" : "" ) ?>> intersection
+	</select>
+</form>
+
 <div id=trends style="margin-top: 40px;">
 <!-- trends.js will insert trends here -->
 </div>
 	
 <?php
+$setWhere = "";
+if ( "constant" === $gSet ) {
+	// Find the set of URLs that are constant across all labels;
+	$numLabels = doSimpleQuery("select count(distinct(label)) from $gPagesTable;");
+	$query = "select url, count(label) as num from $gPagesTable group by url having num = $numLabels;";
+	$result = doQuery($query);
+	$aUrls = array();
+	while ( $row = mysql_fetch_assoc($result) ) {
+		$aUrls[] = $row['url'];
+	}
+	mysql_free_result($result);
+	$setWhere = " and url in ('" . implode("','", $aUrls) . "')";
+}
+
 $aFields = array("onLoad",
 				 "renderStart",
 				 "PageSpeed",
@@ -68,7 +91,8 @@ foreach($aFields as $field) {
 	$div = ( false === strpos($field, "bytes") ? 1 : 1024 );
 	$query .= ", ROUND(AVG($field)/$div) as $field";
 }
-$query .= " from $gPagesTable where archive = '$gArchive' group by label;";
+
+$query .= " from $gPagesTable where archive = '$gArchive'$setWhere group by label;";
 $result = doQuery($query);
 $hStats = array();
 while ( $row = mysql_fetch_assoc($result) ) {
