@@ -418,6 +418,7 @@ function doSimpleCommand($cmd) {
 	if ( mysql_select_db($gMysqlDb) ) {
 		//error_log("doSimpleCommand: $cmd");
 		$result = mysql_query($cmd, $link);
+    mysql_close($link);
 		if ( ! $result ) {
 			dprint("ERROR in doSimpleCommand: '" . mysql_error() . "' for command: " . $cmd);
 		}
@@ -433,6 +434,7 @@ function doQuery($query) {
 	if ( mysql_select_db($gMysqlDb) ) {
 		//error_log("doQuery: $query");
 		$result = mysql_query($query, $link);
+    mysql_close($link);
 		if ( ! $result ) {
 			dprint("ERROR in doQuery: '" . mysql_error() . "' for query: " . $query);
 		}
@@ -486,7 +488,7 @@ SCHEMA CHANGES:
   mysql> create index pageid on requestsdev (pageid);
 *******************************************************************************/
 function createTables() {
-	global $gPagesTable, $gRequestsTable;
+	global $gStatusTable, $gPagesTable, $gRequestsTable;
 	global $ghReqHeaders, $ghRespHeaders;
 
 	if ( ! tableExists($gPagesTable) ) {
@@ -533,6 +535,23 @@ function createTables() {
 			");";
 		doSimpleCommand($command);
 	}
+
+  // Create Status Table
+  if ( ! tableExists($gStatusTable) ) {
+    $command = "create table $gStatusTable (" .
+               "pageid int unsigned not null auto_increment" .
+               ", url varchar (255) not null" .
+               ", location varchar (255) not null" .
+               ", archive varchar (255) not null" .
+               ", label varchar (255) not null" .
+               ", status int(10) unsigned not null" .
+               ", retry int(10) unsigned not null" .
+               ", wptid varchar (64) not null" .
+               ", primary key (pageid)" .
+               ", unique key (url, location, label)" .
+               ");";
+    doSimpleCommand($command);
+  }
 
 	if ( ! tableExists($gRequestsTable) ) {
 		$sColumns = "";
