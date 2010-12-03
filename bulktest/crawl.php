@@ -51,10 +51,15 @@ for ($i = 0; $i < 3; $i++) {
       exit();
     } else {
       echo "Start importing data into DB ...\r\n";
-      $pagseInfo = array();
-      //SaveHarFile($pagesInfo);
-      ObtainXMLResult($pagesInfo);
-      var_dump($pagesInfo);
+      ObtainXMLResult();
+      FillTables();
+      // Set the status code of completed tests.
+      $tests = ObtainTestsWithCode(5);
+      if (!IsEmptyQuery($tests)) {
+        while ($row = mysql_fetch_assoc($tests)) {
+          SetStatus($row['pageid'], 6);
+        }
+      }
       exit();
     }
   }
