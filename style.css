@@ -140,8 +140,10 @@ h3 {
 	font-weight: normal;
 	font-family: "Helvetica LT 65 Medium", "HelveticaNeue LT 65 Medium", Helvetica, Arial, sans-serif; }
 
-ol, ul {
+ul {
 	list-style-type: square; }
+ol {
+	list-style-type: decimal; }
 ol.indent, ul.indent {
 	padding-left: 2em; }
 li {
