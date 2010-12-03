@@ -37,7 +37,14 @@ $gTitle = "Admin";
 <?php
 $gAction = ( array_key_exists("a", $_GET) ? $_GET["a"] : "" );
 if ( "create" === $gAction ) {
+	echo "<p>Creating MySQL tables...<br>\n";
 	createTables();
+	if ( tableExists($gPagesTable) ) {
+		echo "$gPagesTable created.<br>\n";
+	}
+	if ( tableExists($gRequestsTable) ) {
+		echo "$gRequestsTable created.<br>\n";
+	}
 }
 ?>
 
