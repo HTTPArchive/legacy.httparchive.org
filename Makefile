@@ -8,6 +8,7 @@ push :
 pushbeta :
 	mkdir -p ~/beta.httparchive.org
 	cp -p *.php settings.inc *.js *.css favicon.ico har_to_pagespeed .htaccess ~/beta.httparchive.org/.
+	/bin/rm ~/beta.httparchive.org/admin.php
 	mkdir -p ~/beta.httparchive.org/images
 	cp -p images/*.* ~/beta.httparchive.org/images/.
 	mkdir -p ~/beta.httparchive.org/lists
@@ -16,4 +17,6 @@ pushbeta :
 	cp -pRu archives ~/beta.httparchive.org/.
 	mkdir -p ~/beta.httparchive.org/cache
 	chmod 777 ~/beta.httparchive.org/cache
+	mkdir -p ~/beta.httparchive.org/downloads
+	cp -p downloads/*.gz ~/beta.httparchive.org/downloads/.
 	echo "CREATE interesting.js.cache !!!!!!!!!!!"
