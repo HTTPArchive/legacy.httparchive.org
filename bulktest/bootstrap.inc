@@ -25,6 +25,10 @@ $date = getdate();
 $gLabel = $date[0];
 $gMaxRetry = 3;
 
+$gMarks = array();
+$gAggTimes = array();
+$gAggCounts = array();
+
 $gPagesTable = "pages";
 $gRequestsTable = "requests";
 $gStatusTable = "status";
