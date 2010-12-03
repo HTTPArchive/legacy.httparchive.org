@@ -459,6 +459,7 @@ function doRowQuery($query) {
 
 // return the first value from the first row
 function doSimpleQuery($query) {
+  $value = '';
 	$result = doQuery($query);
 	if ( $result ) {
 		$row = mysql_fetch_assoc($result);
@@ -545,8 +546,12 @@ function createTables() {
                ", archive varchar (255) not null" .
                ", label varchar (255) not null" .
                ", status int(10) unsigned not null" .
+               ", timeofLastChange varchar (64) not null" .
                ", retry int(10) unsigned not null" .
                ", wptid varchar (64) not null" .
+               ", wptRetCode varchar (8) not null" .
+               ", medianRun int(10) unsigned not null" .
+               ", startRender int(10) unsigned" .
                ", primary key (pageid)" .
                ", unique key (url, location, label)" .
                ");";
