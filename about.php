@@ -43,7 +43,9 @@ $gTitle = "About the HTTP Archive";
 <h1>Mission</h1>
 
 <p>
-Successful societies and institutions recognize the need to record their history - this provides a way to review the past, spot emerging trends, and find explanations for current behavior. 
+Successful societies and institutions recognize the need to record their history - this provides a way to review the past, 
+find explanations for current behavior,
+and spot emerging trends.
 In 1996 <a href="http://en.wikipedia.org/wiki/Brewster_Kahle">Brewster Kahle</a> realized the cultural significance of the Internet and the need to record its history. 
 As a result he founded the <a href="http://archive.org/">Internet Archive</a> which collects and permanently stores the Web's digitized content.
 </p>
@@ -64,7 +66,7 @@ and provides a common data set from which to conduct web performance research.
 
 			   <h2>How is the list of URLs generated?</h2>
 
-<p>As of November 2010 it's a combination of the following lists:
+<p>As of November 2010 the URLs that are analyzed is the union of the following lists:
 <ul class=indent>
   <li> <a href="lists/Alexa+500.txt">Alexa 500</a> (<a href="http://www.alexa.com/topsites/global">source</a>)
   <li> <a href="lists/Alexa+US+500.txt">Alexa US 500</a> (<a href="http://www.alexa.com/topsites/countries/US">source</a>)
