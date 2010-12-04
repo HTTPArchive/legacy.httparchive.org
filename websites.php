@@ -92,7 +92,9 @@ for ( $i = 65; $i <= 90; $i++ ) {
 <a name='top'></a>
 <ul class=websites>
 <?php
-$query = "select max(pageid) as pageid, url from $gPagesTable where archive = '$gArchive' and (url like 'http://$gLcChar%' or url like 'http://www.$gLcChar%') group by url order by url asc limit $gMaxUrls;";
+$query = "select max(pageid) as pageid, url from $gPagesTable where archive = '$gArchive' and (" .
+	( "w" === $gLcChar ? "(url like 'http://w%' and url not like 'http://www.%')" : "url like 'http://$gLcChar%'" ) .
+	" or url like 'http://www.$gLcChar%') group by url order by url asc limit $gMaxUrls;";
 if ( "0" === $gChar ) {
 	$query = "select max(pageid) as pageid, url from $gPagesTable where archive = '$gArchive' and url like 'http://www.%' and url not regexp 'http://www.[a-z]' and url not regexp 'http://www.[A-Z]' group by url order by url asc limit $gMaxUrls;";
 }
