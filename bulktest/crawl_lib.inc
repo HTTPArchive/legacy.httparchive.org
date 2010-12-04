@@ -369,7 +369,7 @@ function ImportEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 		$status = $response->{ 'status' };
 		array_push($aTuples, "status = $status");
 		array_push($aTuples, "respHttpVersion = '" . $response->{ 'httpVersion' } . "'");
-    if (property_exit($response, 'url')) {
+    if (property_exists($response, 'url')) {
 		  array_push($aTuples, "redirectUrl = '" . mysqlEscape($response->{ 'url' }) . "'");
 		  array_push($aTuples, "redirectUrlShort = '" . mysqlEscape(substr($response->{ 'url' }, 0, 255)) . "'");
     }
