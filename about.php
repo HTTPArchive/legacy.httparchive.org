@@ -61,6 +61,22 @@ and provides a common data set from which to conduct web performance research.
 
 <h1>FAQ</h1>
 
+
+			   <h2>How is the list of URLs generated?</h2>
+
+<p>As of November 2010 it's a combination of the following lists:
+<ul class=indent>
+  <li> <a href="lists/Alexa+500.txt">Alexa 500</a> (<a href="http://www.alexa.com/topsites/global">source</a>)
+  <li> <a href="lists/Alexa+US+500.txt">Alexa US 500</a> (<a href="http://www.alexa.com/topsites/countries/US">source</a>)
+  <li> <a href="lists/Alexa10K.txt">Alexa 10,000</a> (<a href="http://www.alexa.com/topsites">source</a>, <a href="http://s3.amazonaws.com/alexa-static/top-1m.csv.zip">zip</a>)
+  <li> <a href="lists/Fortune+500.txt">Fortune 500</a> (<a href="http://money.cnn.com/magazines/fortune/fortune500/2010/full_list/">source</a>)
+  <li> <a href="lists/Global+500.txt">Global 500</a> (<a href="http://money.cnn.com/magazines/fortune/global500/2010/full_list/">source</a>)
+  <li> <a href="lists/Quantcast10K.txt">Quantcast10K</a> (<a href="http://www.quantcast.com/top-sites-1">source</a>)
+</ul>
+
+
+
+
 <h2>How is the data gathered?</h2>
 
 <p>The list of URLs is fed to <a href="http://webpagetest.org">WebPagetest.org</a>. (Huge thanks to Pat Meenan!)</p>
@@ -97,14 +113,17 @@ is another variable that affects time measurements.
 <p>Given these conditions it's virtually impossible to compare WebPagetest.org's time measurements with those gathered 
 in other browsers or locations or connection speeds. They are best used as a source of comparison.</p>
 
+
+
+
+
 			   <h2>What are the limitations of this testing methodology (using lists)?</h2>
 
-<p>Although these lists of URLs, 
-<a href="http://money.cnn.com/magazines/fortune/fortune500/2010/full_list/">Fortune 500</a>
+<p>Although these lists of websites
+(<a href="http://money.cnn.com/magazines/fortune/fortune500/2010/full_list/">Fortune 500</a>
 and 
-<a href="http://www.alexa.com/topsites">Alexa Top 500</a>
-for example,
-are well known they don't necessarily map well to a single URL. </p>
+<a href="http://www.alexa.com/topsites">Alexa Top 500</a> for example)
+are well known, the entire website doesn't necessarily map well to a single URL.</p>
 <ul class=indent>
 <li>Most websites are comprised of many separate web pages. The landing page may not be representative of the overall site.
 <li>Some websites, such as <a href="http://www.facebook.com/">http://www.facebook.com/</a>, require logging in to see typical content.
