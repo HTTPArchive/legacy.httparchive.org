@@ -52,9 +52,9 @@ h2 {
 <p class="summary">The <a href="about.php">HTTP Archive</a> tracks how the Web is built.</p>
 
 <ul class="even-columns keypoints">
-  <li><strong><a href="websites.php">Website performance</a></strong><br>screenshots, waterfall charts, HTTP headers
-  <li><strong><a href="interesting.php">Interesting stats</a></strong><br>page speed, download sizes, popular scripts
-  <li><strong><a href="trends.php">Trends in web technology</a></strong><br>use of JavaScript, CSS, and new image formats
+  <li><strong><a href="trends.php">Trends in web technology</a></strong><br>load times, download sizes, performance scores
+  <li><strong><a href="interesting.php">Interesting stats</a></strong><br>popular scripts, image formats, errors, redirects
+  <li><strong><a href="websites.php">Website performance</a></strong><br>specific URL screenshots, waterfall charts, HTTP headers
 </ul>
 
 The <a href="http://code.google.com/p/httparchive/source/checkout">HTTP Archive code</a> is open source and the data is <a href="downloads.php">downloadable</a>.
