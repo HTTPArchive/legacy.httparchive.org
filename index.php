@@ -49,13 +49,15 @@ h2 {
 <body>
 <?php echo uiHeader($gTitle); ?>
 
-<p class="summary">The <a href="http://httparchive.org">HTTP Archive</a> tracks how the Web is built.</p>
+<p class="summary">The <a href="about.php">HTTP Archive</a> tracks how the Web is built.</p>
 
 <ul class="even-columns keypoints">
-  <li><strong>Performance of the Web</strong><br>page speed, bytes downloaded, and errors
-  <li><strong>Trends in web technology</strong><br>use of JavaScript, CSS, and new image formats
-  <li><strong>Open</strong><br>the <a href="http://code.google.com/p/httparchive/source/checkout">code</a> is open source, the data is <a href="downloads.php">downloadable</a>
+  <li><strong><a href="websites.php">Website performance</a></strong><br>screenshots, waterfall charts, HTTP headers
+  <li><strong><a href="interesting.php">Interesting stats</a></strong><br>page speed, download sizes, popular scripts
+  <li><strong><a href="trends.php">Trends in web technology</a></strong><br>use of JavaScript, CSS, and new image formats
 </ul>
+
+The <a href="http://code.google.com/p/httparchive/source/checkout">HTTP Archive code</a> is open source and the data is <a href="downloads.php">downloadable</a>.
 
 
 <center>
