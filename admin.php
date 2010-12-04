@@ -34,6 +34,7 @@ $gTitle = "Admin";
 
 <a href="admin.php?a=create">create MySQL tables</a>
 
+<div style="margin-top: 40px;">
 <?php
 $gAction = ( array_key_exists("a", $_GET) ? $_GET["a"] : "" );
 if ( "create" === $gAction ) {
@@ -47,6 +48,8 @@ if ( "create" === $gAction ) {
 	}
 }
 ?>
+</div>
+
 
 <?php echo uiFooter() ?>
 
