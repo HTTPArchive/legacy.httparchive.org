@@ -35,9 +35,9 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
 		$navlinks = '
 <nav>
 	<ul>
-		<li><a href=websites.php>Websites</a>
-		<li> <a href="interesting.php">Stats</a>
 		<li> <a href="trends.php">Trends</a>
+		<li> <a href="interesting.php">Stats</a>
+		<li><a href=websites.php>Websites</a>
 		<li><a href=about.php>About</a></li>
     </ul>
 </nav>';
