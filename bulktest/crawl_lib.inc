@@ -110,14 +110,15 @@ function SubmitTest(&$record) {
 // Set status code in status table
 function SetStatus($pageid, $status) {
   global $gStatusTable;
-  $cmd = "UPDATE $gStatusTable SET status = $status WHERE pageid = $pageid;";
+  $now = time();
+  $cmd = "UPDATE $gStatusTable SET status = $status, timeOfLastChange = $now WHERE pageid = $pageid;";
   doSimpleCommand($cmd);
 }
 
 // Check if the test is done on WPT server.
 function CheckWPTStatus() {
   // Query the status table to get wpt id list
-  global $server, $gStatusTable;
+  global $server, $gStatusTable, $gMaxRetry, $run;
   $result = ObtainTestsWithCode(1);
   if ($result) {
     while ($row = mysql_fetch_assoc($result)) {
@@ -133,6 +134,18 @@ function CheckWPTStatus() {
           if (!strcmp("Test Complete", $statusTxt)) {
             // Update status code to 2
             SetStatus($row['pageid'], 2);
+          } elseif (!strcmp("Test Started", $statusTxt)) {
+            // Error handling code for status code 1
+            // The sympton is job has been submitted but never finished (time-out).
+            // Solution: resubmit with the same label and archive (specify max retry times)
+            $startTimeNode = $doc->getElementsByTagName('startTime');
+            $start = date_parse($startTimeNode->item(0)->nodeValue);
+            $diff = time() - gmmktime($start['hour'], $start['minute'], $start['second'], $start['month'], $start['day'], $start['year']);
+            $threshold = $run * 240;  // each run has the max running time 240 seconds
+            if (($diff > $threshold) && ($row['retry'] < $gMaxRetry)) {
+               SubmitTest(&$row);
+               IncrementRetry($row['pageid'], $row['retry']);
+            }
           }
         }
       }
@@ -178,12 +191,16 @@ function FillTables() {
 
 // Import a specific HAR file.
 function ImportHarFile($filename, $result) {
-  global $gPagesTable, $gRequestsTable;
+  global $gStatusTable, $gPagesTable, $gRequestsTable;
   $json_text = file_get_contents($filename);
+  if (!$json_text) {
+    dprint("ERROR($gStatusTable pageid: $result[pageid]): HAR file download error.");
+    return;
+  }
   $HAR = json_decode($json_text);
   if (NULL == $HAR) {
     // Error handling for status code 4
-    dprint("ERROR: importEntries failed. Purging pageid $pageid");
+    dprint("ERROR($gStatusTable pageid: $result[pageid]): JSON decode failed: $filename");
     return;
   }
   SetStatus($result['pageid'], 5);
@@ -192,11 +209,11 @@ function ImportHarFile($filename, $result) {
   $pages = $log->{ 'pages' };
   $pagecount = count($pages);
   if ( 0 == $pagecount ) {
-    dprint("ERROR: No pages found in file $filename");
+    dprint("ERROR($gStatusTable pageid: $result[pageid]):: No pages found in file $filename");
     return false;
   }
   if ( 1 < $pagecount ) {
-    dprint("ERROR: Only one page is expected per HAR file. This HAR file has " . count($pages) . " pages. Only the first page will be processed.\n");
+    dprint("ERROR($gStatusTable pageid: $result[pageid]):: Only one page is expected per HAR file. This HAR file has " . count($pages) . " pages. Only the first page will be processed.\n");
   }
 
   // STEP 1: Create a partial "page" record so we get a pageid.
@@ -212,7 +229,7 @@ function ImportHarFile($filename, $result) {
     $bEntries = ImportEntries($entries, $pageid, $firstUrl, $firstHtmlUrl);
     t_aggregate('ImportEntries');
     if ( false === $bEntries ) {
-			dprint("ERROR: importEntries failed. Purging pageid $pageid");
+			dprint("ERROR($gStatusTable pageid: $result[pageid]): ImportEntries failed. Purging pageid $pageid");
 			purgePage($pageid);
 		}
 		else {
@@ -221,7 +238,7 @@ function ImportHarFile($filename, $result) {
 			$url = AggregateStats($pageid, $firstUrl, $firstHtmlUrl, $result);
 			t_aggregate('AggregateStats');
 			if ( false === $url ) {
-				dprint("ERROR: aggregateStats failed. Purging pageid $pageid");
+				dprint("ERROR($gStatusTable pageid: $result[pageid]): AggregateStats failed. Purging pageid $pageid");
 				purgePage($pageid);
 			}
 			else {
@@ -294,7 +311,6 @@ function ImportPage($page, $filename, $result) {
 	t_aggregate('Page Speed');
 
 	$cmd = "REPLACE INTO $gPagesTable set " . implode(", ", $aTuples) . ";";
-	//dprint("$cmd");
 	doSimpleCommand($cmd);
 
 	// get the pageid
@@ -422,8 +438,8 @@ function ImportEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 		$bFirstReq = 0;
 		$bFirstHtml = 0;
 		if ( ! $firstUrl ) {
-			if ( 400 <= $status && $status <= 499 ) {
-				dprint("ERROR: The first request ($url) failed with status $status.");
+			if (( 400 <= $status && $status <= 499 ) || (1200 <= $status) && (301 == $status)){
+				dprint("ERROR($gPagesTable pageid: $pageid): The first request ($url) failed with status $status.");
 				return false;
 			}
 			// This is the first URL found associated with the page - assume it's the base URL.
@@ -445,8 +461,18 @@ function ImportEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 }
 
 // Collect all the aggregate stats for a single website.
-function AggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultTxt) {
+function AggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultRow) {
 	global $gPagesTable, $gRequestsTable;
+
+	// CVSNO - move this error checking to the point before this function is called
+	if ( ! $firstUrl ) {
+		dprint("ERROR($gPagesTable pageid: $pageid): no first URL found.");
+		return false;
+	}
+	if ( ! $firstHtmlUrl ) {
+		dprint("ERROR($gPagesTable pageid: $pageid): no first HTML URL found.");
+		return false;
+	}
 
 	$bytesTotal = 0;
 	$reqTotal = 0;
@@ -478,38 +504,28 @@ function AggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultTxt) {
 			$hDomains[$hostname] = 1; // don't need to count, just find unique domains
 		}
 		else { 
-			dprint("ERROR: No hostname found in URL: $url");
+			dprint("ERROR($gPagesTable pageid: $pageid): No hostname found in URL: $url");
 		}
 	}
 	mysql_free_result($result);
 	$numDomains = count(array_keys($hDomains));
 
-	// CVSNO - move this error checking to the point before this function is called
-	if ( ! $firstUrl ) {
-		dprint("ERROR: no first URL found for pageref $pageref.");
-		return false;
-	}
 	$url = $firstUrl;
 	$urlShort = substr($url, 0, 255);
 
-	if ( ! $firstHtmlUrl ) {
-		dprint("ERROR: no first HTML URL found for pageref $pageref.");
-		return false;
-	}
 	$urlHtml = $firstHtmlUrl;
 	$urlHtmlShort = substr($urlHtml, 0, 255);
-		
-	$cmd = "update $gPagesTable set url = '$url', urlShort = '$urlShort', urlHtml = '$urlHtml', urlHtmlShort = '$urlHtmlShort', reqTotal = $reqTotal, bytesTotal = $bytesTotal" .
-		", reqHtml = " . $hCount['html'] . ", bytesHtml = " . $hSize['html'] . 
-		", reqJS = " . $hCount['script'] . ", bytesJS = " . $hSize['script'] . 
-		", reqCSS = " . $hCount['css'] . ", bytesCSS = " . $hSize['css'] . 
-		", reqImg = " . $hCount['image'] . ", bytesImg = " . $hSize['image'] . 
-		", reqFlash = " . $hCount['flash'] . ", bytesFlash = " . $hSize['flash'] . 
-		", reqOther = " . $hCount['other'] . ", bytesOther = " . $hSize['other'] . 
+
+	$cmd = "UPDATE $gPagesTable SET url = '$url', urlShort = '$urlShort', urlHtml = '$urlHtml', urlHtmlShort = '$urlHtmlShort', reqTotal = $reqTotal, bytesTotal = $bytesTotal" .
+		", reqHtml = " . $hCount['html'] . ", bytesHtml = " . $hSize['html'] .
+		", reqJS = " . $hCount['script'] . ", bytesJS = " . $hSize['script'] .
+		", reqCSS = " . $hCount['css'] . ", bytesCSS = " . $hSize['css'] .
+		", reqImg = " . $hCount['image'] . ", bytesImg = " . $hSize['image'] .
+		", reqFlash = " . $hCount['flash'] . ", bytesFlash = " . $hSize['flash'] .
+		", reqOther = " . $hCount['other'] . ", bytesOther = " . $hSize['other'] .
 		", numDomains = $numDomains" .
-		", wptid = '" . $resultTxt['wptid'] . "', wptrun = " . $resultTxt['medianRun'] . ", renderStart = " . $resultTxt['startRender'] .
+		", wptid = '" . $resultRow['wptid'] . "', wptrun = " . $resultRow['medianRun'] . ", renderStart = " . $resultRow['startRender'] .
 		" where pageid = $pageid;";
-	//dprint($cmd);
 	doSimpleCommand($cmd);
 
 	return $url;
