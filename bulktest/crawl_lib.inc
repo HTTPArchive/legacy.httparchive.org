@@ -90,7 +90,7 @@ function SubmitTest(&$record) {
 
   $doc = new DOMDocument();
   if( $doc ) {
-    $response = file_get_contents($request);
+    $response = file_get_contents_with_retry($request);
     if( strlen($response) ) {
       $doc->loadXML($response);
       $nodes = $doc->getElementsByTagName('statusCode');
@@ -125,7 +125,7 @@ function CheckWPTStatus() {
       $request = $server . "testStatus.php?f=xml&test=" . $row['wptid'];
       $doc = new DOMDocument();
       if ($doc) {
-        $response = file_get_contents($request);
+        $response = file_get_contents_with_retry($request);
         if (strlen($response)) {
           $doc->loadXML($response);
           $nodes = $doc->getElementsByTagName('statusText');
@@ -176,7 +176,7 @@ function FillTables() {
       $fullPath = "./archives/{$row['archive']}/{$row['label']}/$file.har";
       if (strlen($file) && !is_file($fullPath)) {
         $request = $server . "export.php?test={$row['wptid']}&run={$row['medianRun']}&cached=0";
-        $response = file_get_contents($request);
+        $response = file_get_contents_with_retry($request);
         if (strlen($response)) {
           file_put_contents($fullPath, $response);
           SetStatus($row['pageid'], 4);
@@ -189,10 +189,29 @@ function FillTables() {
   }
 }
 
+// Fetch file and retry if it fails.
+function file_get_contents_with_retry($fn) {
+  $contents = file_get_contents($fn);
+  $numRetry = 0;
+  while ((!$contents) && (3 >= $numRetry)) {
+    // Retry
+    sleep(2);
+    $contents = file_get_contents($fn);
+    $numRetry++;
+  }
+  return $contents;
+}
+
+// Convert the fetched result to utf-8 encoded if it is not.
+function file_get_contents_utf8($fn) {
+  $content = file_get_contents_with_retry($fn);
+  return mb_convert_encoding($content, 'UTF-8', mb_detect_encoding($content, 'UTF-8, ISO-8859-1', true));
+}
+
 // Import a specific HAR file.
 function ImportHarFile($filename, $result) {
   global $gStatusTable, $gPagesTable, $gRequestsTable;
-  $json_text = file_get_contents($filename);
+  $json_text = file_get_contents_utf8($filename);
   if (!$json_text) {
     dprint("ERROR($gStatusTable pageid: $result[pageid]): HAR file download error.");
     return;
@@ -438,7 +457,7 @@ function ImportEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 		$bFirstReq = 0;
 		$bFirstHtml = 0;
 		if ( ! $firstUrl ) {
-			if (( 400 <= $status && $status <= 499 ) || (1200 <= $status) && (301 == $status)){
+			if (( 400 <= $status && $status <= 499 ) || (12000 <= $status) || (301 == $status)){
 				dprint("ERROR($gPagesTable pageid: $pageid): The first request ($url) failed with status $status.");
 				return false;
 			}
@@ -531,41 +550,6 @@ function AggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultRow) {
 	return $url;
 }
 
-// Obtain XML file of the test result
-function ObtainXMLResult() {
-  global $server, $gStatusTable;
-  $tests = ObtainTestsWithCode(2);
-  if (!IsEmptyQuery($tests)) {
-    while ($row = mysql_fetch_assoc($tests)) {
-      // Fetch the result xml file
-      $doc = new DOMDocument();
-      if ($doc) {
-        $request = $server . "xmlResult/" . $row['wptid'] . "/";
-        $response = file_get_contents($request);
-        if (strlen($response)) {
-          $doc->loadXML($response);
-          $nodes = $doc->getElementsByTagName('statusCode');
-          $status = trim($nodes->item(0)->nodeValue);
-          $cmd = "UPDATE $gStatusTable SET wptRetCode = $status where pageid = $row[pageid];";
-          doSimpleCommand($cmd);
-          if (200 == $status) {
-            // Import a website
-            $result = array();
-            ParseXMLResult($doc, $result);
-            // Record medianRun in status table
-            // TODO (zhaoq): Set wptRetCode
-            $cmd = "UPDATE $gStatusTable SET medianRun = $result[medianRun], startRender = $result[startRender] WHERE pageid = $row[pageid];";
-            doSimpleCommand($cmd);
-            SetStatus($row['pageid'], 3);
-          }
-        } else {
-          // Error handling for status code 2
-        }
-      }
-    }
-  }
-}
-
 function t_mark($name) {
 	global $gMarks;
 	$gMarks[$name] = time();
@@ -601,6 +585,43 @@ function t_echoagg() {
 	}
 }
 
+
+// Obtain XML file of the test result
+function ObtainXMLResult() {
+  global $server, $gStatusTable;
+  $tests = ObtainTestsWithCode(2);
+  if (!IsEmptyQuery($tests)) {
+    while ($row = mysql_fetch_assoc($tests)) {
+      // Fetch the result xml file
+      $doc = new DOMDocument();
+      if ($doc) {
+        $request = $server . "xmlResult/" . $row['wptid'] . "/";
+        $response = file_get_contents_with_retry($request);
+        if (strlen($response)) {
+          $doc->loadXML($response);
+          $nodes = $doc->getElementsByTagName('statusCode');
+          $status = trim($nodes->item(0)->nodeValue);
+          $cmd = "UPDATE $gStatusTable SET wptRetCode = $status where pageid = $row[pageid];";
+          doSimpleCommand($cmd);
+          if (200 == $status) {
+            // Import a website
+            $result = array();
+            dprint("status table pageid: " . $row['pageid'] . "\r\n");
+            ParseXMLResult($doc, $result);
+            // Record medianRun in status table
+            // TODO (zhaoq): Set wptRetCode
+            $cmd = "UPDATE $gStatusTable SET medianRun = $result[medianRun], startRender = $result[startRender] WHERE pageid = $row[pageid];";
+            doSimpleCommand($cmd);
+            SetStatus($row['pageid'], 3);
+          }
+        } else {
+          // Error handling for status code 2
+        }
+      }
+    }
+  }
+}
+
 function ParseXMLResult($doc, &$result)
 {
     $runs = $doc->getElementsByTagName('run');
@@ -615,14 +636,18 @@ function ParseXMLResult($doc, &$result)
         $fv = $run->getElementsByTagName('firstView');
         if( $fv )
         {
+            dprint("run: " . $index . "\r\n");
             $testResult = (int)$run->getElementsByTagName('result')->item(0)->nodeValue;
             $loadTime = (int)$run->getElementsByTagName('docTime')->item(0)->nodeValue;
             $render = (int)$run->getElementsByTagName('render')->item(0)->nodeValue;
 
+            // PageSpeed Score
+            $score = (int)$run->getElementsByTagName('PageSpeedScore')->item(0)->nodeValue;
+
             if( $loadTime && ($testResult == 0 || $testResult == 99999) )
-                $times[$loadTime] = array('index' => $index, 'result' => $testResult, 'loadTime' => $loadTime, 'startRender' => $render);
+                $times[$loadTime] = array('index' => $index, 'result' => $testResult, 'loadTime' => $loadTime, 'startRender' => $render, 'score' => $score);
             else
-                $failed[] = array('index' => $index, 'result' => $testResult, 'loadTime' => $loadTime, 'startRender' => $render);
+                $failed[] = array('index' => $index, 'result' => $testResult, 'loadTime' => $loadTime, 'startRender' => $render, 'score' => $score);
             unset($fv);
         }
     }
