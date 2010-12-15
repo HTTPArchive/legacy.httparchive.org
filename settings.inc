@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// different version as my setup
+// Replace "REPLACE" with the correct values for your database.
 $gMysqlServer = "REPLACE";
 $gMysqlDb = "REPLACE";
 $gMysqlUsername = "REPLACE";
