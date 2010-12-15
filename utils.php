@@ -546,7 +546,7 @@ function createTables() {
                ", archive varchar (255) not null" .
                ", label varchar (255) not null" .
                ", status int(10) unsigned not null" .
-               ", timeofLastChange varchar (64) not null" .
+               ", timeOfLastChange varchar (64) not null" .
                ", retry int(10) unsigned not null" .
                ", wptid varchar (64) not null" .
                ", wptRetCode varchar (8) not null" .

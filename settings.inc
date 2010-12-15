@@ -15,9 +15,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-$gMysqlServer = "REPLACE";
-$gMysqlDb = "REPLACE";
-$gMysqlUsername = "REPLACE";
-$gMysqlPassword = "REPLACE";
+$gMysqlServer = "localhost";
+$gMysqlDb = "httparchive";
+$gMysqlUsername = "archiver";
+$gMysqlPassword = "fast";
 
 ?>

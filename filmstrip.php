@@ -20,9 +20,6 @@ require_once("utils.php");
 $gPageid = ( array_key_exists('pageid', $_GET) ? $_GET['pageid'] : "" );
 
 $query = "select harfile, url, wptid, wptrun, onLoad, renderStart from $gPagesTable where pageid=$gPageid;";
-
-
-echo "zhaoq: $query\r\n";
 $result = doQuery($query);
 $row = mysql_fetch_assoc($result);
 $harfile = $row['harfile'];

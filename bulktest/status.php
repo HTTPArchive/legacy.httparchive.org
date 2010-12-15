@@ -125,11 +125,13 @@ function GetTestResult($doc, &$result)
             $testResult = (int)$run->getElementsByTagName('result')->item(0)->nodeValue;
             $loadTime = (int)$run->getElementsByTagName('docTime')->item(0)->nodeValue;
             $render = (int)$run->getElementsByTagName('render')->item(0)->nodeValue;
+            // PageSpeed Score
+            $score = (int)$run->getElementsByTagName('PageSpeedScore')->item(0)->nodevalue;
             
             if( $loadTime && ($testResult == 0 || $testResult == 99999) )
-                $times[$loadTime] = array('index' => $index, 'result' => $testResult, 'loadTime' => $loadTime, 'startRender' => $render);
+                $times[$loadTime] = array('index' => $index, 'result' => $testResult, 'loadTime' => $loadTime, 'startRender' => $render, 'score' => $score);
             else
-                $failed[] = array('index' => $index, 'result' => $testResult, 'loadTime' => $loadTime, 'startRender' => $render);
+                $failed[] = array('index' => $index, 'result' => $testResult, 'loadTime' => $loadTime, 'startRender' => $render, 'score' => $score);
             
             unset($fv);
         }

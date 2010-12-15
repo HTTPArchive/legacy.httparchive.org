@@ -457,7 +457,8 @@ function ImportEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 		$bFirstReq = 0;
 		$bFirstHtml = 0;
 		if ( ! $firstUrl ) {
-			if (( 400 <= $status && $status <= 499 ) || (12000 <= $status) || (301 == $status)){
+      // TODO(zhaoq): add more error codes here.
+			if (( 400 <= $status && $status <= 499 ) || (12000 <= $status) || (301 == $status)) {
 				dprint("ERROR($gPagesTable pageid: $pageid): The first request ($url) failed with status $status.");
 				return false;
 			}

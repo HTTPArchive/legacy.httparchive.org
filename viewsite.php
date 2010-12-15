@@ -44,6 +44,7 @@ $wptid = $row['wptid'];
 $wptrun = $row['wptrun'];
 $onLoad = $row['onLoad'];
 $renderStart = $row['renderStart'];
+
 ?>
 <!doctype html>
 <html>
@@ -138,7 +139,7 @@ function showInterval(ms) {
 <script type="text/javascript">
 // Load this async since it does an RPC for the filmstrip XML.
 var filmstripjs = document.createElement('script');
-filmstripjs.src = "filmstrip.js?pageid=$gPageid";
+filmstripjs.src = "filmstrip.php?pageid=$gPageid";
 document.getElementsByTagName('head')[0].appendChild(filmstripjs);
 </script>
 
@@ -162,7 +163,7 @@ OUTPUT;
 
 <script src='schema.js'></script>
 <script src='har.js'></script>
-<script src='harviewer.js?f=<?php echo $harfile ?>'></script>
+<script src='harviewer.php?f=<?php echo $harfile ?>'></script>
 
 <script>
 function initHAR() {
