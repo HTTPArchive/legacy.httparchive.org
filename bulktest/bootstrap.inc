@@ -154,6 +154,9 @@ $ghBlackList = array(
 					 "www.redtube.com" => 1
 					 );
 
+// Some ad-hoc fix for the problematic URLs
+$gReUrls = array("www.files.wordpress.com" => "files.wordpress.com");
+
 // global options
 $video = true;
 $private = false;
