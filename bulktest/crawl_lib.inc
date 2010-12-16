@@ -2,13 +2,24 @@
 
 require_once("../utils.php");
 
+$gArchiveDir = "../archives";
+
+// Some ad-hoc modifications on a URL
+function RefineUrl($url) {
+  global $gReUrls;
+  if (array_key_exists($url, $gReUrls)) {
+    return $gReUrls[$url];
+  }
+  return $url;
+}
+
 // Load the URLs in urls.txt file into status table.
 function LoadUrlFromFile() {
-  global $locations, $gArchive, $gLabel;
+  global $locations, $gArchive, $gLabel, $gArchiveDir;
   $urls = file('./urls.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
   if (count($urls) > 0) {
     echo "Checking directory to store HAR files ...\r\n";
-    $dir = "./archives/$gArchive/$gLabel";
+    $dir = "$gArchiveDir/$gArchive/$gLabel";
     if( !is_dir("$dir") ) {
       // recursively create the dir
       mkdir("$dir", 0777, true);
@@ -18,6 +29,7 @@ function LoadUrlFromFile() {
   foreach( $urls as $url ) {
     $url = trim($url);
     if(strlen($url)) {
+      $url = RefineUrl($url);
       foreach ($locations as $location) {
         UpdateStatusTable($url, $location);
       }
@@ -168,15 +180,15 @@ function BuildFileName($url) {
 
 // Obain the .har file for the median run
 function FillTables() {
-  global $server;
+  global $server, $gArchiveDir;
   $tests = ObtainTestsWithCode(3);
   if (!IsEmptyQuery($tests)) {
     while ($row = mysql_fetch_assoc($tests)) {
       $file = BuildFileName($row['url']);
-      $fullPath = "./archives/{$row['archive']}/{$row['label']}/$file.har";
+      $fullPath = "$gArchiveDir/{$row['archive']}/{$row['label']}/$file.har";
       if (strlen($file) && !is_file($fullPath)) {
         $request = $server . "export.php?test={$row['wptid']}&run={$row['medianRun']}&cached=0";
-        $response = file_get_contents_with_retry($request);
+        $response = file_get_contents_utf8($request);
         if (strlen($response)) {
           file_put_contents($fullPath, $response);
           SetStatus($row['pageid'], 4);
@@ -211,9 +223,9 @@ function file_get_contents_utf8($fn) {
 // Import a specific HAR file.
 function ImportHarFile($filename, $result) {
   global $gStatusTable, $gPagesTable, $gRequestsTable;
-  $json_text = file_get_contents_utf8($filename);
+  $json_text = file_get_contents_with_retry($filename);
   if (!$json_text) {
-    dprint("ERROR($gStatusTable pageid: $result[pageid]): HAR file download error.");
+    dprint("ERROR($gStatusTable pageid: $result[pageid]): HAR file read error.");
     return;
   }
   $HAR = json_decode($json_text);
@@ -458,13 +470,15 @@ function ImportEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 		$bFirstHtml = 0;
 		if ( ! $firstUrl ) {
       // TODO(zhaoq): add more error codes here.
-			if (( 400 <= $status && $status <= 499 ) || (12000 <= $status) || (301 == $status)) {
+			if ((400 <= $status && 599 >= $status) || (12000 <= $status)) {
 				dprint("ERROR($gPagesTable pageid: $pageid): The first request ($url) failed with status $status.");
 				return false;
 			}
 			// This is the first URL found associated with the page - assume it's the base URL.
-			$bFirstReq = 1;
-			$firstUrl = $url;
+      if (($status != 301) && ($status != 302)) {
+			  $bFirstReq = 1;
+			  $firstUrl = $url;
+      }
 		}
 		if ( ! $firstHtmlUrl && 200 == $status ) {
 			// This is the first URL found associated with the page that's HTML.
@@ -602,21 +616,24 @@ function ObtainXMLResult() {
           $doc->loadXML($response);
           $nodes = $doc->getElementsByTagName('statusCode');
           $status = trim($nodes->item(0)->nodeValue);
-          $cmd = "UPDATE $gStatusTable SET wptRetCode = $status where pageid = $row[pageid];";
-          doSimpleCommand($cmd);
-          if (200 == $status) {
-            // Import a website
-            $result = array();
-            dprint("status table pageid: " . $row['pageid'] . "\r\n");
-            ParseXMLResult($doc, $result);
-            // Record medianRun in status table
-            // TODO (zhaoq): Set wptRetCode
-            $cmd = "UPDATE $gStatusTable SET medianRun = $result[medianRun], startRender = $result[startRender] WHERE pageid = $row[pageid];";
+          $runs = (int)$doc->getElementsByTagname('runs')->item(0)->nodeValue;
+          // Sanity check
+          if ($status && ($runs > 0)) {
+            $cmd = "UPDATE $gStatusTable SET wptRetCode = $status where pageid = $row[pageid];";
             doSimpleCommand($cmd);
-            SetStatus($row['pageid'], 3);
+            if (200 == $status) {
+              // Import a website
+              $result = array();
+              dprint("status table pageid: " . $row['pageid'] . "\r\n");
+              ParseXMLResult($doc, $result);
+              // Record medianRun in status table
+              $cmd = "UPDATE $gStatusTable SET medianRun = $result[medianRun], startRender = $result[startRender] WHERE pageid = $row[pageid];";
+              doSimpleCommand($cmd);
+              SetStatus($row['pageid'], 3);
+            }
+          } else {
+            // Error handling for status code 2
           }
-        } else {
-          // Error handling for status code 2
         }
       }
     }
