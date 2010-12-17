@@ -2,7 +2,7 @@
 
 require_once("../utils.php");
 
-$gArchiveDir = "../archives";
+$gArchiveDir = dirname(getcwd()) . "/archives";
 
 // Some ad-hoc modifications on a URL
 function RefineUrl($url) {
@@ -191,6 +191,7 @@ function FillTables() {
         $response = file_get_contents_utf8($request);
         if (strlen($response)) {
           file_put_contents($fullPath, $response);
+          chmod($fullPath, 755);
           SetStatus($row['pageid'], 4);
           ImportHarFile($fullPath, $row);
         } else {
@@ -650,10 +651,11 @@ function ParseXMLResult($doc, &$result)
     // pull the stuff we care about out from each run
     foreach( $runs as $run )
     {
-        $index = (int)$run->getElementsByTagName('id')->item(0)->nodeValue;
+        $indexNode = $run->getElementsByTagName('id')->item(0);
         $fv = $run->getElementsByTagName('firstView');
-        if( $fv )
+        if( $fv && $indexNode)
         {
+            $index = (int)$indexNode->nodeValue;
             dprint("run: " . $index . "\r\n");
             $testResult = (int)$run->getElementsByTagName('result')->item(0)->nodeValue;
             $loadTime = (int)$run->getElementsByTagName('docTime')->item(0)->nodeValue;
