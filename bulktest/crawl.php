@@ -19,7 +19,7 @@ require_once("./bootstrap.inc");
 require_once("./crawl_lib.inc");
 
 $pid_arr = array();
-for ($i = 0; $i < 3; $i++) {
+for ($i = 0; $i < 5; $i++) {
   $pid = pcntl_fork();
   if ($pid == -1) {
     die("cannot fork subprocesses ...");
@@ -34,7 +34,7 @@ for ($i = 0; $i < 3; $i++) {
         $unfinishedTests = ObtainTestsWithCode(1);
         if (IsEmptyQuery($unfinishedTests)) {
           echo "Start loading URLS from file ...\r\n";
-          LoadUrlFromFile();
+          //LoadUrlFromFile();
         }
       } else {
         // Submit the remaining jobs.
@@ -46,20 +46,19 @@ for ($i = 0; $i < 3; $i++) {
       exit();
     } elseif (1 == $i) {
       // Check the test status with WPT server
-      // Loop for while? e.g., 1min
       CheckWPTStatus();
       exit();
-    } else {
-      echo "Start importing data into DB ...\r\n";
+    } elseif (2 == $i) {
+      // Obtain XML result
       ObtainXMLResult();
+      exit();
+    } elseif (3 == $i) {
+      // Download har file
+      DownloadHar();
+      exit();
+    } elseif (4 == $i) {
+      // Fill page table and request table
       FillTables();
-      // Set the status code of completed tests.
-      $tests = ObtainTestsWithCode(5);
-      if (!IsEmptyQuery($tests)) {
-        while ($row = mysql_fetch_assoc($tests)) {
-          SetStatus($row['pageid'], 6);
-        }
-      }
       exit();
     }
   }
