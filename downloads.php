@@ -21,21 +21,17 @@ require_once("utils.php");
 $gTitle = "Downloads";
 
 /*
-Here's how httparchive_mysqldump.gz was generated:
-mysqldump --where='pageid >= 1 and pageid <= 2833' --no-create-db --no-create-info --skip-add-drop-table -u miscadmin -pmiscdb4me -h mysql.stevesouders.com stevesouderscom_misc pages requests > httparchive_Oct_2010
-mysqldump --where='pageid >= 5281 and pageid <= 8679' --no-create-db --no-create-info --skip-add-drop-table -u miscadmin -pmiscdb4me -h mysql.stevesouders.com stevesouderscom_misc pages requests > httparchive_Oct_22_2010
-mysqldump --where='pageid >= 8733 and pageid <= 10280' --no-create-db --no-create-info --skip-add-drop-table -u miscadmin -pmiscdb4me -h mysql.stevesouders.com stevesouderscom_misc pages requests > httparchive_Nov_6_2010
-mysqldump --where='pageid >= 10281 and pageid <= 27599' --no-create-db --no-create-info --skip-add-drop-table -u miscadmin -pmiscdb4me -h mysql.stevesouders.com stevesouderscom_misc pages requests > httparchive_Nov_15_2010
-mysqldump --where='pageid >= 27613 and pageid <= 45047' --no-create-db --no-create-info --skip-add-drop-table -u miscadmin -pmiscdb4me -h mysql.stevesouders.com stevesouderscom_misc pages requests > httparchive_Nov_29_2010
+Here's how httparchive_mysqldump was generated:
+mysqldump --where='pageid >= 1 and pageid <= 2833' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb pages requests > httparchive_Oct_2010
+mysqldump --where='pageid >= 5281 and pageid <= 8679' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb pages requests > httparchive_Oct_22_2010
+mysqldump --where='pageid >= 8733 and pageid <= 10280' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb pages requests > httparchive_Nov_6_2010
+mysqldump --where='pageid >= 10281 and pageid <= 27599' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb pages requests > httparchive_Nov_15_2010
+mysqldump --where='pageid >= 27613 and pageid <= 45047' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb pages requests > httparchive_Nov_29_2010
+mysqldump --where='pageid >= 45048 and pageid <= 61694' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb pagesdev requestsdev > httparchive_Dec_16_2010
+mysqldump --where='pageid >= 61695 and pageid <= 78354' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb pagesdev requestsdev > httparchive_Dec_28_2010
 
 Here's how I restored it:
-  mysql -v -u miscadmin -pPASSWORD_NO_SPACE -h mysql.stevesouders.com stevesouderscom_misc < httparchive_mysqldump
-
-Here's how I did a CSV of Fortune 100 requestsdev:
-select pagesdev.urlShort, requestsdev.urlShort, method, redirectUrl, firstReq, firstHtml, reqHttpVersion, reqHeadersSize, reqBodySize, reqCookieLen, status, respHttpVersion, respHeadersSize, respBodySize, respSize, respCookieLen, mimeType, req_accept, req_accept_charset, req_accept_encoding, req_accept_language, req_connection, req_host, req_if_modified_since, req_if_none_match, req_referer, req_user_agent, resp_accept_ranges, resp_age, resp_cache_control, resp_connection, resp_content_encoding, resp_content_language, resp_content_length, resp_content_location, resp_content_type, resp_date, resp_etag, resp_expires, resp_keep_alive, resp_last_modified, resp_location, resp_pragma, resp_server, resp_transfer_encoding, resp_vary, resp_via, resp_x_powered_by into outfile 'fortune1000.csv' fields terminated by ',' optionally enclosed by '"' lines terminated by '\n' from pagesdev, requestsdev where pagesdev.pageid=requestsdev.pageid and archive="Fortune 1000" and label="Oct 2010";
-
-mysqldump -u miscadmin -p -h mysql.stevesouders.com --fields-terminated-by ',' --fields-optionally-enclosed-by '"' --lines-terminated-by '\n' select pagesdev.urlShort, requestsdev.urlShort, method, redirectUrl, firstReq, firstHtml, reqHttpVersion, reqHeadersSize, reqBodySize, reqCookieLen, status, respHttpVersion, respHeadersSize, respBodySize, respSize, respCookieLen, mimeType, req_accept, req_accept_charset, req_accept_encoding, req_accept_language, req_connection, req_host, req_if_modified_since, req_if_none_match, req_referer, req_user_agent, resp_accept_ranges, resp_age, resp_cache_control, resp_connection, resp_content_encoding, resp_content_language, resp_content_length, resp_content_location, resp_content_type, resp_date, resp_etag, resp_expires, resp_keep_alive, resp_last_modified, resp_location, resp_pragma, resp_server, resp_transfer_encoding, resp_vary, resp_via, resp_x_powered_by from pagesdev, requestsdev where pagesdev.pageid=requestsdev.pageid and archive="Fortune 1000" and label="Oct 2010" stevesouderscom_misc pagesdev requestsdev;
-
+  mysql -v -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb < httparchive_mysqldump
 */
 ?>
 <!doctype html>
