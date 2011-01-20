@@ -53,7 +53,8 @@ function LoadUrlFromFile() {
     $dir = "$gArchiveDir/$gArchive/$gLabel";
     if( !is_dir("$dir") ) {
       // recursively create the dir
-      mkdir("$dir", 0777, true);
+      mkdir($dir, 0777, true);
+      chmod($dir, 0755);
     }
   }
 
@@ -122,7 +123,6 @@ function SubmitTest(&$record) {
   global $fvonly;
 
   $request = $server . 'runtest.php?f=xml&mv=1&priority=6&url=' . urlencode($record['url']) . "&location={$record['location']}&runs=$runs";
-  echo $request;
   if( $private )
     $request .= '&private=1';
   if( $video )
