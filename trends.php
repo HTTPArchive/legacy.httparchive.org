@@ -44,6 +44,8 @@ $gTitle = "Trends";
 
 <h1>Trends</h1>
 
+
+<div style="float: left;">
 <form>
 	<label>Choose URLs:</label>
 	<select onchange='document.location="?s="+escape(this.options[this.selectedIndex].value)'>
@@ -51,8 +53,11 @@ $gTitle = "Trends";
 	    <option value='constant'<?php echo ( "constant" == $gSet ? " selected" : "" ) ?>> intersection
 	</select>
 </form>
+</div>
+<div>
+</div>
 
-<div id=trends style="margin-top: 40px;">
+<div id=trends style="margin-top: 80px;">
 <!-- trends.js will insert trends here -->
 </div>
 	
@@ -71,8 +76,9 @@ if ( "constant" === $gSet ) {
 	$setWhere = " and url in ('" . implode("','", $aUrls) . "')";
 }
 
-$aFields = array("onLoad",
-				 "renderStart",
+$aFields = array(
+				 //"onLoad",
+				 //"renderStart",
 				 "PageSpeed",
 				 "reqTotal",
 				 "reqHtml",
