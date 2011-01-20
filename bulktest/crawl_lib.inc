@@ -121,7 +121,8 @@ function SubmitTest(&$record) {
   global $docComplete;
   global $fvonly;
 
-  $request = $server . 'runtest.php?f=xml&priority=6&url=' . urlencode($record['url']) . "&location={$record['location']}&runs=$runs";
+  $request = $server . 'runtest.php?f=xml&mv=1&priority=6&url=' . urlencode($record['url']) . "&location={$record['location']}&runs=$runs";
+  echo $request;
   if( $private )
     $request .= '&private=1';
   if( $video )
@@ -649,7 +650,7 @@ function AggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultRow) {
 	$hDomains = array();
 
 	t_mark('aggregateStats query');
-    $result = doQuery("select mimeType, urlShort, respSize from $gRequestsTable where pageid = $pageid;");
+  $result = doQuery("select mimeType, urlShort, respSize from $gRequestsTable where pageid = $pageid;");
 	t_aggregate('aggregateStats query');
 	while ($row = mysql_fetch_assoc($result)) {
 		$mimeType = prettyMimetype($row['mimeType']);
@@ -666,7 +667,7 @@ function AggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultRow) {
 			$hostname = $aMatches[1];
 			$hDomains[$hostname] = 1; // don't need to count, just find unique domains
 		}
-		else { 
+		else {
 			dprint("ERROR($gPagesTable pageid: $pageid): No hostname found in URL: $url");
 		}
 	}
