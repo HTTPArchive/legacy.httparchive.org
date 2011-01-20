@@ -15,11 +15,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-require_once("./bootstrap.inc");
 require_once("./crawl_lib.inc");
+require_once("./bootstrap.inc");
 
 $pid_arr = array();
-for ($i = 0; $i < 5; $i++) {
+for ($i = 0; $i < 6; $i++) {
   $pid = pcntl_fork();
   if ($pid == -1) {
     die("cannot fork subprocesses ...");
@@ -30,14 +30,7 @@ for ($i = 0; $i < 5; $i++) {
     } elseif (0 == $i) {
       // Job submission process
       $unsubmitTests = ObtainTestsWithCode(0);
-      if (IsEmptyQuery($unsubmitTests)) {
-        $unfinishedTests = ObtainTestsWithCode(1);
-        if (IsEmptyQuery($unfinishedTests)) {
-          echo "Start loading URLS from file ...\r\n";
-          //LoadUrlFromFile();
-        }
-      } else {
-        // Submit the remaining jobs.
+      if (!IsEmptyQuery($unsubmitTests)) {
         while ($row = mysql_fetch_assoc($unsubmitTests)) {
           //var_dump($row);
           SubmitTest($row);
@@ -45,18 +38,26 @@ for ($i = 0; $i < 5; $i++) {
       }
       exit();
     } elseif (1 == $i) {
+      $unsubmitted = ObtainTestsWithCode(0);
+      $unfinished = ObtainTestsWithCode(1);
+      if (IsEmptyQuery($unfinished) && IsEmptyQuery($unsubmitted)) {
+        echo "Start loading URLS from file ...\r\n";
+        LoadUrlFromFile();
+      }
+      exit();
+    } elseif (2 == $i) {
       // Check the test status with WPT server
       CheckWPTStatus();
       exit();
-    } elseif (2 == $i) {
+    } elseif (3 == $i) {
       // Obtain XML result
       ObtainXMLResult();
       exit();
-    } elseif (3 == $i) {
+    } elseif (4 == $i) {
       // Download har file
       DownloadHar();
       exit();
-    } elseif (4 == $i) {
+    } elseif (5 == $i) {
       // Fill page table and request table
       FillTables();
       exit();
