@@ -20,6 +20,7 @@ set_time_limit(0);
 require_once("../settings.inc");
 require_once("../utils.php");
 
+
 $gArchive = "All";
 $date = getdate();
 $gLabel = $date[0];
@@ -161,15 +162,15 @@ $gReUrls = array("www.files.wordpress.com" => "files.wordpress.com");
 $video = true;
 $private = false;
 $docComplete = true;
-$runs = 9;
 $fvonly = true;
-$server = 'http://www.webpagetest.org/';
+$server = 'http://httparchive.webpagetest.org/';
+$runs = 3;
 
 // list of locations to use
 $locations = array();
 //$locations[] = 'Dulles_IE7';
 //$locations[] = 'Dulles_IE8';
-$locations[] = 'G_Dulles_IE8';
+$locations[] = 'Dulles_IE8';
 //$locations[] = 'NewYork_IE8';
 //$locations[] = 'Chicago_IE7';
 //$locations[] = 'SanJose';
