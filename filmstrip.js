@@ -21,8 +21,6 @@ $gPageid = ( array_key_exists('pageid', $_GET) ? $_GET['pageid'] : "" );
 
 $query = "select harfile, url, wptid, wptrun, onLoad, renderStart from $gPagesTable where pageid=$gPageid;";
 
-
-echo "zhaoq: $query\r\n";
 $result = doQuery($query);
 $row = mysql_fetch_assoc($result);
 $harfile = $row['harfile'];
@@ -33,7 +31,7 @@ $onLoad = $row['onLoad'];
 $interval = ( $onLoad > 15000 ? 5000 : ( $onLoad > 4000 ? 1000 : ( $onLoad > 1000 ? 500 : 100 ) ) );
 $renderStart = $row['renderStart'];
 
-$xmlurl = "http://www.webpagetest.org/xmlResult.php?test=$wptid";
+$xmlurl = "http://httparchive.webpagetest.org/xmlResult.php?test=$wptid";
 $xmlstr = file_get_contents($xmlurl);
 $xml = new SimpleXMLElement($xmlstr);
 $frames = $xml->data->run[($wptrun - 1)]->firstView->videoFrames;
@@ -50,7 +48,7 @@ $aMatches = array();
 $url = "";
 $pattern = '/([0-9][0-9])([0-9][0-9])([0-9][0-9])_(.*)/';
 if ( preg_match($pattern, $wptid, $aMatches) ) {
-	$url = "http://www.webpagetest.org/results/" . $aMatches[1] . "/" . $aMatches[2] . "/" . $aMatches[3] . "/" . $aMatches[4] . "/video_$wptrun/frame_";
+	$url = "http://httparchive.webpagetest.org/results/" . $aMatches[1] . "/" . $aMatches[2] . "/" . $aMatches[3] . "/" . $aMatches[4] . "/video_$wptrun/frame_";
 }
 $lastFrameTime = 0;
 for ( $i = 0; $i < ($onLoad+100); $i += 100 ) {
@@ -64,7 +62,7 @@ for ( $i = 0; $i < ($onLoad+100); $i += 100 ) {
 	}
 	$f = "0000" . ($lastFrameTime/100);
 	$f = substr($f, strlen($f)-4);
-	$sTd .= "<td id=td$i class='$class' style='display: none;'><a target='_blank' href='$url$f.jpg'><img width=200 height=140 id='http://www.webpagetest.org/thumbnail.php?test=$wptid&width=200&file=video_$wptrun/frame_$f.jpg'></a></td>";
+	$sTd .= "<td id=td$i class='$class' style='display: none;'><a target='_blank' href='$url$f.jpg'><img width=200 height=140 id='http://httparchive.webpagetest.org/thumbnail.php?test=$wptid&width=200&file=video_$wptrun/frame_$f.jpg'></a></td>";
 }
 ?>
 
