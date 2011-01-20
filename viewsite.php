@@ -39,6 +39,9 @@ $gPageid = $row['pageid'];
 $gArchive = $row['archive'];
 $gLabel = $row['label'];
 $harfile = $row['harfile'];
+// Do some manipulation
+$fn = basename($harfile);
+$harfile = "./archives/" . $gArchive . "/" . $gLabel . "/" . $fn;
 $url = $row['url'];
 $wptid = $row['wptid'];
 $wptrun = $row['wptrun'];
@@ -139,7 +142,7 @@ function showInterval(ms) {
 <script type="text/javascript">
 // Load this async since it does an RPC for the filmstrip XML.
 var filmstripjs = document.createElement('script');
-filmstripjs.src = "filmstrip.php?pageid=$gPageid";
+filmstripjs.src = "filmstrip.js?pageid=$gPageid";
 document.getElementsByTagName('head')[0].appendChild(filmstripjs);
 </script>
 
@@ -148,8 +151,8 @@ OUTPUT;
 ?>
 
 <ul class=horizlist>
-  <li> <a href="http://www.webpagetest.org/video/compare.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0">WPT filmstrip</a>
-  <li> <a href="http://www.webpagetest.org/video/create.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0&id=<?php echo $wptid ?>.<?php echo $wptrun ?>.0">watch video</a>
+  <li> <a href="http://httparchive.webpagetest.org/video/compare.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0">WPT filmstrip</a>
+  <li> <a href="http://httparchive.webpagetest.org/video/create.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0&id=<?php echo $wptid ?>.<?php echo $wptrun ?>.0">watch video</a>
 </ul>
 
 
@@ -163,7 +166,7 @@ OUTPUT;
 
 <script src='schema.js'></script>
 <script src='har.js'></script>
-<script src='harviewer.php?f=<?php echo $harfile ?>'></script>
+<script src='harviewer.js?f=<?php echo $harfile ?>'></script>
 
 <script>
 function initHAR() {
