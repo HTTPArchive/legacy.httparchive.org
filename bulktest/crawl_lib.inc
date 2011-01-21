@@ -51,8 +51,8 @@ function LoadUrlFromFile() {
   if (count($urls) > 0) {
     echo "Checking directory to store HAR files ...\r\n";
     if( !is_dir("$gArchiveDir/$gArchive") ) {
-      mkdir("$gArchiveDir/$gArchive", 0777, true)
-      chmod("$gArchiveDir/$gArchive", 0755)
+      mkdir("$gArchiveDir/$gArchive", 0777, true);
+      chmod("$gArchiveDir/$gArchive", 0755);
     }
 
     $dir = "$gArchiveDir/$gArchive/$gLabel";
