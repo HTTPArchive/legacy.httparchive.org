@@ -50,6 +50,11 @@ function LoadUrlFromFile() {
   $urls = file('./urls.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
   if (count($urls) > 0) {
     echo "Checking directory to store HAR files ...\r\n";
+    if( !is_dir("$gArchiveDir/$gArchive") ) {
+      mkdir("$gArchiveDir/$gArchive", 0777, true)
+      chmod("$gArchiveDir/$gArchive", 0755)
+    }
+
     $dir = "$gArchiveDir/$gArchive/$gLabel";
     if( !is_dir("$dir") ) {
       // recursively create the dir
