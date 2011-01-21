@@ -19,20 +19,6 @@ require_once("ui.php");
 require_once("utils.php");
 
 $gTitle = "Downloads";
-
-/*
-Here's how httparchive_mysqldump was generated:
-mysqldump --where='pageid >= 1 and pageid <= 2833' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb pages requests > httparchive_Oct_2010
-mysqldump --where='pageid >= 5281 and pageid <= 8679' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb pages requests > httparchive_Oct_22_2010
-mysqldump --where='pageid >= 8733 and pageid <= 10280' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb pages requests > httparchive_Nov_6_2010
-mysqldump --where='pageid >= 10281 and pageid <= 27599' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb pages requests > httparchive_Nov_15_2010
-mysqldump --where='pageid >= 27613 and pageid <= 45047' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb pages requests > httparchive_Nov_29_2010
-mysqldump --where='pageid >= 45048 and pageid <= 61694' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb pagesdev requestsdev > httparchive_Dec_16_2010
-mysqldump --where='pageid >= 61695 and pageid <= 78354' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb pagesdev requestsdev > httparchive_Dec_28_2010
-
-Here's how I restored it:
-  mysql -v -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb < httparchive_mysqldump
-*/
 ?>
 <!doctype html>
 <html>
