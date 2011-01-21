@@ -182,7 +182,7 @@ function CheckWPTStatus() {
           $doc->loadXML($response);
           $nodes = $doc->getElementsByTagName('statusText');
           $statusTxt = trim($nodes->item(0)->nodeValue);
-          echo "{$row['pageid']} $statusTxt\r\n";
+          //echo "{$row['pageid']} $statusTxt\r\n";
           if (!strcmp("Test Complete", $statusTxt)) {
             // Update status code to 2
             SetStatus($row['pageid'], 2);
