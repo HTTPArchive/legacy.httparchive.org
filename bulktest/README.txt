@@ -26,8 +26,8 @@ The list of the status code:
 1: url is submitted to wpt server and forms a test
 2: the test is done on wpt server
 3: xml result is generated, downloaded and parsed successfully
-4: har file is generated, downloaded and parsed successfully
-5: succeed
+4: har file is generated, downloaded
+5: the info of har file is successfully parsed and inserted into the tabls
 
 At the end, any tests that remain on an non-5 status code indicate a failure
 case.
