@@ -413,12 +413,11 @@ function purgePage($pageid) {
 function doSimpleCommand($cmd) {
 	global $gMysqlServer, $gMysqlDb, $gMysqlUsername, $gMysqlPassword;
 
-	$value = NULL;
 	$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword);
 	if ( mysql_select_db($gMysqlDb) ) {
 		//error_log("doSimpleCommand: $cmd");
 		$result = mysql_query($cmd, $link);
-    mysql_close($link);
+		mysql_close($link);
 		if ( ! $result ) {
 			dprint("ERROR in doSimpleCommand: '" . mysql_error() . "' for command: " . $cmd);
 		}
@@ -429,12 +428,11 @@ function doSimpleCommand($cmd) {
 function doQuery($query) {
 	global $gMysqlServer, $gMysqlDb, $gMysqlUsername, $gMysqlPassword;
 
-	$value = NULL;
 	$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword);
 	if ( mysql_select_db($gMysqlDb) ) {
 		//error_log("doQuery: $query");
 		$result = mysql_query($query, $link);
-    mysql_close($link);
+		mysql_close($link);
 		if ( ! $result ) {
 			dprint("ERROR in doQuery: '" . mysql_error() . "' for query: " . $query);
 		}
@@ -459,7 +457,7 @@ function doRowQuery($query) {
 
 // return the first value from the first row
 function doSimpleQuery($query) {
-  $value = '';
+	$value = NULL;
 	$result = doQuery($query);
 	if ( $result ) {
 		$row = mysql_fetch_assoc($result);
@@ -489,7 +487,7 @@ SCHEMA CHANGES:
   mysql> create index pageid on requestsdev (pageid);
 *******************************************************************************/
 function createTables() {
-	global $gStatusTable, $gPagesTable, $gRequestsTable;
+	global $gPagesTable, $gRequestsTable, $gStatusTable;
 	global $ghReqHeaders, $ghRespHeaders;
 
 	if ( ! tableExists($gPagesTable) ) {
@@ -536,27 +534,6 @@ function createTables() {
 			");";
 		doSimpleCommand($command);
 	}
-
-  // Create Status Table
-  if ( ! tableExists($gStatusTable) ) {
-    $command = "create table $gStatusTable (" .
-               "pageid int unsigned not null auto_increment" .
-               ", url varchar (255) not null" .
-               ", location varchar (255) not null" .
-               ", archive varchar (255) not null" .
-               ", label varchar (255) not null" .
-               ", status int(10) unsigned not null" .
-               ", timeOfLastChange varchar (64) not null" .
-               ", retry int(10) unsigned not null" .
-               ", wptid varchar (64) not null" .
-               ", wptRetCode varchar (8) not null" .
-               ", medianRun int(10) unsigned not null" .
-               ", startRender int(10) unsigned" .
-               ", primary key (pageid)" .
-               ", unique key (url, location, label)" .
-               ");";
-    doSimpleCommand($command);
-  }
 
 	if ( ! tableExists($gRequestsTable) ) {
 		$sColumns = "";
@@ -610,6 +587,27 @@ function createTables() {
 			", primary key (requestid)" .
 			", index(pageid)" .
 			", unique key (startedDateTime, pageid, urlShort)" .
+			");";
+		doSimpleCommand($command);
+	}
+
+	// Create Status Table
+	if ( ! tableExists($gStatusTable) ) {
+		$command = "create table $gStatusTable (" .
+			"pageid int unsigned not null auto_increment" .
+			", url varchar (255) not null" .
+			", location varchar (255) not null" .
+			", archive varchar (255) not null" .
+			", label varchar (255) not null" .
+			", status int(10) unsigned not null" .
+			", timeOfLastChange varchar (64) not null" .
+			", retry int(10) unsigned not null" .
+			", wptid varchar (64) not null" .
+			", wptRetCode varchar (8) not null" .
+			", medianRun int(10) unsigned not null" .
+			", startRender int(10) unsigned" .
+			", primary key (pageid)" .
+			", unique key (url, location, label)" .
 			");";
 		doSimpleCommand($command);
 	}
