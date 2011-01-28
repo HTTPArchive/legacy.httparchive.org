@@ -327,9 +327,26 @@ function mostFlash() {
 function pieChart($title, $aNames, $aValues, $color="007099") {
 	return "<img class=chart src='http://chart.apis.google.com/chart?chs=400x225&cht=p&chco=$color&chd=t:" .
 		implode(",", $aValues) .
+		chdsMinmax($aValues) .
 		"&chl=" .
 		urlencode(implode("|", $aNames)) .
 		"&chma=|5&chtt=" . urlencode($title) . "'>";
+}
+
+
+// The chd (data) param in text ("t:") format only allows values from 0-100.
+// You have to use the chds param if you have values outside that range.
+function chdsMinmax($aValues) {
+	$chds = "";
+	if ( count($aValues) ) {
+		$min = min($aValues);
+		$max = max($aValues);
+		if ( $min < 0 || $max > 100 ) {
+			$chds = "&chds=$min,$max";
+		}
+	}
+
+	return $chds;
 }
 
 
