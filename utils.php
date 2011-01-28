@@ -19,12 +19,14 @@ require_once("settings.inc");
 
 $gPagesTable = "pages";
 $gRequestsTable = "requests";
+$gStatusTable = "status";
 
 // Use a dev version of the database tables if "dev/" is in the path.
 $gbDev = ( strpos(getcwd(), "/dev/") || strpos(getcwd(), "/trunk") );
 if ( $gbDev ) {
 	$gPagesTable = "pagesdev";
 	$gRequestsTable = "requestsdev";
+	$gStatusTable = "statusdev";
 }
 
 // Hide archives while we're importing them.
@@ -417,7 +419,7 @@ function doSimpleCommand($cmd) {
 	if ( mysql_select_db($gMysqlDb) ) {
 		//error_log("doSimpleCommand: $cmd");
 		$result = mysql_query($cmd, $link);
-		mysql_close($link);
+		//mysql_close($link); // the findCorrelation code relies on the link not being closed
 		if ( ! $result ) {
 			dprint("ERROR in doSimpleCommand: '" . mysql_error() . "' for command: " . $cmd);
 		}
@@ -432,7 +434,7 @@ function doQuery($query) {
 	if ( mysql_select_db($gMysqlDb) ) {
 		//error_log("doQuery: $query");
 		$result = mysql_query($query, $link);
-		mysql_close($link);
+		//mysql_close($link); // the findCorrelation code relies on the link not being closed
 		if ( ! $result ) {
 			dprint("ERROR in doQuery: '" . mysql_error() . "' for query: " . $query);
 		}
@@ -590,7 +592,7 @@ function createTables() {
 			");";
 		doSimpleCommand($command);
 	}
-
+/* not ready yet
 	// Create Status Table
 	if ( ! tableExists($gStatusTable) ) {
 		$command = "create table $gStatusTable (" .
@@ -611,6 +613,7 @@ function createTables() {
 			");";
 		doSimpleCommand($command);
 	}
+*/
 }
 
 
