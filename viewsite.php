@@ -39,9 +39,6 @@ $gPageid = $row['pageid'];
 $gArchive = $row['archive'];
 $gLabel = $row['label'];
 $harfile = $row['harfile'];
-// Do some manipulation
-$fn = basename($harfile);
-$harfile = "./archives/" . $gArchive . "/" . $gLabel . "/" . $fn;
 $url = $row['url'];
 $wptid = $row['wptid'];
 $wptrun = $row['wptrun'];
