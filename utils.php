@@ -415,7 +415,7 @@ function purgePage($pageid) {
 function doSimpleCommand($cmd) {
 	global $gMysqlServer, $gMysqlDb, $gMysqlUsername, $gMysqlPassword;
 
-	$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword);
+	$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
 	if ( mysql_select_db($gMysqlDb) ) {
 		//error_log("doSimpleCommand: $cmd");
 		$result = mysql_query($cmd, $link);
@@ -430,7 +430,7 @@ function doSimpleCommand($cmd) {
 function doQuery($query) {
 	global $gMysqlServer, $gMysqlDb, $gMysqlUsername, $gMysqlPassword;
 
-	$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword);
+	$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
 	if ( mysql_select_db($gMysqlDb) ) {
 		//error_log("doQuery: $query");
 		$result = mysql_query($query, $link);
@@ -574,7 +574,7 @@ function createTables() {
 			", reqOtherHeaders text" .
 
 			// response
-			", status int(10) unsigned" .	
+			", status int(10) unsigned" .
 			", respHttpVersion varchar (32)" .
 			", respHeadersSize int(10) unsigned" .
 			", respBodySize int(10) unsigned" .
@@ -592,7 +592,7 @@ function createTables() {
 			");";
 		doSimpleCommand($command);
 	}
-/* not ready yet
+
 	// Create Status Table
 	if ( ! tableExists($gStatusTable) ) {
 		$command = "create table $gStatusTable (" .
@@ -609,11 +609,11 @@ function createTables() {
 			", medianRun int(10) unsigned not null" .
 			", startRender int(10) unsigned" .
 			", primary key (pageid)" .
-			", unique key (url, location, label)" .
+			", index(pageid)" .
 			");";
 		doSimpleCommand($command);
 	}
-*/
+
 }
 
 
