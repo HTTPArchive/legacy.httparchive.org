@@ -32,7 +32,6 @@ $ghReqOtherHeaders = array();
 $ghRespOtherHeaders = array();
 
 // Some ad-hoc fix for the problematic URLs
-// This has not been applied to the crawler code.
 $gReUrls = array("www.files.wordpress.com" => "files.wordpress.com");
 
 // global options
