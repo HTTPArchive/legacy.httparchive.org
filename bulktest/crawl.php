@@ -18,6 +18,8 @@ limitations under the License.
 require_once("./crawl_lib.inc");
 require_once("./bootstrap.inc");
 
+// Create all the tables if they are not there.
+createTables();
 $pid_arr = array();
 for ($i = 0; $i < 6; $i++) {
   $pid = pcntl_fork();
@@ -28,6 +30,23 @@ for ($i = 0; $i < 6; $i++) {
       // Parent process
       $pid_arr[] = $pid;
     } elseif (0 == $i) {
+      if (0 == $gReload) {
+        // In this mode, the url file can only be loaded once.
+        $query = "SELECT * FROM $gStatusTable";
+        if (IsEmptyQuery(doQuery($query))) {
+          // Initial loading
+          LoadUrlFromFile();
+        }
+      } else {
+        // In this mode, the url file can be repeatedly reloaded.
+        $unsubmitted = ObtainTestsWithCode(0);
+        $unfinished = ObtainTestsWithCode(1);
+        if (IsEmptyQuery($unfinished) && IsEmptyQuery($unsubmitted)) {
+          LoadUrlFromFile();
+        }
+      }
+      exit();
+    } elseif (1 == $i) {
       // Job submission process
       $unsubmitTests = ObtainTestsWithCode(0);
       if (!IsEmptyQuery($unsubmitTests)) {
@@ -35,14 +54,6 @@ for ($i = 0; $i < 6; $i++) {
           //var_dump($row);
           SubmitTest($row);
         }
-      }
-      exit();
-    } elseif (1 == $i) {
-      $unsubmitted = ObtainTestsWithCode(0);
-      $unfinished = ObtainTestsWithCode(1);
-      if (IsEmptyQuery($unfinished) && IsEmptyQuery($unsubmitted)) {
-        echo "Start loading URLS from file ...\r\n";
-        LoadUrlFromFile();
       }
       exit();
     } elseif (2 == $i) {
