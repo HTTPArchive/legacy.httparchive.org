@@ -21,68 +21,71 @@ require_once("./bootstrap.inc");
 // Create all the tables if they are not there.
 createTables();
 $pid_arr = array();
-for ($i = 0; $i < 6; $i++) {
-  $pid = pcntl_fork();
-  if ($pid == -1) {
-    die("cannot fork subprocesses ...");
-  } else {
-    if ($pid) {
-      // Parent process
-      $pid_arr[] = $pid;
-    } elseif (0 == $i) {
-      if (0 == $gReload) {
-        // In this mode, the url file can only be loaded once.
-        $query = "SELECT * FROM $gStatusTable";
-        if (IsEmptyQuery(doQuery($query))) {
-          // Initial loading
-          LoadUrlFromFile();
-        }
-      } else {
-        // In this mode, the url file can be repeatedly reloaded.
-        $unsubmitted = ObtainTestsWithCode(0);
-        $unfinished = ObtainTestsWithCode(1);
-        if (IsEmptyQuery($unfinished) && IsEmptyQuery($unsubmitted)) {
-          LoadUrlFromFile();
-        }
-      }
-      exit();
-    } elseif (1 == $i) {
-      // Job submission process
-      $unsubmitTests = ObtainTestsWithCode(0);
-      if (!IsEmptyQuery($unsubmitTests)) {
-        while ($row = mysql_fetch_assoc($unsubmitTests)) {
-          //var_dump($row);
-          SubmitTest($row);
-        }
-      }
-      exit();
-    } elseif (2 == $i) {
-      // Check the test status with WPT server
-      CheckWPTStatus();
-      exit();
-    } elseif (3 == $i) {
-      // Obtain XML result
-      ObtainXMLResult();
-      exit();
-    } elseif (4 == $i) {
-      // Download har file
-      DownloadHar();
-      exit();
-    } elseif (5 == $i) {
-      // Fill page table and request table
-      FillTables();
-      exit();
-    }
-  }
+if ( 0 == $gReload ) {
+	$result = countTestsWithCode(-1);
+	if ( 0 == $result['COUNT(*)'] ) {
+		loadUrlFromFile();
+	}
+}
+for ( $i = 0; $i < 6; $i++ ) {
+	$pid = pcntl_fork();
+	if ( -1 == $pid ) {
+		die("cannot fork subprocesses ...");
+	} else {
+		if ( $pid ) {
+			// Parent process
+			$pid_arr[] = $pid;
+		} elseif ( 0 == $i ) {
+			if ( 0 != $gReload ) {
+				// In this mode, the url file can be repeatedly reloaded.
+				$unsubmitted = countTestsWithCode(0);
+				$unfinished = countTestsWithCode(1);
+				if ( (0 == $unfinished) && (0 == $unsubmitted) ) {
+					loadUrlFromFile();
+				}
+			}
+			exit();
+		} elseif ( 1 == $i ) {
+			// Job submission process
+			$unsubmitTests = obtainTestsWithCode(0);
+			if ( !isEmptyQuery($unsubmitTests) ) {
+				while ($row = mysql_fetch_assoc($unsubmitTests)) {
+					//var_dump($row);
+					submitTest($row);
+				}
+			}
+			exit();
+		} elseif ( 2 == $i ) {
+			// Check the test status with WPT server
+			checkWPTStatus();
+			exit();
+		} elseif ( 3 == $i ) {
+			// Obtain XML result
+			obtainXMLResult();
+			exit();
+		} elseif ( 4 == $i ) {
+			// Download har file
+			downloadHar();
+			exit();
+		} elseif ( 5 == $i ) {
+			// Fill page table and request table
+			fillTables();
+			exit();
+		}
+	}
 }
 
-while (count($pid_arr) > 0) {
-  $myId = pcntl_waitpid(-1, $status, WNOHANG);
-  foreach ($pid_arr as $key => $pid) {
-    if ($myId == $pid) {
-      unset($pid_arr[$key]);
-    }
-  }
-  usleep(100);
+while ( count($pid_arr) > 0 ) {
+	$myId = pcntl_waitpid(-1, $status, WNOHANG);
+	foreach ( $pid_arr as $key => $pid ) {
+		if ( $myId == $pid ) {
+			unset($pid_arr[$key]);
+		}
+	}
+	usleep(100);
 }
+
+reportSummary();
+
+
 ?>
