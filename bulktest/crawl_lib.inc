@@ -4,33 +4,37 @@ require_once("../utils.php");
 
 $gArchiveDir = dirname(getcwd()) . "/archives";
 
+
 // Some ad-hoc modifications on a URL
-function RefineUrl($url) {
-  global $gReUrls;
-  if (array_key_exists($url, $gReUrls)) {
-    return $gReUrls[$url];
-  }
-  return $url;
+function refineUrl($url) {
+	global $gReUrls;
+	if ( array_key_exists($url, $gReUrls) ) {
+		return $gReUrls[$url];
+	}
+	return $url;
 }
+
 
 // Fetch file and retry if it fails.
-function file_get_contents_with_retry($fn) {
-  $contents = file_get_contents($fn);
-  $numRetry = 0;
-  while ((!$contents) && (3 >= $numRetry)) {
-    // Retry
-    sleep(2);
-    $contents = file_get_contents($fn);
-    $numRetry++;
-  }
-  return $contents;
+function getFileContent($fn) {
+	$contents = file_get_contents($fn);
+	$numRetry = 0;
+	while ( ( !$contents ) && ( 3 >= $numRetry ) ) {
+		// Retry
+		sleep(2);
+		$contents = file_get_contents($fn);
+		$numRetry++;
+	}
+	return $contents;
 }
 
+
 // Convert the fetched result to utf-8 encoded if it is not.
-function file_get_contents_utf8($fn) {
-  $content = file_get_contents_with_retry($fn);
-  return mb_convert_encoding($content, 'UTF-8', mb_detect_encoding($content, 'UTF-8, ISO-8859-1', true));
+function getFileContentUtf8($fn) {
+	$content = getFileContent($fn);
+	return mb_convert_encoding($content, 'UTF-8', mb_detect_encoding($content, 'UTF-8, ISO-8859-1', true));
 }
+
 
 // Create a file name given an url
 function BuildFileName($url) {
@@ -44,362 +48,366 @@ function BuildFileName($url) {
     return $file;
 }
 
+
 // Load the URLs in urls.txt file into status table.
-function LoadUrlFromFile() {
-  global $locations, $gArchive, $gLabel, $gArchiveDir;
-  $urls = file('./urls.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-  if (count($urls) > 0) {
-    echo "Checking directory to store HAR files ...\r\n";
-    if( !is_dir("$gArchiveDir/$gArchive") ) {
-      mkdir("$gArchiveDir/$gArchive", 0777, true);
-      chmod("$gArchiveDir/$gArchive", 0755);
-    }
+function loadUrlFromFile() {
+	global $locations, $gArchive, $gLabel, $gArchiveDir;
+	$urls = file('./urls.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+	if ( count($urls) > 0 ) {
+		echo "Checking directory to store HAR files ...\r\n";
+		if( !is_dir("$gArchiveDir/$gArchive") ) {
+			mkdir("$gArchiveDir/$gArchive", 0777, true);
+			chmod("$gArchiveDir/$gArchive", 0755);
+		}
 
-    $dir = "$gArchiveDir/$gArchive/$gLabel";
-    if( !is_dir("$dir") ) {
-      // recursively create the dir
-      mkdir($dir, 0777, true);
-      chmod($dir, 0755);
-    }
-  }
+		$dir = "$gArchiveDir/$gArchive/$gLabel";
+		if( !is_dir("$dir") ) {
+			// recursively create the dir
+			mkdir($dir, 0777, true);
+			chmod($dir, 0755);
+		}
+	}
 
-  foreach( $urls as $url ) {
-    $url = trim($url);
-    if(strlen($url)) {
-      $url = RefineUrl($url);
-      foreach ($locations as $location) {
-        UpdateStatusTable($url, $location);
-      }
-    }
-  }
+	foreach( $urls as $url ) {
+		$url = trim($url);
+		if( strlen($url) ) {
+			$url = refineUrl($url);
+			foreach ( $locations as $location ) {
+				updateStatusTable($url, $location);
+			}
+		}
+	}
 }
+
 
 // Insert a row into the status table.
-function UpdateStatusTable($url, $loc) {
-  global $gStatusTable, $gArchive, $gLabel;
-  $now = time();
-  $cmd = "REPLACE INTO $gStatusTable SET url = '$url' , location = '$loc', archive = '$gArchive', label = '$gLabel', status = 0, timeofLastChange = '$now', retry = 0, wptid = 'none', wptRetCode = '0', medianRun = 0;";
-  //dprint("$cmd");
-  doSimpleCommand($cmd);
+function updateStatusTable($url, $loc) {
+	global $gStatusTable, $gArchive, $gLabel;
+	$now = time();
+	$cmd = "REPLACE INTO $gStatusTable SET url = '$url' , location = '$loc', archive = '$gArchive', label = '$gLabel', status = 0, timeofLastChange = '$now', retry = 0, wptid = 'none', wptRetCode = '0', medianRun = 0;";
+	doSimpleCommand($cmd);
 }
 
+
 // Obtain the tests with specified status code
-function ObtainTestsWithCode($status) {
-  global $gStatusTable;
-  $query = "SELECT * FROM $gStatusTable WHERE status = $status;";
-  return doQuery($query);
+function obtainTestsWithCode($status) {
+	global $gStatusTable;
+	$query = "SELECT * FROM $gStatusTable WHERE status = $status;";
+	return doQuery($query);
 }
 
 // Obtain the tests which are not with specified status code
-function ObtainTestsWithNotCode($status) {
-  global $gStatusTable;
-  $query = "SELECT * FROM $gStatusTable WHERE status != $status;";
-  return doQuery($query);
+function obtainTestsWithNotCode($status) {
+	global $gStatusTable;
+	$query = "SELECT * FROM $gStatusTable WHERE status != $status;";
+	return doQuery($query);
 }
+
 
 // Evalute if a query returns emptry result
-function IsEmptyQuery($resource) {
-  // Deal with the result from doQuery()
-  if (NULL != $resource) {
-    $num_row = mysql_num_rows($resource);
-    if (NULL != $num_row)
-      return false;
-  }
-  return true;
+function isEmptyQuery($resource) {
+	// Deal with the result from doQuery()
+	if ( NULL != $resource ) {
+		$num_row = mysql_num_rows($resource);
+		if ( $num_row && 0 < $num_row )
+			return false;
+	}
+	return true;
 }
+
 
 // Increment retry col
-function IncrementRetry($pageid, $retry) {
-  global $gStatusTable;
-  $num = $retry + 1;
-  $cmd = "UPDATE $gStatusTable SET retry = $num WHERE pageid = $pageid;";
-  doSimpleCommand($cmd);
+function incrementRetry($pageid, $retry) {
+	global $gStatusTable;
+	$num = $retry + 1;
+	$cmd = "UPDATE $gStatusTable SET retry = $num WHERE pageid = $pageid;";
+	doSimpleCommand($cmd);
 }
+
 
 // Submit the unfinished tests to WPT
-function SubmitTest(&$record) {
-  global $gStatusTable;
+function submitTest(&$record) {
+	global $gStatusTable;
 
-  global $video;
-  global $private;
-  global $runs;
-  global $server;
-  global $docComplete;
-  global $fvonly;
+	global $video;
+	global $private;
+	global $runs;
+	global $server;
+	global $docComplete;
+	global $fvonly;
+	global $mv;
 
-  $request = $server . 'runtest.php?f=xml&mv=1&priority=6&url=' . urlencode($record['url']) . "&location={$record['location']}&runs=$runs";
-  if( $private )
-    $request .= '&private=1';
-  if( $video )
-    $request .= '&video=1';
-  if( $docComplete )
-    $request .= '&web10=1';
-  if($fvonly)
-    $request .= '&fvonly=1';
+	$request = $server . 'runtest.php?f=xml&priority=6&url=' . urlencode($record['url']) . "&location={$record['location']}&runs=$runs" . "&mv=$mv";
+	if( $private )
+		$request .= '&private=1';
+	if ( $video )
+		$request .= '&video=1';
+	if ( $docComplete )
+		$request .= '&web10=1';
+	if ( $fvonly )
+		$request .= '&fvonly=1';
 
-  $doc = new DOMDocument();
-  if( $doc ) {
-    $response = file_get_contents_with_retry($request);
-    if( strlen($response) ) {
-      $doc->loadXML($response);
-      $nodes = $doc->getElementsByTagName('statusCode');
-      $code = (int)trim($nodes->item(0)->nodeValue);
-      if( $code == 200 ) {
-        // Update status col in status table
-        $nodes = $doc->getElementsByTagName('testId');
-        $id = trim($nodes->item(0)->nodeValue);
-        $cmd = "UPDATE $gStatusTable SET status = 1, wptid = '$id' WHERE pageid = $record[pageid];";
-        doSimpleCommand($cmd);
-      } else {
-        $cmd = "UPDATE $gStatusTable SET wptRetCode = $code WHERE pageid = $record[pageid];";
-        doSimpleCommand($cmd);
-      }
-    }
-    unset( $doc );
-  }
+	$doc = new DOMDocument();
+	if ( $doc ) {
+		$response = getFileContent($request);
+		if ( strlen($response) ) {
+			$doc->loadXML($response);
+			$nodes = $doc->getElementsByTagName('statusCode');
+			$code = (int)trim($nodes->item(0)->nodeValue);
+			if ( $code == 200 ) {
+				// Update status col in status table
+				$nodes = $doc->getElementsByTagName('testId');
+				$id = trim($nodes->item(0)->nodeValue);
+				$cmd = "UPDATE $gStatusTable SET status = 1, wptid = '$id' WHERE pageid = $record[pageid];";
+				doSimpleCommand($cmd);
+			} else {
+	      			$cmd = "UPDATE $gStatusTable SET wptRetCode = $code WHERE pageid = $record[pageid];";
+	       			doSimpleCommand($cmd);
+			}
+		}
+		unset( $doc );
+	}
 }
+
 
 // Set status code in status table
-function SetStatus($pageid, $status) {
-  global $gStatusTable;
-  $now = time();
-  $cmd = "UPDATE $gStatusTable SET status = $status, timeOfLastChange = $now WHERE pageid = $pageid;";
-  doSimpleCommand($cmd);
+function setStatus($pageid, $status) {
+	global $gStatusTable;
+	$now = time();
+	$cmd = "UPDATE $gStatusTable SET status = $status, timeOfLastChange = $now WHERE pageid = $pageid;";
+	doSimpleCommand($cmd);
 }
+
 
 // Check if the test is done on WPT server.
-function CheckWPTStatus() {
-  // Query the status table to get wpt id list
-  global $server, $gStatusTable, $gMaxRetry;
-  $result = ObtainTestsWithCode(1);
-  if ($result) {
-    while ($row = mysql_fetch_assoc($result)) {
-      $request = $server . "testStatus.php?f=xml&test=" . $row['wptid'];
-      $doc = new DOMDocument();
-      if ($doc) {
-        $response = file_get_contents_with_retry($request);
-        if (strlen($response)) {
-          $doc->loadXML($response);
-          $nodes = $doc->getElementsByTagName('statusText');
-          $statusTxt = trim($nodes->item(0)->nodeValue);
-          //echo "{$row['pageid']} $statusTxt\r\n";
-          if (!strcmp("Test Complete", $statusTxt)) {
-            // Update status code to 2
-            SetStatus($row['pageid'], 2);
-          } elseif (!strcmp("Test Started", $statusTxt)) {
-            // Error handling code for status code 1
-            // The sympton is job has been submitted but never finished (time-out).
-            // Solution: resubmit with the same label and archive (specify max retry times)
-            $startTimeNode = $doc->getElementsByTagName('startTime');
-            $start = date_parse($startTimeNode->item(0)->nodeValue);
-            $diff = time() - gmmktime($start['hour'], $start['minute'], $start['second'], $start['month'], $start['day'], $start['year']);
-            $runs = (int)$doc->getElementsByTagname('runs')->item(0)->nodeValue;
-            if ($runs > 0) {
-              $threshold = $runs * 240;  // each run has the max running time 240 seconds
-              if (($diff > $threshold) && ($row['retry'] < $gMaxRetry)) {
-                SubmitTest(&$row);
-                IncrementRetry($row['pageid'], $row['retry']);
-              }
-            }
-          }
-        }
-      }
-      unset($doc);
-    }
-  }
+function checkWPTStatus() {
+	// Query the status table to get wpt id list
+	global $server, $gStatusTable, $gMaxRetry;
+	$result = obtainTestsWithCode(1);
+	if ( $result ) {
+		while ( $row = mysql_fetch_assoc($result) ) {
+			$request = $server . "testStatus.php?f=xml&test=" . $row['wptid'];
+			$doc = new DOMDocument();
+			if ( $doc ) {
+				$response = getFileContent($request);
+				if ( strlen($response) ) {
+					$doc->loadXML($response);
+					$nodes = $doc->getElementsByTagName('statusText');
+					$statusTxt = trim($nodes->item(0)->nodeValue);
+					//echo "{$row['pageid']} $statusTxt\r\n";
+					if ( !strcmp("Test Complete", $statusTxt) ) {
+						// Update status code to 2
+						setStatus($row['pageid'], 2);
+					} elseif ( !strcmp("Test Started", $statusTxt) ) {
+						// Error handling code for status code 1
+						// The sympton is job has been submitted but never finished (time-out).
+						// Solution: resubmit with the same label and archive (specify max retry times)
+						$startTimeNode = $doc->getElementsByTagName('startTime');
+						$start = date_parse($startTimeNode->item(0)->nodeValue);
+						$diff = time() - gmmktime($start['hour'], $start['minute'], $start['second'], $start['month'], $start['day'], $start['year']);
+						$runs = (int)$doc->getElementsByTagname('runs')->item(0)->nodeValue;
+						if ( $runs > 0 ) {
+							$threshold = $runs * 240;  // each run has the max running time 240 seconds
+							if ( ($diff > $threshold) && ($row['retry'] < $gMaxRetry) ) {
+								submitTest(&$row);
+								incrementRetry($row['pageid'], $row['retry']);
+							}
+						}
+					}	
+				}
+			}	
+			unset($doc);
+		}
+	}
 }
 
-function DownloadHar() {
-  global $server, $gArchiveDir;
-  $tests = ObtainTestsWithCode(3);
-  if (!IsEmptyQuery($tests)) {
-    while ($row = mysql_fetch_assoc($tests)) {
-      $file = BuildFileName($row['url']);
-      $fullPath = "$gArchiveDir/{$row['archive']}/{$row['label']}/$file.har";
-      //if (strlen($file) && !is_file($fullPath)) {
-      if (strlen($file)) {
-        $request = $server . "export.php?test={$row['wptid']}&run={$row['medianRun']}&cached=0";
-        $response = file_get_contents_with_retry($request);
-        if (strlen($response)) {
-          file_put_contents($fullPath, $response);
-          chmod($fullPath, 0755);
-          SetStatus($row['pageid'], 4);
-        } else {
-          // Error handling of status code 3
-        }
-      }
-    }
-  }
+
+
+function parseXMLResult($doc, &$result) {
+	$runs = $doc->getElementsByTagName('run');
+	$times = array();
+	$failed = array();
+
+	// pull the stuff we care about out from each run
+	foreach( $runs as $run ) {
+		$indexNode = $run->getElementsByTagName('id')->item(0);
+		$fv = $run->getElementsByTagName('firstView');
+		if( $fv && $indexNode ) {
+			$index = (int)$indexNode->nodeValue;
+			//dprint("run: " . $index . "\r\n");
+			$testResult = (int)$run->getElementsByTagName('result')->item(0)->nodeValue;
+			$loadTime = (int)$run->getElementsByTagName('docTime')->item(0)->nodeValue;
+			$render = (int)$run->getElementsByTagName('render')->item(0)->nodeValue;
+
+			// PageSpeed Score
+			$score = (int)$run->getElementsByTagName('PageSpeedScore')->item(0)->nodeValue;
+			if( $loadTime && ($testResult == 0 || $testResult == 99999) )
+				$times[$loadTime] = array('index' => $index, 'result' => $testResult, 'loadTime' => $loadTime, 'startRender' => $render, 'score' => $score);
+			else
+				$failed[] = array('index' => $index, 'result' => $testResult, 'loadTime' => $loadTime, 'startRender' => $render, 'score' => $score);
+			unset($fv);
+		}
+	}
+
+	// pull out the results we need
+	if( count($times) ) {
+		// find the test with the median load time
+		ksort($times);
+		$i = (int)floor(count($times) / 2);
+		$current = 0;
+		foreach ( $times as $index => &$data ) {
+			if( $current == $i ) {
+				$result['result'] = $data['result'];
+				$result['medianRun'] = $data['index'];
+				$result['loadTime'] = $data['loadTime'];
+				$result['startRender'] = $data['startRender'];
+
+				break;
+			}
+			$current++;
+		}
+	} elseif( count($failed) ) {
+		// test failed, grab the first result
+		$result['result'] = $failed[0]['result'];
+		$result['medianRun'] = $failed[0]['index'];
+		$result['loadTime'] = $failed[0]['loadTime'];
+		$result['startRender'] = $failed[0]['startRender'];
+	}
 }
 
 // Obtain XML file of the test result
-function ObtainXMLResult() {
-  global $server, $gStatusTable;
-  $tests = ObtainTestsWithCode(2);
-  if (!IsEmptyQuery($tests)) {
-    while ($row = mysql_fetch_assoc($tests)) {
-      // Fetch the result xml file
-      $doc = new DOMDocument();
-      if ($doc) {
-        $request = $server . "xmlResult/" . $row['wptid'] . "/";
-        $response = file_get_contents_with_retry($request);
-        if (strlen($response)) {
-          $doc->loadXML($response);
-          $nodes = $doc->getElementsByTagName('statusCode');
-          $status = trim($nodes->item(0)->nodeValue);
-          $runs = (int)$doc->getElementsByTagname('runs')->item(0)->nodeValue;
-          // Sanity check
-          if ($status && ($runs > 0)) {
-            $cmd = "UPDATE $gStatusTable SET wptRetCode = $status where pageid = $row[pageid];";
-            doSimpleCommand($cmd);
-            if (200 == $status) {
-              // Import a website
-              $result = array();
-              //dprint("status table pageid: " . $row['pageid'] . "\r\n");
-              ParseXMLResult($doc, $result);
-              // Record medianRun in status table
-              $cmd = "UPDATE $gStatusTable SET medianRun = $result[medianRun], startRender = $result[startRender] WHERE pageid = $row[pageid];";
-              doSimpleCommand($cmd);
-              SetStatus($row['pageid'], 3);
-            }
-          } else {
-            // Error handling for status code 2: set status to 0 so that the test can be resubmitted.
-            SetStatus($row['pageid'], 0);
-            // TODO(zhaoq): add max retry constraint.
-          }
-        }
-      }
-    }
-  }
+function obtainXMLResult() {
+	global $server, $gStatusTable;
+	$tests = obtainTestsWithCode(2);
+	if ( !isEmptyQuery($tests) ) {
+		while ( $row = mysql_fetch_assoc($tests) ) {
+			// Fetch the result xml file
+			$doc = new DOMDocument();
+			if ( $doc ) {
+				$request = $server . "xmlResult/" . $row['wptid'] . "/";
+				$response = getFileContent($request);
+				if ( strlen($response) ) {
+					$doc->loadXML($response);
+					$nodes = $doc->getElementsByTagName('statusCode');
+					$status = trim($nodes->item(0)->nodeValue);
+					$runs = (int)$doc->getElementsByTagname('runs')->item(0)->nodeValue;
+					// Sanity check
+					if ( $status && ($runs > 0) ) {
+						$cmd = "UPDATE $gStatusTable SET wptRetCode = $status where pageid = $row[pageid];";
+						doSimpleCommand($cmd);
+						if ( 200 == $status ) {
+							// Import a website
+							$result = array();
+							//dprint("status table pageid: " . $row['pageid'] . "\r\n");
+							parseXMLResult($doc, $result);
+							// Record medianRun in status table
+							$cmd = "UPDATE $gStatusTable SET medianRun = $result[medianRun], startRender = $result[startRender] WHERE pageid = $row[pageid];";
+							doSimpleCommand($cmd);
+							setStatus($row['pageid'], 3);
+						}
+					} else {
+						// Error handling for status code 2: set status to 0 so that the test can be resubmitted.
+						if ( $row['retry'] < $gMaxRetry ) {
+							setStatus($row['pageid'], 0);
+							incrementRetry($row['pageid'], $row['retry']);
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
-function ParseXMLResult($doc, &$result)
-{
-    $runs = $doc->getElementsByTagName('run');
 
-    $times = array();
-    $failed = array();
-
-    // pull the stuff we care about out from each run
-    foreach( $runs as $run )
-    {
-        $indexNode = $run->getElementsByTagName('id')->item(0);
-        $fv = $run->getElementsByTagName('firstView');
-        if( $fv && $indexNode)
-        {
-            $index = (int)$indexNode->nodeValue;
-            //dprint("run: " . $index . "\r\n");
-            $testResult = (int)$run->getElementsByTagName('result')->item(0)->nodeValue;
-            $loadTime = (int)$run->getElementsByTagName('docTime')->item(0)->nodeValue;
-            $render = (int)$run->getElementsByTagName('render')->item(0)->nodeValue;
-
-            // PageSpeed Score
-            $score = (int)$run->getElementsByTagName('PageSpeedScore')->item(0)->nodeValue;
-
-            if( $loadTime && ($testResult == 0 || $testResult == 99999) )
-                $times[$loadTime] = array('index' => $index, 'result' => $testResult, 'loadTime' => $loadTime, 'startRender' => $render, 'score' => $score);
-            else
-                $failed[] = array('index' => $index, 'result' => $testResult, 'loadTime' => $loadTime, 'startRender' => $render, 'score' => $score);
-            unset($fv);
-        }
-    }
-
-    // pull out the results we need
-    if( count($times) )
-    {
-        // find the test with the median load time
-        ksort($times);
-        $i = (int)floor(count($times) / 2);
-        $current = 0;
-        foreach( $times as $index => &$data )
-        {
-            if( $current == $i )
-            {
-                $result['result'] = $data['result'];
-                $result['medianRun'] = $data['index'];
-                $result['loadTime'] = $data['loadTime'];
-                $result['startRender'] = $data['startRender'];
-
-                break;
-            }
-            $current++;
-        }
-    }
-    elseif( count($failed) )
-    {
-        // test failed, grab the first result
-        $result['result'] = $failed[0]['result'];
-        $result['medianRun'] = $failed[0]['index'];
-        $result['loadTime'] = $failed[0]['loadTime'];
-        $result['startRender'] = $failed[0]['startRender'];
-    }
+function downloadHar() {
+	global $server, $gArchiveDir;
+	$tests = obtainTestsWithCode(3);
+	if ( !isEmptyQuery($tests) ) {
+		while ( $row = mysql_fetch_assoc($tests) ) {
+			$file = BuildFileName($row['url']);
+			$fullPath = "$gArchiveDir/{$row['archive']}/{$row['label']}/$file.har";
+			//if (strlen($file) && !is_file($fullPath)) {
+			if ( strlen($file) ) {
+				$request = $server . "export.php?test={$row['wptid']}&run={$row['medianRun']}&cached=0";
+				$response = getFileContent($request);
+				if ( strlen($response) ) {
+					file_put_contents($fullPath, $response);
+					chmod($fullPath, 0755);
+					setStatus($row['pageid'], 4);
+				} else {
+					// Error handling of status code 3
+				}
+			}
+		}
+	}
 }
+
 
 
 // Obain the .har file for the median run
-function FillTables() {
-  global $server;
-  $tests = ObtainTestsWithCode(4);
-  if (!IsEmptyQuery($tests)) {
-    while ($row = mysql_fetch_assoc($tests)) {
-      // The new parameter php=1 is added for compatibility.
-      $request = $server . "export.php?test={$row['wptid']}&run={$row['medianRun']}&cached=0&php=1";
-      $response = file_get_contents_with_retry($request);
-      if (strlen($response)) {
-        if (ImportHarInfo($response, $row))
-          SetStatus($row['pageid'], 5);
-      } else {
-        // Error handling of status code 4
-      }
-    }
-  }
+function fillTables() {
+	global $server;
+	$tests = obtainTestsWithCode(4);
+	if ( !IsEmptyQuery($tests) ) {
+		while ($row = mysql_fetch_assoc($tests)) {
+			// The new parameter php=1 is added for compatibility.
+			$request = $server . "export.php?test={$row['wptid']}&run={$row['medianRun']}&cached=0&php=1";
+			$response = getFileContent($request);
+			if ( strlen($response) ) {
+				if ( ImportHarFile($response, $row) )
+					setStatus($row['pageid'], 5);
+				} else {
+					// Error handling of status code 4
+			}
+		}
+	}
 }
 
 // Import a specific HAR file.
-function ImportHarInfo($json_text, $result) {
-  global $gStatusTable, $gPagesTable, $gRequestsTable;
-  if (!$json_text) {
-    dprint("ERROR($gStatusTable pageid: $result[pageid]): HAR file read error.");
-    return false;
-  }
-  $HAR = json_decode($json_text);
-  if (NULL == $HAR) {
-    // Error handling for status code 4
-    dprint("ERROR($gStatusTable pageid: $result[pageid]): JSON decode failed");
-    return false;
-  }
-  $log = $HAR->{ 'log' };
+function importHarFile($json_text, $result) {
+	global $gStatusTable, $gPagesTable, $gRequestsTable;
+	if ( !$json_text ) {
+		dprint("ERROR($gStatusTable pageid: $result[pageid]): HAR file read error.");
+		return false;
+	}
+	$HAR = json_decode($json_text);
+	if ( NULL == $HAR ) {
+		// Error handling for status code 4
+		dprint("ERROR($gStatusTable pageid: $result[pageid]): JSON decode failed");
+		return false;
+	}
+	$log = $HAR->{ 'log' };
 
-  $pages = $log->{ 'pages' };
-  $pagecount = count($pages);
-  if ( 0 == $pagecount ) {
-    dprint("ERROR($gStatusTable pageid: $result[pageid]):: No pages found");
-    return false;
-  }
-  if ( 1 < $pagecount ) {
-    dprint("ERROR($gStatusTable pageid: $result[pageid]):: Only one page is expected per HAR file. This HAR file has " . count($pages) . " pages. Only the first page will be processed.\n");
-  }
+	$pages = $log->{ 'pages' };
+	$pagecount = count($pages);
+	if ( 0 == $pagecount ) {
+		dprint("ERROR($gStatusTable pageid: $result[pageid]):: No pages found");
+		return false;
+	}
+	if ( 1 < $pagecount ) {
+		dprint("ERROR($gStatusTable pageid: $result[pageid]):: Only one page is expected per HAR file. This HAR file has " . count($pages) . " pages. Only the first page will be processed.\n");
+	}
 
-  // STEP 1: Create a partial "page" record so we get a pageid.
-  t_mark('ImportPage');
-  $pageid = ImportPage($pages[0], $result);
-  t_aggregate('ImportPage');
-  if ( $pageid ) {
-    $entries = $log->{ 'entries' };
-    // STEP 2: Create all the resources & associate them with the pageid.
-    $firstUrl = "";
-    $firstHtmlUrl = "";
-    t_mark('ImportEntries');
-    $bEntries = ImportEntries($entries, $pageid, $firstUrl, $firstHtmlUrl);
-    t_aggregate('ImportEntries');
-    if ( false === $bEntries ) {
+	// STEP 1: Create a partial "page" record so we get a pageid.
+	t_mark('ImportPage');
+	$pageid = ImportPage($pages[0], $result);
+	t_aggregate('ImportPage');
+	if ( $pageid ) {
+		$entries = $log->{ 'entries' };
+		// STEP 2: Create all the resources & associate them with the pageid.
+		$firstUrl = "";
+		$firstHtmlUrl = "";
+		t_mark('ImportEntries');
+		$bEntries = importEntries($entries, $pageid, $firstUrl, $firstHtmlUrl);
+		t_aggregate('ImportEntries');
+		if ( false === $bEntries ) {
 			dprint("ERROR($gStatusTable pageid: $result[pageid]): ImportEntries failed. Purging pageid $pageid");
 			purgePage($pageid);
 		}
 		else {
 			// STEP 3: Go back and fill out the rest of the "page" record based on all the resources.
 			t_mark('AggregateStats');
-			$url = AggregateStats($pageid, $firstUrl, $firstHtmlUrl, $result);
+			$url = aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $result);
 			t_aggregate('AggregateStats');
 			if ( false === $url ) {
 				dprint("ERROR($gStatusTable pageid: $result[pageid]): AggregateStats failed. Purging pageid $pageid");
@@ -410,28 +418,29 @@ function ImportHarInfo($json_text, $result) {
 			}
 		}
 	}
-
-  return false;
+	return false;
 }
 
 // Import a website.
 // MAJOR ASSUMPTION: THERE'S ONLY ONE PAGE PER HAR FILE!
 // (otherwise, harviewer and har_to_pagespeed won't work)
-function ImportPage($page, $result) {
-  global $gPagesTable, $gRequestsTable, $gArchiveDir;;
-  $archive = $result['archive'];
-  $label = $result['label'];
+function importPage($page, $result) {
+	global $gPagesTable, $gRequestsTable, $gArchiveDir;;
+	$archive = $result['archive'];
+	$label = $result['label'];
 
 	$now = time();
 	$aTuples = array();
 	$pageref = $page->{ 'id' };
 
-  $file = BuildFileName($result['url']);
-  $filename = "$gArchiveDir/{$result['archive']}/{$result['label']}/$file.har";
+	$file = BuildFileName($result['url']) . ".har";
+	$filename = "$gArchiveDir/{$result['archive']}/{$result['label']}/$file";
+	// Construct the path of har file
+	$harfile = "./archives/" . $result['archive'] . "/" . $result['label'] . "/" . $file;
 
 	// Add all the insert tuples to an array.
 	array_push($aTuples, "createDate = $now");
-	array_push($aTuples, "harfile = '$filename'");
+	array_push($aTuples, "harfile = '$harfile'");
 	$startedDateTime = strtotime($page->{ 'startedDateTime' });
 	array_push($aTuples, "startedDateTime = $startedDateTime");
 	array_push($aTuples, "archive = '" . mysqlEscape($archive) . "'");
@@ -481,7 +490,7 @@ function ImportPage($page, $result) {
 	doSimpleCommand($cmd);
 
 	// get the pageid
-	$cmd = "select pageid from $gPagesTable where startedDateTime = $startedDateTime and harfile = '$filename';";
+	$cmd = "select pageid from $gPagesTable where startedDateTime = $startedDateTime and harfile = '$harfile';";
 	//dprint("$cmd");
 	$pageid = doSimpleQuery($cmd);
 
@@ -489,7 +498,7 @@ function ImportPage($page, $result) {
 }
 
 // Import the requests within a website.
-function ImportEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
+function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 	global $gPagesTable, $gRequestsTable;
 	global $ghReqHeaders, $ghRespHeaders;
 	global $ghReqOtherHeaders, $ghRespOtherHeaders;
@@ -551,10 +560,10 @@ function ImportEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 		$status = $response->{ 'status' };
 		array_push($aTuples, "status = $status");
 		array_push($aTuples, "respHttpVersion = '" . $response->{ 'httpVersion' } . "'");
-    if (property_exists($response, 'url')) {
-		  array_push($aTuples, "redirectUrl = '" . mysqlEscape($response->{ 'url' }) . "'");
-		  array_push($aTuples, "redirectUrlShort = '" . mysqlEscape(substr($response->{ 'url' }, 0, 255)) . "'");
-    }
+		if ( property_exists($response, 'url') ) {
+			array_push($aTuples, "redirectUrl = '" . mysqlEscape($response->{ 'url' }) . "'");
+			array_push($aTuples, "redirectUrlShort = '" . mysqlEscape(substr($response->{ 'url' }, 0, 255)) . "'");
+		}
 		$respHeaderSize = $response->{ 'headersSize' };
 		if ( $respHeaderSize && 0 < $respHeaderSize ) {
 			array_push($aTuples, "respHeaderSize = $respHeaderSize");
@@ -604,16 +613,16 @@ function ImportEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 		$bFirstReq = 0;
 		$bFirstHtml = 0;
 		if ( ! $firstUrl ) {
-      // TODO(zhaoq): add more error codes here.
-			if ((400 <= $status && 599 >= $status) || (12000 <= $status)) {
+			// TODO(zhaoq): add more error codes here.
+			if ( (400 <= $status && 599 >= $status) || (12000 <= $status) ) {
 				dprint("ERROR($gPagesTable pageid: $pageid): The first request ($url) failed with status $status.");
 				return false;
 			}
 			// This is the first URL found associated with the page - assume it's the base URL.
-      if (($status != 301) && ($status != 302)) {
-			  $bFirstReq = 1;
-			  $firstUrl = $url;
-      }
+			if ( ($status != 301) && ($status != 302) ) {
+				$bFirstReq = 1;
+				$firstUrl = $url;
+			}
 		}
 		if ( ! $firstHtmlUrl && 200 == $status ) {
 			// This is the first URL found associated with the page that's HTML.
@@ -630,7 +639,7 @@ function ImportEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 }
 
 // Collect all the aggregate stats for a single website.
-function AggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultRow) {
+function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultRow) {
 	global $gPagesTable, $gRequestsTable;
 
 	// CVSNO - move this error checking to the point before this function is called
@@ -655,7 +664,7 @@ function AggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultRow) {
 	$hDomains = array();
 
 	t_mark('aggregateStats query');
-  $result = doQuery("select mimeType, urlShort, respSize from $gRequestsTable where pageid = $pageid;");
+	$result = doQuery("select mimeType, urlShort, respSize from $gRequestsTable where pageid = $pageid;");
 	t_aggregate('aggregateStats query');
 	while ($row = mysql_fetch_assoc($result)) {
 		$mimeType = prettyMimetype($row['mimeType']);
@@ -699,6 +708,36 @@ function AggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultRow) {
 
 	return $url;
 }
+
+function countTestsWithCode($status) {
+	global $gStatusTable;
+	if ( -1 == $status )
+		$query = "SELECT COUNT(*) FROM $gStatusTable;";
+	else
+		$query = "SELECT COUNT(*) FROM $gStatusTable WHERE status=$status;";
+	$resource = doQuery($query);
+	$record = mysql_fetch_assoc($resource);
+	return $record['COUNT(*)'];
+}
+
+
+function reportSummary() {
+	$totalUrls = countTestsWithCode(-1);
+	$loadedUrls = countTestsWithCode(0);
+	$submittedTests = countTestsWithCode(1);
+	$completedTests = countTestsWithCode(2);
+	$xmlDoneTests = countTestsWithCode(3);
+	$harDownloadTests = countTestsWithCode(4);
+	$successfulTests = countTestsWithCode(5);
+	dprint("The number of the total URLs: $totalUrls");
+	dprint("The number of the tests unsubmitted: $loadedUrls");
+	dprint("The number of the tests not completed: $submittedTests");
+	dprint("The number of the tests not having XML results: $completedTests");
+	dprint("The number of the tests not having har file downloaded: $xmlDoneTests");
+	dprint("The number of the tests not having har file parsed: $harDownloadTests");
+	dprint("The number of the successful tests: $successfulTests");
+}
+
 
 function t_mark($name) {
 	global $gMarks;
