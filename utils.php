@@ -206,15 +206,22 @@ function selectSiteLabel($url, $curLabel="", $bReverse=true) {
 
 
 // Return an array of label names (in chrono order?) for an archive.
-function archiveLabels($archive = "All") {
+// If $bEpoch is true return labels based on 
+function archiveLabels($archive = "All", $bEpoch = false) {
 	global $gPagesTable;
 
-	$query = "select label from $gPagesTable where archive = '$archive' group by label order by startedDateTime asc;";
+	$query = "select label, min(startedDateTime) as epoch from $gPagesTable where archive = '$archive' group by label order by epoch asc;";
 	$result = doQuery($query);
 	$aLabels = array();
 	while ($row = mysql_fetch_assoc($result)) {
 		$label = $row['label'];
-		array_push($aLabels, $label);
+		$epoch = $row['epoch'];
+		if ( $bEpoch ) {
+			array_push($aLabels, date("n/j/y", $epoch));
+		}
+		else {
+			array_push($aLabels, $label);
+		}
 	}
 
 	return $aLabels;
