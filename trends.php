@@ -106,8 +106,9 @@ while ( $row = mysql_fetch_assoc($result) ) {
 }
 mysql_free_result($result);
 
-$aLabels = archiveLabels($gArchive);
-$labels = urlencode(implode("|", $aLabels));
+$aLabels = archiveLabels($gArchive, false);
+$aAxisLabels = archiveLabels($gArchive, true);
+$labels = urlencode(implode("|", $aAxisLabels));
 array_unshift($aFields, "numurls");
 foreach($aFields as $field) {
 	$color = fieldColor($field);
