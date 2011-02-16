@@ -20,14 +20,24 @@ require_once("./bootstrap.inc");
 
 // Create all the tables if they are not there.
 createTables();
-$pid_arr = array();
-if ( 0 == $gReload ) {
-	$result = countTestsWithCode(-1);
-	if ( 0 == $result['COUNT(*)'] ) {
-		loadUrlFromFile();
-	}
+
+// A file lock to guarantee there is only one instance running.
+$fp = fopen("/tmp/lock.txt", "w+");
+if ( !flock($fp, LOCK_EX | LOCK_NB) ) {
+	echo "There is one instance running already!\r\n";
+	reportSummary();
+	exit(-1);
 }
-for ( $i = 0; $i < 6; $i++ ) {
+
+$query = "SELECT COUNT(*) FROM $gStatusTable";
+$resource = doQuery($query);
+$record = mysql_fetch_assoc($resource);
+if ( 0 == $record['COUNT(*)'] ) {
+	loadUrlFromFile();
+}
+
+$pid_arr = array();
+for ( $i = 0; $i < 5; $i++ ) {
 	$pid = pcntl_fork();
 	if ( -1 == $pid ) {
 		die("cannot fork subprocesses ...");
@@ -36,38 +46,21 @@ for ( $i = 0; $i < 6; $i++ ) {
 			// Parent process
 			$pid_arr[] = $pid;
 		} elseif ( 0 == $i ) {
-			if ( 0 != $gReload ) {
-				// In this mode, the url file can be repeatedly reloaded.
-				$unsubmitted = countTestsWithCode(0);
-				$unfinished = countTestsWithCode(1);
-				if ( (0 == $unfinished) && (0 == $unsubmitted) ) {
-					loadUrlFromFile();
-				}
-			}
+			submitBatch();
 			exit();
 		} elseif ( 1 == $i ) {
-			// Job submission process
-			$unsubmitTests = obtainTestsWithCode(0);
-			if ( !isEmptyQuery($unsubmitTests) ) {
-				while ($row = mysql_fetch_assoc($unsubmitTests)) {
-					//var_dump($row);
-					submitTest($row);
-				}
-			}
-			exit();
-		} elseif ( 2 == $i ) {
 			// Check the test status with WPT server
 			checkWPTStatus();
 			exit();
-		} elseif ( 3 == $i ) {
+		} elseif ( 2 == $i ) {
 			// Obtain XML result
 			obtainXMLResult();
 			exit();
-		} elseif ( 4 == $i ) {
+		} elseif ( 3 == $i ) {
 			// Download har file
 			downloadHar();
 			exit();
-		} elseif ( 5 == $i ) {
+		} elseif ( 4 == $i ) {
 			// Fill page table and request table
 			fillTables();
 			exit();
