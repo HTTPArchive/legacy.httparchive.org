@@ -22,8 +22,6 @@ set_time_limit(0);
 $gArchive = "All";
 $date = getdate();
 $gLabel = $date[0];
-$gMaxRetry = 3;
-$gReload = 0;
 
 $gMarks = array();
 $gAggTimes = array();
