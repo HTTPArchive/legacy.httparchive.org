@@ -32,20 +32,27 @@ $ghRespOtherHeaders = array();
 // Some ad-hoc fix for the problematic URLs
 $gReUrls = array("www.files.wordpress.com" => "files.wordpress.com");
 
+// The status table saves $gErrBase + i to indicate that there is a permanent error happens when the test is in the status i.
+$gErrBase = 400;
+
+// The file used as a file lock to coordinate the interaction of processes.
+$gLockFile = '/tmp/lock.txt';
+
 // global options
 $video = true;
 $private = false;
 $docComplete = true;
 $fvonly = true;
-$server = 'http://latencylab/';
+$server = 'http://httparchive.webpagetest.org/'
+//$server = 'http://latencylab/';
 $runs = 3;
 $mv = 1;
 
 // list of locations to use
 $locations = array();
 //$locations[] = 'Dulles_IE7';
-//$locations[] = 'Dulles_IE8';
-$locations[] = 'Test';
+$locations[] = 'Dulles_IE8';
+//$locations[] = 'Test';
 //$locations[] = 'NewYork_IE8';
 //$locations[] = 'Chicago_IE7';
 //$locations[] = 'SanJose';
