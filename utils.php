@@ -609,12 +609,12 @@ function createTables() {
 			", archive varchar (255) not null" .
 			", label varchar (255) not null" .
 			", status int(10) unsigned not null" .
-			", timeOfLastChange varchar (64) not null" .
-			", retry int(10) unsigned not null" .
-			", wptid varchar (64) not null" .
-			", wptRetCode varchar (8) not null" .
-			", medianRun int(10) unsigned not null" .
+			", timeOfLastChange varchar (64)" .
+			", wptid varchar (64)" .
+			", wptRetCode varchar (8)" .
+			", medianRun int(10) unsigned" .
 			", startRender int(10) unsigned" .
+			", pagespeedScore int(4) unsigned" .
 			", primary key (pageid)" .
 			", index(pageid)" .
 			");";
