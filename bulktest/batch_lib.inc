@@ -85,7 +85,7 @@ function insertToStatusTable($url, $loc) {
 
 
 // Load the URLs in urls.txt file into status table.
-function loadUrlFromFile() {
+function loadUrlsFromFile() {
 	global $locations, $gArchive, $gLabel, $gArchiveDir;
 	$urls = file('./urls.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 	if ( count($urls) > 0 ) {
@@ -135,7 +135,7 @@ function submitTest(&$record, $status) {
 	global $fvonly;
 	global $mv;
 
-	$request = $server . 'runtest.php?f=xml&priority=6&url=' . urlencode($record['url']) . "&location={$record['location']}&runs=$runs" . "&mv=$mv";
+	$request = $server . 'runtest.php?f=xml&priority=6&url=' . urlencode($record['url']) . "&location={$record['location']}&runs=$runs";
 	if( $private )
 		$request .= '&private=1';
 	if ( $video )
@@ -144,6 +144,8 @@ function submitTest(&$record, $status) {
 		$request .= '&web10=1';
 	if ( $fvonly )
 		$request .= '&fvonly=1';
+	if ( $mv )
+		$request .= '&mv=1';
 
 	$doc = new DOMDocument();
 	if ( $doc ) {
@@ -637,6 +639,14 @@ function countTestsWithCode($status) {
 	return $record['COUNT(*)'];
 }
 
+function countFailedTests() {
+	global $gStatusTable, $gErrBase;
+	$query = "SELECT COUNT(*) FROM $gStatusTable WHERE status >= $gErrBase;";
+	$resource =  doQuery($query);
+	$record = mysql_fetch_assoc($resource);
+	return $record['COUNT(*)'];
+}
+
 
 function reportSummary() {
 	$totalUrls = countTestsWithCode(-1);
@@ -646,6 +656,7 @@ function reportSummary() {
 	$xmlDoneTests = countTestsWithCode(3);
 	$harDownloadedTests = countTestsWithCode(4);
 	$successfulTests = countTestsWithCode(5);
+	$failedTests = countFailedTests();
 
 	dprint("Total URLs: $totalUrls");
 	$total_in_processing = $loadedUrls + $submittedTests + $completedTests;
@@ -656,6 +667,7 @@ function reportSummary() {
 	dprint("Waiting to download HAR: $xmlDoneTests");
 	dprint("Waiting to process HAR: $harDownloadedTests");
 	dprint("Successfully processed: $successfulTests");
+	dprint("Tests failed: $failedTests");
 }
 
 

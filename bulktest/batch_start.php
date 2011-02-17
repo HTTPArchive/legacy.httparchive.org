@@ -24,7 +24,7 @@ function killProcessAndChildren($pid, $signal=9) {
 		return 'you need ps, grep, and awk'; 
 	while ( list(, $t) = each($output) ) { 
 		if ( $t != $pid ) { 
-			killProcessAndChilds($t,$signal); 
+			killProcessAndChildren($t,$signal); 
 		} 
 	} 
         posix_kill($pid, $signal); 
@@ -44,8 +44,6 @@ function getPid($text) {
 
 
 // Start a new batch
-// Create all the tables if they are not there.
-createTables();
 // A file lock to guarantee there is only one instance running.
 $fp = fopen($gLockFile, "w+");
 if ( !flock($fp, LOCK_EX | LOCK_NB) ) {
@@ -54,7 +52,12 @@ if ( !flock($fp, LOCK_EX | LOCK_NB) ) {
 		killProcessAndChildren($pid);
 	}
 }
+// Create all the tables if they are not there.
+createTables();
+// Report the summary of the tests
 reportSummary();
+// Empty the status table
 emptyStatusTable();
-loadUrlFromFile();
+// Load the next batch
+loadUrlsFromFile();
 ?>

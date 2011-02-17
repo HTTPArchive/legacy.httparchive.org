@@ -36,7 +36,7 @@ $gReUrls = array("www.files.wordpress.com" => "files.wordpress.com");
 $gErrBase = 400;
 
 // The file used as a file lock to coordinate the interaction of processes.
-$gLockFile = '/tmp/lock.txt';
+$gLockFile = '/tmp/httparchive_batch_lock.txt';
 
 // global options
 $video = true;

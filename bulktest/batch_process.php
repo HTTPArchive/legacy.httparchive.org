@@ -76,5 +76,4 @@ while ( count($pid_arr) > 0 ) {
 
 reportSummary();
 
-
 ?>
