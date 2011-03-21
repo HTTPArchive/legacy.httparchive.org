@@ -233,8 +233,14 @@ tr:nth-child(2n+1) td {
 #stats {
 	font-size: .875em; }
 
+#stats TD { 
+	padding: 0.25em .75em .25em .75em; 
+	vertical-align: middle; }
+
 .pagespeed {
-	width: 300px; }
+	width: 400px; }
+.pagespeed TD { 
+	padding: 0.25em .75em .25em .75em; }
 .pagespeed .score {
 	text-align: right;
 	font-weight: bold; }
