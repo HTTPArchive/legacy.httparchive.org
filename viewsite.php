@@ -66,8 +66,8 @@ $renderStart = $row['renderStart'];
 		<li><a href="#top">Top of page</a></li>
 		<li><a href="#filmstrip">Filmstrip</a></li>
 		<li><a href="#waterfall">Waterfall</a></li>
-		<li><a href="#requests">Requests</a></li>
 		<li><a href="#pagespeed">Page Speed</a></li>
+		<li><a href="#requests">Requests</a></li>
 		<li><a href="#downloads">Downloads</a></li>
 	</ul>
 	
@@ -188,126 +188,6 @@ initHAR();
 
 
 
-<h2 id=requests>Requests</h2>
-<a href="download.php?p=<?php echo $gPageid ?>&format=csv">download CSV</a>
-
-<table id=stats class=tablesort border=0 cellpadding=0 cellspacing=0>
-	<tr>
-<th class="sortnum">req#</th> 
-<th>URL</th> 
-<th>mime type</th>
-<th>method</th>
-<th class=sortnum>status</th>
-<th class="sortnum">time</th> 
-<th class=sortnum>response<br>Size</th>
-<th class=sortnum>request<br>Cookie Len</th>
-<th class=sortnum>response<br>Cookie Len</th>
-<th>request<br>Http&nbsp;Ver</th>
-<th>response<br>Http&nbsp;Ver</th>
-<th>request Accept</th>
-<th>request Accept-Charset</th>
-<th>request Accept-Encoding</th>
-<th>request Accept-Language</th>
-<th>request Connection</th>
-<th>request Host</th>
-<th>request Referer</th>
-
-<th>response<br>Accept-Ranges</th>
-<th>response<br>Age</th>
-<th>response<br>Cache-Control</th>
-<th>response<br>Connection</th>
-<th>response<br>Content-Encoding</th>
-<th>response<br>Content-Language</th>
-<th>response<br>Content-Length</th>
-<th>response<br>Content-Location</th>
-<th>response<br>Content-Type</th>
-<th>response<br>Date</th>
-<th>response<br>Etag</th>
-<th>response<br>Expires</th>
-<th>response<br>Keep-Alive</th>
-<th>response<br>Last-Modified</th>
-<th>response<br>Location</th>
-<th>response<br>Pragma</th>
-<th>response<br>Server</th>
-<th>response<br>Transfer-Encoding</th>
-<th>response<br>Vary</th>
-<th>response<br>Via</th>
-<th>response<br>X-Powered-By</th>
-</tr>
-
-<?php
-// MySQL Table
-$sRows = "";
-$iRow = 0;
-$gFirstStart = 0;
-
-$query = "select * from $gRequestsTable where pageid = $gPageid;";
-$result = doQuery($query);
-if ( $result ) {
-	while ($row = mysql_fetch_assoc($result)) {
-		if ( !$gFirstStart ) {
-			$gFirstStart = intval($row['startedDateTime']);
-		}
-		$iRow++;
-		$sRow = "<tr" . ( $iRow % 2 == 0 ? " class=odd" : "" ) . ">";
-		$sRow .= "<td class=tdnum>$iRow</td> ";
-		$sRow .= "<td class=nobr style='font-size: 0.9em;'><a href='" . $row['url'] . "'>" . shortenUrl($row['url']) . "</a></td> ";
-		$sRow .= tdStat($row, "mimeType", "", "nobr");
-		$sRow .= tdStat($row, "method", "", "");
-		$sRow .= tdStat($row, "status");
-		$sRow .= tdStat($row, "time");
-		$sRow .= tdStat($row, "respSize", "kB");
-		$sRow .= tdStat($row, "reqCookieLen", "b");
-		$sRow .= tdStat($row, "respCookieLen", "b");
-		$sRow .= tdStat($row, "reqHttpVersion", "", "");
-		$sRow .= tdStat($row, "respHttpVersion", "", "");
-		$sRow .= tdStat($row, "req_accept", "snip", "nobr");
-		$sRow .= tdStat($row, "req_accept_charset", "", "");
-		$sRow .= tdStat($row, "req_accept_encoding", "", "nobr");
-		$sRow .= tdStat($row, "req_accept_language", "", "");
-		$sRow .= tdStat($row, "req_connection", "", "");
-		$sRow .= tdStat($row, "req_host", "", "");
-		$sRow .= tdStat($row, "req_referer", "url", "");
-		$sRow .= tdStat($row, "resp_accept_ranges", "", "");
-		$sRow .= tdStat($row, "resp_age", "", "");
-		$sRow .= tdStat($row, "resp_cache_control", "", "");
-		$sRow .= tdStat($row, "resp_connection", "", "");
-		$sRow .= tdStat($row, "resp_content_encoding", "", "");
-		$sRow .= tdStat($row, "resp_content_language", "", "");
-		$sRow .= tdStat($row, "resp_content_length", "", "");
-		$sRow .= tdStat($row, "resp_content_location", "url", "");
-		$sRow .= tdStat($row, "resp_content_type", "", "");
-		$sRow .= tdStat($row, "resp_date", "", "nobr");
-		$sRow .= tdStat($row, "resp_etag", "", "");
-		$sRow .= tdStat($row, "resp_expires", "", "nobr");
-		$sRow .= tdStat($row, "resp_keep_alive", "", "");
-		$sRow .= tdStat($row, "resp_last_modified", "", "nobr");
-		$sRow .= tdStat($row, "resp_location", "url", "");
-		$sRow .= tdStat($row, "resp_pragma", "", "");
-		$sRow .= tdStat($row, "resp_server", "", "");
-		$sRow .= tdStat($row, "resp_transfer_encoding", "", "");
-		$sRow .= tdStat($row, "resp_vary", "", "");
-		$sRow .= tdStat($row, "resp_via", "", "");
-		$sRow .= tdStat($row, "resp_x_powered_by", "", "");
-
-		$sRows .= $sRow;
-	}
-	mysql_free_result($result);
-}
-echo $sRows;
-?>
-</table>
-
-<script type="text/javascript">
-var tsjs = document.createElement('script');
-tsjs.src = "tablesort.js";
-tsjs.onload = function() { TS.init(); };
-tsjs.onreadystatechange = function() { if ( tsjs.readyState == 'complete' || tsjs.readyState == 'loaded' ) { TS.init(); } };
-document.getElementsByTagName('head')[0].appendChild(tsjs);
-</script>
-
-
-
 <h2 id=pagespeed>Page Speed</h2>
 
 <?php
@@ -322,7 +202,7 @@ function doFile($harfile) {
 	// If everything is ok we run it through Page Speed.
 	$output = array();
 	$return_var = 128;
-	exec("./har_to_pagespeed '$harfile'", $output, $return_var);
+	exec("./har_to_pagespeed text '$harfile'", $output, $return_var);
 	if ( 0 === $return_var ) {
 		$len = count($output);
 		$rules = array();
@@ -451,6 +331,126 @@ function findPos(obj) {
 	}
 	return [curleft,curtop];
 }
+</script>
+
+
+
+<h2 id=requests>Requests</h2>
+<a href="download.php?p=<?php echo $gPageid ?>&format=csv">download CSV</a>
+
+<table id=stats class=tablesort border=0 cellpadding=0 cellspacing=0>
+	<tr>
+<th class="sortnum">req#</th> 
+<th>URL</th> 
+<th>mime type</th>
+<th>method</th>
+<th class=sortnum>status</th>
+<th class="sortnum">time</th> 
+<th class=sortnum>response<br>Size</th>
+<th class=sortnum>request<br>Cookie Len</th>
+<th class=sortnum>response<br>Cookie Len</th>
+<th>request<br>Http&nbsp;Ver</th>
+<th>response<br>Http&nbsp;Ver</th>
+<th>request Accept</th>
+<th>request Accept-Charset</th>
+<th>request Accept-Encoding</th>
+<th>request Accept-Language</th>
+<th>request Connection</th>
+<th>request Host</th>
+<th>request Referer</th>
+
+<th>response<br>Accept-Ranges</th>
+<th>response<br>Age</th>
+<th>response<br>Cache-Control</th>
+<th>response<br>Connection</th>
+<th>response<br>Content-Encoding</th>
+<th>response<br>Content-Language</th>
+<th>response<br>Content-Length</th>
+<th>response<br>Content-Location</th>
+<th>response<br>Content-Type</th>
+<th>response<br>Date</th>
+<th>response<br>Etag</th>
+<th>response<br>Expires</th>
+<th>response<br>Keep-Alive</th>
+<th>response<br>Last-Modified</th>
+<th>response<br>Location</th>
+<th>response<br>Pragma</th>
+<th>response<br>Server</th>
+<th>response<br>Transfer-Encoding</th>
+<th>response<br>Vary</th>
+<th>response<br>Via</th>
+<th>response<br>X-Powered-By</th>
+</tr>
+
+<?php
+// MySQL Table
+$sRows = "";
+$iRow = 0;
+$gFirstStart = 0;
+
+$query = "select * from $gRequestsTable where pageid = $gPageid;";
+$result = doQuery($query);
+if ( $result ) {
+	while ($row = mysql_fetch_assoc($result)) {
+		if ( !$gFirstStart ) {
+			$gFirstStart = intval($row['startedDateTime']);
+		}
+		$iRow++;
+		$sRow = "<tr" . ( $iRow % 2 == 0 ? " class=odd" : "" ) . ">";
+		$sRow .= "<td class=tdnum>$iRow</td> ";
+		$sRow .= "<td class=nobr style='font-size: 0.9em;'><a href='" . $row['url'] . "'>" . shortenUrl($row['url']) . "</a></td> ";
+		$sRow .= tdStat($row, "mimeType", "", "nobr");
+		$sRow .= tdStat($row, "method", "", "");
+		$sRow .= tdStat($row, "status");
+		$sRow .= tdStat($row, "time");
+		$sRow .= tdStat($row, "respSize", "kB");
+		$sRow .= tdStat($row, "reqCookieLen", "b");
+		$sRow .= tdStat($row, "respCookieLen", "b");
+		$sRow .= tdStat($row, "reqHttpVersion", "", "");
+		$sRow .= tdStat($row, "respHttpVersion", "", "");
+		$sRow .= tdStat($row, "req_accept", "snip", "nobr");
+		$sRow .= tdStat($row, "req_accept_charset", "", "");
+		$sRow .= tdStat($row, "req_accept_encoding", "", "nobr");
+		$sRow .= tdStat($row, "req_accept_language", "", "");
+		$sRow .= tdStat($row, "req_connection", "", "");
+		$sRow .= tdStat($row, "req_host", "", "");
+		$sRow .= tdStat($row, "req_referer", "url", "");
+		$sRow .= tdStat($row, "resp_accept_ranges", "", "");
+		$sRow .= tdStat($row, "resp_age", "", "");
+		$sRow .= tdStat($row, "resp_cache_control", "", "");
+		$sRow .= tdStat($row, "resp_connection", "", "");
+		$sRow .= tdStat($row, "resp_content_encoding", "", "");
+		$sRow .= tdStat($row, "resp_content_language", "", "");
+		$sRow .= tdStat($row, "resp_content_length", "", "");
+		$sRow .= tdStat($row, "resp_content_location", "url", "");
+		$sRow .= tdStat($row, "resp_content_type", "", "");
+		$sRow .= tdStat($row, "resp_date", "", "nobr");
+		$sRow .= tdStat($row, "resp_etag", "", "");
+		$sRow .= tdStat($row, "resp_expires", "", "nobr");
+		$sRow .= tdStat($row, "resp_keep_alive", "", "");
+		$sRow .= tdStat($row, "resp_last_modified", "", "nobr");
+		$sRow .= tdStat($row, "resp_location", "url", "");
+		$sRow .= tdStat($row, "resp_pragma", "", "");
+		$sRow .= tdStat($row, "resp_server", "", "");
+		$sRow .= tdStat($row, "resp_transfer_encoding", "", "");
+		$sRow .= tdStat($row, "resp_vary", "", "");
+		$sRow .= tdStat($row, "resp_via", "", "");
+		$sRow .= tdStat($row, "resp_x_powered_by", "", "");
+
+		$sRows .= $sRow;
+	}
+	mysql_free_result($result);
+}
+echo $sRows;
+?>
+</table>
+
+<script type="text/javascript">
+var tsjs = document.createElement('script');
+tsjs.src = "tablesort.js";
+tsjs.onload = function() { TS.init(); };
+tsjs.onreadystatechange = function() { if ( tsjs.readyState == 'complete' || tsjs.readyState == 'loaded' ) { TS.init(); } };
+document.getElementsByTagName('head')[0].appendChild(tsjs);
 </script>
 
 
