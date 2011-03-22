@@ -49,19 +49,25 @@ function findCorrelation($var1, $tname, $title, $color="80C65A") {
 	$hCC = array();
 	foreach ($aVars as $var2) {
 		// from http://www.freeopenbook.com/mysqlcookbook/mysqlckbk-chp-13-sect-6.html
-		$cmd = "SELECT @n := COUNT($var1) AS N, @sumX := SUM($var2) AS 'X sum', @sumXX := SUM($var2*$var2) 'X sum of squares', @sumY := SUM($var1) AS 'Y sum', @sumYY := SUM($var1*$var1) 'Y sum of square', @sumXY := SUM($var2*$var1) AS 'X*Y sum' FROM $gPagesTable where archive='$gArchive' and label='$gLabel' and $var2 is not null and $var2 > 0;";
-		doSimpleCommand($cmd);
-		$query = "SELECT (@n*@sumXY - @sumX*@sumY) / SQRT((@n*@sumXX - @sumX*@sumX) * (@n*@sumYY - @sumY*@sumY)) AS correlation;";
-		$cc = doSimpleQuery($query);
-
-		// I want to sort the results by correlation coefficient ($cc),
-		// so I use $cc as the hash key. But, $cc is not unique 
-		// (it's possible for two variables to have the same $cc).
-		// So the value for each hash entry is an array of variable name(s).
-		if ( ! array_key_exists($cc, $hCC) ) {
-			$hCC[$cc] = array();
+		$cmd = "SELECT @n := COUNT($var1) AS n, @sumX := SUM($var2) AS 'sumX', @sumXX := SUM($var2*$var2) 'sumXX', @sumY := SUM($var1) AS 'sumY', @sumYY := SUM($var1*$var1) 'sumYY', @sumXY := SUM($var2*$var1) AS 'sumXY' FROM $gPagesTable where archive='$gArchive' and label='$gLabel' and $var2 is not null and $var2 > 0;";
+		$row = doRowQuery($cmd);
+		$n = $row['n'];
+		if ( $n ) {
+			$sumX = $row['sumX'];
+			$sumXX = $row['sumXX'];
+			$sumY = $row['sumY'];
+			$sumYY = $row['sumYY'];
+			$sumXY = $row['sumXY'];
+			$cc = (($n*$sumXY) - ($sumX*$sumY)) / sqrt( (($n*$sumXX) - ($sumX*$sumX)) * (($n*$sumYY) - ($sumY*$sumY)) );
+			// I want to sort the results by correlation coefficient ($cc),
+			// so I use $cc as the hash key. But, $cc is not unique 
+			// (it's possible for two variables to have the same $cc).
+			// So the value for each hash entry is an array of variable name(s).
+			if ( ! array_key_exists("$cc", $hCC) ) {
+				$hCC["$cc"] = array();
+			}
+			array_push($hCC["$cc"], $var2);
 		}
-		array_push($hCC[$cc], $var2);
 	}
 
 	$aCC = array_keys($hCC);
@@ -383,6 +389,7 @@ function horizontalBarChart($title, $aNames, $aValues, $color="80C65A", $min, $m
 
 $gCacheFile = "./cache/interesting.js.$gRev.$gLabel.cache";
 $snippets = "";
+
 if ( file_exists($gCacheFile) ) {
 	$snippets = file_get_contents($gCacheFile);
 }
