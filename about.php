@@ -26,6 +26,10 @@ $gTitle = "About the HTTP Archive";
 	
 	<title><?php echo $gTitle ?></title>
 	<meta charset="UTF-8">
+<style>
+LI.sublist { margin-bottom: 0; }
+
+</style>
 </head>
 
 <body>
@@ -65,7 +69,9 @@ and provides a common data set from which to conduct web performance research.
 <h1>FAQ</h1>
 
 
-			   <h2>How is the list of URLs generated?</h2>
+<?php
+$gFAQ =<<<OUTPUT
+			   <h2 id=listofurls>How is the list of URLs generated?</h2>
 
 <p>As of November 2010 the URLs that are analyzed is the union of the following lists:
 <ul class=indent>
@@ -80,7 +86,7 @@ and provides a common data set from which to conduct web performance research.
 
 
 
-<h2>How is the data gathered?</h2>
+<h2 id=datagathered>How is the data gathered?</h2>
 
 <p>The list of URLs is fed to <a href="http://webpagetest.org">WebPagetest.org</a>. (Huge thanks to Pat Meenan!)</p>
 
@@ -96,7 +102,7 @@ and provides a common data set from which to conduct web performance research.
 The HTTP Archive collects these HAR files, parses them, and populates our database with the relevant information.</p>
 
 
-<h2>How accurate is the data, in particular the time measurements?</h2>
+<h2 id=accuracy>How accurate is the data, in particular the time measurements?</h2>
 
 <p>The "static" measurements (# of bytes, HTTP headers, etc. - everything but time) are accurate at the time the test was performed. It's entirely possible that the web page has changed since it was tested. The tests were performed using Internet Explorer 8. If the page's content varies by browser this could be a source of differences.</p>
 
@@ -120,9 +126,11 @@ in other browsers or locations or connection speeds. They are best used as a sou
 
 
 
-			   <h2>What are the limitations of this testing methodology (using lists)?</h2>
+			   <h2 id=limitations>What are the limitations of this testing methodology (using lists)?</h2>
 
-<p>Although these lists of websites
+<p>
+The HTTP Archive examines each URL in the list, but does not crawl the website other pages.
+Although these lists of websites
 (<a href="http://money.cnn.com/magazines/fortune/fortune500/2010/full_list/">Fortune 500</a>
 and 
 <a href="http://www.alexa.com/topsites">Alexa Top 500</a> for example)
@@ -135,99 +143,119 @@ are well known, the entire website doesn't necessarily map well to a single URL.
 
 <p>Because of these issues and more, it's possible that the actual HTML document analyzed is not representative of the website.</p>
 
-			   <h2>Can you define the table columns?</h2>
 
-<p>There are two main tables: the Archive table and the Site table.</p> 
-<p>The Archive table shows summary information about each of the URLs in an archive, for example, <a href="viewarchive.php?a=Alexa%20500">Alexa 500</a>.</p>
-<p>The Site table shows information about a single URL, such as <a href="viewsite.php?pageid=1942&a=Alexa%20500">http://www.w3.org/</a>. Below is a list of column definitions for each of these tables.</p>
 
-<h3>Archive table:</h3>
+
+			   <h2 id=harfile>What's a "HAR file"?</h2>
+					<p> HAR files are based on the <a href='http://groups.google.com/group/http-archive-specification'>HTTP Archive specification</a>. They capture web page loading information in a JSON format. See the <a href='http://groups.google.com/group/http-archive-specification/web/har-adopters?hl=en'>list of tools</a> that support the HAR format.</p>
+
+
+
+			   <h2 id=waterfall>How is the HTTP waterfall chart generated?</h2>
+					<p>The HTTP waterfall chart is generated from the HAR file via JavaScript. The code is from Jan Odvarko's <a href='http://www.softwareishard.com/har/viewer/'>HAR Viewer</a>. Jan is also one of the creators of the HAR specification. Thanks Jan!</p>
+
+
+			   <h2 id=tablecolumns>What are the definitions for the table columns for a website's requests?</h2>
+
+<p>
+The View Site page contains a table with information about each HTTP request in an individual page,
+for example <a href="viewsite.php?pageid=1942&a=Alexa%20500">http://www.w3.org/</a>. 
+The more obtuse columns are defined here:
+</p>
 
 <ul class=indent>
-	<li>Website - The URL that was tested.
-	<li>load time - The time from when the URL was requested to when the window load event fired.
-	<li>start render - The time from when the URL was requested to when the first content was rendered.
-	<li>Page Speed score - The score from the <a href="http://code.google.com/speed/page-speed/gallery.html">Page Speed SDK</a>.
-	<li>total reqs - Total number of HTTP requests.
-	<li>total xfer size - Total number of kB transferred over the wire for all HTTP requests including HTTP headers.
-	<li>html reqs &amp; xfer size - Number of HTML requests and their total transfer size.
-	<li>JS reqs &amp; xfer size - Number of script requests and their total transfer size.
-	<li>CSS reqs &amp; xfer size - Number of stylesheet requests and their total transfer size.
-	<li>image reqs &amp; xfer size - Number of images requests and their total transfer size.
-	<li>domains - Number of unique domains used in the page.
-</ul>
-
-<h3>
-Site table:
-</h3>
-<ul class=indent>
-	<li> req# - The sequence number for each HTTP request - 1 = first, 2 = second, etc.
+	<li> Req# - The sequence number for each HTTP request - 1 = first, 2 = second, etc.
 	<li> URL - The URL of the HTTP request. These are often truncated in the display. Hold your mouse over the link to see the full URL in the browser's status bar.
-	<li> mime type - The request's mime type.
-	<li> method - The HTTP request method.
-	<li> status - The HTTP response status code.
-	<li> time - The number of milliseconds it took to complete the request.
-	<li> response Size - The size of the response transferred over the wire. If the response was compressed the actual size of the response content is larger.
-	<li> request/response Cookie Len - The size of the Cookie: request header and Set-Cookie: response header.
-	<li> response/response Http Ver - The HTTP version number sent in the request and received in the response.
+	<li> MIME Type - The request's MIME type.
+	<li> Method - The HTTP request method.
+	<li> Status - The HTTP response status code.
+	<li> Time - The number of milliseconds it took to complete the request.
+	<li> Response Size - The size of the response transferred over the wire. If the response was compressed the actual size of the response content is larger.
+	<li> Request Cookie Len - The size of the Cookie: request header.
+	<li> Response Cookie Len - The size of the Set-Cookie: response header.
+	<li> Response HTTP Ver - The HTTP version number sent in the request.
+	<li> Response HTTP Ver - The HTTP version number received in the response.
 	<li> other HTTP request headers:
-	  <ul class=indent>
-	  <li> Accept
-	  <li> Accept-Encoding
-	  <li> Accept-Language
-	  <li> Connection
-	  <li> Host
-	  <li> Referer
+	  <ul class="indent,sublist">
+	    <li class=sublist> Accept
+	    <li class=sublist> Accept-Encoding
+	    <li class=sublist> Accept-Language
+	    <li class=sublist> Connection
+	    <li class=sublist> Host
+	    <li class=sublist> Referer
 	  </ul>
 	<li> other HTTP response headers:
-	  <ul class=indent>
-	  <li> Accept-Ranges
-	  <li> Age
-	  <li> Cache-Control
-	  <li> Connection
-	  <li> Content-Encoding
-	  <li> Content-Language
-	  <li> Content-Length
-	  <li> Content-Location
-	  <li> Content-Type
-	  <li> Date
-	  <li> Etag
-	  <li> Expires
-	  <li> Keep-Alive
-	  <li> Last-Modified
-	  <li> Location
-	  <li> Pragma
-	  <li> Server
-	  <li> Transfer-Encoding
-	  <li> Vary
-	  <li> Via
-	  <li> X-Powered-By
+	  <ul class="indent,sublist">
+	    <li class=sublist> Accept-Ranges
+	    <li class=sublist> Age
+	    <li class=sublist> Cache-Control
+	    <li class=sublist> Connection
+	    <li class=sublist> Content-Encoding
+	    <li class=sublist> Content-Language
+	    <li class=sublist> Content-Length
+	    <li class=sublist> Content-Location
+	    <li class=sublist> Content-Type
+	    <li class=sublist> Date
+	    <li class=sublist> Etag
+	    <li class=sublist> Expires
+	    <li class=sublist> Keep-Alive
+	    <li class=sublist> Last-Modified
+	    <li class=sublist> Location
+	    <li class=sublist> Pragma
+	    <li class=sublist> Server
+	    <li class=sublist> Transfer-Encoding
+	    <li class=sublist> Vary
+	    <li class=sublist> Via
+	    <li class=sublist> X-Powered-By
 	  </ul>
 </ul>
 
 <p>
 Definitions for each of the HTTP headers can be found in the
-<a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html">HTTP/1.1: Header Field Definitions</a>.</p>
+<a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html">HTTP/1.1: Header Field Definitions</a>.
+</p>
 
-			   <h2>What's a "HAR file"?</h2>
-					<p> HAR files are based on the <a href='http://groups.google.com/group/http-archive-specification'>HTTP Archive specification</a>. They capture web page loading information in a JSON format. See the <a href='http://groups.google.com/group/http-archive-specification/web/har-adopters?hl=en'>list of tools</a> that support the HAR format.</p>
 
-			   <h2>How is the HTTP waterfall chart generated?</h2>
-					<p>The HTTP waterfall chart is generated from the HAR file via JavaScript. The code is from Jan Odvarko's <a href='http://www.softwareishard.com/har/viewer/'>HAR Viewer</a>. Jan is also one of the creators of the HAR specification. Thanks Jan!</p>
 
-			   <h2>How do I report inappropriate (adult only) content?</h2>
-					 <p>Please report any inappropriate content by
+
+			   <h2 id=adultcontent>How do I report inappropriate (adult only) content?</h2>
+					 <p>
+Please report any inappropriate content by
 <a href="http://code.google.com/p/httparchive/issues/entry?summary=Inappropriate+Content">creating a new issue</a>.
-You may come across this issue when viewing the filmstrip screenshots of adult only websites. 
+You may come across inappropriate content when viewing a website's filmstrip screenshots.
 You can help us flag these websites.
 Screenshots are not shown for websites flagged as adult only.
 </p>
 
-			   <h2>Who created the HTTP Archive?</h2>
-					 <p>Steve Souders with the help of the Open Source community and particular support from Pat Meenan.</p>
 
-			   <h2>Who do I contact for more information?</h2>
-					 <p>Please go to the <a href='http://groups.google.com/group/httparchive/topics'>HTTP Archive discussion list on Google Groups</a> and submit a post.</p>
+
+			   <h2 id=who>Who created the HTTP Archive?</h2>
+					 <p>Steve Souders created the HTTP Archive. 
+It's built on the shoulders of Pat Meenan's <a href="http://www.webpagetest.org">WebPagetest</a> system.
+Guy Leech helped early on with the design.
+</p>
+
+
+
+			   <h2 id=contact>Who do I contact for more information?</h2>
+					 <p>Please go to the <a href='http://groups.google.com/group/httparchive/topics'>HTTP Archive discussion list</a> and submit a post.</p>
+OUTPUT;
+
+// extract all the 
+$aQuestions = explode("<h2", $gFAQ);
+echo "<ul style='list-style-type: none;'>\n";
+foreach($aQuestions as $q) {
+	$aMatches = array();
+	if ( preg_match('/id=(.*)\>(.*)\<\/h2\>/', $q, $aMatches) ) {
+		$id = $aMatches[1];
+		$question = $aMatches[2];
+		echo " <li> <a href='#$id'>Q: $question</a>\n";
+	}
+}
+echo "</ul>\n\n";
+
+echo $gFAQ;
+?>
 
 <?php echo uiFooter() ?>
 
