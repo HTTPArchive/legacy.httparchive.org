@@ -45,7 +45,7 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
 	
 	return <<<OUTPUT
     <header>
-		<a href="index.php" id="logo">HTTP Archive</a>
+		<a href="index.php" id="logo">HTTP Archive</a>BETA
 		$navlinks
 	</header>
 
