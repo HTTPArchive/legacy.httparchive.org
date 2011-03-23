@@ -23,8 +23,19 @@ Return a JavaScript file that contains code for creating
 rotating divs of interesting stats.
 */
 
+// Add the label to the cached filename.
 $gArchive = "All";
-$gLabel = ( array_key_exists("l", $_GET) ? $_GET["l"] : latestLabel($gArchive) );
+if ( $argc ) {
+	// Handle commandline arguments when we're creating cached files from a script.
+	$gLabel = $argv[1];
+}
+else {
+	// Otherwise, get the label from the querystring.
+	$gLabel = ( array_key_exists("l", $_GET) ? $_GET["l"] : latestLabel($gArchive) );
+}
+
+
+// Add the revision # to the cached filename.
 $gRev = '$Rev$';
 if ( ereg('Rev: ([0-9]*) ', $gRev, $regs) ) {
 	$gRev = $regs[1];
