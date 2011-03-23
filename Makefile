@@ -23,6 +23,7 @@ pushbeta :
 	cp -p lists/*.txt ~/beta.httparchive.org/lists/.
 	mkdir -p ~/beta.httparchive.org/cache
 	chmod 777 ~/beta.httparchive.org/cache
+	cp -pu cache/interesting.js.* ~/beta.httparchive.org/cache/.
 	mkdir -p ~/beta.httparchive.org/downloads
 	cp -pu downloads/*.gz ~/beta.httparchive.org/downloads/.
 	# use a symlink
