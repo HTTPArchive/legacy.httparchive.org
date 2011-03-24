@@ -40,7 +40,7 @@ h2 {
 #rightarrow {
 	text-align: left; }
 #interestingcontainer {
-	margin-top: 80px;
+	margin-top: 30px;
 	width: auto; 
 	border: 0; }
 </style>
