@@ -19,9 +19,8 @@ require_once("utils.php");
 
 $aLabels = archiveLabels();
 foreach ($aLabels as $label) {
-	echo "starting \"$label\"...\n";
+	echo "starting \"$label\"...";
 	$cmd = "php interesting.js '$label' > /dev/null";
-	echo "cmd = $cmd\n";
 	exec($cmd);
 	echo "...DONE\n";
 }
