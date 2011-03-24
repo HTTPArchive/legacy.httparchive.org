@@ -21,11 +21,12 @@ pushbeta :
 	cp -p images/*.* ~/beta.httparchive.org/images/.
 	mkdir -p ~/beta.httparchive.org/lists
 	cp -p lists/*.txt ~/beta.httparchive.org/lists/.
+	mkdir -p ~/beta.httparchive.org/downloads
+	cp -pu downloads/*.gz ~/beta.httparchive.org/downloads/.
+	php cachegen.php
 	mkdir -p ~/beta.httparchive.org/cache
 	chmod 777 ~/beta.httparchive.org/cache
 	cp -pu cache/interesting.js.* ~/beta.httparchive.org/cache/.
-	mkdir -p ~/beta.httparchive.org/downloads
-	cp -pu downloads/*.gz ~/beta.httparchive.org/downloads/.
 	# use a symlink
 	#mkdir -p ~/beta.httparchive.org/archives
 	#cp -pRu archives ~/beta.httparchive.org/.
