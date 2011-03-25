@@ -9,8 +9,6 @@ push :
 	chmod 777 ~/httparchive.org/cache
 	mkdir -p ~/httparchive.org/downloads
 	cp -pu downloads/*.gz ~/httparchive.org/downloads/.
-	mkdir -p ~/httparchive.org/archives
-	cp -pRu archives ~/httparchive.org/.
 	echo "CREATE interesting.js.cache !!!!!!!!!!!"
 
 pushbeta :
@@ -27,8 +25,4 @@ pushbeta :
 	mkdir -p ~/beta.httparchive.org/cache
 	chmod 777 ~/beta.httparchive.org/cache
 	cp -pu cache/interesting.js.* ~/beta.httparchive.org/cache/.
-	# use a symlink
-	#mkdir -p ~/beta.httparchive.org/archives
-	#cp -pRu archives ~/beta.httparchive.org/.
-	#ln -s ~/dev.httparchive.org/archives ~/beta.httparchive.org/archives
 	echo "CREATE interesting.js.cache !!!!!!!!!!!"
