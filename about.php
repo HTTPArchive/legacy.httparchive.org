@@ -58,7 +58,7 @@ As a result he founded the <a href="http://archive.org/">Internet Archive</a> wh
 <p>
 In addition to the content of web pages, it's important to record how this digitized content is constructed and served.
 The <a href="http://httparchive.org">HTTP Archive</a> provides this record.
-It provides permanent storage for web performance information such as size of pages, failed requests, and technologies utilized. 
+It is a permanent repository of web performance information such as size of pages, failed requests, and technologies utilized. 
 This performance information allows us to see trends in how the Web is built
 and provides a common data set from which to conduct web performance research.
 </p>
@@ -154,6 +154,16 @@ are well known, the entire website doesn't necessarily map well to a single URL.
 			   <h2 id=waterfall>How is the HTTP waterfall chart generated?</h2>
 					<p>The HTTP waterfall chart is generated from the HAR file via JavaScript. The code is from Jan Odvarko's <a href='http://www.softwareishard.com/har/viewer/'>HAR Viewer</a>. Jan is also one of the creators of the HAR specification. Thanks Jan!</p>
 
+
+<h2 id=intersection>When looking at <a href="http://dev.httparchive.org/trends.php">trends</a> what does it mean to choose the "intersection" URLs?
+<p>
+The number and exact list of URLs changes from run to run.
+Comparing trends for "All" the URLs from run to run is a bit like comparing apples and oranges.
+For more of an apples to apples comparison you can choose the "intersection" URLs.
+This is the maximum set of URLs that were measured in every run.
+</p>
+
+ 
 
 			   <h2 id=tablecolumns>What are the definitions for the table columns for a website's requests?</h2>
 
