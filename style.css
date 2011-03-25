@@ -254,7 +254,8 @@ tr:nth-child(2n+1) td {
 	border: 1px solid #CCC; }
 
 #videoDiv {
-	overflow: auto; }
+	overflow: auto; 
+	height: 255px; }
 #videoContainer table {
 	border-bottom: none;
 	margin-left: 0; }
