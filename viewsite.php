@@ -17,7 +17,6 @@ limitations under the License.
 
 require_once("ui.php");
 require_once("utils.php");
-$server = 'http://httparchive.webpagetest.org/';  // also in bulktest/settings.inc
 
 if ( array_key_exists('pageid', $_GET) ) {
 	$gPageid = ( array_key_exists('pageid', $_GET) ? $_GET['pageid'] : "" );
@@ -45,6 +44,9 @@ $wptid = $row['wptid'];
 $wptrun = $row['wptrun'];
 $onLoad = $row['onLoad'];
 $renderStart = $row['renderStart'];
+
+$server = 'http://httparchive.webpagetest.org/';  // also in bulktest/settings.inc
+$harfileWptUrl = "{$server}export.php?test=$wptid&run=$wptrun&cached=0";
 
 ?>
 <!doctype html>
@@ -164,7 +166,7 @@ OUTPUT;
 
 <script src='schema.js'></script>
 <script src='har.js'></script>
-<script src='harviewer.js?f=<?php echo $harfile ?>'></script>
+<script src='harviewer.js?u=<?php echo urlencode($harfileWptUrl) ?>'></script>
 
 <script>
 function initHAR() {
@@ -327,7 +329,7 @@ document.getElementsByTagName('head')[0].appendChild(tsjs);
 <h2 id=downloads>Downloads</h2>
 
 <div style='margin-top: 4px; font-size: 0.8em;'>
-<a href='<?php echo $server ?>export.php?test=<?php echo $wptid ?>&run=<?php echo $wptrun ?>&cached=0'>download HAR file</a>
+<a href='<?php echo $harfileWptUrl ?>'>download HAR file</a>
 </div>
 
 
