@@ -225,7 +225,6 @@ function importHarFile($filename, $result) {
 
 // Import a website.
 // MAJOR ASSUMPTION: THERE'S ONLY ONE PAGE PER HAR FILE!
-// (otherwise, harviewer and har_to_pagespeed won't work)
 function importPage($page, $filename) {
 	global $gPagesTable, $gRequestsTable;
 	global $gArchive, $gLabel;
@@ -259,28 +258,6 @@ function importPage($page, $filename) {
 	if ( $onLoad && 0 < $onLoad ) {
 		array_push($aTuples, "onLoad = $onLoad");
 	}
-
-	// Page Speed score
-	t_mark('Page Speed');
-	$output = array();
-	$return_var = 128;
-	exec("../har_to_pagespeed '$filename' 2>/dev/null", $output, $return_var);
-	if ( 0 === $return_var ) {
-		$totalScore = 0;
-		$iScores = 0;
-		$matches = array();
-		for ( $i = 0; $i < count($output); $i++ ) {
-			$line = $output[$i];
-			if ( preg_match("/_(.*)_ \(score=([0-9]+)/", $line, $matches) &&
-				 false === strpos($line, "Optimize images") ) {
-				$totalScore += $matches[2];
-				$iScores++;
-			}
-		}
-		$overallScore = round($totalScore/$iScores);
-		array_push($aTuples, "PageSpeed = $overallScore");
-	}
-	t_aggregate('Page Speed');
 
 	$cmd = "replace into $gPagesTable set " . implode(", ", $aTuples) . ";";
 	//dprint("$cmd");
@@ -510,7 +487,8 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultTxt) {
 		", reqFlash = " . $hCount['flash'] . ", bytesFlash = " . $hSize['flash'] . 
 		", reqOther = " . $hCount['other'] . ", bytesOther = " . $hSize['other'] . 
 		", numDomains = $numDomains" .
-		", wptid = '" . $resultTxt['id'] . "', wptrun = " . $resultTxt['medianRun'] . ", renderStart = " . $resultTxt['startRender'] .
+		", wptid = '{$resultTxt['id']}', wptrun = {$resultTxt['medianRun']}" .
+		", renderStart = {$resultTxt['startRender']}, PageSpeed = {$resultTxt['PageSpeedScore']}" .
 		" where pageid = $pageid;";
 	//dprint($cmd);
 	doSimpleCommand($cmd);
