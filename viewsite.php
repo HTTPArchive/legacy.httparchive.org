@@ -17,6 +17,7 @@ limitations under the License.
 
 require_once("ui.php");
 require_once("utils.php");
+$server = 'http://httparchive.webpagetest.org/';  // also in bulktest/settings.inc
 
 if ( array_key_exists('pageid', $_GET) ) {
 	$gPageid = ( array_key_exists('pageid', $_GET) ? $_GET['pageid'] : "" );
@@ -326,7 +327,7 @@ document.getElementsByTagName('head')[0].appendChild(tsjs);
 <h2 id=downloads>Downloads</h2>
 
 <div style='margin-top: 4px; font-size: 0.8em;'>
-<a href='<?php echo $harfile ?>'>download HAR file</a>
+<a href='<?php echo $server ?>export.php?test=<?php echo $wptid ?>&run=<?php echo $wptrun ?>&cached=0'>download HAR file</a>
 </div>
 
 
