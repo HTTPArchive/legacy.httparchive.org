@@ -80,7 +80,7 @@ function UpdateResults(&$results, $testCount)
             $doc = new DOMDocument();
             if( $doc )
             {
-                $response = file_get_contents("{$server}xmlResult/{$result['id']}/");
+                $response = file_get_contents("{$server}xmlResult/{$result['id']}/?pagespeed=1");
                 if( strlen($response) )
                 {
                     $doc->loadXML($response);
@@ -126,12 +126,12 @@ function GetTestResult($doc, &$result)
             $loadTime = (int)$run->getElementsByTagName('docTime')->item(0)->nodeValue;
             $render = (int)$run->getElementsByTagName('render')->item(0)->nodeValue;
             // PageSpeed Score
-            $score = (int)$run->getElementsByTagName('PageSpeedScore')->item(0)->nodevalue;
+            $score = (int)$run->getElementsByTagName('PageSpeedScore')->item(0)->nodeValue;
             
             if( $loadTime && ($testResult == 0 || $testResult == 99999) )
-                $times[$loadTime] = array('index' => $index, 'result' => $testResult, 'loadTime' => $loadTime, 'startRender' => $render, 'score' => $score);
+                $times[$loadTime] = array('index' => $index, 'result' => $testResult, 'loadTime' => $loadTime, 'startRender' => $render, 'PageSpeedScore' => $score);
             else
-                $failed[] = array('index' => $index, 'result' => $testResult, 'loadTime' => $loadTime, 'startRender' => $render, 'score' => $score);
+                $failed[] = array('index' => $index, 'result' => $testResult, 'loadTime' => $loadTime, 'startRender' => $render, 'PageSpeedScore' => $score);
             
             unset($fv);
         }
@@ -153,6 +153,7 @@ function GetTestResult($doc, &$result)
                 $result['medianRun'] = $data['index'];
                 $result['loadTime'] = $data['loadTime'];
                 $result['startRender'] = $data['startRender'];
+                $result['PageSpeedScore'] = $data['PageSpeedScore'];
 
                 break;
             }
@@ -167,6 +168,7 @@ function GetTestResult($doc, &$result)
         $result['medianRun'] = $failed[0]['index'];
         $result['loadTime'] = $failed[0]['loadTime'];
         $result['startRender'] = $failed[0]['startRender'];
+		$result['PageSpeedScore'] = $data['PageSpeedScore'];
     }
 }
 ?>
