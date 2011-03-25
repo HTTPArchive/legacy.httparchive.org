@@ -5,15 +5,16 @@ set_time_limit(0);
 $video = true;
 $private = false;
 $docComplete = true;
-$runs = 9;
+$runs = 3;
 $fvonly = true;
-$server = 'http://www.webpagetest.org/';
+$mv = true; // only store median video
+$server = 'http://httparchive.webpagetest.org/';  // also in ../settings.inc
 
 // list of locations to use
 $locations = array();
 //$locations[] = 'Dulles_IE7';
-//$locations[] = 'Dulles_IE8';
-$locations[] = 'EC2_Dulles_IE8';
+$locations[] = 'Dulles_IE8';
+//$locations[] = 'EC2_Dulles_IE8';
 //$locations[] = 'NewYork_IE8';
 //$locations[] = 'Chicago_IE7';
 //$locations[] = 'SanJose';
@@ -50,7 +51,8 @@ function LoadResults(&$results)
                                         'result' => trim($parts[3]),
                                         'medianRun' => trim($parts[4]),
                                         'loadTime' => trim($parts[5]),
-                                        'startRender' => trim($parts[6]) );
+                                        'startRender' => trim($parts[6]),
+										'PageSpeedScore' => trim($parts[10]) );
                     $ret = true;
                 }
             }
@@ -71,7 +73,7 @@ function StoreResults(&$results)
     if( $file )
     {
         // write out the header row
-        fwrite($file, "URL\tLocation\tTest ID\tTest Result\tMedian Run\tLoad Time\tStart Render Time\tTest Results URL\tMedian Results URL\tFilmstrip URL\r\n");
+        fwrite($file, "URL\tLocation\tTest ID\tTest Result\tMedian Run\tLoad Time\tStart Render Time\tTest Results URL\tMedian Results URL\tFilmstrip URL\tPageSpeedScore\r\n");
         foreach( $results as &$result )
         {
             $line = "{$result['url']}\t{$result['location']}\t{$result['id']}\t{$result['result']}";
@@ -81,6 +83,7 @@ function StoreResults(&$results)
                 $line .= "\t{$server}result/{$result['id']}/";
                 $line .= "\t{$server}result/{$result['id']}/{$result['medianRun']}/details/";
                 $line .= "\t{$server}video/compare.php?tests={$result['id']}-r:{$result['medianRun']}-c:0";
+                $line .= "\t{$result['PageSpeedScore']}";
             }
             $line .= "\r\n";
             
