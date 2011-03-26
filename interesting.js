@@ -114,7 +114,7 @@ function redirects() {
 	$no = 100-$yes;
 	$aVarNames = array("No Redirects $no%", "Redirects $yes%");
 	$aVarValues = array($no, $yes);
-	return pieChart("Pages with Redirects (4xx, 5xx)", $aVarNames, $aVarValues, "008000");
+	return pieChart("Pages with Redirects (3xx)", $aVarNames, $aVarValues, "008000");
 }
 
 
