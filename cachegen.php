@@ -18,7 +18,9 @@ limitations under the License.
 require_once("utils.php");
 
 $aLabels = archiveLabels();
-foreach ($aLabels as $label) {
+$len = count($aLabels);
+for ( $i = $len-1; $i >= 0; $i-- ) {
+	$label = $aLabels[$i];
 	echo "starting \"$label\"...";
 	$cmd = "php interesting.js '$label' > /dev/null";
 	exec($cmd);
