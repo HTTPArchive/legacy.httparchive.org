@@ -378,8 +378,8 @@ function percentageColumnChart($title, $aNames, $aValues, $color="80C65A") {
 
 function correlationColumnChart($title, $aNames, $aValues, $color="80C65A") {
 	return "<img class=chart src='http://chart.apis.google.com/chart?chxl=1:|" .
-		urlencode(implode("|", $aNames)) .
-		"&chxr=0,0,1&chxs=1,676767,11.5,0,lt,67676700&chxtc=1,5&chxt=y,x&chbh=60,30,20&chs=500x225&cht=bvg&chco=$color&chds=0,1&chd=t:" .
+		str_replace("Requests", "Reqs", str_replace("Transfer", "Xfer", urlencode(implode("|", $aNames)))) .
+		"&chxr=0,0,1&chxs=1,676767,11.5,0,lt,67676700&chxtc=1,5&chxt=y,x&chbh=60,30,30&chs=500x225&cht=bvg&chco=$color&chds=0,1&chd=t:" .
 		implode(",", $aValues) .
 		"&chm=N,676767,0,,12,,::4&chtt=" . urlencode($title) . "'>";
 }
