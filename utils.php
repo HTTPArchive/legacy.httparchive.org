@@ -207,7 +207,7 @@ function selectSiteLabel($url, $curLabel="", $bReverse=true) {
 
 // Return an array of label names (in chrono order?) for an archive.
 // If $bEpoch is true return labels based on 
-function archiveLabels($archive = "All", $bEpoch = false) {
+function archiveLabels($archive = "All", $bEpoch = false, $format = "n/j/y" ) {
 	global $gPagesTable;
 
 	$query = "select label, min(startedDateTime) as epoch from $gPagesTable where archive = '$archive' group by label order by epoch asc;";
@@ -217,7 +217,7 @@ function archiveLabels($archive = "All", $bEpoch = false) {
 		$label = $row['label'];
 		$epoch = $row['epoch'];
 		if ( $bEpoch ) {
-			array_push($aLabels, date("n/j/y", $epoch));
+			array_push($aLabels, date($format, $epoch));
 		}
 		else {
 			array_push($aLabels, $label);
@@ -609,12 +609,12 @@ function createTables() {
 			", archive varchar (255) not null" .
 			", label varchar (255) not null" .
 			", status int(10) unsigned not null" .
-			", timeOfLastChange varchar (64)" .
-			", wptid varchar (64)" .
-			", wptRetCode varchar (8)" .
-			", medianRun int(10) unsigned" .
+			", timeOfLastChange varchar (64) not null" .
+			", retry int(10) unsigned not null" .
+			", wptid varchar (64) not null" .
+			", wptRetCode varchar (8) not null" .
+			", medianRun int(10) unsigned not null" .
 			", startRender int(10) unsigned" .
-			", pagespeedScore int(4) unsigned" .
 			", primary key (pageid)" .
 			", index(pageid)" .
 			");";
