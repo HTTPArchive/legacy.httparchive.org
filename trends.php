@@ -107,7 +107,7 @@ while ( $row = mysql_fetch_assoc($result) ) {
 mysql_free_result($result);
 
 $aLabels = archiveLabels($gArchive, false);
-$aAxisLabels = archiveLabels($gArchive, true);
+$aAxisLabels = archiveLabels($gArchive, true, "n/j");
 $labels = urlencode(implode("|", $aAxisLabels));
 array_unshift($aFields, "numurls");
 foreach($aFields as $field) {
