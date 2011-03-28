@@ -151,7 +151,7 @@ function format2LineChart($field, $field2, $hStats, $aRunNames, $labels) {
 		"&chs=600x300" .
 		"&cht=lxy" .
 		"&chco=$color,$color2" .
-		"&chm=N" . ( $suffix ? "**+$suffix" : "" ) . ",$color,0,,12,,:-8:8" . "|N" . ( $suffix2 ? "**+$suffix2" : "" ) . ",$color2,1,,12,,:-16:8" .
+		"&chm=N" . ( $suffix ? "**+$suffix" : "" ) . ",$color,0,,12,,:-8:8" . "|N" . ( $suffix2 ? "**$suffix2" : "" ) . ",$color2,1,,12,,:-16:8" .
 		"&chds=9,99,$min,$max,9,99,$min2,$max2" .
 		"&chts=$color2,24" .
 		"&chtt=" . urlencode(fieldTitle($field2)) . "+%26+" . urlencode(fieldTitle($field)) . 
