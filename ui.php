@@ -45,6 +45,15 @@ _gaq.push(['_trackPageview']);
 	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
 </script>
+<!--[if lt IE 9]>
+<script>
+// we use some new HTML tags - make them work in IE<9 - hrrmphf
+var e = ("header,nav").split(',');
+for (var i = 0; i < e.length; i++) {
+	document.createElement(e[i]);
+}
+</script>
+<![endif]-->
 
 OUTPUT;
 }
