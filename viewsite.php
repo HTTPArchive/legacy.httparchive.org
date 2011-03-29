@@ -123,7 +123,7 @@ function showInterval(ms) {
 	var sel = document.getElementById('interval');
 	for ( var i = 0; i < sel.options.length; i++ ) {
 		var option = sel.options[i];
-		if ( option.label == ms ) {
+		if ( option.value == ms ) {
 			option.selected = true;
 			break;
 		}
@@ -133,11 +133,11 @@ function showInterval(ms) {
 
 <form>
 <label for=interval>Show screenshots every:</label>
-<select id=interval onchange='showInterval(this.options[this.selectedIndex].label)'>
-<option label=100>0.1 seconds</option>
-<option label=500>0.5 seconds</option>
-<option label=1000>1 seconds</option>
-<option label=5000>5 seconds</option>
+<select id=interval onchange='showInterval(this.options[this.selectedIndex].value)'>
+<option value=100>0.1 seconds</option>
+<option value=500>0.5 seconds</option>
+<option value=1000>1 second</option>
+<option value=5000>5 seconds</option>
 </select>
 </form>
 
