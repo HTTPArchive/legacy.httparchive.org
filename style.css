@@ -199,6 +199,8 @@ p + ul, p + ol {
 .even-columns li {
 	list-style: none; }
 
+#interestingcontainer TD { 
+	border-bottom: 0px; }
 #interesting { 
 	width: 660px; 
 	text-align: center; }
