@@ -1,5 +1,5 @@
 push :
-	cp -p *.php settings.inc *.js *.css favicon.ico .htaccess ~/httparchive.org/.
+	cp -p *.php settings.inc *.js *.css favicon.ico ~/httparchive.org/.
 	/bin/rm ~/httparchive.org/admin.php
 	mkdir -p ~/httparchive.org/images
 	cp -p images/*.* ~/httparchive.org/images/.
@@ -9,6 +9,7 @@ push :
 	chmod 777 ~/httparchive.org/cache
 	mkdir -p ~/httparchive.org/downloads
 	cp -pu downloads/*.gz ~/httparchive.org/downloads/.
+	echo "push .htaccess!"
 	echo "CREATE interesting.js.cache !!!!!!!!!!!"
 
 pushbeta :
