@@ -52,10 +52,12 @@ $harfileWptUrl = "{$server}export.php?test=$wptid&run=$wptrun&cached=0";
 <!doctype html>
 <html>
 <head>
-	<link type="text/css" rel="stylesheet" href="style.css" />
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>HTTP Archive - <?php echo htmlentities($url) ?></title>
-	<link rel="stylesheet" href="har.css" type="text/css">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>HTTP Archive - <?php echo htmlentities($url) ?></title>
+
+<?php echo headfirst() ?>
+<link type="text/css" rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="har.css" type="text/css">
 </head>
 
 <body class=viewsite id=top>

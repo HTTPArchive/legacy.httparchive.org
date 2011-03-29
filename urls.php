@@ -25,10 +25,11 @@ $gTitle = $gArchive . " URLs";
 <html>
 
 <head>
-	<link type="text/css" rel="stylesheet" href="style.css" />
-	
-	<title><?php echo $gTitle ?></title>
-	<meta charset="UTF-8">
+<title><?php echo $gTitle ?></title>
+<meta charset="UTF-8">
+
+<?php echo headfirst() ?>
+<link type="text/css" rel="stylesheet" href="style.css" />
 </head>
 
 <body>

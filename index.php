@@ -22,12 +22,12 @@ $gTitle = "HTTP Archive";
 ?>
 <!doctype html>
 <html>
-<head>
-	<link type="text/css" rel="stylesheet" href="style.css" />
-	
-	<title><?php echo $gTitle ?></title>
-	<meta charset="UTF-8">
-	
+<head>	
+<title><?php echo $gTitle ?></title>
+<meta charset="UTF-8">
+
+<?php echo headfirst() ?>
+<link type="text/css" rel="stylesheet" href="style.css" />
 <style>
 .column {
 	float: left;

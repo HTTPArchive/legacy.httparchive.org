@@ -25,10 +25,11 @@ $gTitle = "Interesting Stats";
 <!doctype html>
 <html>
 <head>
-	<link type="text/css" rel="stylesheet" href="style.css" />
-	
-	<title>HTTP Archive - <?php echo $gTitle ?></title>
-	<meta charset="UTF-8">
+<title>HTTP Archive - <?php echo $gTitle ?></title>
+<meta charset="UTF-8">
+
+<?php echo headfirst() ?>
+<link type="text/css" rel="stylesheet" href="style.css" />
 <style>
 .chart { 
 	border: 1px solid #BBB; 
