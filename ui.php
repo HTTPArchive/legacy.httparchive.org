@@ -48,7 +48,7 @@ _gaq.push(['_trackPageview']);
 <!--[if lt IE 9]>
 <script>
 // we use some new HTML tags - make them work in IE<9 - hrrmphf
-var e = ("header,nav").split(',');
+var e = ("abbr,article,aside,audio,canvas,datalist,details,figure,footer,header,hgroup,mark,menu,meter,nav,output,progress,section,time,video").split(',');
 for (var i = 0; i < e.length; i++) {
 	document.createElement(e[i]);
 }
