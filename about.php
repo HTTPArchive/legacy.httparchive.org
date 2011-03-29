@@ -156,7 +156,7 @@ are well known, the entire website doesn't necessarily map well to a single URL.
 					<p>The HTTP waterfall chart is generated from the HAR file via JavaScript. The code is from Jan Odvarko's <a href='http://www.softwareishard.com/har/viewer/'>HAR Viewer</a>. Jan is also one of the creators of the HAR specification. Thanks Jan!</p>
 
 
-<h2 id=intersection>When looking at <a href="http://dev.httparchive.org/trends.php">trends</a> what does it mean to choose the "intersection" URLs?
+<h2 id=intersection>When looking at <a href="http://dev.httparchive.org/trends.php">trends</a> what does it mean to choose the "intersection" URLs?</h2>
 <p>
 The number and exact list of URLs changes from run to run.
 Comparing trends for "All" the URLs from run to run is a bit like comparing apples and oranges.
