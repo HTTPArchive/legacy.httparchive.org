@@ -62,7 +62,15 @@ Got a stat you'd like to see?
 <?php echo uiFooter() ?>
 
 <script>
+var bShown = false;
+
 function showSnippets() {
+    if ( bShown ) {
+        // prevent Opera from executing twice
+	    return;
+    }
+	bShown = true;
+	
 	var parent = document.getElementById('interesting');
 	for ( var iSnippet = 0; iSnippet < gaSnippets.length; iSnippet++ ) {
 		newSnippet = document.createElement('div');
