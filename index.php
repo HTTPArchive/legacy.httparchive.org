@@ -74,10 +74,20 @@ The <a href="http://code.google.com/p/httparchive/source/checkout">HTTP Archive 
 </center>
 
 <script type="text/javascript">
+var bShown = false;
+function doInteresting() {
+	if ( bShown ) {
+		// prevent Opera from executing this twice
+		return;
+	}
+	bShown = true;
+	showSnippet('interesting'); 
+	insertNav('interesting');
+}
 var interestingjs = document.createElement('script');
 interestingjs.src = "interesting.js";
-interestingjs.onload = function() { showSnippet('interesting'); insertNav('interesting'); };
-interestingjs.onreadystatechange = function() { if ( interestingjs.readyState == 'complete' || interestingjs.readyState == 'loaded' ) { showSnippet('interesting'); insertNav('interesting'); } };
+interestingjs.onload = doInteresting;
+interestingjs.onreadystatechange = function() { if ( interestingjs.readyState == 'complete' || interestingjs.readyState == 'loaded' ) { doInteresting(); } };
 document.getElementsByTagName('head')[0].appendChild(interestingjs);
 </script>
 
