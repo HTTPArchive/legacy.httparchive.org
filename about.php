@@ -76,11 +76,11 @@ $gFAQ =<<<OUTPUT
 
 <p>As of November 2010 the URLs that are analyzed is the union of the following lists:
 <ul class=indent>
-  <li> <a href="lists/Alexa+500.txt">Alexa 500</a> (<a href="http://www.alexa.com/topsites/global">source</a>)
-  <li> <a href="lists/Alexa+US+500.txt">Alexa US 500</a> (<a href="http://www.alexa.com/topsites/countries/US">source</a>)
+  <li> <a href="lists/Alexa%20500.txt">Alexa 500</a> (<a href="http://www.alexa.com/topsites/global">source</a>)
+  <li> <a href="lists/Alexa%20US%20500.txt">Alexa US 500</a> (<a href="http://www.alexa.com/topsites/countries/US">source</a>)
   <li> <a href="lists/Alexa10K.txt">Alexa 10,000</a> (<a href="http://www.alexa.com/topsites">source</a>, <a href="http://s3.amazonaws.com/alexa-static/top-1m.csv.zip">zip</a>)
-  <li> <a href="lists/Fortune+500.txt">Fortune 500</a> (<a href="http://money.cnn.com/magazines/fortune/fortune500/2010/full_list/">source</a>)
-  <li> <a href="lists/Global+500.txt">Global 500</a> (<a href="http://money.cnn.com/magazines/fortune/global500/2010/full_list/">source</a>)
+  <li> <a href="lists/Fortune%20500.txt">Fortune 500</a> (<a href="http://money.cnn.com/magazines/fortune/fortune500/2010/full_list/">source</a>)
+  <li> <a href="lists/Global%20500.txt">Global 500</a> (<a href="http://money.cnn.com/magazines/fortune/global500/2010/full_list/">source</a>)
   <li> <a href="lists/Quantcast10K.txt">Quantcast10K</a> (<a href="http://www.quantcast.com/top-sites-1">source</a>)
 </ul>
 
