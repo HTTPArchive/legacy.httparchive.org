@@ -1,6 +1,10 @@
 DirectoryIndex index.php
 Options -Indexes
 
+<Files settings.inc>
+order allow,deny
+deny from all
+</Files>
 
 # Compress/gzip html, XML, css and js and fonts and CSV
 AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/x-javascript application/javascript font/ttf application/octet-stream
