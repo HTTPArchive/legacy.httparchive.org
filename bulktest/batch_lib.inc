@@ -201,7 +201,7 @@ function checkWPTStatus() {
 					$code = (int)trim($nodes->item(0)->nodeValue);
 					if ( 200 == $code ) {
 						setStatus($row['pageid'], 2);
-					} else {
+					} elseif ( 400 <= $code ) {
 						setStatus($row['pageid'], 1 + $gErrBase);
 					}
 				}
