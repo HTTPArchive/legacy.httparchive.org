@@ -649,6 +649,7 @@ function countFailedTests() {
 
 
 function reportSummary() {
+        global $gErrBase;
 	$totalUrls = countTestsWithCode(-1);
 	$loadedUrls = countTestsWithCode(0);
 	$submittedTests = countTestsWithCode(1);
@@ -657,6 +658,10 @@ function reportSummary() {
 	$harDownloadedTests = countTestsWithCode(4);
 	$successfulTests = countTestsWithCode(5);
 	$failedTests = countFailedTests();
+        $failedSubmission = countTestsWithCode(0 + $gErrBase);
+        $failedWPTTesting = countTestsWithCode(1 + $gErrBase);
+        $failedProcessResult = countTestsWithCode( 2 + $gErrBase);
+        $failedImportHar = countTestsWithCode( 4 + $gErrBase);
 
 	dprint("Total URLs: $totalUrls");
 	$total_in_processing = $loadedUrls + $submittedTests + $completedTests;
@@ -668,6 +673,14 @@ function reportSummary() {
 	dprint("Waiting to process HAR: $harDownloadedTests");
 	dprint("Successfully processed: $successfulTests");
 	dprint("Tests failed: $failedTests");
+	if ( $failedSubmission > 0 )
+		dprint("	-Submission failed: $failedSubmission");
+	if ( $failedWPTTesting > 0 )
+		dprint("	-WPT tests failed: $failedWPTTesting");
+	if ( $failedProcessResult > 0 )
+		dprint("	-Test result processing failed: $failedProcessResult");
+	if ( $failedImportHar > 0 ) 
+		dprint("	-Har importing failed: $failedImportHar");
 }
 
 
