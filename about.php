@@ -67,7 +67,7 @@ and provides a common data set from which to conduct web performance research.
 
 
 
-<h1>FAQ</h1>
+<h1 id=faq>FAQ</h1>
 
 
 <?php
