@@ -1,10 +1,10 @@
 DirectoryIndex index.php
 Options -Indexes
 
-<Files settings.inc>
+<FilesMatch "(settings.inc|cachegen.php|check.php|import.php)">
 order allow,deny
 deny from all
-</Files>
+</FilesMatch>
 
 # Compress/gzip html, XML, css and js and fonts and CSV
 AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/x-javascript application/javascript font/ttf application/octet-stream
