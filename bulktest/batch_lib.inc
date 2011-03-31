@@ -202,7 +202,7 @@ function checkWPTStatus() {
 					if ( 200 == $code ) {
 						setStatus($row['pageid'], 2);
 					} else {
-						setStatis($row['pageid'], 1 + $gErrBase);
+						setStatus($row['pageid'], 1 + $gErrBase);
 					}
 				}
 				
