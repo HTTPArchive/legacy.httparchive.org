@@ -17,7 +17,7 @@ limitations under the License.
 
 require_once("utils.php");
 
-$gPageid = ( array_key_exists('pageid', $_GET) ? $_GET['pageid'] : "" );
+$gPageid = getParam('pageid');
 
 $query = "select url, wptid, wptrun, onLoad, renderStart from $gPagesTable where pageid=$gPageid;";
 
