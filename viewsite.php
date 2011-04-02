@@ -18,13 +18,13 @@ limitations under the License.
 require_once("ui.php");
 require_once("utils.php");
 
-if ( array_key_exists('pageid', $_GET) ) {
-	$gPageid = ( array_key_exists('pageid', $_GET) ? $_GET['pageid'] : "" );
+if ( getParam('pageid') ) {
+	$gPageid = getParam('pageid');
 	$query = "select * from $gPagesTable where pageid=$gPageid;";
 }
-else if ( ! $gPageid && array_key_exists('u', $_GET) && array_key_exists('l', $_GET) ) {
-	$url = $_GET['u'];
-	$gLabel = $_GET['l'];
+else if ( ! $gPageid && getParam('u') && getParam('l') ) {
+	$url = getParam('u');
+	$gLabel = getParam('l');
 	$query = "select * from $gPagesTable where url='$url' and label='$gLabel';";
 }
 else {
@@ -61,7 +61,7 @@ $harfileWptUrl = "{$server}export.php?test=$wptid&run=$wptrun&cached=0";
 </head>
 
 <body class=viewsite id=top>
-<?php echo uiHeader($gTitle, true, "<li><a href='viewarchive.php?a=$gArchive' class='return'>$gArchive</a></li>"); ?>
+<?php echo uiHeader($gTitle); ?>
 
 	<h1><?php echo str_replace('>http://', '><span class=protocol>http://</span>', siteLink($url)) ?></h1>
 	
