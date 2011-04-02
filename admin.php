@@ -37,7 +37,7 @@ $gTitle = "Admin";
 
 <div style="margin-top: 40px;">
 <?php
-$gAction = ( array_key_exists("a", $_GET) ? $_GET["a"] : "" );
+$gAction = getParam('a');
 if ( "create" === $gAction ) {
 	echo "<p>Creating MySQL tables...<br>\n";
 	createTables();
