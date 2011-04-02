@@ -19,7 +19,7 @@ require_once("ui.php");
 require_once("utils.php");
 
 $gArchive = "All";
-$gLabel = ( array_key_exists("l", $_GET) ? $_GET["l"] : latestLabel($gArchive) );
+$gLabel = getParam('l', latestLabel($gArchive));
 $gTitle = "Interesting Stats";
 ?>
 <!doctype html>
