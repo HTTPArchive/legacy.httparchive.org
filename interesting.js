@@ -27,13 +27,12 @@ rotating divs of interesting stats.
 $gArchive = "All";
 if ( $argc ) {
 	// Handle commandline arguments when we're creating cached files from a script.
-	$gLabel = mysql_real_escape_string($argv[1]);
+	$gLabel = $argv[1];
 }
 else {
 	// Otherwise, get the label from the querystring.
 	$gLabel = getParam('l', latestLabel($gArchive));
 }
-
 
 // Add the revision # to the cached filename.
 $gRev = '$Rev$';
