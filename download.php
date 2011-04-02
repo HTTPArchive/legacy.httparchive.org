@@ -18,10 +18,10 @@ limitations under the License.
 require_once("utils.php");
 require_once("ui.php");
 
-$gArchive = ( array_key_exists('a', $_GET) ? $_GET['a'] : "" );
-$gLabel = ( array_key_exists('l', $_GET) ? $_GET['l'] : "" );
-$gPageid = ( array_key_exists('p', $_GET) ? $_GET['p'] : "" );
-$gFormat = $_GET['format'];
+$gArchive = getParam('a');
+$gLabel = getParam('l');
+$gPageid = getParam('p');
+$gFormat = getParam('format');
 
 
 if ( $gPageid && "csv" == $gFormat ) {
