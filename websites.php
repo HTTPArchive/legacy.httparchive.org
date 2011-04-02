@@ -19,8 +19,8 @@ require_once("utils.php");
 require_once("ui.php");
 
 $gArchive = "All";
-$gLabel = ( array_key_exists("l", $_GET) ? $_GET["l"] : latestLabel($gArchive) );
-$gChar = ( array_key_exists("c", $_GET) ? $_GET["c"] : "A" );
+$gLabel = getParam('l', latestLabel($gArchive));
+$gChar = getParam('c', 'A');
 $gLcChar = strtolower($gChar);
 $gTitle = "Web Sites";
 $gMaxUrls = 20000;
