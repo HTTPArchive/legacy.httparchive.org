@@ -34,6 +34,8 @@ else {
 }
 
 // Add the revision # to the cached filename.
+// This relies on setting the SVN property:
+//    svn propset svn:keywords "Rev" interesting-images.js
 $gRev = '$Rev$';
 if ( ereg('Rev: ([0-9]*) ', $gRev, $regs) ) {
 	$gRev = $regs[1];
