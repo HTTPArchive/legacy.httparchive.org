@@ -10,7 +10,7 @@ push :
 	mkdir -p ~/httparchive.org/downloads
 	cp -pu downloads/*.gz ~/httparchive.org/downloads/.
 	echo "push .htaccess!"
-	echo "CREATE interesting.js.cache !!!!!!!!!!!"
+	echo "CREATE interesting-images.js.cache !!!!!!!!!!!"
 
 pushbeta :
 	mkdir -p ~/beta.httparchive.org
@@ -25,5 +25,4 @@ pushbeta :
 	php cachegen.php
 	mkdir -p ~/beta.httparchive.org/cache
 	chmod 777 ~/beta.httparchive.org/cache
-	cp -pu cache/interesting.js.* ~/beta.httparchive.org/cache/.
-	echo "CREATE interesting.js.cache !!!!!!!!!!!"
+	cp -pu cache/interesting* ~/beta.httparchive.org/cache/.
