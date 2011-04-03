@@ -34,7 +34,7 @@ else {
 }
 
 // Add the revision # to the cached filename.
-$gRev = '$Rev: 355 $';
+$gRev = '$Rev$';
 if ( ereg('Rev: ([0-9]*) ', $gRev, $regs) ) {
 	$gRev = $regs[1];
 }
@@ -395,8 +395,8 @@ function horizontalBarChart($title, $aNames, $aValues, $color="80C65A", $min, $m
 }
 
 
-
-$gCacheFile = "./cache/interesting.js.$gRev.$gLabel.cache";
+// example: interesting-images.js.356.Mar 29 2011.cache
+$gCacheFile = "./cache/interesting-images.js.$gRev.$gLabel.cache";
 $snippets = "";
 
 if ( file_exists($gCacheFile) ) {
@@ -432,7 +432,7 @@ if ( ! $snippets ) {
 		$snippets .= 'gaSnippets.push("' . call_user_func($func) . '");' . "\n";
 	}
 	// This won't work for web site users because of permissions.
-	// Run "php interesting.js" from the commandline to generate the cache file.
+	// Run "php interesting-images.js" from the commandline to generate the cache file.
 	// I'll leave this line generating errors as a reminder to create the cache file.
 	file_put_contents($gCacheFile, $snippets);
 }
