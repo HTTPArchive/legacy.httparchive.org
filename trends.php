@@ -73,11 +73,13 @@ $aFields = array(
 				 "reqJS",
 				 "reqCSS",
 				 "reqImg",
+				 "reqFlash",
 				 "bytesTotal",
 				 "bytesHtml",
 				 "bytesJS",
 				 "bytesCSS",
 				 "bytesImg",
+				 "bytesFlash",
 				 "numDomains"
 				 );
 
@@ -128,6 +130,7 @@ echo format2LineChart('reqHtml', 'bytesHtml', $hStats, $aRunNames, $labels);
 echo format2LineChart('reqJS', 'bytesJS', $hStats, $aRunNames, $labels);
 echo format2LineChart('reqCSS', 'bytesCSS', $hStats, $aRunNames, $labels);
 echo format2LineChart('reqImg', 'bytesImg', $hStats, $aRunNames, $labels);
+echo format2LineChart('reqFlash', 'bytesFlash', $hStats, $aRunNames, $labels);
 
 foreach(array('numurls', 'PageSpeed', 'numDomains') as $field) {
 	echo formatChart($field, $hStats, $aRunNames, $labels);
