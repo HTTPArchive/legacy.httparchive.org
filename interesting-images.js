@@ -19,8 +19,7 @@ require_once("utils.php");
 
 /*
 DESCRIPTION: 
-Return a JavaScript file that contains code for creating
-rotating divs of interesting stats.
+Return a JavaScript array of image URLs for charts.
 */
 
 // Add the label to the cached filename.
