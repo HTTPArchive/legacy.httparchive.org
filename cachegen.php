@@ -22,7 +22,7 @@ $len = count($aLabels);
 for ( $i = $len-1; $i >= 0; $i-- ) {
 	$label = $aLabels[$i];
 	echo "starting \"$label\"...";
-	$cmd = "php interesting.js '$label' > /dev/null";
+	$cmd = "php interesting-images.js '$label' > /dev/null";
 	exec($cmd);
 	echo "...DONE\n";
 }
