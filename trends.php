@@ -89,8 +89,8 @@ $aFields = array(
 $setWhere = "";
 if ( "intersection" === $gSet ) {
 	// Find the set of URLs that are constant across all labels;
-	$numLabels = doSimpleQuery("select count(distinct(label)) from $gPagesTable;");
-	$query = "select url, count(label) as num from $gPagesTable group by url having num = $numLabels;";
+	$numLabels = doSimpleQuery("select count(distinct(label)) from $gPagesTable where $gDateRange;");
+	$query = "select url, count(label) as num from $gPagesTable where $gDateRange group by url having num = $numLabels;";
 	$result = doQuery($query);
 	$aUrls = array();
 	while ( $row = mysql_fetch_assoc($result) ) {
@@ -110,7 +110,7 @@ foreach($aFields as $field) {
 	$divisor = ( false === strpos($field, "bytes") ? 1 : 1024 );
 	$query .= ", ROUND(AVG($field)/$divisor) as $field";
 }
-$query .= " from $gPagesTable where archive = '$gArchive'$setWhere group by label;";
+$query .= " from $gPagesTable where archive = '$gArchive'$setWhere and $gDateRange group by label;";
 $result = doQuery($query);
 
 // Separate the stats by label.
