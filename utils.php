@@ -171,11 +171,11 @@ function archiveNames() {
 
 // Return HTML to create a select list of archive labels (eg, "Oct 2010", "Nov 2010").
 function selectArchiveLabel($archive, $curLabel, $bReverse=true) {
-	global $gPagesTable;
+	global $gPagesTable, $gDateRange;
 
 	$sSelect = "<select onchange='document.location=\"?a=$archive&l=\"+escape(this.options[this.selectedIndex].value)'>\n";
 
-	$query = "select label, startedDateTime from $gPagesTable where archive = '$archive' group by label order by startedDateTime " . 
+	$query = "select label, startedDateTime from $gPagesTable where $gDateRange and archive = '$archive' group by label order by startedDateTime " . 
 		( $bReverse ? "desc" : "asc" ) . ";";
 	$result = doQuery($query);
 	while ($row = mysql_fetch_assoc($result)) {
@@ -192,11 +192,11 @@ function selectArchiveLabel($archive, $curLabel, $bReverse=true) {
 
 // Return HTML to create a select list of archive labels (eg, "Oct 2010", "Nov 2010").
 function selectSiteLabel($url, $curLabel="", $bReverse=true) {
-	global $gPagesTable;
+	global $gPagesTable, $gDateRange;
 
 	$sSelect = "<select class=selectSite onchange='document.location=\"?u=" . urlencode($url) . "&l=\" + escape(this.options[this.selectedIndex].value)'>\n";
 
-	$query = "select label, startedDateTime from $gPagesTable where url = '$url' group by label order by startedDateTime " . 
+	$query = "select label, startedDateTime from $gPagesTable where $gDateRange and url = '$url' group by label order by startedDateTime " . 
 		( $bReverse ? "desc" : "asc" ) . ";";
 	$result = doQuery($query);
 	while ($row = mysql_fetch_assoc($result)) {
@@ -214,9 +214,9 @@ function selectSiteLabel($url, $curLabel="", $bReverse=true) {
 // Return an array of label names (in chrono order?) for an archive.
 // If $bEpoch is true return labels based on 
 function archiveLabels($archive = "All", $bEpoch = false, $format = "n/j/y" ) {
-	global $gPagesTable;
+	global $gPagesTable, $gDateRange;
 
-	$query = "select label, min(startedDateTime) as epoch from $gPagesTable where archive = '$archive' group by label order by epoch asc;";
+	$query = "select label, min(startedDateTime) as epoch from $gPagesTable where $gDateRange and archive = '$archive' group by label order by epoch asc;";
 	$result = doQuery($query);
 	$aLabels = array();
 	while ($row = mysql_fetch_assoc($result)) {
