@@ -21,6 +21,12 @@ $gPagesTable = "pages";
 $gRequestsTable = "requests";
 $gStatusTable = "status";
 
+// Soon we'll add a date range selector.
+// For now I just want to exclude the early runs with only ~1500 URLs vs today's 15K URLS.
+// Later I hope it'll make it easier to identify where we need to incorporate a date
+// range by searching for this variable.
+$gDateRange = "pageid >= 10281";
+
 // Use a dev version of the database tables if "dev/" is in the path.
 $gbDev = ( strpos(getcwd(), "/dev/") || strpos(getcwd(), "/trunk") );
 if ( $gbDev ) {
