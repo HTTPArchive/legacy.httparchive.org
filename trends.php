@@ -125,6 +125,9 @@ $aRunNames = archiveLabels($gArchive, false);
 $aAxisLabels = archiveLabels($gArchive, true, "n/j");
 $labels = urlencode(implode("|", $aAxisLabels));
 
+// show URLs first so people can see if they're doing intersection or not
+echo formatChart('numurls', $hStats, $aRunNames, $labels);
+
 echo format2LineChart('reqTotal', 'bytesTotal', $hStats, $aRunNames, $labels);
 echo format2LineChart('reqHtml', 'bytesHtml', $hStats, $aRunNames, $labels);
 echo format2LineChart('reqJS', 'bytesJS', $hStats, $aRunNames, $labels);
@@ -132,7 +135,7 @@ echo format2LineChart('reqCSS', 'bytesCSS', $hStats, $aRunNames, $labels);
 echo format2LineChart('reqImg', 'bytesImg', $hStats, $aRunNames, $labels);
 echo format2LineChart('reqFlash', 'bytesFlash', $hStats, $aRunNames, $labels);
 
-foreach(array('numurls', 'PageSpeed', 'numDomains') as $field) {
+foreach(array('PageSpeed', 'numDomains') as $field) {
 	echo formatChart($field, $hStats, $aRunNames, $labels);
 }
 
