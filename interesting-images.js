@@ -143,7 +143,7 @@ function requestErrors() {
 	$no = 100-$yes;
 	$aVarNames = array("No Errors $no%", "Errors $yes%");
 	$aVarValues = array($no, $yes);
-	return pieChart("Pages with Request Errors (4xx, 5xx)", "errors", $aVarNames, $aVarValues, "B09542");
+	return pieChart("Pages with Errors (4xx, 5xx)", "errors", $aVarNames, $aVarValues, "B09542");
 }
 
 
