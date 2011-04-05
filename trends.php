@@ -46,7 +46,7 @@ $gTitle = "Trends";
 <h1>Trends</h1>
 
 
-<div style="float: left;">
+<div style="float: left; margin-right: 20px;">
 <form>
 	<label>Choose URLs:</label>
 	<select onchange='document.location="?s="+escape(this.options[this.selectedIndex].value)'>
@@ -55,7 +55,12 @@ $gTitle = "Trends";
 	</select>
 </form>
 </div>
-<div>
+<div style="font-size: 0.9em;">
+<?php
+if ( "intersection" != $gSet ) {
+	echo "use \"intersection\" to trend the exact same URLs over time";
+}
+?>
 </div>
 
 <div id=trends style="margin-top: 80px;">
