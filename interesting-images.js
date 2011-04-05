@@ -101,7 +101,7 @@ function findCorrelation($var1, $tname, $title, $color="80C65A") {
 		}
 	}
 
-	return correlationColumnChart($title, $aVarNames, $aVarValues, $color);
+	return correlationColumnChart($title, $var1, $aVarNames, $aVarValues, $color);
 }
 
 
@@ -114,7 +114,7 @@ function redirects() {
 	$no = 100-$yes;
 	$aVarNames = array("No Redirects $no%", "Redirects $yes%");
 	$aVarValues = array($no, $yes);
-	return pieChart("Pages with Redirects (3xx)", $aVarNames, $aVarValues, "008000");
+	return pieChart("Pages with Redirects (3xx)", "redirects", $aVarNames, $aVarValues, "008000");
 }
 
 
@@ -143,7 +143,7 @@ function requestErrors() {
 	$no = 100-$yes;
 	$aVarNames = array("No Errors $no%", "Errors $yes%");
 	$aVarValues = array($no, $yes);
-	return pieChart("Pages with Request Errors (4xx, 5xx)", $aVarNames, $aVarValues, "B09542");
+	return pieChart("Pages with Request Errors (4xx, 5xx)", "errors", $aVarNames, $aVarValues, "B09542");
 }
 
 
@@ -162,7 +162,7 @@ function responseSizes() {
 	$aVarNames = array("GIF", "JPEG", "PNG", "HTML", "JS", "CSS", "Flash");
 	$aVarValues = array($gif, $jpg, $png, $html, $js, $css, $flash);
 
-	return horizontalBarChart("Avg Individual Resource Response Size", $aVarNames, $aVarValues, "3B356A", 0, max(array($gif, $jpg, $png, $html, $js, $css, $flash))+10, 
+	return horizontalBarChart("Avg Individual Resource Response Size", "responsesizes", $aVarNames, $aVarValues, "3B356A", 0, max(array($gif, $jpg, $png, $html, $js, $css, $flash))+10, 
 							  "average response size (kB)", false, "+kB");
 }
 
@@ -179,7 +179,7 @@ function popularImageFormats() {
 	$aVarNames = array("GIF $gif%", "JPEG $jpg%", "PNG $png%");
 	$aVarValues = array($gif, $jpg, $png);
 
-	return pieChart("Image Formats", $aVarNames, $aVarValues, "E94E19");
+	return pieChart("Image Formats", "imageformats", $aVarNames, $aVarValues, "E94E19");
 }
 
 
@@ -193,7 +193,7 @@ function bytesContentType() {
 						 formatSize($row['css']), formatSize($row['flash']), formatSize($row['json']+$row['other']) );
 	$aVarNames = array("HTML - " . $aVarValues[0] . " kB", "Images - " . $aVarValues[1] . " kB", "Scripts - " . $aVarValues[2] . " kB", 
 					   "Stylesheets - " . $aVarValues[3] . " kB", "Flash - " . $aVarValues[4] . " kB", "Other - " . $aVarValues[5] . " kB");
-	return pieChart("Average Bytes per Page by Content Type", $aVarNames, $aVarValues, "007099");
+	return pieChart("Average Bytes per Page by Content Type", "bytesperpage", $aVarNames, $aVarValues, "007099");
 }
 
 
@@ -206,7 +206,7 @@ function percentFlash() {
 	$no = 100-$yes;
 	$aVarNames = array("No Flash $no%", "Flash $yes%");
 	$aVarValues = array($no, $yes);
-	return pieChart("Pages Using Flash", $aVarNames, $aVarValues, "AA0033");
+	return pieChart("Pages Using Flash", "flash", $aVarNames, $aVarValues, "AA0033");
 }
 
 
@@ -226,7 +226,7 @@ function popularScripts() {
 	}
 	mysql_free_result($result);
 
-	return horizontalBarChart("Most Popular Scripts", $aVarNames, $aVarValues, "1D7D61", 0, 100, "sites using the script", true, "%");
+	return horizontalBarChart("Most Popular Scripts", "popularjs", $aVarNames, $aVarValues, "1D7D61", 0, 100, "sites using the script", true, "%");
 }
 
 
@@ -255,7 +255,7 @@ function jsLibraries() {
 		array_push($aVarValues, round( 100*doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gPagesTable, $gRequestsTable where archive='$gArchive' and label='$gLabel' and $gRequestsTable.pageid=$gPagesTable.pageid and resp_content_type like '%script%' and $cond;") / $gTotal ));
 	}
 
-	return horizontalBarChart("Popular JavaScript Libraries", $aVarNames, $aVarValues, "3399CC", 0, 100, "sites using the JS library", true, "%");
+	return horizontalBarChart("Popular JavaScript Libraries", "popularjslib", $aVarNames, $aVarValues, "3399CC", 0, 100, "sites using the JS library", true, "%");
 }
 
 
@@ -268,7 +268,7 @@ function percentGoogleLibrariesAPI() {
 	$no = 100-$yes;
 	$aVarNames = array("no $no%", "yes $yes%");
 	$aVarValues = array($no, $yes);
-	return pieChart("Pages Using Google Libraries API", $aVarNames, $aVarValues, "7777CC");
+	return pieChart("Pages Using Google Libraries API", "googlelibs", $aVarNames, $aVarValues, "7777CC");
 }
 
 
@@ -291,7 +291,7 @@ function mostJS() {
 	array_push($aVarNames, "average");
 	array_push($aVarValues, round(doSimpleQuery("select avg(bytesJS) from $gPagesTable where archive='$gArchive' and label='$gLabel';")/1024));
 
-	return horizontalBarChart("Pages with the Most JavaScript", $aVarNames, $aVarValues, "B4B418", 0, $maxValue+100, "size of all scripts (kB)", false, "+kB");
+	return horizontalBarChart("Pages with the Most JavaScript", "mostjs", $aVarNames, $aVarValues, "B4B418", 0, $maxValue+100, "size of all scripts (kB)", false, "+kB");
 }
 
 
@@ -314,7 +314,7 @@ function mostCSS() {
 	array_push($aVarNames, "average");
 	array_push($aVarValues, round(doSimpleQuery("select avg(bytesCSS) from $gPagesTable where archive='$gArchive' and label='$gLabel';")/1024));
 
-	return horizontalBarChart("Pages with the Most CSS", $aVarNames, $aVarValues, "CF557B", 0, $maxValue+100, "size of all stylesheets (kB)", false, "+kB");
+	return horizontalBarChart("Pages with the Most CSS", "mostcss", $aVarNames, $aVarValues, "CF557B", 0, $maxValue+100, "size of all stylesheets (kB)", false, "+kB");
 }
 
 
@@ -337,12 +337,12 @@ function mostFlash() {
 	array_push($aVarNames, "average");
 	array_push($aVarValues, doSimpleQuery("select avg(reqFlash) from $gPagesTable where archive='$gArchive' and label='$gLabel';"));
 
-	return horizontalBarChart("Pages with the Most Flash Files", $aVarNames, $aVarValues, "AA0033", 0, $maxValue+10);
+	return horizontalBarChart("Pages with the Most Flash Files", "mostflash", $aVarNames, $aVarValues, "AA0033", 0, $maxValue+10);
 }
 
 
-function pieChart($title, $aNames, $aValues, $color="007099") {
-	return "<img class=chart src='http://chart.apis.google.com/chart?chs=400x225&cht=p&chco=$color&chd=t:" .
+function pieChart($title, $id, $aNames, $aValues, $color="007099") {
+	return "<img id=$id class=chart src='http://chart.apis.google.com/chart?chs=400x225&cht=p&chco=$color&chd=t:" .
 		implode(",", $aValues) .
 		chdsMinmax($aValues) .
 		"&chl=" .
@@ -367,8 +367,8 @@ function chdsMinmax($aValues) {
 }
 
 
-function percentageColumnChart($title, $aNames, $aValues, $color="80C65A") {
-	return "<img class=chart src='http://chart.apis.google.com/chart?chxl=0:|20%25|40%25|60%25|80%25|100%25|1:|" .
+function percentageColumnChart($title, $id, $aNames, $aValues, $color="80C65A") {
+	return "<img id=$id class=chart src='http://chart.apis.google.com/chart?chxl=0:|20%25|40%25|60%25|80%25|100%25|1:|" .
 		urlencode(implode("|", $aNames)) .
 		"&chxp=0,20,40,60,80,100&chxs=0,$color,11.5,0,lt,$color|1,676767,11.5,0,lt,67676700&chxtc=0,4|1,4&chxt=y,x&chbh=60,30,20&chs=300x225&cht=bvg&chco=$color&chd=t:" .
 		implode(",", $aValues) .
@@ -376,8 +376,8 @@ function percentageColumnChart($title, $aNames, $aValues, $color="80C65A") {
 }
 
 
-function correlationColumnChart($title, $aNames, $aValues, $color="80C65A") {
-	return "<img class=chart src='http://chart.apis.google.com/chart?chxl=1:|" .
+function correlationColumnChart($title, $id, $aNames, $aValues, $color="80C65A") {
+	return "<img id=$id class=chart src='http://chart.apis.google.com/chart?chxl=1:|" .
 		str_replace("Requests", "Reqs", str_replace("Transfer", "Xfer", urlencode(implode("|", $aNames)))) .
 		"&chxr=0,0,1&chxs=1,676767,11.5,0,lt,67676700&chxtc=1,5&chxt=y,x&chbh=60,30,30&chs=500x225&cht=bvg&chco=$color&chds=0,1&chd=t:" .
 		implode(",", $aValues) .
@@ -385,8 +385,8 @@ function correlationColumnChart($title, $aNames, $aValues, $color="80C65A") {
 }
 
 
-function horizontalBarChart($title, $aNames, $aValues, $color="80C65A", $min, $max, $xtitle = "", $bPercentage = false, $markSuffix = "") {
-	return "<img class=chart src='http://chart.apis.google.com/chart?" .
+function horizontalBarChart($title, $id, $aNames, $aValues, $color="80C65A", $min, $max, $xtitle = "", $bPercentage = false, $markSuffix = "") {
+	return "<img id=$id class=chart src='http://chart.apis.google.com/chart?" .
 		( $bPercentage ? "chxp=0,20,40,60,80,100&chxl=0:|20%|40%|60%|80%|100%|1:|" : "chxl=1:|" ) .
 		urlencode(implode("|", array_reverse($aNames))) .
 		( $xtitle ? "&chdlp=b&chdl=$xtitle" : "" ) .
@@ -409,26 +409,31 @@ if ( ! $snippets ) {
 	// Saves a little time since we use the # of pages frequently.
 	$gTotal = doSimpleQuery("select count(*) from $gPagesTable where archive='$gArchive' and label='$gLabel';");
 
+	// The list of "interesting stats" charts.
+	// We put this here so we can set the element id.
 	$aSnippetFunctions = array(
-							   "bytesContentType",
-							   "responseSizes",
-							   "jsLibraries",
-							   "popularScripts",
-							   "percentGoogleLibrariesAPI",
-							   "mostJS",
+								"bytesContentType",
+								"responseSizes",
+								"jsLibraries",
+								"popularScripts",
+								"percentGoogleLibrariesAPI",
+								"mostJS",
 
-							   "mostCSS",
+								"mostCSS",
 
-							   "percentFlash",
-							   "mostFlash",
+								"percentFlash",
+								"mostFlash",
 
-							   "popularImageFormats",
+								"popularImageFormats",
 
-							   "requestErrors",
-							   "redirects",
-							   "onloadCorrelation",
-							   "renderCorrelation"
-							   );
+								"requestErrors",
+								"redirects",
+								"onloadCorrelation",
+								"renderCorrelation"
+								);
+
+
+
 	$snippets = "";
 	foreach($aSnippetFunctions as $func) {
 		$snippets .= 'gaSnippets.push("' . call_user_func($func) . '");' . "\n";
