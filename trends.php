@@ -62,10 +62,6 @@ if ( "intersection" != $gSet ) {
 ?>
 </div>
 
-<div id=trends style="margin-top: 80px;">
-<!-- trends.js will insert trends here -->
-</div>
-	
 <?php
 // The database fields we want to plot.
 $aFields = array(
