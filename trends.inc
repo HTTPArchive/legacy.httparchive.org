@@ -178,14 +178,14 @@ function findScale($aValues, &$min, &$max, $bZero = true) {
 	// Power of 10 less than the min - eg 4719 ==> 4000
 	$min = 0;
 	if ( ! $bZero && 20 < $minValue ) {
-		$base = pow(10, strlen("$minValue")-1);
+		$base = pow(10, strlen(floor("$minValue"))-1);
 		$min = $base * intval(floor($minValue/$base)-1);
 	}
 
 	// Multiple of power of 10 less than max value - eg 4719 ==> 5000
 	$max = 10;
 	if ( $maxValue > 10 ) {
-		$base = pow(10, strlen("$maxValue")-1);
+		$base = pow(10, strlen(ceil("$maxValue"))-1);
 		$max = $base * intval(ceil($maxValue/$base));
 	}
 }
