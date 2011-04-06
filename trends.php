@@ -113,7 +113,7 @@ if ( "intersection" === $gSet ) {
 $query = "select label, count(*) as numurls";
 foreach($aFields as $field) {
 	$divisor = ( false === strpos($field, "bytes") ? 1 : 1024 );
-	$query .= ", ROUND(AVG($field)/$divisor) as $field";
+	$query .= ( ("reqFlash" === $field || "reqHtml" === $field || "reqCSS" === $field) ? ", TRUNCATE(AVG($field), 1) as $field" : ", ROUND(AVG($field)/$divisor) as $field" );
 }
 $query .= " from $gPagesTable where archive = '$gArchive'$setWhere and $gDateRange group by label;";
 $result = doQuery($query);
