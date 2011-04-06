@@ -1,5 +1,5 @@
 push :
-	cp -p *.php settings.inc *.js *.css favicon.ico ~/httparchive.org/.
+	cp -p *.php settings.inc trends.inc *.js *.css favicon.ico ~/httparchive.org/.
 	/bin/rm ~/httparchive.org/admin.php
 	mkdir -p ~/httparchive.org/images
 	cp -p images/*.* ~/httparchive.org/images/.
@@ -14,7 +14,7 @@ push :
 
 pushbeta :
 	mkdir -p ~/beta.httparchive.org
-	cp -p *.php settings.inc *.js *.css favicon.ico .htaccess ~/beta.httparchive.org/.
+	cp -p *.php settings.inc trends.inc *.js *.css favicon.ico .htaccess ~/beta.httparchive.org/.
 	/bin/rm ~/beta.httparchive.org/admin.php
 	mkdir -p ~/beta.httparchive.org/images
 	cp -p images/*.* ~/beta.httparchive.org/images/.
