@@ -19,7 +19,6 @@ require_once("ui.php");
 require_once("utils.php");
 
 $gArchive = "All";
-$gLabel = getParam('l', latestLabel($gArchive));
 $gSet = getParam('s', 'All');
 $gTitle = "Trends";
 ?>
