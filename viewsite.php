@@ -73,6 +73,7 @@ $harfileWptUrl = "{$server}export.php?test=$wptid&run=$wptrun&cached=0";
 		<li><a href="#waterfall">Waterfall</a></li>
 		<li><a href="#pagespeed">Page Speed</a></li>
 		<li><a href="#requests">Requests</a></li>
+		<li><a href="#trends">Trends</a></li>
 		<li><a href="#downloads">Downloads</a></li>
 	</ul>
 	
@@ -326,6 +327,15 @@ tsjs.onreadystatechange = function() { if ( tsjs.readyState == 'complete' || tsj
 document.getElementsByTagName('head')[0].appendChild(tsjs);
 </script>
 
+
+
+<h2 id=trends>Trends</h2>
+
+<?php
+$gSet = "url";
+$gUrl = $url;
+require_once('trends.inc');
+?>
 
 
 <h2 id=downloads>Downloads</h2>
