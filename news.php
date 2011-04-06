@@ -40,8 +40,15 @@ DD { margin-left: 40px; }
 <h1><?php echo $gTitle ?></h1>
 
 <dl id=news>
-  <dt> March 25, 2011: har_to_pagespeed updated
-  <dd> Page Speed updated
+  <dt> April 5, 2011: hide small runs
+  <dd> <p>The first three runs in the HTTP Archive (Oct 5, Oct 22, and Nov 6) only had ~1000 URLs.
+Comparing those small runs to the later larger runs (that have ~17,000 URLs) can be misleading.
+(See this <a href="http://www.stevesouders.com/blog/2011/04/05/http-archive-url-list-flash-trends/">blog post</a>.)
+This change removes those first three runs from the UI to avoid these confusing comparisons.
+The data is still <a href="downloads.php">downloadable</a>.</p>
+
+  <dt> March 25, 2011: Page Speed updated
+  <dd>
 <p>
 We used to run <a href="http://code.google.com/p/page-speed/">har_to_pagespeed</a> to generate Page Speed scores.
 With this change the Page Speed scores are generated from WebPagetest. 
