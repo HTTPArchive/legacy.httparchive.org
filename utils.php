@@ -305,12 +305,14 @@ $ghFieldColors = array(
 					   "reqHtml" => "3399CC", //3B356A",
 					   "reqJS" => "E63C0B", //E94E19",
 					   "reqCSS" => "840084", //007099",
+					   "reqFlash" => "4B557A",
 					   "reqImg" => "1515FF", //AA0033",
 					   "bytesTotal" => "006600", //1D7D61",
 					   "bytesHtml" => "014F78",
 					   "bytesJS" => "982807", //7777CC",
 					   "bytesCSS" => "400040", //B4B418",
 					   "bytesImg" => "00009D", //CF557B",
+					   "bytesFlash" => "222222",
 					   "numDomains" => "AA0033"
 					   );
 
