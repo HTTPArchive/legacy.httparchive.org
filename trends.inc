@@ -122,9 +122,9 @@ function format2LineChart($field, $field2, $hStats, $aRunNames, $labels) {
 
 	$fieldVals = fieldValues($field, $hStats, $aRunNames, $min, $max, false);
 	$max = intval(intval($max)*1.5);
-	$step = ( $max > 200 ? 100 : ( $max > 100 ? 20 : 10 ) );
+	$step = ( $max > 1500 ? 500 : ( $max > 200 ? 100 : ( $max > 100 ? 20 : 10 ) ) );
 	$fieldVals2 = fieldValues($field2, $hStats, $aRunNames, $min2, $max2, false);
-	$step2 = ( $max2 > 200 ? 100 : ( $max2 > 100 ? 20 : 10 ) );
+	$step2 = ( $max2 > 1500 ? 500 : ( $max2 > 200 ? 100 : ( $max2 > 100 ? 20 : 10 ) ) );
 	$url = "http://chart.apis.google.com/chart" .
 		"?chd=t:-1|$fieldVals|-1|$fieldVals2" .
 		"&chxl=0:|$labels" .
@@ -163,7 +163,7 @@ function formatChart($field, $hStats, $aRunNames, $labels) {
 function fieldValues($field, $hStats, $aRunNames, &$min, &$max, $bZero = true) {
 	$aValues = array();
 	foreach($aRunNames as $run) {
-		$aValues[] = $hStats[$run][$field];
+		$aValues[] = ( array_key_exists($run, $hStats) ? $hStats[$run][$field] : "_" );
 	}
 	findScale($aValues, $min, $max, $bZero);
 
@@ -175,18 +175,30 @@ function findScale($aValues, &$min, &$max, $bZero = true) {
 	$minValue = min($aValues);
 	$maxValue = max($aValues);
 
-	// Power of 10 less than the min - eg 4719 ==> 4000
+	if ( "_" === $minValue || "_" === $maxValue ) {
+		$minValue = $maxValue = null;
+		for ( $i = 0; $i < count($aValues); $i++ ) {
+			$val = $aValues[$i];
+			if ( "_" === $val ) {
+				continue;
+			}
+			$minValue = ( isset($minValue) && $minValue < $val ? $minValue : $val );
+			$maxValue = ( isset($maxValue) && $maxValue > $val ? $maxValue : $val );
+		}
+	}
+
+	// Power of 10 less than the min - eg 4719 ==> 3000
 	$min = 0;
 	if ( ! $bZero && 20 < $minValue ) {
-		$base = pow(10, strlen(floor("$minValue"))-1);
-		$min = $base * intval(floor($minValue/$base)-1);
+		$base = pow(10, floor(log10($minValue)));
+		$min = $base * ( floor($minValue/$base) > 1 ? floor($minValue/$base) - 1 : 1 );
 	}
 
 	// Multiple of power of 10 less than max value - eg 4719 ==> 5000
 	$max = 10;
 	if ( $maxValue > 10 ) {
-		$base = pow(10, strlen(ceil("$maxValue"))-1);
-		$max = $base * intval(ceil($maxValue/$base));
+		$base = pow(10, floor(log10($maxValue)));
+		$max = $base * ceil($maxValue/$base);
 	}
 }
 ?>
