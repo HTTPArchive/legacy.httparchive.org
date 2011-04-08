@@ -22,6 +22,10 @@ DESCRIPTION:
 Return a JavaScript array of image URLs for charts.
 */
 
+// We compute this below.
+$gTotalPages = 0;
+
+
 // Add the label to the cached filename.
 $gArchive = "All";
 if ( $argc ) {
@@ -52,8 +56,7 @@ function renderCorrelation() {
 
 
 function findCorrelation($var1, $tname, $title, $color="80C65A") {
-	global $gPagesTable, $gRequestsTable, $ghColumnTitles;
-	global $gArchive, $gLabel;
+	global $gPagesTable, $ghColumnTitles, $gArchive, $gLabel;
 
 	// TODO - make this more flexible
 	$aVars = array("PageSpeed", "reqTotal", "reqHtml", "reqJS", "reqCSS", "reqImg", "reqFlash", "reqJson", "reqOther", "bytesTotal", "bytesHtml", "bytesJS", "bytesCSS", "bytesImg", "bytesFlash", "bytesJson", "bytesOther", "numDomains");
@@ -106,11 +109,10 @@ function findCorrelation($var1, $tname, $title, $color="80C65A") {
 
 
 function redirects() {
-	global $gPagesTable, $gRequestsTable;
-	global $gArchive, $gLabel, $gTotal;
+	global $gPagesTable, $gRequestsTable, $gArchive, $gLabel, $gTotalPages;
 
 	$num = doSimpleQuery("select count(distinct $gPagesTable.pageid) as num from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and status >= 300 and status < 400 and status != 304;");
-	$yes = round(100*$num/$gTotal);
+	$yes = round(100*$num/$gTotalPages);
 	$no = 100-$yes;
 	$aVarNames = array("No Redirects $no%", "Redirects $yes%");
 	$aVarValues = array($no, $yes);
@@ -118,28 +120,11 @@ function redirects() {
 }
 
 
-function percentJson() {
-	global $gPagesTable, $gRequestsTable;
-	global $gArchive, $gLabel;
-
-	$sHtml = "<div class=itagline>pages using JSON:</div><table border=0 cellpadding=0 cellspacing=0>";
-	foreach (archiveNames() as $archive) {
-		$label = latestLabel($archive);
-		$archivecond = "archive='$archive' and label='$label'";
-		$num = doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and ($archivecond) and resp_content_type like '%json%';");
-		$total = doSimpleQuery("select count(*) from $gPagesTable where $archivecond;");
-		$sHtml .= "<tr><td align=right>$archive:</td> <td align=right>" . round(100*$num/$total) . "%</td></tr>";
-	}
-	return $sHtml . "</table>";
-}
-
-
 function requestErrors() {
-	global $gPagesTable, $gRequestsTable;
-	global $gArchive, $gLabel, $gTotal;
+	global $gPagesTable, $gRequestsTable, $gArchive, $gLabel, $gTotalPages;
 
 	$num = doSimpleQuery("select count(distinct $gPagesTable.pageid) as num from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and status >= 400 and status < 600;");
-	$yes = round(100*$num/$gTotal);
+	$yes = round(100*$num/$gTotalPages);
 	$no = 100-$yes;
 	$aVarNames = array("No Errors $no%", "Errors $yes%");
 	$aVarValues = array($no, $yes);
@@ -148,8 +133,7 @@ function requestErrors() {
 
 
 function responseSizes() {
-	global $gPagesTable, $gRequestsTable;
-	global $gArchive, $gLabel;
+	global $gPagesTable, $gRequestsTable, $gArchive, $gLabel;
 
 	$gif = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%image/gif%';") );
 	$jpg = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and (resp_content_type like '%image/jpg%' or resp_content_type like '%image/jpeg%');") );
@@ -168,8 +152,7 @@ function responseSizes() {
 
 
 function popularImageFormats() {
-	global $gPagesTable, $gRequestsTable;
-	global $gArchive, $gLabel;
+	global $gPagesTable, $gRequestsTable, $gArchive, $gLabel;
 
 	$total = doSimpleQuery("select count(*) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%image%';");
 	$gif = round( 100*doSimpleQuery("select count(*) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%image/gif%';") / $total);
@@ -184,8 +167,7 @@ function popularImageFormats() {
 
 
 function bytesContentType() {
-	global $gPagesTable, $gRequestsTable;
-	global $gArchive, $gLabel;
+	global $gPagesTable, $gArchive, $gLabel;
 
 	$row = doRowQuery("select avg(bytesTotal) as total, avg(bytesHtml) as html, avg(bytesJS) as js, avg(bytesCSS) as css, avg(bytesImg) as img, avg(bytesFlash) as flash, avg(bytesJson) as json, avg(bytesOther) as other from $gPagesTable where archive='$gArchive' and label='$gLabel';");
 	$total = $row['total'];
@@ -198,11 +180,10 @@ function bytesContentType() {
 
 
 function percentFlash() {
-	global $gPagesTable, $gRequestsTable;
-	global $gArchive, $gLabel, $gTotal;
+	global $gPagesTable, $gArchive, $gLabel, $gTotalPages;
 
 	$num = doSimpleQuery("select count(*) from $gPagesTable where archive='$gArchive' and label='$gLabel' and reqFlash > 0;");
-	$yes = round(100*$num/$gTotal);
+	$yes = round(100*$num/$gTotalPages);
 	$no = 100-$yes;
 	$aVarNames = array("No Flash $no%", "Flash $yes%");
 	$aVarValues = array($no, $yes);
@@ -211,8 +192,7 @@ function percentFlash() {
 
 
 function popularScripts() {
-	global $gPagesTable, $gRequestsTable;
-	global $gArchive, $gLabel, $gTotal;
+	global $gPagesTable, $gRequestsTable, $gArchive, $gLabel, $gTotalPages;
 
 	$result = doQuery("select $gRequestsTable.url, count(distinct $gPagesTable.pageid) as num from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%script%' group by $gRequestsTable.url order by num desc limit 5;");
 
@@ -222,7 +202,7 @@ function popularScripts() {
 		$url = $row['url'];
 		$num = $row['num'];
 		array_push($aVarNames, $url);
-		array_push($aVarValues, round(100*$num/$gTotal));
+		array_push($aVarValues, round(100*$num/$gTotalPages));
 	}
 	mysql_free_result($result);
 
@@ -233,8 +213,7 @@ function popularScripts() {
 
 
 function jsLibraries() {
-	global $gPagesTable, $gRequestsTable;
-	global $gArchive, $gLabel, $gTotal;
+	global $gPagesTable, $gRequestsTable, $gArchive, $gLabel, $gTotalPages;
 
 	$hCond = array();
 	$hCond["jQuery"] = "$gRequestsTable.url like '%jquery%'";
@@ -252,7 +231,7 @@ function jsLibraries() {
 	foreach (array_keys($hCond) as $key) {
 		$cond = $hCond[$key];
 		array_push($aVarNames, $key);
-		array_push($aVarValues, round( 100*doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gPagesTable, $gRequestsTable where archive='$gArchive' and label='$gLabel' and $gRequestsTable.pageid=$gPagesTable.pageid and resp_content_type like '%script%' and $cond;") / $gTotal ));
+		array_push($aVarValues, round( 100*doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gPagesTable, $gRequestsTable where archive='$gArchive' and label='$gLabel' and $gRequestsTable.pageid=$gPagesTable.pageid and resp_content_type like '%script%' and $cond;") / $gTotalPages ));
 	}
 
 	return horizontalBarChart("Popular JavaScript Libraries", "popularjslib", $aVarNames, $aVarValues, "3399CC", 0, 100, "sites using the JS library", true, "%");
@@ -260,11 +239,10 @@ function jsLibraries() {
 
 
 function percentGoogleLibrariesAPI() {
-	global $gPagesTable, $gRequestsTable;
-	global $gArchive, $gLabel, $gTotal;
+	global $gPagesTable, $gRequestsTable, $gArchive, $gLabel, $gTotalPages;
 
 	$num = doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gPagesTable, $gRequestsTable where archive='$gArchive' and label='$gLabel' and $gRequestsTable.pageid=$gPagesTable.pageid and $gRequestsTable.url like '%googleapis.com%';");
-	$yes = round(100*$num/$gTotal);
+	$yes = round(100*$num/$gTotalPages);
 	$no = 100-$yes;
 	$aVarNames = array("no $no%", "yes $yes%");
 	$aVarValues = array($no, $yes);
@@ -273,8 +251,7 @@ function percentGoogleLibrariesAPI() {
 
 
 function mostJS() {
-	global $gPagesTable, $gRequestsTable;
-	global $gArchive, $gLabel;
+	global $gPagesTable, $gArchive, $gLabel;
 
 	$result = doQuery("select url, bytesJS from $gPagesTable where archive='$gArchive' and label='$gLabel' order by bytesJS desc limit 5;");
 	$aVarNames = array();
@@ -296,8 +273,7 @@ function mostJS() {
 
 
 function mostCSS() {
-	global $gPagesTable, $gRequestsTable;
-	global $gArchive, $gLabel;
+	global $gPagesTable, $gArchive, $gLabel;
 
 	$result = doQuery("select url, bytesCSS from $gPagesTable where archive='$gArchive' and label='$gLabel' order by bytesCSS desc limit 5;");
 	$aVarNames = array();
@@ -319,8 +295,7 @@ function mostCSS() {
 
 
 function mostFlash() {
-	global $gPagesTable, $gRequestsTable;
-	global $gArchive, $gLabel;
+	global $gPagesTable, $gArchive, $gLabel;
 
 	$result = doQuery("select url, reqFlash from $gPagesTable where archive='$gArchive' and label='$gLabel' order by reqFlash desc limit 5;");
 	$aVarNames = array();
@@ -407,7 +382,7 @@ if ( file_exists($gCacheFile) ) {
 
 if ( ! $snippets ) {
 	// Saves a little time since we use the # of pages frequently.
-	$gTotal = doSimpleQuery("select count(*) from $gPagesTable where archive='$gArchive' and label='$gLabel';");
+	$gTotalPages = doSimpleQuery("select count(*) from $gPagesTable where archive='$gArchive' and label='$gLabel';");
 
 	// The list of "interesting stats" charts.
 	// We put this here so we can set the element id.
