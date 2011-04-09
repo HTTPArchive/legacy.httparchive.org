@@ -198,14 +198,14 @@ function maxage() {
 	mysql_free_result($result);
 
 	$aNames = array("None", "t <= 0", "0 < t <= 1", "1 < t <= 30", "30 < t <= 365", "365 < t");
-	$aValues = array(100 * ($gTotalRequests - ($zeroOrNeg + $day + $month + $year + $yearplus))/$gTotalRequests, 
-					 100 * $zeroOrNeg / $gTotalRequests, 
-					 100 * $day / $gTotalRequests, 
-					 100 * $month / $gTotalRequests, 
-					 100 * $year / $gTotalRequests, 
-					 100 * $yearplus / $gTotalRequests);
+	$aValues = array(round(100 * ($gTotalRequests - ($zeroOrNeg + $day + $month + $year + $yearplus))/$gTotalRequests), 
+					 round(100 * $zeroOrNeg / $gTotalRequests), 
+					 round(100 * $day / $gTotalRequests), 
+					 round(100 * $month / $gTotalRequests), 
+					 round(100 * $year / $gTotalRequests), 
+					 round(100 * $yearplus / $gTotalRequests) );
 
-	return percentageColumnChart("Cache-Control: max-age (days)", "max-age", $aNames, $aValues, $color="80C65A");
+	return percentageColumnChart("Cache-Control: max-age (days)", "max-age", $aNames, $aValues, "184852");
 }
 
 
@@ -389,7 +389,7 @@ function chdsMinmax($aValues) {
 function percentageColumnChart($title, $id, $aNames, $aValues, $color="80C65A") {
 	return "<img id=$id class=chart src='http://chart.apis.google.com/chart?chxl=0:|20%25|40%25|60%25|80%25|100%25|1:|" .
 		urlencode(implode("|", $aNames)) .
-		"&chxp=0,20,40,60,80,100&chxs=0,$color,11.5,0,lt,$color|1,676767,11.5,0,lt,67676700&chxtc=0,4|1,4&chxt=y,x&chbh=60,30,20&chs=500x225&cht=bvg&chco=$color&chd=t:" .
+		"&chm=N**%,676767,0,,12,,::4&chxp=0,20,40,60,80,100&chxs=0,$color,11.5,0,lt,$color|1,676767,11.5,0,lt,67676700&chxtc=0,4|1,4&chxt=y,x&chbh=60,30,20&chs=500x225&cht=bvg&chco=$color&chd=t:" .
 		implode(",", $aValues) .
 		"&chtt=" . urlencode($title) . ">";
 }
