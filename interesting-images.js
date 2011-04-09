@@ -22,9 +22,8 @@ DESCRIPTION:
 Return a JavaScript array of image URLs for charts.
 */
 
-// We compute this below.
-$gTotalPages = 0;
-
+// We compute these below.
+$gTotalPages = $gTotalRequests = $gMinPageid = $gMaxPageid = 0;
 
 // Add the label to the cached filename.
 $gArchive = "All";
@@ -109,9 +108,9 @@ function findCorrelation($var1, $tname, $title, $color="80C65A") {
 
 
 function redirects() {
-	global $gPagesTable, $gRequestsTable, $gArchive, $gLabel, $gTotalPages;
+	global $gMinPageid, $gMaxPageid, $gRequestsTable, $gArchive, $gLabel, $gTotalPages;
 
-	$num = doSimpleQuery("select count(distinct $gPagesTable.pageid) as num from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and status >= 300 and status < 400 and status != 304;");
+	$num = doSimpleQuery("select count(distinct pageid) as num from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and status >= 300 and status < 400 and status != 304;");
 	$yes = round(100*$num/$gTotalPages);
 	$no = 100-$yes;
 	$aVarNames = array("No Redirects $no%", "Redirects $yes%");
@@ -121,9 +120,9 @@ function redirects() {
 
 
 function requestErrors() {
-	global $gPagesTable, $gRequestsTable, $gArchive, $gLabel, $gTotalPages;
+	global $gMinPageid, $gMaxPageid, $gRequestsTable, $gArchive, $gLabel, $gTotalPages;
 
-	$num = doSimpleQuery("select count(distinct $gPagesTable.pageid) as num from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and status >= 400 and status < 600;");
+	$num = doSimpleQuery("select count(distinct pageid) as num from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and status >= 400 and status < 600;");
 	$yes = round(100*$num/$gTotalPages);
 	$no = 100-$yes;
 	$aVarNames = array("No Errors $no%", "Errors $yes%");
@@ -133,15 +132,15 @@ function requestErrors() {
 
 
 function responseSizes() {
-	global $gPagesTable, $gRequestsTable, $gArchive, $gLabel;
+	global $gMinPageid, $gMaxPageid, $gRequestsTable, $gArchive, $gLabel;
 
-	$gif = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%image/gif%';") );
-	$jpg = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and (resp_content_type like '%image/jpg%' or resp_content_type like '%image/jpeg%');") );
-	$png = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%image/png%';") );
-	$js = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%script%';") );
-	$css = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%css%';") );
-	$flash = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%flash%';") );
-	$html = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%html%';") );
+	$gif = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%image/gif%';") );
+	$jpg = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and (resp_content_type like '%image/jpg%' or resp_content_type like '%image/jpeg%');") );
+	$png = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%image/png%';") );
+	$js = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%script%';") );
+	$css = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%css%';") );
+	$flash = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%flash%';") );
+	$html = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%html%';") );
 
 	$aVarNames = array("GIF", "JPEG", "PNG", "HTML", "JS", "CSS", "Flash");
 	$aVarValues = array($gif, $jpg, $png, $html, $js, $css, $flash);
@@ -152,17 +151,95 @@ function responseSizes() {
 
 
 function popularImageFormats() {
-	global $gPagesTable, $gRequestsTable, $gArchive, $gLabel;
+	global $gMinPageid, $gMaxPageid, $gRequestsTable, $gArchive, $gLabel;
 
-	$total = doSimpleQuery("select count(*) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%image%';");
-	$gif = round( 100*doSimpleQuery("select count(*) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%image/gif%';") / $total);
-	$jpg = round( 100*doSimpleQuery("select count(*) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and (resp_content_type like '%image/jpg%' or resp_content_type like '%image/jpeg%');") / $total);
-	$png = round( 100*doSimpleQuery("select count(*) from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%image/png%';") / $total);
+	$total = doSimpleQuery("select count(*) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%image%';");
+	$gif = round( 100*doSimpleQuery("select count(*) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%image/gif%';") / $total);
+	$jpg = round( 100*doSimpleQuery("select count(*) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and (resp_content_type like '%image/jpg%' or resp_content_type like '%image/jpeg%');") / $total);
+	$png = round( 100*doSimpleQuery("select count(*) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%image/png%';") / $total);
 
 	$aVarNames = array("GIF $gif%", "JPEG $jpg%", "PNG $png%");
 	$aVarValues = array($gif, $jpg, $png);
 
 	return pieChart("Image Formats", "imageformats", $aVarNames, $aVarValues, "E94E19");
+}
+
+
+function expires1() {
+	global $gMinPageid, $gMaxPageid, $gRequestsTable, $gArchive, $gLabel, $gTotalRequests;
+
+	$zero = doSimpleQuery("select count(*) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and (resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%');");
+
+	$query = "select ceil( convert( substring( resp_cache_control, (length(resp_cache_control) + 2 - locate('=ega-xam', reverse(resp_cache_control))) ), SIGNED ) / 86400) as maxagedays, count(*) as num from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') group by maxagedays order by maxagedays asc;";
+	echo "CVSNO: $query\n";
+	$result = doQuery($query);
+	$day = $month = $year = $yearplus = 0;
+	while ($row = mysql_fetch_assoc($result)) {
+		$maxagedays = $row['maxagedays'];
+		$num = $row['num'];
+//echo "CVSNO: $maxagedays, $num\n";
+		if ( 1 == $maxagedays ) {
+			$day = $num;
+		}
+		else if ( 1 < $maxagedays && $maxagedays <= 30 ) {
+			$month += $num;
+		}
+		else if ( 30 < $maxagedays && $maxagedays <= 365 ) {
+			$year += $num;
+		}
+		else if ( 365 < $maxagedays ) {
+			$yearplus += $num;
+		}
+	}
+	mysql_free_result($result);
+	return;
+
+	$query = "select ceil( convert( substring( resp_cache_control, (length(resp_cache_control) + 2 - locate('=ega-xam', reverse(resp_cache_control))) ), SIGNED ) / 86400) as maxagedays, count(*) as num from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') group by maxagedays order by maxagedays asc limit 365;";
+	echo "CVSNO: $query\n";
+	$result = doQuery($query);
+	$day = $month = $year = $yearplus = 0;
+	while ($row = mysql_fetch_assoc($result)) {
+		$maxagedays = $row['maxagedays'];
+		$num = $row['num'];
+echo "CVSNO: $maxagedays, $num\n";
+		if ( 1 == $maxagedays ) {
+			$day = $num;
+		}
+		else if ( 1 < $maxagedays && $maxagedays <= 30 ) {
+			$month += $num;
+		}
+		else if ( 30 < $maxagedays && $maxagedays <= 365 ) {
+			$year += $num;
+		}
+	}
+	$yearplus = $gTotalRequests - ($null + $zero + $day + $month + $year);
+	mysql_free_result($result);
+	echo "CVSNO: $null + $zero + $day + $month + $year + $yearplus = $gTotalRequests\n";
+	return;
+
+	/*
+select count(*), convert(substring( concat(resp_cache_control,','), locate('max-age=', resp_cache_control)+8), SIGNED) as maxage from requestsdev where pageid >= 161244 and pageid <= 177861 and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') group by maxage having maxage >= 864000;
+
+
+echo("select count(*), convert(substring( concat(resp_cache_control,','), locate('max-age=', resp_cache_control)+8), SIGNED) as maxage from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') having maxage >= 86400;\n");
+
+echo("select count(*), convert(substring( concat(resp_cache_control,','), locate('max-age=', resp_cache_control)+8), SIGNED) as maxage from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') having maxage >= 604800;\n");
+
+echo("select count(*), convert(substring( concat(resp_cache_control,','), locate('max-age=', resp_cache_control)+8), SIGNED) as maxage from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') having maxage >= 2592000;\n");
+
+echo("select count(*), convert(substring( concat(resp_cache_control,','), locate('max-age=', resp_cache_control)+8), SIGNED) as maxage from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') having maxage >= 31536000;\n");
+
+
+	$dayplus = doSimpleQuery("select count(*), convert(substring( concat(resp_cache_control,','), locate('max-age=', resp_cache_control)+8), SIGNED) as maxage from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') having maxage >= 86400;");
+
+	$weekplus = doSimpleQuery("select count(*), convert(substring( concat(resp_cache_control,','), locate('max-age=', resp_cache_control)+8), SIGNED) as maxage from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') having maxage >= 604800;");
+
+	$monthplus = doSimpleQuery("select count(*), convert(substring( concat(resp_cache_control,','), locate('max-age=', resp_cache_control)+8), SIGNED) as maxage from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') having maxage >= 2592000;");
+
+	$yearplus = doSimpleQuery("select count(*), convert(substring( concat(resp_cache_control,','), locate('max-age=', resp_cache_control)+8), SIGNED) as maxage from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') having maxage >= 31536000;");
+
+	echo "CVSNO: $null, $zero, $nonzero, $dayplus, $weekplus, $monthplus, $yearplus";
+	*/
 }
 
 
@@ -194,7 +271,7 @@ function percentFlash() {
 function popularScripts() {
 	global $gPagesTable, $gRequestsTable, $gArchive, $gLabel, $gTotalPages;
 
-	$result = doQuery("select $gRequestsTable.url, count(distinct $gPagesTable.pageid) as num from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%script%' group by $gRequestsTable.url order by num desc limit 5;");
+	$result = doQuery("select $gRequestsTable.url, count(distinct $gPagesTable.pageid) as num from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%script%' group by $gRequestsTable.url order by num desc limit 5;");
 
 	$aVarNames = array();
 	$aVarValues = array();
@@ -376,17 +453,23 @@ function horizontalBarChart($title, $id, $aNames, $aValues, $color="80C65A", $mi
 $gCacheFile = "./cache/interesting-images.js.$gRev.$gLabel.cache";
 $snippets = "";
 
-if ( file_exists($gCacheFile) ) {
+if ( 1=="CVSNO" && file_exists($gCacheFile) ) {
 	$snippets = file_get_contents($gCacheFile);
 }
 
 if ( ! $snippets ) {
 	// Saves a little time since we use the # of pages frequently.
-	$gTotalPages = doSimpleQuery("select count(*) from $gPagesTable where archive='$gArchive' and label='$gLabel';");
+	$row = doRowQuery("select count(*) as num, min(pageid) as minp, max(pageid) as maxp from $gPagesTable where archive='$gArchive' and label='$gLabel';");
+	$gTotalPages = $row['num'];
+	$gMinPageid = $row['minp'];
+	$gMaxPageid = $row['maxp'];
+	$gTotalRequests = doSimpleQuery("select count(*) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid;");
 
 	// The list of "interesting stats" charts.
 	// We put this here so we can set the element id.
 	$aSnippetFunctions = array(
+							   "expires1"
+							   /*
 								"bytesContentType",
 								"responseSizes",
 								"jsLibraries",
@@ -405,6 +488,7 @@ if ( ! $snippets ) {
 								"redirects",
 								"onloadCorrelation",
 								"renderCorrelation"
+							   */
 								);
 
 
