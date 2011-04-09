@@ -165,20 +165,24 @@ function popularImageFormats() {
 }
 
 
-function expires1() {
+function maxage() {
 	global $gMinPageid, $gMaxPageid, $gRequestsTable, $gArchive, $gLabel, $gTotalRequests;
 
-	$zero = doSimpleQuery("select count(*) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and (resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%');");
+	// faster to do one query?
+	// $zeroOrNeg = doSimpleQuery("select count(*) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and (resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%');");
 
-	$query = "select ceil( convert( substring( resp_cache_control, (length(resp_cache_control) + 2 - locate('=ega-xam', reverse(resp_cache_control))) ), SIGNED ) / 86400) as maxagedays, count(*) as num from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') group by maxagedays order by maxagedays asc;";
-	echo "CVSNO: $query\n";
+	$query = "select ceil( convert( substring( resp_cache_control, (length(resp_cache_control) + 2 - locate('=ega-xam', reverse(resp_cache_control))) ), SIGNED ) / 86400) as maxagedays, count(*) as num from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' group by maxagedays order by maxagedays asc;";
+
 	$result = doQuery($query);
-	$day = $month = $year = $yearplus = 0;
+	$zeroOrNeg = $day = $month = $year = $yearplus = 0;
 	while ($row = mysql_fetch_assoc($result)) {
 		$maxagedays = $row['maxagedays'];
 		$num = $row['num'];
-//echo "CVSNO: $maxagedays, $num\n";
-		if ( 1 == $maxagedays ) {
+
+		if ( $maxagedays < 1 ) {
+			$zeroOrNeg += $num;
+		}
+		else if ( 1 == $maxagedays ) {
 			$day = $num;
 		}
 		else if ( 1 < $maxagedays && $maxagedays <= 30 ) {
@@ -192,55 +196,18 @@ function expires1() {
 		}
 	}
 	mysql_free_result($result);
-	return;
 
-	$query = "select ceil( convert( substring( resp_cache_control, (length(resp_cache_control) + 2 - locate('=ega-xam', reverse(resp_cache_control))) ), SIGNED ) / 86400) as maxagedays, count(*) as num from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') group by maxagedays order by maxagedays asc limit 365;";
-	echo "CVSNO: $query\n";
-	$result = doQuery($query);
-	$day = $month = $year = $yearplus = 0;
-	while ($row = mysql_fetch_assoc($result)) {
-		$maxagedays = $row['maxagedays'];
-		$num = $row['num'];
-echo "CVSNO: $maxagedays, $num\n";
-		if ( 1 == $maxagedays ) {
-			$day = $num;
-		}
-		else if ( 1 < $maxagedays && $maxagedays <= 30 ) {
-			$month += $num;
-		}
-		else if ( 30 < $maxagedays && $maxagedays <= 365 ) {
-			$year += $num;
-		}
-	}
-	$yearplus = $gTotalRequests - ($null + $zero + $day + $month + $year);
-	mysql_free_result($result);
-	echo "CVSNO: $null + $zero + $day + $month + $year + $yearplus = $gTotalRequests\n";
-	return;
+	$aNames = array("None", "zero", "0 < t <= 1", "1 < t <= 30", "30 < t <= 365", "365 < t");
+	$aValues = array(100 * ($gTotalRequests - ($zeroOrNeg + $day + $month + $year + $yearplus))/$gTotalRequests, 
+					 100 * $zeroOrNeg / $gTotalRequests, 
+					 100 * $day / $gTotalRequests, 
+					 100 * $month / $gTotalRequests, 
+					 100 * $year / $gTotalRequests, 
+					 100 * $yearplus / $gTotalRequests);
 
-	/*
-select count(*), convert(substring( concat(resp_cache_control,','), locate('max-age=', resp_cache_control)+8), SIGNED) as maxage from requestsdev where pageid >= 161244 and pageid <= 177861 and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') group by maxage having maxage >= 864000;
-
-
-echo("select count(*), convert(substring( concat(resp_cache_control,','), locate('max-age=', resp_cache_control)+8), SIGNED) as maxage from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') having maxage >= 86400;\n");
-
-echo("select count(*), convert(substring( concat(resp_cache_control,','), locate('max-age=', resp_cache_control)+8), SIGNED) as maxage from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') having maxage >= 604800;\n");
-
-echo("select count(*), convert(substring( concat(resp_cache_control,','), locate('max-age=', resp_cache_control)+8), SIGNED) as maxage from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') having maxage >= 2592000;\n");
-
-echo("select count(*), convert(substring( concat(resp_cache_control,','), locate('max-age=', resp_cache_control)+8), SIGNED) as maxage from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') having maxage >= 31536000;\n");
-
-
-	$dayplus = doSimpleQuery("select count(*), convert(substring( concat(resp_cache_control,','), locate('max-age=', resp_cache_control)+8), SIGNED) as maxage from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') having maxage >= 86400;");
-
-	$weekplus = doSimpleQuery("select count(*), convert(substring( concat(resp_cache_control,','), locate('max-age=', resp_cache_control)+8), SIGNED) as maxage from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') having maxage >= 604800;");
-
-	$monthplus = doSimpleQuery("select count(*), convert(substring( concat(resp_cache_control,','), locate('max-age=', resp_cache_control)+8), SIGNED) as maxage from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') having maxage >= 2592000;");
-
-	$yearplus = doSimpleQuery("select count(*), convert(substring( concat(resp_cache_control,','), locate('max-age=', resp_cache_control)+8), SIGNED) as maxage from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' and not ( resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%') having maxage >= 31536000;");
-
-	echo "CVSNO: $null, $zero, $nonzero, $dayplus, $weekplus, $monthplus, $yearplus";
-	*/
+	return percentageColumnChart("Cache-Control: max-age (days)", "max-age", $aNames, $aValues, $color="80C65A");
 }
+
 
 
 function bytesContentType() {
@@ -422,7 +389,7 @@ function chdsMinmax($aValues) {
 function percentageColumnChart($title, $id, $aNames, $aValues, $color="80C65A") {
 	return "<img id=$id class=chart src='http://chart.apis.google.com/chart?chxl=0:|20%25|40%25|60%25|80%25|100%25|1:|" .
 		urlencode(implode("|", $aNames)) .
-		"&chxp=0,20,40,60,80,100&chxs=0,$color,11.5,0,lt,$color|1,676767,11.5,0,lt,67676700&chxtc=0,4|1,4&chxt=y,x&chbh=60,30,20&chs=300x225&cht=bvg&chco=$color&chd=t:" .
+		"&chxp=0,20,40,60,80,100&chxs=0,$color,11.5,0,lt,$color|1,676767,11.5,0,lt,67676700&chxtc=0,4|1,4&chxt=y,x&chbh=60,30,20&chs=500x225&cht=bvg&chco=$color&chd=t:" .
 		implode(",", $aValues) .
 		"&chtt=" . urlencode($title) . ">";
 }
@@ -453,7 +420,7 @@ function horizontalBarChart($title, $id, $aNames, $aValues, $color="80C65A", $mi
 $gCacheFile = "./cache/interesting-images.js.$gRev.$gLabel.cache";
 $snippets = "";
 
-if ( 1=="CVSNO" && file_exists($gCacheFile) ) {
+if ( file_exists($gCacheFile) ) {
 	$snippets = file_get_contents($gCacheFile);
 }
 
@@ -468,28 +435,28 @@ if ( ! $snippets ) {
 	// The list of "interesting stats" charts.
 	// We put this here so we can set the element id.
 	$aSnippetFunctions = array(
-							   "expires1"
-							   /*
-								"bytesContentType",
-								"responseSizes",
-								"jsLibraries",
-								"popularScripts",
-								"percentGoogleLibrariesAPI",
-								"mostJS",
+							   "bytesContentType",
+							   "responseSizes",
 
-								"mostCSS",
+							   "jsLibraries",
+							   "popularScripts",
+							   "percentGoogleLibrariesAPI",
 
-								"percentFlash",
-								"mostFlash",
+							   "mostJS",
+							   "mostCSS",
 
-								"popularImageFormats",
+							   "percentFlash",
+							   "mostFlash",
 
-								"requestErrors",
-								"redirects",
-								"onloadCorrelation",
-								"renderCorrelation"
-							   */
-								);
+							   "popularImageFormats",
+
+							   "maxage",
+							   "requestErrors",
+							   "redirects",
+
+							   "onloadCorrelation",
+							   "renderCorrelation"
+							   );
 
 
 
