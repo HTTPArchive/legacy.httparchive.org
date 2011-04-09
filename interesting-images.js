@@ -27,7 +27,7 @@ $gTotalPages = $gTotalRequests = $gMinPageid = $gMaxPageid = 0;
 
 // Add the label to the cached filename.
 $gArchive = "All";
-if ( $argc ) {
+if ( isset($argc) ) {
 	// Handle commandline arguments when we're creating cached files from a script.
 	$gLabel = $argv[1];
 }
@@ -197,7 +197,7 @@ function maxage() {
 	}
 	mysql_free_result($result);
 
-	$aNames = array("None", "zero", "0 < t <= 1", "1 < t <= 30", "30 < t <= 365", "365 < t");
+	$aNames = array("None", "t <= 0", "0 < t <= 1", "1 < t <= 30", "30 < t <= 365", "365 < t");
 	$aValues = array(100 * ($gTotalRequests - ($zeroOrNeg + $day + $month + $year + $yearplus))/$gTotalRequests, 
 					 100 * $zeroOrNeg / $gTotalRequests, 
 					 100 * $day / $gTotalRequests, 
@@ -236,9 +236,9 @@ function percentFlash() {
 
 
 function popularScripts() {
-	global $gPagesTable, $gRequestsTable, $gArchive, $gLabel, $gTotalPages;
+	global $gPagesTable, $gRequestsTable, $gTotalPages, $gArchive, $gLabel;
 
-	$result = doQuery("select $gRequestsTable.url, count(distinct $gPagesTable.pageid) as num from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%script%' group by $gRequestsTable.url order by num desc limit 5;");
+	$result = doQuery("select $gRequestsTable.url, count(distinct $gPagesTable.pageid) as num from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%script%' group by $gRequestsTable.url order by num desc limit 5;");
 
 	$aVarNames = array();
 	$aVarValues = array();
