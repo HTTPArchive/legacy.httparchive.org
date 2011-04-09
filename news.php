@@ -40,6 +40,9 @@ DD { margin-left: 40px; }
 <h1><?php echo $gTitle ?></h1>
 
 <dl id=news>
+  <dt> April 8, 2011: <a href="http://news.cnet.com/8301-30685_3-20052018-264.html">CNET News Flash use dips at top Web sites since November</a>
+  <dd> <p> Article published on CNET News citing various statistics from the HTTP Archive.
+
   <dt> April 5, 2011: hide small runs
   <dd> <p>The first three runs in the HTTP Archive (Oct 5, Oct 22, and Nov 6) only had ~1000 URLs.
 Comparing those small runs to the later larger runs (that have ~17,000 URLs) can be misleading.
