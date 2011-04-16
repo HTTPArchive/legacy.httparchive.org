@@ -660,4 +660,9 @@ function dprint($msg) {
 	echo "DPRINT: $msg\n";
 }
 
+// Simple logging/debugging function.
+function lprint($msg) {
+	echo "$msg\n";
+}
+
 ?>
