@@ -302,7 +302,7 @@ function mostJS() {
 	$aVarValues = array();
 	$maxValue = 0;
 	while ($row = mysql_fetch_assoc($result)) {
-		array_push($aVarNames, $row['url']);
+		array_push($aVarNames, shortenUrl($row['url']));
 		array_push($aVarValues, round($row['bytesJS']/1024));
 		if ( ! $maxValue ) {
 			$maxValue = round($row['bytesJS']/1024);
@@ -324,7 +324,7 @@ function mostCSS() {
 	$aVarValues = array();
 	$maxValue = 0;
 	while ($row = mysql_fetch_assoc($result)) {
-		array_push($aVarNames, $row['url']);
+		array_push($aVarNames, shortenUrl($row['url']));
 		array_push($aVarValues, round($row['bytesCSS']/1024));
 		if ( ! $maxValue ) {
 			$maxValue = round($row['bytesCSS']/1024);
@@ -346,7 +346,7 @@ function mostFlash() {
 	$aVarValues = array();
 	$maxValue = 0;
 	while ($row = mysql_fetch_assoc($result)) {
-		array_push($aVarNames, $row['url']);
+		array_push($aVarNames, shortenUrl($row['url']));
 		array_push($aVarValues, $row['reqFlash']);
 		if ( ! $maxValue ) {
 			$maxValue = $row['reqFlash'];
