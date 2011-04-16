@@ -31,8 +31,8 @@ require_once("utils.php");
 <?php
 // The database fields we want to plot.
 $aFields = array(
-				 //"onLoad",
-				 //"renderStart",
+				 "onLoad",
+				 "renderStart",
 				 "PageSpeed",
 				 "reqTotal",
 				 "reqHtml",
@@ -96,7 +96,13 @@ $aRunNames = archiveLabels($gArchive, false);
 $aAxisLabels = archiveLabels($gArchive, true, "n/j");
 $labels = urlencode(implode("|", $aAxisLabels));
 
-if ( "url" != $gSet ) {
+if ( "url" == $gSet ) {
+	// Only show onLoad and renderStart for individual sites.
+	// The timings have high variability so we want to discourage cross-site comparisons.
+	echo formatChart('onLoad', $hStats, $aRunNames, $labels);
+	echo formatChart('renderStart', $hStats, $aRunNames, $labels);
+}
+else {
 	// show URLs first so people can see if they're doing intersection or not
 	// but don't show it if we're only looking at a single URL
 	echo formatChart('numurls', $hStats, $aRunNames, $labels);
