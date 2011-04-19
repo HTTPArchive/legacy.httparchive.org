@@ -266,7 +266,7 @@ function jsLibraries() {
 	$hCond["Google Analytics"] = "($gRequestsTable.url like '%/ga.js%' or $gRequestsTable.url like '%/urchin.js%')";
 	$hCond["Quantcast"] = "$gRequestsTable.url like '%quant.js%'";
 	$hCond["AddThis"] = "$gRequestsTable.url like '%addthis.com%'";
-	$hCond["Facebook"] = "($gRequestsTable.url like '%facebook.net/%' or $gRequestsTable.url like '%fbcdn.net/%' or $gRequestsTable.url like '%connect.facebook.com/%')";
+	$hCond["Facebook"] = "($gRequestsTable.url like '%facebook.com/plugins/%' or $gRequestsTable.url like '%facebook.com/widgets/%' or $gRequestsTable.url like '%facebook.com/connect/%')";
 	$hCond["Twitter"] = "$gRequestsTable.url like '%twitter%'";
 	$hCond["ShareThis"] = "$gRequestsTable.url like '%sharethis%'";
 
@@ -275,7 +275,7 @@ function jsLibraries() {
 	foreach (array_keys($hCond) as $key) {
 		$cond = $hCond[$key];
 		array_push($aVarNames, $key);
-		array_push($aVarValues, round( 100*doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gPagesTable, $gRequestsTable where archive='$gArchive' and label='$gLabel' and $gRequestsTable.pageid=$gPagesTable.pageid and resp_content_type like '%script%' and $cond;") / $gTotalPages ));
+		array_push($aVarValues, round( 100*doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gPagesTable, $gRequestsTable where archive='$gArchive' and label='$gLabel' and $gRequestsTable.pageid=$gPagesTable.pageid and (resp_content_type like '%script%' or resp_content_type like '%html%') and $cond;") / $gTotalPages ));
 	}
 
 	return horizontalBarChart("Popular JavaScript Libraries", "popularjslib", $aVarNames, $aVarValues, "3399CC", 0, 100, "sites using the JS library", true, "%");
