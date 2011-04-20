@@ -28,7 +28,7 @@ $gStatusTable = "status";
 $gDateRange = "pageid >= 10281";
 
 // Use a dev version of the database tables if "dev/" is in the path.
-$gbDev = ( strpos(getcwd(), "/dev/") || strpos(getcwd(), "/trunk") );
+$gbDev = ( strpos(getcwd(), "/dev/") || strpos(getcwd(), "/trunk.httparchive.org") );
 if ( $gbDev ) {
 	$gPagesTable = "pagesdev";
 	$gRequestsTable = "requestsdev";
