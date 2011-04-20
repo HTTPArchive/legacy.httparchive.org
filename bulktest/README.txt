@@ -1,3 +1,9 @@
+!! DO NOT USE !!
+!! Bulktest is not currently supported for use outside of the HTTP Archive. 
+!! Issue #154 (http://code.google.com/p/httparchive/issues/detail?id=154) 
+!! exists to add support for bulktest.
+!! DO NOT USE !!
+
 The description of included files:
 
 bootstrap.inc: Configure the environment of execution
