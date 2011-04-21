@@ -55,9 +55,11 @@ if ( !flock($fp, LOCK_EX | LOCK_NB) ) {
 // Create all the tables if they are not there.
 createTables();
 // Report the summary of the tests
+echo "PREVIOUS TEST:\n";
 reportSummary();
 // Empty the status table
 emptyStatusTable();
 // Load the next batch
 loadUrlsFromFile();
+echo "DONE submitting batch run\n";
 ?>
