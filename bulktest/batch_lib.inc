@@ -663,24 +663,24 @@ function reportSummary() {
         $failedProcessResult = countTestsWithCode( 2 + $gErrBase);
         $failedImportHar = countTestsWithCode( 4 + $gErrBase);
 
-	dprint("Total URLs: $totalUrls");
+	lprint("Total URLs: $totalUrls");
 	$total_in_processing = $loadedUrls + $submittedTests + $completedTests;
-	dprint("Tests in processing: $total_in_processing");
-	dprint("	-Waiting to be submitted: $loadedUrls");
-	dprint("	-Waiting for test results: $submittedTests");
-	dprint("	-Waiting to process results: $completedTests");
-	dprint("Waiting to download HAR: $xmlDoneTests");
-	dprint("Waiting to process HAR: $harDownloadedTests");
-	dprint("Successfully processed: $successfulTests");
-	dprint("Tests failed: $failedTests");
+	lprint("Tests in processing: $total_in_processing");
+	lprint("	-Waiting to be submitted: $loadedUrls");
+	lprint("	-Waiting for test results: $submittedTests");
+	lprint("	-Waiting to process results: $completedTests");
+	lprint("Waiting to download HAR: $xmlDoneTests");
+	lprint("Waiting to process HAR: $harDownloadedTests");
+	lprint("Successfully processed: $successfulTests");
+	lprint("Tests failed: $failedTests");
 	if ( $failedSubmission > 0 )
-		dprint("	-Submission failed: $failedSubmission");
+		lprint("	-Submission failed: $failedSubmission");
 	if ( $failedWPTTesting > 0 )
-		dprint("	-WPT tests failed: $failedWPTTesting");
+		lprint("	-WPT tests failed: $failedWPTTesting");
 	if ( $failedProcessResult > 0 )
-		dprint("	-Test result processing failed: $failedProcessResult");
+		lprint("	-Test result processing failed: $failedProcessResult");
 	if ( $failedImportHar > 0 ) 
-		dprint("	-Har importing failed: $failedImportHar");
+		lprint("	-Har importing failed: $failedImportHar");
 }
 
 
