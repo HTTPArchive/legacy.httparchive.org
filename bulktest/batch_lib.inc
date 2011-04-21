@@ -330,7 +330,7 @@ function importHarFile($json_text, $result) {
 
 	// STEP 1: Create a partial "page" record so we get a pageid.
 	t_mark('ImportPage');
-	$pageid = ImportPage($pages[0], $result);
+	$pageid = importPage($pages[0], $result);
 	t_aggregate('ImportPage');
 	if ( $pageid ) {
 		$entries = $log->{ 'entries' };
@@ -531,10 +531,8 @@ function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 				return false;
 			}
 			// This is the first URL found associated with the page - assume it's the base URL.
-			if ( ($status != 301) && ($status != 302) ) {
-				$bFirstReq = 1;
-				$firstUrl = $url;
-			}
+			$bFirstReq = 1;
+			$firstUrl = $url;
 		}
 		if ( ! $firstHtmlUrl && 200 == $status ) {
 			// This is the first URL found associated with the page that's HTML.
