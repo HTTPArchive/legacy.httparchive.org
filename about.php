@@ -241,8 +241,11 @@ Screenshots are not shown for websites flagged as adult only.
 
 
 			   <h2 id=who>Who created the HTTP Archive?</h2>
-					 <p>Steve Souders created the HTTP Archive. 
+<p>Steve Souders created the HTTP Archive. 
 It's built on the shoulders of Pat Meenan's <a href="http://www.webpagetest.org">WebPagetest</a> system.
+Several folks on Google's Make the Web Faster team chipped in.
+I've received patches from several individuals and am processing those now. 
+Carson McDonald added the Most 404s chart patch.
 Guy Leech helped early on with the design.
 </p>
 
