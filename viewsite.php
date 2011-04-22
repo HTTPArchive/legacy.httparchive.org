@@ -38,6 +38,7 @@ $row = doRowQuery($query);
 $gPageid = $row['pageid'];
 $gArchive = $row['archive'];
 $gLabel = $row['label'];
+$gTitle = "View Site";
 $harfile = $row['harfile'];
 $url = $row['url'];
 $wptid = $row['wptid'];
