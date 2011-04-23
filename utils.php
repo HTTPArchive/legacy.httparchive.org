@@ -657,12 +657,12 @@ function mysqlEscape($text) {
 
 // Simple logging/debugging function.
 function dprint($msg) {
-	echo "DPRINT: $msg\n";
+	echo htmlspecialchars("DPRINT: $msg\n");
 }
 
 // Simple logging/debugging function.
 function lprint($msg) {
-	echo "$msg\n";
+	echo htmlspecialchars("$msg\n");
 }
 
 ?>
