@@ -32,7 +32,7 @@ if ( $gPageid && "csv" == $gFormat ) {
 
 	$sRows .= "URL,mime_type,method,status,time(ms),resp_Size(kB),req_Cookie_Len(bytes),resp_Cookie_Len(bytes),req_Http_Ver,resp_Http_Ver,req_Accept,req_Accept-Charset,req_Accept-Encoding,req_Accept-Language,req_Connection,req_Host,req_Referer,resp_Accept-Ranges,resp_Age,resp_Cache-Control,resp_Connection,resp_Content-Encoding,resp_Content-Language,resp_Content-Length,resp_Content-Location,resp_Content-Type,resp_Date,resp_Etag,resp_Expires,resp_Keep-Alive,resp_Last-Modified,resp_Location,resp_Pragma,resp_Server,resp_Transfer-Encoding,resp_Vary,resp_Via,resp_X-Powered-By\n";
 
-	$query = "select * from $gRequestsTable where pageid = $gPageid;";
+	$query = "select * from $gRequestsTable where pageid = '$gPageid';";
 	$result = doQuery($query);
 	if ( $result ) {
 		$iRow = 0;
