@@ -20,7 +20,7 @@ require_once("utils.php");
 
 if ( getParam('pageid') ) {
 	$gPageid = getParam('pageid');
-	$query = "select * from $gPagesTable where pageid=$gPageid;";
+	$query = "select * from $gPagesTable where pageid='$gPageid';";
 }
 else if ( ! $gPageid && getParam('u') && getParam('l') ) {
 	$url = getParam('u');
@@ -263,7 +263,7 @@ $sRows = "";
 $iRow = 0;
 $gFirstStart = 0;
 
-$query = "select * from $gRequestsTable where pageid = $gPageid;";
+$query = "select * from $gRequestsTable where pageid = '$gPageid';";
 $result = doQuery($query);
 if ( $result ) {
 	while ($row = mysql_fetch_assoc($result)) {
