@@ -47,7 +47,7 @@ $aMatches = array();
 $url = "";
 $pattern = '/([0-9][0-9])([0-9][0-9])([0-9][0-9])_(.*)/';
 if ( preg_match($pattern, $wptid, $aMatches) ) {
-	$url = "http://httparchive.webpagetest.org/results/" . $aMatches[1] . "/" . $aMatches[2] . "/" . $aMatches[3] . "/" . $aMatches[4] . "/video_$wptrun/frame_";
+	$url = "http://httparchive.webpagetest.org/results/" . $aMatches[1] . "/" . $aMatches[2] . "/" . $aMatches[3] . "/" . str_replace('_', '/', $aMatches[4]) . "/video_$wptrun/frame_";
 }
 $lastFrameTime = 0;
 for ( $i = 0; $i < ($onLoad+100); $i += 100 ) {
