@@ -231,6 +231,31 @@ function maxage() {
 }
 
 
+function popularServers() {
+	global $gMinPageid, $gMaxPageid, $gRequestsTable, $gTotalPages;
+
+	$result = doQuery("select count(*) as num, substring_index(substring_index(substring_index(lower(ifnull(resp_server, '')), ' ', 1), '/', 1), '(', 1) as server_name from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and firstHtml = 1 group by server_name order by num desc limit 9;");
+
+	$otherCount = $gTotalPages;
+	$aVarNames = array();
+	$aVarValues = array();
+	while ($row = mysql_fetch_assoc($result)) {
+		$serverName = $row['server_name'];
+		if (!$serverName) {
+			$serverName = 'unspecified';
+		}
+		$num = $row['num'];
+		array_push($aVarNames, "$serverName " . round(100*$num/$gTotalPages) . "%");
+		array_push($aVarValues, $num);
+		$otherCount -= $num;
+	}
+	mysql_free_result($result);
+	array_push($aVarNames, 'other ' . round(100*$otherCount/$gTotalPages) . "%");
+	array_push($aVarValues, $otherCount);
+
+	return pieChart("Most Common Servers", "servers", $aVarNames, $aVarValues, "E94E19");
+}
+
 
 function bytesContentType() {
 	global $gPagesTable, $gArchive, $gLabel;
@@ -466,13 +491,14 @@ if ( ! $snippets ) {
 
 							   "mostJS",
 							   "mostCSS",
-
-							   "percentFlash",
 							   "mostFlash",
 
+							   "percentFlash",
 							   "popularImageFormats",
 
 							   "maxage",
+							   "popularServers",
+
 							   "requestErrors",
 							   "most404s",
 							   "redirects",
