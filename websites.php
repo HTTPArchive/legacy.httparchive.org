@@ -42,9 +42,45 @@ $gMaxUrls = 20000;
 .websites { 
 	list-style-type: none; }
 #alphaindex { 
+	font-size: 0.9em;
 	text-align: center;
 	position: fixed; 
 	left: 0; }
+@media all and (max-height: 805px) {
+	#alphaindex {
+		overflow-y: scroll;
+	}
+}
+@media all and (min-height: 300px) and (max-height: 400px) {
+	#alphaindex {
+		height: 106px;
+	}
+}
+@media all and (min-height: 400px) and (max-height: 500px) {
+	#alphaindex {
+		height: 206px;
+	}
+}
+@media all and (min-height: 500px) and (max-height: 600px) {
+	#alphaindex {
+		height: 306px;
+	}
+}
+@media all and (min-height: 600px) and (max-height: 700px) {
+	#alphaindex {
+		height: 406px;
+	}
+}
+@media all and (min-height: 700px) and (max-height: 800px) {
+	#alphaindex {
+		height: 506px;
+	}
+}
+@media all and (min-height: 800px) and (max-height: 888px) {
+	#alphaindex {
+		height: 606px;
+	}
+}
 #alphaindex > UL { 
 	list-style-type: none; }
 #alphaindex a {
