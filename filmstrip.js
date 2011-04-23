@@ -19,7 +19,7 @@ require_once("utils.php");
 
 $gPageid = getParam('pageid');
 
-$query = "select url, wptid, wptrun, onLoad, renderStart from $gPagesTable where pageid=$gPageid;";
+$query = "select url, wptid, wptrun, onLoad, renderStart from $gPagesTable where pageid='$gPageid';";
 
 $result = doQuery($query);
 $row = mysql_fetch_assoc($result);
