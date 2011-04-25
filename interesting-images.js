@@ -132,9 +132,9 @@ function requestErrors() {
 
 
 function most404s() {
-	global $gMinPageid, $gMaxPageid, $gRequestsTable, $gPagesTable, $gTotalRequests;
+	global $gMinPageid, $gMaxPageid, $gRequestsTable, $gPagesTable, $gTotalPages, $gTotalRequests;
  
-	$result = doQuery("select pt.url url, count(rt.requestid) cnt from $gRequestsTable rt join $gPagesTable pt on pt.pageid = rt.pageid where rt.pageid >= $gMinPageid and rt.pageid <= $gMaxPageid and rt.status = 404 group by rt.pageid order by 2 desc limit 5;");
+	$result = doQuery("select pt.url as url, count(rt.requestid) as cnt from $gRequestsTable rt join $gPagesTable pt on pt.pageid = rt.pageid where rt.pageid >= $gMinPageid and rt.pageid <= $gMaxPageid and rt.status = 404 group by rt.pageid order by cnt desc limit 5;");
 	$aVarNames = array();
 	$aVarValues = array();
 	$maxValue = 0;
@@ -147,7 +147,7 @@ function most404s() {
 	}
 	mysql_free_result($result);
 	array_push($aVarNames, "average");
-	array_push($aVarValues, round(doSimpleQuery("select avg(cnt) from (select pageid, count(requestid) cnt from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and status = 404 group by pageid) cnts;")));
+	array_push($aVarValues, doSimpleQuery("select TRUNCATE(count(requestid)/$gTotalPages, 1) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and status = 404;"));
 
 	return horizontalBarChart("Pages with the Most 404s", "most404", $aVarNames, $aVarValues, "B4B418", 0, $maxValue+100, "total 404s", false, "");
 }
