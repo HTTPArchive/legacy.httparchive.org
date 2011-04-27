@@ -398,6 +398,28 @@ function mostCSS() {
 }
 
 
+function mostImages() {
+	global $gPagesTable, $gArchive, $gLabel;
+
+	$result = doQuery("select url, reqImg from $gPagesTable where archive='$gArchive' and label='$gLabel' order by reqImg desc limit 5;");
+	$aVarNames = array();
+	$aVarValues = array();
+	$maxValue = 0;
+	while ($row = mysql_fetch_assoc($result)) {
+		array_push($aVarNames, shortenUrl($row['url']));
+		array_push($aVarValues, $row['reqImg']);
+		if ( ! $maxValue ) {
+			$maxValue = $row['reqImg'];
+		}
+	}
+	mysql_free_result($result);
+	array_push($aVarNames, "average");
+	array_push($aVarValues, doSimpleQuery("select avg(reqImg) from $gPagesTable where archive='$gArchive' and label='$gLabel';"));
+
+	return horizontalBarChart("Pages with the Most Images", "mostimages", $aVarNames, $aVarValues, "1515FF", 0, $maxValue+10);
+}
+
+
 function mostFlash() {
 	global $gPagesTable, $gArchive, $gLabel;
 
@@ -504,6 +526,7 @@ if ( ! $snippets ) {
 
 							   "mostJS",
 							   "mostCSS",
+							   "mostImages",
 							   "mostFlash",
 
 							   "percentFlash",
