@@ -49,6 +49,7 @@ header {
 	background: #eaeaea;
 	border-bottom: 4px dashed #fff;
 	width: 100%;
+	min-width: 1200px;
 	padding: 25px 0 0 0; }
 #logo {
 	font-size: 2.875em;
