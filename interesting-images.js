@@ -257,6 +257,19 @@ function popularServers() {
 }
 
 
+function percentByProtocol() {
+	global $gMinPageid, $gMaxPageid, $gRequestsTable, $gTotalRequests;
+
+	$num = doSimpleQuery("select count(*) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and url like 'https://%'");
+	$https = round(100*$num/$gTotalRequests);
+	$http = 100-$https;
+	$aVarNames = array("HTTP $http%", "HTTPS $https%");
+	$aVarValues = array($http, $https);
+
+	return pieChart("Requests by Protocol", "protocol", $aVarNames, $aVarValues, "7777CC");
+}
+
+
 function bytesContentType() {
 	global $gPagesTable, $gArchive, $gLabel;
 
@@ -498,6 +511,7 @@ if ( ! $snippets ) {
 
 							   "maxage",
 							   "popularServers",
+							   //"percentByProtocol",
 
 							   "requestErrors",
 							   "most404s",
