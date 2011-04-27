@@ -28,7 +28,9 @@ else if ( ! $gPageid && getParam('u') && getParam('l') ) {
 	$query = "select * from $gPagesTable where url='$url' and label='$gLabel';";
 }
 else {
-	// TODO - error handling - not sure how you'd ever get here
+	// should never reach here
+	header('Location: websites.php');
+	return;
 }
 
 // TODO - better error handling starting here!
