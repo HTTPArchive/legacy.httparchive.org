@@ -61,6 +61,8 @@ function SubmitTests(&$results, $testCount)
     global $server;
     global $docComplete;
 	global $fvonly;
+	global $mv;
+	global $wptApiKey;
 
     $count = 0;
     foreach( $results as &$result )
@@ -79,6 +81,10 @@ function SubmitTests(&$results, $testCount)
                 $request .= '&web10=1';
             if($fvonly)
                 $request .= '&fvonly=1';
+			if($mv)
+				$request .= '&mv=1';
+			if(strlen($wptApiKey))
+				$request .= "&k=$wptApiKey";
 
             $doc = new DOMDocument();
             if( $doc )

@@ -44,23 +44,13 @@ $private = false;
 $docComplete = true;
 $fvonly = true;
 $server = 'http://httparchive.webpagetest.org/';
-//$server = 'http://latencylab/';
 $runs = 3;
 $mv = 1;
+$wptApiKey = '';
+@include_once('wptkey.inc.php');
 
 // list of locations to use
 $locations = array();
-//$locations[] = 'Dulles_IE7';
 $locations[] = 'Dulles_IE8';
-//$locations[] = 'Test';
-//$locations[] = 'NewYork_IE8';
-//$locations[] = 'Chicago_IE7';
-//$locations[] = 'SanJose';
-//$locations[] = 'China';
-//$locations[] = 'NZ';
-//$locations[] = 'UK';
-//$locations[] = 'Paris_IE7';
-//$locations[] = 'Amsterdam';
-//$locations[] = 'Frankfurt';
 
 

@@ -134,6 +134,7 @@ function submitTest(&$record, $status) {
 	global $docComplete;
 	global $fvonly;
 	global $mv;
+	global $wptApiKey;
 
 	$request = $server . 'runtest.php?f=xml&priority=6&url=' . urlencode($record['url']) . "&location={$record['location']}&runs=$runs";
 	if( $private )
@@ -146,6 +147,8 @@ function submitTest(&$record, $status) {
 		$request .= '&fvonly=1';
 	if ( $mv )
 		$request .= '&mv=1';
+	if ( $wptApiKey )
+		$request .= "&k=$wptApiKey";
 
 	$doc = new DOMDocument();
 	if ( $doc ) {

@@ -9,6 +9,8 @@ $runs = 3;
 $fvonly = true;
 $mv = true; // only store median video
 $server = 'http://httparchive.webpagetest.org/';  // also in ../settings.inc
+$wptApiKey = '';
+@include_once('wptkey.inc.php');
 
 // list of locations to use
 $locations = array();
