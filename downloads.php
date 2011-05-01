@@ -40,6 +40,7 @@ There's a download file for each run:
 </p>
 
 <ul class=indent>
+  <li> <a href="downloads/httparchive_Apr_30_2011.gz">Apr 30 2011</a> (<?php echo round(filesize("./downloads/httparchive_Apr_30_2011.gz")/(1024*1024)) ?>MB)
   <li> <a href="downloads/httparchive_Apr_15_2011.gz">Apr 15 2011</a> (<?php echo round(filesize("./downloads/httparchive_Apr_15_2011.gz")/(1024*1024)) ?>MB)
   <li> <a href="downloads/httparchive_Mar_29_2011.gz">Mar 29 2011</a> (<?php echo round(filesize("./downloads/httparchive_Mar_29_2011.gz")/(1024*1024)) ?>MB)
   <li> <a href="downloads/httparchive_Mar_15_2011.gz">Mar 15 2011</a> (<?php echo round(filesize("./downloads/httparchive_Mar_15_2011.gz")/(1024*1024)) ?>MB)
