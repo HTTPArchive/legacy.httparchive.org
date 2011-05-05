@@ -61,6 +61,8 @@ OUTPUT;
 
 
 function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
+	global $gbMobile;
+
 	$navlinks = "";
 	if ( $bNavlinks ) {
 		$navlinks = '
