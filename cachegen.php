@@ -17,15 +17,22 @@ limitations under the License.
 
 require_once("utils.php");
 
+$aSets = array("All", "intersection", "Top100", "Top1000");
 $aLabels = archiveLabels();
 $len = count($aLabels);
+
 for ( $i = $len-1; $i >= 0; $i-- ) {
 	$label = $aLabels[$i];
-	echo "starting \"$label\"...";
-	$cmd = "php interesting-images.js '$label' > /dev/null";
-	exec($cmd);
-	echo "...DONE\n";
+
+	for ( $s = 0; $s < count($aSets); $s++ ) {
+		$set = $aSets[$s];
+		echo "starting \"$label\" for \"$set\"...";
+		$cmd = "php interesting-images.js '$label' '$set' > /dev/null";
+		exec($cmd);
+		echo "...DONE\n";
+	}
 }
 
-echo "finished all labels\n";
+
+echo "finished all sets and labels\n";
 ?>
