@@ -43,8 +43,10 @@ $gTitle = "Trends";
 <form>
 	<label>Choose URLs:</label>
 	<select onchange='document.location="?s="+escape(this.options[this.selectedIndex].value)'>
-	    <option value='All'<?php echo ( "intersection" != $gSet ? " selected" : "" ) ?>> All
+	    <option value='All'<?php echo ( "All" == $gSet ? " selected" : "" ) ?>> All
 	    <option value='intersection'<?php echo ( "intersection" == $gSet ? " selected" : "" ) ?>> intersection
+	    <option value='Top100'<?php echo ( "Top100" == $gSet ? " selected" : "" ) ?>> Top 100
+	    <option value='Top1000'<?php echo ( "Top1000" == $gSet ? " selected" : "" ) ?>> Top 1000
 	</select>
 </form>
 </div>
