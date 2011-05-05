@@ -49,6 +49,10 @@ $onLoad = $row['onLoad'];
 $renderStart = $row['renderStart'];
 
 $harfileWptUrl = "{$server}export.php?test=$wptid&run=$wptrun&cached=0";
+if ( $gbMobile ) {
+ 	list($date, $id) = explode("_", $wptid);
+ 	$harfileWptUrl = "{$server}results/" . substr($date, 0, 2) . "/" . substr($date, 2, 2) . "/" . substr($date, 4, 2) . "/$id/results.har";
+}
 
 ?>
 <!doctype html>
@@ -199,15 +203,195 @@ initHAR();
 
 <h2 id=pagespeed>Page Speed</h2>
 
+<?php
+if ( ! $gbMobile ) {
+	echo <<<OUTPUT
 <style>
 #pagespeedreport UL { max-width: 100%; }
 </style>
 <div id="pagespeedreport" style="margin-top: 10px; font-size: 0.9em;"></div>
 
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $server ?>widgets/pagespeed/tree?test=<?php echo $wptid ?>&div=pagespeedreport"></script>
+<script type="text/javascript" src="{$server}widgets/pagespeed/tree?test=$wptid&div=pagespeedreport"></script>
+OUTPUT;
+}
+else {
+	$file = BuildFileName($url);
+	$fullpath = "./harfiles-delme/$gPageid.$file.har";
+	$bWritten = false;
+	if( strlen($file) ) {
+		$response = file_get_contents($harfileWptUrl);
+		if( strlen($response) ) {
+			file_put_contents("$fullpath", $response);
+			$bWritten = true;
+		}
+	}
+	if ( $bWritten ) {
+		doFile($fullpath);
+		unlink($fullpath);
+	}
+
+	echo <<<OUTPUT
+<script>
+var curDetails;
+
+function toggleDetails(elem) {
+	if ( "undefined" != typeof(curDetails) ) {
+		curDetails.style.display = "none";
+	}
+
+	var div = elem.parentNode.getElementsByTagName('DIV')[0];
+	if ( "undefined" != typeof(div) ) {
+		var aPosition = findPos(elem.parentNode);
+		div.style.left = (aPosition[0] + elem.parentNode.clientWidth) + 25 + "px";
+		div.style.top = aPosition[1] + "px";
+		div.style.display = "block";
+		curDetails = div;
+	}
+}
 
 
+// from http://www.quirksmode.org/js/findpos.html
+function findPos(obj) {
+	var curleft = curtop = 0;
+	if (obj.offsetParent) {
+		do {
+			curleft += obj.offsetLeft;
+			curtop += obj.offsetTop;
+		} while (obj = obj.offsetParent);
+	}
+	return [curleft,curtop];
+}
+</script>
+
+OUTPUT;
+}
+
+
+
+
+
+
+/**
+* Create a file name given an url
+* 
+* @param mixed $results
+*/
+function BuildFileName($url) {
+    $file = trim($url, "\r\n\t \\/");
+    $file = str_ireplace('http://', '', $file);
+    $file = str_ireplace(':', '_', $file);
+    $file = str_ireplace('/', '_', $file);
+    $file = str_ireplace('\\', '_', $file);
+    $file = str_ireplace('%', '_', $file);
+    
+    return $file;
+}
+
+
+function doFile($harfile) {
+	if ( ! $harfile ) {
+		return;
+	}
+
+	// If everything is ok we run it through Page Speed.
+	$output = array();
+	$return_var = 128;
+	exec("./har_to_pagespeed text '$harfile'", $output, $return_var);
+	if ( 0 === $return_var ) {
+		$len = count($output);
+		$rules = array();
+		$curRule = -1;
+		for ( $i = 0; $i < $len; $i++ ) {
+			$line = $output[$i];
+			$matches = array();
+			if ( preg_match("/_(.*)_ \(score=([0-9]+)/", $line, $matches) ) {                            // don't need to worry about 0 vs false
+				if ( "Optimize images" != $matches[1] ) {
+					$curRule++;
+					array_push($rules, array($matches[1], $matches[2], ""));
+				}
+			}
+			else {
+				if ( -1 < $curRule ) {
+					$line = fixUrls($line);
+					$rules[$curRule][2] .= $line . "<br>";
+				}
+			}
+		}
+		displayRules($rules);
+	}
+	else { 
+		echo "There was an error parsing the HAR file. $return_var";
+	}
+
+}
+
+function displayRules($rules) {
+	$ruleStrings = array();  // a hash whose keys are the rule scores
+	$totalScore = 0;
+
+	for ( $r = 0; $r < count($rules); $r++ ) {
+		$rule = $rules[$r];
+		$score = $rule[1];
+		$totalScore += $score;
+
+		$ruleString = displayRule($rule);
+		if ( ! array_key_exists($score, $ruleStrings) ) {
+			$ruleStrings[$score] = "";
+		}
+		$ruleStrings[$score] .= $ruleString;
+	}
+
+	$overallScore = intval(0.5 + ($totalScore/count($rules)));
+	echo "<table class=pagespeed>\n" .
+		"  <tr><th style='padding-top: 40px; border-bottom: 2px solid; padding-bottom: 8px;'><span style='font-size: 1.2em; padding: 0 2px 0 2px; font-weight: bold; border: 2px solid; color: " . 
+		scoreColor($overallScore) .
+		"'>$overallScore</span></td>" .
+		"<th style='padding-top: 40px; border-bottom: 2px solid; font-weight: bold; font-size: 1.5em;'>Page Speed score</td></tr>\n";
+
+	$scores = array_keys($ruleStrings);
+	sort($scores);
+	for ( $i = 0; $i < count($scores); $i++ ) {
+		$score = $scores[$i];
+		echo $ruleStrings[$score];
+	}
+	echo "</table>\n";
+}
+
+
+function displayRule($rule) {
+	$title = $rule[0];
+	$score = $rule[1];
+	$details = $rule[2];
+
+	$detailsHtml = "";
+	if ( $details ) {
+		$detailsHtml = "<a href='show details' alt='show details' onclick='toggleDetails(this); return false;' style='text-decoration: none;'><img src='images/right-arrow-17x14.gif' width=17 height=14></a>" .
+			"<div class=popup style='display: none;'>$details</div>\n";
+	}
+
+	$html = "<tr><td class=score style='color: " . scoreColor($score) . ";'>$score</td><td>$title $detailsHtml</td></tr>\n";
+
+	return $html;
+}
+
+
+function scoreColor($score) {
+	return ( $score >= 80 ? "#008000" : ( $score >= 60 ? "#808000" : "#9F0000" ) );
+}
+
+function fixUrls($line) {
+	$pos = ( strpos($line, "http://") ? strpos($line, "http://") : strpos($line, "https://") );
+	if ( $pos ) {
+		$pos2 = ( strpos($line, " ", $pos+1) ? strpos($line, " ", $pos+1) : strlen($line) );
+		$url = substr($line, $pos, $pos2-$pos);
+		return substr($line, 0, $pos) . "<a href='$url'>" . substr($url, 0, 40) . ( strlen($url) > 40 ? "..." : "" ) . "</a>" . substr($line, $pos2);
+	}
+
+	return $line;
+}
+
+?>
 
 
 
