@@ -21,6 +21,7 @@ require_once("utils.php");
 $gArchive = "All";
 $gLabel = getParam('l', latestLabel($gArchive));
 $gTitle = "Interesting Stats";
+$gSet = getParam('s', 'All');
 ?>
 <!doctype html>
 <html>
@@ -49,9 +50,21 @@ Got a stat you'd like to see?
 <a href="http://code.google.com/p/httparchive/issues/entry?summary=New+Interesting+Stat&comment=Here%27s%20an%20interesting%20stat%20I%27d%20like%20to%20see%3A" target="_blank">Suggest it!</a>
 </p>
 
+<div style="float: left; margin-right: 20px;">
 <form>
 	<label>Choose a run:</label>
 	<?php echo selectArchiveLabel($gArchive, $gLabel); ?>
+</form>
+</div>
+
+<form>
+	<label>Choose URLs:</label>
+	<select onchange='document.location="?a=<?php echo $archive ?>&l=<?php echo $gLabel ?>&s="+escape(this.options[this.selectedIndex].value)'>
+	    <option value='All'<?php echo ( "All" == $gSet ? " selected" : "" ) ?>> All
+	    <option value='intersection'<?php echo ( "intersection" == $gSet ? " selected" : "" ) ?>> intersection
+	    <option value='Top100'<?php echo ( "Top100" == $gSet ? " selected" : "" ) ?>> Top 100
+	    <option value='Top1000'<?php echo ( "Top1000" == $gSet ? " selected" : "" ) ?>> Top 1000
+	</select>
 </form>
 
 <div id=interesting style="margin-top: 40px;">
@@ -82,7 +95,7 @@ function showSnippets() {
 }
 
 var interestingjs = document.createElement('script');
-interestingjs.src = "interesting.js?l=<?php echo $gLabel ?>";
+interestingjs.src = "interesting.js?l=<?php echo $gLabel ?>&s=<?php echo $gSet ?>";
 interestingjs.onload = showSnippets;
 interestingjs.onreadystatechange = function() { if ( interestingjs.readyState == 'complete' || interestingjs.readyState == 'loaded' ) { showSnippets(); } };
 document.getElementsByTagName('head')[0].appendChild(interestingjs);
