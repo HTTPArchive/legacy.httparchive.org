@@ -12,6 +12,20 @@ push :
 	echo "push .htaccess!"
 	echo "CREATE interesting-images.js.cache !!!!!!!!!!!"
 
+pushmobile :
+	cp -p *.php settings.inc trends.inc *.js *.css favicon.ico ~/mobile.httparchive.org/.
+	/bin/rm ~/mobile.httparchive.org/admin.php
+	mkdir -p ~/mobile.httparchive.org/images
+	cp -p images/*.* ~/mobile.httparchive.org/images/.
+	mkdir -p ~/mobile.httparchive.org/lists
+	cp -p lists/*.txt ~/mobile.httparchive.org/lists/.
+	mkdir -p ~/mobile.httparchive.org/cache
+	chmod 777 ~/mobile.httparchive.org/cache
+	mkdir -p ~/mobile.httparchive.org/downloads
+	cp -pu downloads/*.gz ~/mobile.httparchive.org/downloads/.
+	echo "push .htaccess!"
+	echo "CREATE interesting-images.js.cache !!!!!!!!!!!"
+
 pushbeta :
 	mkdir -p ~/beta.httparchive.org
 	cp -p *.php settings.inc trends.inc *.js *.css favicon.ico .htaccess ~/beta.httparchive.org/.
