@@ -66,6 +66,12 @@ if ( isset($gSet) ) {
 		mysql_free_result($result);
 		$setWhere = " and url in ('" . implode("','", $aUrls) . "')";
 	}
+	else if ( "Top100" === $gSet ) {
+		$setWhere = " and url in ('" . implode("','", $gaTop100) . "')";
+	}
+	else if ( "Top1000" === $gSet ) {
+		$setWhere = " and url in ('" . implode("','", $gaTop1000) . "')";
+	}
 	else if ( "url" === $gSet && isset($gUrl) ) {
 		$setWhere = " and url = '$gUrl'";
 	}
