@@ -48,7 +48,6 @@ $wptrun = $row['wptrun'];
 $onLoad = $row['onLoad'];
 $renderStart = $row['renderStart'];
 
-$server = 'http://httparchive.webpagetest.org/';  // also in bulktest/settings.inc
 $harfileWptUrl = "{$server}export.php?test=$wptid&run=$wptrun&cached=0";
 
 ?>
@@ -157,8 +156,8 @@ OUTPUT;
 ?>
 
 <ul class=horizlist>
-  <li> <a href="http://httparchive.webpagetest.org/video/compare.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0">WPT filmstrip</a>
-  <li> <a href="http://httparchive.webpagetest.org/video/create.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0&id=<?php echo $wptid ?>.<?php echo $wptrun ?>.0">watch video</a>
+  <li> <a href="<?php echo $server ?>video/compare.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0">WPT filmstrip</a>
+  <li> <a href="<?php echo $server ?>video/create.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0&id=<?php echo $wptid ?>.<?php echo $wptrun ?>.0">watch video</a>
 </ul>
 
 
@@ -206,7 +205,7 @@ initHAR();
 <div id="pagespeedreport" style="margin-top: 10px; font-size: 0.9em;"></div>
 
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-<script type="text/javascript" src="http://httparchive.webpagetest.org/widgets/pagespeed/tree?test=<?php echo $wptid ?>&div=pagespeedreport"></script>
+<script type="text/javascript" src="<?php echo $server ?>widgets/pagespeed/tree?test=<?php echo $wptid ?>&div=pagespeedreport"></script>
 
 
 
