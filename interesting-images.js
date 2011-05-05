@@ -24,16 +24,19 @@ Return a JavaScript array of image URLs for charts.
 
 // We compute these below.
 $gTotalPages = $gTotalRequests = $gMinPageid = $gMaxPageid = 0;
+$gPageidCond = "";
 
 // Add the label to the cached filename.
 $gArchive = "All";
 if ( isset($argc) ) {
 	// Handle commandline arguments when we're creating cached files from a script.
 	$gLabel = $argv[1];
+	$gSet = $argv[2];
 }
 else {
 	// Otherwise, get the label from the querystring.
 	$gLabel = getParam('l', latestLabel($gArchive));
+	$gSet = getParam('s', 'All');
 }
 
 // Add the revision # to the cached filename.
@@ -55,14 +58,14 @@ function renderCorrelation() {
 
 
 function findCorrelation($var1, $tname, $title, $color="80C65A") {
-	global $gPagesTable, $ghColumnTitles, $gArchive, $gLabel;
+	global $gPageidCond, $gPagesTable, $ghColumnTitles;
 
 	// TODO - make this more flexible
 	$aVars = array("PageSpeed", "reqTotal", "reqHtml", "reqJS", "reqCSS", "reqImg", "reqFlash", "reqJson", "reqOther", "bytesTotal", "bytesHtml", "bytesJS", "bytesCSS", "bytesImg", "bytesFlash", "bytesJson", "bytesOther", "numDomains");
 	$hCC = array();
 	foreach ($aVars as $var2) {
 		// from http://www.freeopenbook.com/mysqlcookbook/mysqlckbk-chp-13-sect-6.html
-		$cmd = "SELECT @n := COUNT($var1) AS n, @sumX := SUM($var2) AS 'sumX', @sumXX := SUM($var2*$var2) 'sumXX', @sumY := SUM($var1) AS 'sumY', @sumYY := SUM($var1*$var1) 'sumYY', @sumXY := SUM($var2*$var1) AS 'sumXY' FROM $gPagesTable where archive='$gArchive' and label='$gLabel' and $var2 is not null and $var2 > 0;";
+		$cmd = "SELECT @n := COUNT($var1) AS n, @sumX := SUM($var2) AS 'sumX', @sumXX := SUM($var2*$var2) 'sumXX', @sumY := SUM($var1) AS 'sumY', @sumYY := SUM($var1*$var1) 'sumYY', @sumXY := SUM($var2*$var1) AS 'sumXY' FROM $gPagesTable where $gPageidCond and $var2 is not null and $var2 > 0;";
 		$row = doRowQuery($cmd);
 		$n = $row['n'];
 		if ( $n ) {
@@ -108,9 +111,9 @@ function findCorrelation($var1, $tname, $title, $color="80C65A") {
 
 
 function redirects() {
-	global $gMinPageid, $gMaxPageid, $gRequestsTable, $gArchive, $gLabel, $gTotalPages;
+	global $gPageidCond, $gRequestsTable, $gTotalPages;
 
-	$num = doSimpleQuery("select count(distinct pageid) as num from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and status >= 300 and status < 400 and status != 304;");
+	$num = doSimpleQuery("select count(distinct pageid) as num from $gRequestsTable where $gPageidCond and status >= 300 and status < 400 and status != 304;");
 	$yes = round(100*$num/$gTotalPages);
 	$no = 100-$yes;
 	$aVarNames = array("No Redirects $no%", "Redirects $yes%");
@@ -120,9 +123,9 @@ function redirects() {
 
 
 function requestErrors() {
-	global $gMinPageid, $gMaxPageid, $gRequestsTable, $gArchive, $gLabel, $gTotalPages;
+	global $gPageidCond, $gRequestsTable, $gTotalPages;
 
-	$num = doSimpleQuery("select count(distinct pageid) as num from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and status >= 400 and status < 600;");
+	$num = doSimpleQuery("select count(distinct pageid) as num from $gRequestsTable where $gPageidCond and status >= 400 and status < 600;");
 	$yes = round(100*$num/$gTotalPages);
 	$no = 100-$yes;
 	$aVarNames = array("No Errors $no%", "Errors $yes%");
@@ -132,9 +135,12 @@ function requestErrors() {
 
 
 function most404s() {
-	global $gMinPageid, $gMaxPageid, $gRequestsTable, $gPagesTable, $gTotalPages, $gTotalRequests;
- 
-	$result = doQuery("select pt.url as url, count(rt.requestid) as cnt from $gRequestsTable rt join $gPagesTable pt on pt.pageid = rt.pageid where rt.pageid >= $gMinPageid and rt.pageid <= $gMaxPageid and rt.status = 404 group by rt.pageid order by cnt desc limit 5;");
+	global $gPageidCond, $gRequestsTable, $gPagesTable, $gTotalPages, $gTotalRequests;
+
+	// Need to scope the pageid variable to a specific table.
+	$tmpPageidCond = str_replace("pageid", "rt.pageid", $gPageidCond);
+
+	$result = doQuery("select pt.url as url, count(rt.requestid) as cnt from $gRequestsTable rt join $gPagesTable pt on pt.pageid = rt.pageid where $tmpPageidCond and rt.status = 404 group by rt.pageid order by cnt desc limit 5;");
 	$aVarNames = array();
 	$aVarValues = array();
 	$maxValue = 0;
@@ -147,22 +153,22 @@ function most404s() {
 	}
 	mysql_free_result($result);
 	array_push($aVarNames, "average");
-	array_push($aVarValues, doSimpleQuery("select TRUNCATE(count(requestid)/$gTotalPages, 1) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and status = 404;"));
+	array_push($aVarValues, doSimpleQuery("select TRUNCATE(count(requestid)/$gTotalPages, 1) from $gRequestsTable rt where $tmpPageidCond and status = 404;"));
 
 	return horizontalBarChart("Pages with the Most 404s", "most404", $aVarNames, $aVarValues, "B4B418", 0, $maxValue+100, "total 404s", false, "");
 }
 
 
 function responseSizes() {
-	global $gMinPageid, $gMaxPageid, $gRequestsTable, $gArchive, $gLabel;
+	global $gPageidCond, $gRequestsTable;
 
-	$gif = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%image/gif%';") );
-	$jpg = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and (resp_content_type like '%image/jpg%' or resp_content_type like '%image/jpeg%');") );
-	$png = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%image/png%';") );
-	$js = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%script%';") );
-	$css = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%css%';") );
-	$flash = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%flash%';") );
-	$html = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%html%';") );
+	$gif = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where $gPageidCond and resp_content_type like '%image/gif%';") );
+	$jpg = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where $gPageidCond and (resp_content_type like '%image/jpg%' or resp_content_type like '%image/jpeg%');") );
+	$png = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where $gPageidCond and resp_content_type like '%image/png%';") );
+	$js = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where $gPageidCond and resp_content_type like '%script%';") );
+	$css = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where $gPageidCond and resp_content_type like '%css%';") );
+	$flash = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where $gPageidCond and resp_content_type like '%flash%';") );
+	$html = formatSize( doSimpleQuery("select avg(respSize) from $gRequestsTable where $gPageidCond and resp_content_type like '%html%';") );
 
 	$aVarNames = array("GIF", "JPEG", "PNG", "HTML", "JS", "CSS", "Flash");
 	$aVarValues = array($gif, $jpg, $png, $html, $js, $css, $flash);
@@ -173,12 +179,12 @@ function responseSizes() {
 
 
 function popularImageFormats() {
-	global $gMinPageid, $gMaxPageid, $gRequestsTable, $gArchive, $gLabel;
+	global $gPageidCond, $gRequestsTable;
 
-	$total = doSimpleQuery("select count(*) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%image%';");
-	$gif = round( 100*doSimpleQuery("select count(*) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%image/gif%';") / $total);
-	$jpg = round( 100*doSimpleQuery("select count(*) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and (resp_content_type like '%image/jpg%' or resp_content_type like '%image/jpeg%');") / $total);
-	$png = round( 100*doSimpleQuery("select count(*) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_content_type like '%image/png%';") / $total);
+	$total = doSimpleQuery("select count(*) from $gRequestsTable where $gPageidCond and resp_content_type like '%image%';");
+	$gif = round( 100*doSimpleQuery("select count(*) from $gRequestsTable where $gPageidCond and resp_content_type like '%image/gif%';") / $total);
+	$jpg = round( 100*doSimpleQuery("select count(*) from $gRequestsTable where $gPageidCond and (resp_content_type like '%image/jpg%' or resp_content_type like '%image/jpeg%');") / $total);
+	$png = round( 100*doSimpleQuery("select count(*) from $gRequestsTable where $gPageidCond and resp_content_type like '%image/png%';") / $total);
 
 	$aVarNames = array("GIF $gif%", "JPEG $jpg%", "PNG $png%");
 	$aVarValues = array($gif, $jpg, $png);
@@ -188,12 +194,12 @@ function popularImageFormats() {
 
 
 function maxage() {
-	global $gMinPageid, $gMaxPageid, $gRequestsTable, $gArchive, $gLabel, $gTotalRequests;
+	global $gPageidCond, $gRequestsTable, $gTotalRequests;
 
 	// faster to do one query?
-	// $zeroOrNeg = doSimpleQuery("select count(*) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and (resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%');");
+	// $zeroOrNeg = doSimpleQuery("select count(*) from $gRequestsTable where $gPageidCond and (resp_cache_control like '%max-age=0%' or resp_cache_control like '%max-age=-%');");
 
-	$query = "select ceil( convert( substring( resp_cache_control, (length(resp_cache_control) + 2 - locate('=ega-xam', reverse(resp_cache_control))) ), SIGNED ) / 86400) as maxagedays, count(*) as num from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and resp_cache_control like '%max-age=%' group by maxagedays order by maxagedays asc;";
+	$query = "select ceil( convert( substring( resp_cache_control, (length(resp_cache_control) + 2 - locate('=ega-xam', reverse(resp_cache_control))) ), SIGNED ) / 86400) as maxagedays, count(*) as num from $gRequestsTable where $gPageidCond and resp_cache_control like '%max-age=%' group by maxagedays order by maxagedays asc;";
 
 	$result = doQuery($query);
 	$zeroOrNeg = $day = $month = $year = $yearplus = 0;
@@ -232,9 +238,9 @@ function maxage() {
 
 
 function popularServers() {
-	global $gMinPageid, $gMaxPageid, $gRequestsTable, $gTotalPages;
+	global $gPageidCond, $gRequestsTable, $gTotalPages;
 
-	$result = doQuery("select count(*) as num, substring_index(substring_index(substring_index(lower(ifnull(resp_server, '')), ' ', 1), '/', 1), '(', 1) as server_name from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and firstHtml = 1 group by server_name order by num desc limit 9;");
+	$result = doQuery("select count(*) as num, substring_index(substring_index(substring_index(lower(ifnull(resp_server, '')), ' ', 1), '/', 1), '(', 1) as server_name from $gRequestsTable where $gPageidCond and firstHtml = 1 group by server_name order by num desc limit 9;");
 
 	$otherCount = $gTotalPages;
 	$aVarNames = array();
@@ -258,9 +264,9 @@ function popularServers() {
 
 
 function percentByProtocol() {
-	global $gMinPageid, $gMaxPageid, $gRequestsTable, $gTotalRequests;
+	global $gPageidCond, $gRequestsTable, $gTotalRequests;
 
-	$num = doSimpleQuery("select count(*) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and url like 'https://%'");
+	$num = doSimpleQuery("select count(*) from $gRequestsTable where $gPageidCond and url like 'https://%'");
 	$https = round(100*$num/$gTotalRequests);
 	$http = 100-$https;
 	$aVarNames = array("HTTP $http%", "HTTPS $https%");
@@ -271,9 +277,9 @@ function percentByProtocol() {
 
 
 function bytesContentType() {
-	global $gPagesTable, $gArchive, $gLabel;
+	global $gPageidCond, $gPagesTable;
 
-	$row = doRowQuery("select avg(bytesTotal) as total, avg(bytesHtml) as html, avg(bytesJS) as js, avg(bytesCSS) as css, avg(bytesImg) as img, avg(bytesFlash) as flash, avg(bytesJson) as json, avg(bytesOther) as other from $gPagesTable where archive='$gArchive' and label='$gLabel';");
+	$row = doRowQuery("select avg(bytesTotal) as total, avg(bytesHtml) as html, avg(bytesJS) as js, avg(bytesCSS) as css, avg(bytesImg) as img, avg(bytesFlash) as flash, avg(bytesJson) as json, avg(bytesOther) as other from $gPagesTable where $gPageidCond;");
 	$total = $row['total'];
 	$aVarValues = array( formatSize($row['html']), formatSize($row['img']), formatSize($row['js']), 
 						 formatSize($row['css']), formatSize($row['flash']), formatSize($row['json']+$row['other']) );
@@ -284,9 +290,9 @@ function bytesContentType() {
 
 
 function percentFlash() {
-	global $gPagesTable, $gArchive, $gLabel, $gTotalPages;
+	global $gPageidCond, $gPagesTable, $gTotalPages;
 
-	$num = doSimpleQuery("select count(*) from $gPagesTable where archive='$gArchive' and label='$gLabel' and reqFlash > 0;");
+	$num = doSimpleQuery("select count(*) from $gPagesTable where $gPageidCond and reqFlash > 0;");
 	$yes = round(100*$num/$gTotalPages);
 	$no = 100-$yes;
 	$aVarNames = array("No Flash $no%", "Flash $yes%");
@@ -296,9 +302,12 @@ function percentFlash() {
 
 
 function popularScripts() {
-	global $gPagesTable, $gRequestsTable, $gTotalPages, $gArchive, $gLabel;
+	global $gPageidCond, $gPagesTable, $gRequestsTable, $gTotalPages;
 
-	$result = doQuery("select $gRequestsTable.url, count(distinct $gPagesTable.pageid) as num from $gRequestsTable, $gPagesTable where $gRequestsTable.pageid=$gPagesTable.pageid and archive='$gArchive' and label='$gLabel' and resp_content_type like '%script%' group by $gRequestsTable.url order by num desc limit 5;");
+	// Need to scope the pageid variable to a specific table.
+	$tmpPageidCond = str_replace("pageid", "rt.pageid", $gPageidCond);
+
+	$result = doQuery("select rt.url, count(distinct $gPagesTable.pageid) as num from $gPagesTable, $gRequestsTable rt where rt.pageid=$gPagesTable.pageid and $tmpPageidCond and resp_content_type like '%script%' group by rt.url order by num desc limit 5;");
 
 	$aVarNames = array();
 	$aVarValues = array();
@@ -317,25 +326,28 @@ function popularScripts() {
 
 
 function jsLibraries() {
-	global $gPagesTable, $gRequestsTable, $gArchive, $gLabel, $gTotalPages;
+	global $gPageidCond, $gPagesTable, $gRequestsTable, $gTotalPages;
+
+	// Need to scope the pageid variable to a specific table.
+	$tmpPageidCond = str_replace("pageid", "rt.pageid", $gPageidCond);
 
 	$hCond = array();
-	$hCond["jQuery"] = "$gRequestsTable.url like '%jquery%'";
-	$hCond["YUI"] = "$gRequestsTable.url like '%/yui/%'";
-	$hCond["Dojo"] = "$gRequestsTable.url like '%dojo%'";
-	$hCond["Google Analytics"] = "($gRequestsTable.url like '%/ga.js%' or $gRequestsTable.url like '%/urchin.js%')";
-	$hCond["Quantcast"] = "$gRequestsTable.url like '%quant.js%'";
-	$hCond["AddThis"] = "$gRequestsTable.url like '%addthis.com%'";
-	$hCond["Facebook"] = "($gRequestsTable.url like '%facebook.com/plugins/%' or $gRequestsTable.url like '%facebook.com/widgets/%' or $gRequestsTable.url like '%facebook.com/connect/%')";
-	$hCond["Twitter"] = "$gRequestsTable.url like '%twitter%'";
-	$hCond["ShareThis"] = "$gRequestsTable.url like '%sharethis%'";
+	$hCond["jQuery"] = "rt.url like '%jquery%'";
+	$hCond["YUI"] = "rt.url like '%/yui/%'";
+	$hCond["Dojo"] = "rt.url like '%dojo%'";
+	$hCond["Google Analytics"] = "(rt.url like '%/ga.js%' or rt.url like '%/urchin.js%')";
+	$hCond["Quantcast"] = "rt.url like '%quant.js%'";
+	$hCond["AddThis"] = "rt.url like '%addthis.com%'";
+	$hCond["Facebook"] = "(rt.url like '%facebook.com/plugins/%' or rt.url like '%facebook.com/widgets/%' or rt.url like '%facebook.com/connect/%')";
+	$hCond["Twitter"] = "rt.url like '%twitter%'";
+	$hCond["ShareThis"] = "rt.url like '%sharethis%'";
 
 	$aVarNames = array();
 	$aVarValues = array();
 	foreach (array_keys($hCond) as $key) {
 		$cond = $hCond[$key];
 		array_push($aVarNames, $key);
-		array_push($aVarValues, round( 100*doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gPagesTable, $gRequestsTable where archive='$gArchive' and label='$gLabel' and $gRequestsTable.pageid=$gPagesTable.pageid and (resp_content_type like '%script%' or resp_content_type like '%html%') and $cond;") / $gTotalPages ));
+		array_push($aVarValues, round( 100*doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gPagesTable, $gRequestsTable rt where $tmpPageidCond and rt.pageid=$gPagesTable.pageid and (resp_content_type like '%script%' or resp_content_type like '%html%') and $cond;") / $gTotalPages ));
 	}
 
 	return horizontalBarChart("Popular JavaScript Libraries", "popularjslib", $aVarNames, $aVarValues, "3399CC", 0, 100, "sites using the JS library", true, "%");
@@ -343,9 +355,12 @@ function jsLibraries() {
 
 
 function percentGoogleLibrariesAPI() {
-	global $gPagesTable, $gRequestsTable, $gArchive, $gLabel, $gTotalPages;
+	global $gPageidCond, $gPagesTable, $gRequestsTable, $gTotalPages;
 
-	$num = doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gPagesTable, $gRequestsTable where archive='$gArchive' and label='$gLabel' and $gRequestsTable.pageid=$gPagesTable.pageid and $gRequestsTable.url like '%googleapis.com%';");
+	// Need to scope the pageid variable to a specific table.
+	$tmpPageidCond = str_replace("pageid", "rt.pageid", $gPageidCond);
+
+	$num = doSimpleQuery("select count(distinct $gPagesTable.pageid) from $gPagesTable, $gRequestsTable rt where $tmpPageidCond and rt.pageid=$gPagesTable.pageid and rt.url like '%googleapis.com%';");
 	$yes = round(100*$num/$gTotalPages);
 	$no = 100-$yes;
 	$aVarNames = array("no $no%", "yes $yes%");
@@ -355,9 +370,9 @@ function percentGoogleLibrariesAPI() {
 
 
 function mostJS() {
-	global $gPagesTable, $gArchive, $gLabel;
+	global $gPageidCond, $gPagesTable;
 
-	$result = doQuery("select url, bytesJS from $gPagesTable where archive='$gArchive' and label='$gLabel' order by bytesJS desc limit 5;");
+	$result = doQuery("select url, bytesJS from $gPagesTable where $gPageidCond order by bytesJS desc limit 5;");
 	$aVarNames = array();
 	$aVarValues = array();
 	$maxValue = 0;
@@ -370,16 +385,16 @@ function mostJS() {
 	}
 	mysql_free_result($result);
 	array_push($aVarNames, "average");
-	array_push($aVarValues, round(doSimpleQuery("select avg(bytesJS) from $gPagesTable where archive='$gArchive' and label='$gLabel';")/1024));
+	array_push($aVarValues, round(doSimpleQuery("select avg(bytesJS) from $gPagesTable where $gPageidCond;")/1024));
 
 	return horizontalBarChart("Pages with the Most JavaScript", "mostjs", $aVarNames, $aVarValues, "B4B418", 0, $maxValue+100, "size of all scripts (kB)", false, "+kB");
 }
 
 
 function mostCSS() {
-	global $gPagesTable, $gArchive, $gLabel;
+	global $gPageidCond, $gPagesTable;
 
-	$result = doQuery("select url, bytesCSS from $gPagesTable where archive='$gArchive' and label='$gLabel' order by bytesCSS desc limit 5;");
+	$result = doQuery("select url, bytesCSS from $gPagesTable where $gPageidCond order by bytesCSS desc limit 5;");
 	$aVarNames = array();
 	$aVarValues = array();
 	$maxValue = 0;
@@ -392,16 +407,16 @@ function mostCSS() {
 	}
 	mysql_free_result($result);
 	array_push($aVarNames, "average");
-	array_push($aVarValues, round(doSimpleQuery("select avg(bytesCSS) from $gPagesTable where archive='$gArchive' and label='$gLabel';")/1024));
+	array_push($aVarValues, round(doSimpleQuery("select avg(bytesCSS) from $gPagesTable where $gPageidCond;")/1024));
 
 	return horizontalBarChart("Pages with the Most CSS", "mostcss", $aVarNames, $aVarValues, "CF557B", 0, $maxValue+100, "size of all stylesheets (kB)", false, "+kB");
 }
 
 
 function mostImages() {
-	global $gPagesTable, $gArchive, $gLabel;
+	global $gPageidCond, $gPagesTable;
 
-	$result = doQuery("select url, reqImg from $gPagesTable where archive='$gArchive' and label='$gLabel' order by reqImg desc limit 5;");
+	$result = doQuery("select url, reqImg from $gPagesTable where $gPageidCond order by reqImg desc limit 5;");
 	$aVarNames = array();
 	$aVarValues = array();
 	$maxValue = 0;
@@ -414,16 +429,16 @@ function mostImages() {
 	}
 	mysql_free_result($result);
 	array_push($aVarNames, "average");
-	array_push($aVarValues, doSimpleQuery("select avg(reqImg) from $gPagesTable where archive='$gArchive' and label='$gLabel';"));
+	array_push($aVarValues, doSimpleQuery("select avg(reqImg) from $gPagesTable where $gPageidCond;"));
 
 	return horizontalBarChart("Pages with the Most Images", "mostimages", $aVarNames, $aVarValues, "1515FF", 0, $maxValue+10);
 }
 
 
 function mostFlash() {
-	global $gPagesTable, $gArchive, $gLabel;
+	global $gPageidCond, $gPagesTable;
 
-	$result = doQuery("select url, reqFlash from $gPagesTable where archive='$gArchive' and label='$gLabel' order by reqFlash desc limit 5;");
+	$result = doQuery("select url, reqFlash from $gPagesTable where $gPageidCond order by reqFlash desc limit 5;");
 	$aVarNames = array();
 	$aVarValues = array();
 	$maxValue = 0;
@@ -436,7 +451,7 @@ function mostFlash() {
 	}
 	mysql_free_result($result);
 	array_push($aVarNames, "average");
-	array_push($aVarValues, doSimpleQuery("select avg(reqFlash) from $gPagesTable where archive='$gArchive' and label='$gLabel';"));
+	array_push($aVarValues, doSimpleQuery("select avg(reqFlash) from $gPagesTable where $gPageidCond;"));
 
 	return horizontalBarChart("Pages with the Most Flash Files", "mostflash", $aVarNames, $aVarValues, "AA0033", 0, $maxValue+10);
 }
@@ -499,7 +514,7 @@ function horizontalBarChart($title, $id, $aNames, $aValues, $color="80C65A", $mi
 
 
 // example: interesting-images.js.356.Mar 29 2011.cache
-$gCacheFile = "./cache/interesting-images.js.$gRev.$gLabel.cache";
+$gCacheFile = "./cache/interesting-images.js.$gRev.$gLabel.$gSet.cache";
 $snippets = "";
 
 if ( file_exists($gCacheFile) ) {
@@ -508,11 +523,49 @@ if ( file_exists($gCacheFile) ) {
 
 if ( ! $snippets ) {
 	// Saves a little time since we use the # of pages frequently.
-	$row = doRowQuery("select count(*) as num, min(pageid) as minp, max(pageid) as maxp from $gPagesTable where archive='$gArchive' and label='$gLabel';");
-	$gTotalPages = $row['num'];
+	$row = doRowQuery("select min(pageid) as minp, max(pageid) as maxp from $gPagesTable where archive='$gArchive' and label='$gLabel';");
 	$gMinPageid = $row['minp'];
 	$gMaxPageid = $row['maxp'];
-	$gTotalRequests = doSimpleQuery("select count(*) from $gRequestsTable where pageid >= $gMinPageid and pageid <= $gMaxPageid;");
+	$gPageidCond = "pageid >= $gMinPageid and pageid <= $gMaxPageid";
+
+	if ( isset($gSet) ) {
+    	if ( "intersection" === $gSet ) {
+			// Find the set of URLs that are constant across all labels;
+			$numLabels = doSimpleQuery("select count(distinct(label)) from $gPagesTable where $gDateRange;");
+			$query = "select url, count(label) as num from $gPagesTable where $gDateRange group by url having num = $numLabels;";
+			$result = doQuery($query);
+			$aUrls = array();
+			while ( $row = mysql_fetch_assoc($result) ) {
+				$aUrls[] = $row['url'];
+			}
+			mysql_free_result($result);
+
+			$query = "select pageid from $gPagesTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and url in ('" . implode("','", $aUrls) . "');";
+			$result = doQuery($query);
+			$aPageids = array();
+			while ( $row = mysql_fetch_assoc($result) ) {
+				$aPageids[] = $row['pageid'];
+			}
+			mysql_free_result($result);
+
+			$gPageidCond = "pageid in ('" . implode("','", $aPageids) . "')";
+		}
+		else if ( "Top100" === $gSet || "Top1000" === $gSet ) {
+			$query = "select pageid from $gPagesTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and url in ('" . 
+				implode("','", ( "Top100" === $gSet ? $gaTop100 : $gaTop1000 )) . "');";
+			$result = doQuery($query);
+			$aPageids = array();
+			while ( $row = mysql_fetch_assoc($result) ) {
+				$aPageids[] = $row['pageid'];
+			}
+			mysql_free_result($result);
+
+			$gPageidCond = "pageid in ('" . implode("','", $aPageids) . "')";
+		}
+	}
+
+	$gTotalPages = doSimpleQuery("select count(*) from $gPagesTable where $gPageidCond;");
+	$gTotalRequests = doSimpleQuery("select count(*) from $gRequestsTable where $gPageidCond;");
 
 	// The list of "interesting stats" charts.
 	// We put this here so we can set the element id.
