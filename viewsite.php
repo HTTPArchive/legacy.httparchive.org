@@ -55,7 +55,7 @@ $harfileWptUrl = "{$server}export.php?test=$wptid&run=$wptrun&cached=0";
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>HTTP Archive - <?php echo htmlentities($url) ?></title>
+<title><?php echo genTitle(htmlentities($url)) ?></title>
 
 <?php echo headfirst() ?>
 <link type="text/css" rel="stylesheet" href="style.css" />

@@ -23,7 +23,7 @@ $gTitle = "News";
 <!doctype html>
 <html>
 <head>	
-<title><?php echo $gTitle ?></title>
+<title><?php echo genTitle($gTitle) ?></title>
 <meta charset="UTF-8">
 
 <?php echo headfirst() ?>
