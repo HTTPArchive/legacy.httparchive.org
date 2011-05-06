@@ -15,6 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+
+function genTitle($addl = "") {
+	return "HTTP Archive " . 
+		( $gbMobile ? "Mobile " : "" ) . 
+		( $addl ? " = $addl" : "" );
+}
+
+
 function globalCss() {
 	return <<<OUTPUT
 <style>
