@@ -285,7 +285,7 @@ function bytesContentType() {
 						 formatSize($row['css']), formatSize($row['flash']), formatSize($row['json']+$row['other']) );
 	$aVarNames = array("HTML - " . $aVarValues[0] . " kB", "Images - " . $aVarValues[1] . " kB", "Scripts - " . $aVarValues[2] . " kB", 
 					   "Stylesheets - " . $aVarValues[3] . " kB", "Flash - " . $aVarValues[4] . " kB", "Other - " . $aVarValues[5] . " kB");
-	return pieChart("Average Bytes per Page by Content Type", "bytesperpage", $aVarNames, $aVarValues, "007099");
+	return pieChart("Average Bytes per Page by Content Type", "bytesperpage", $aVarNames, $aVarValues, "007099", "total " . formatSize($total) . " kB");
 }
 
 
@@ -314,8 +314,10 @@ function popularScripts() {
 	while ($row = mysql_fetch_assoc($result)) {
 		$url = $row['url'];
 		$num = $row['num'];
-		array_push($aVarNames, $url);
-		array_push($aVarValues, round(100*$num/$gTotalPages));
+		if ( 1 < $num ) {
+			array_push($aVarNames, $url);
+			array_push($aVarValues, round(100*$num/$gTotalPages));
+		}
 	}
 	mysql_free_result($result);
 
@@ -449,6 +451,11 @@ function mostFlash() {
 			$maxValue = $row['reqFlash'];
 		}
 	}
+
+	if ( 0 == $maxValue ) {
+		return "";
+	}
+
 	mysql_free_result($result);
 	array_push($aVarNames, "average");
 	array_push($aVarValues, doSimpleQuery("select avg(reqFlash) from $gPagesTable where $gPageidCond;"));
@@ -457,10 +464,11 @@ function mostFlash() {
 }
 
 
-function pieChart($title, $id, $aNames, $aValues, $color="007099") {
+function pieChart($title, $id, $aNames, $aValues, $color="007099", $legend = "") {
 	return "<a href='interesting.php#$id'><img id=$id class=chart src='http://chart.apis.google.com/chart?chs=400x225&cht=p&chco=$color&chd=t:" .
 		implode(",", $aValues) .
 		chdsMinmax($aValues, true) .
+		( $legend ? "&chdlp=b&chdl=$legend" : "" ) .
 		"&chl=" .
 		urlencode(implode("|", $aNames)) .
 		"&chma=|5&chtt=" . urlencode($title) . "'></a>";
