@@ -77,10 +77,11 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
 	}
 
 	$mobile = ( $gbMobile ? "<br><span style='font-style: italic; font-size: 0.7em;'>Mobile</span>" : "" );
+	$version = ( $gbMobile ? "ALPHA" : "BETA" );
 
 	return <<<OUTPUT
     <header>
-		<a href="index.php" id="logo" style="line-height: 0.7em;">HTTP Archive$mobile</a>BETA
+		<a href="index.php" id="logo" style="line-height: 0.7em;">HTTP Archive$mobile</a>$version
 		$navlinks
 	</header>
 
