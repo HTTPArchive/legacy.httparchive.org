@@ -27,7 +27,7 @@ $url = $row['url'];
 $wptid = $row['wptid'];
 $wptrun = $row['wptrun'];
 $onLoad = $row['onLoad'];
-$interval = ( $onLoad > 15000 ? 5000 : ( $onLoad > 4000 ? 1000 : ( $onLoad > 1000 ? 500 : 100 ) ) );
+$interval = ( $gbMobile ? 1000 : ( $onLoad > 15000 ? 5000 : ( $onLoad > 4000 ? 1000 : ( $onLoad > 1000 ? 500 : 100 ) ) ) );
 $renderStart = $row['renderStart'];
 
 $xmlurl = "{$server}xmlResult.php?test=$wptid";
