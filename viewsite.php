@@ -49,10 +49,6 @@ $onLoad = $row['onLoad'];
 $renderStart = $row['renderStart'];
 
 $harfileWptUrl = "{$server}export.php?test=$wptid&run=$wptrun&cached=0";
-if ( $gbMobile ) {
- 	list($date, $id) = explode("_", $wptid);
- 	$harfileWptUrl = "{$server}results/" . substr($date, 0, 2) . "/" . substr($date, 2, 2) . "/" . substr($date, 4, 2) . "/$id/results.har";
-}
 
 ?>
 <!doctype html>
