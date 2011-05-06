@@ -87,6 +87,22 @@ $harfileWptUrl = "{$server}export.php?test=$wptid&run=$wptrun&cached=0";
 <?php 
 // Build a table that has empty cells to be filled in later.
 if ( ! onBlacklist($url) ) {
+
+	if ( $gbMobile ) {
+		// right now Blaze.io only does 1 FPS
+		$intervalOptions = <<<OUTPUT
+<option value=1000>1 second</option>
+OUTPUT;
+	}
+	else {
+		$intervalOptions = <<<OUTPUT
+<option value=100>0.1 seconds</option>
+<option value=500>0.5 seconds</option>
+<option value=1000>1 second</option>
+<option value=5000>5 seconds</option>
+OUTPUT;
+	}
+
 	echo <<<OUTPUT
 <section id="videoContainer">
 <div id="videoDiv">
@@ -137,10 +153,7 @@ function showInterval(ms) {
 <form>
 <label for=interval>Show screenshots every:</label>
 <select id=interval onchange='showInterval(this.options[this.selectedIndex].value)'>
-<option value=100>0.1 seconds</option>
-<option value=500>0.5 seconds</option>
-<option value=1000>1 second</option>
-<option value=5000>5 seconds</option>
+$intervalOptions
 </select>
 </form>
 
