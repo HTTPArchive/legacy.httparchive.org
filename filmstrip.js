@@ -61,7 +61,9 @@ for ( $i = 0; $i < ($onLoad+100); $i += 100 ) {
 	}
 	$f = "0000" . ($lastFrameTime/100);
 	$f = substr($f, strlen($f)-4);
-	$sTd .= "<td id=td$i class='$class' style='display: none;'><a target='_blank' href='$url$f.jpg'><img width=200 height=140 id='{$server}thumbnail.php?test=$wptid&width=200&file=video_$wptrun/frame_$f.jpg'></a></td>";
+	$sTd .= "<td id=td$i class='$class' style='display: none;'><a target='_blank' href='$url$f.jpg'><img width=" .
+		( $gbMobile ? "93" : "200" ) . 
+		" height=140 id='{$server}thumbnail.php?test=$wptid&width=200&file=video_$wptrun/frame_$f.jpg'></a></td>";
 }
 ?>
 
