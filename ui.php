@@ -16,10 +16,15 @@ limitations under the License.
 */
 
 
+require_once("utils.php");
+
+
 function genTitle($addl = "") {
+	global $gbMobile;
+
 	return "HTTP Archive " . 
 		( $gbMobile ? "Mobile " : "" ) . 
-		( $addl ? " = $addl" : "" );
+		( $addl ? " - $addl" : "" );
 }
 
 
