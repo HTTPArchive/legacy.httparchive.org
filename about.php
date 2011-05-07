@@ -244,7 +244,10 @@ Screenshots are not shown for websites flagged as adult only.
 <p>Steve Souders created the HTTP Archive. 
 It's built on the shoulders of Pat Meenan's <a href="http://www.webpagetest.org">WebPagetest</a> system.
 Several folks on Google's Make the Web Faster team chipped in.
-I've received patches from several individuals including <a href="http://www.ioncannon.net/">Carson McDonald</a> and Mike Pfirrmann.
+I've received patches from several individuals including 
+<a href="http://www.ioncannon.net/">Carson McDonald</a>, 
+<a href="http://jbyers.com/">James Byers</a>,
+ and Mike Pfirrmann.
 Guy Leech helped early on with the design.
 </p>
 
