@@ -68,38 +68,14 @@ Got a stat you'd like to see?
 </form>
 
 <div id=interesting style="margin-top: 40px;">
-<!-- interesting.js will insert interesting stats here -->
+<?php
+$gbHTML = true;
+require_once("interesting-images.js");
+?>
 </div>
 
 
 <?php echo uiFooter() ?>
-
-<script>
-var bShown = false;
-
-function showSnippets() {
-    if ( bShown ) {
-        // prevent Opera from executing twice
-	    return;
-    }
-	bShown = true;
-	
-	var parent = document.getElementById('interesting');
-	for ( var iSnippet = 0; iSnippet < gaSnippets.length; iSnippet++ ) {
-		newSnippet = document.createElement('div');
-		newSnippet.id = iSnippet;
-		newSnippet.className = "ianswer";
-		newSnippet.innerHTML = gaSnippets[iSnippet];
-		parent.appendChild(newSnippet);
-	}
-}
-
-var interestingjs = document.createElement('script');
-interestingjs.src = "interesting.js?l=<?php echo $gLabel ?>&s=<?php echo $gSet ?>";
-interestingjs.onload = showSnippets;
-interestingjs.onreadystatechange = function() { if ( interestingjs.readyState == 'complete' || interestingjs.readyState == 'loaded' ) { showSnippets(); } };
-document.getElementsByTagName('head')[0].appendChild(interestingjs);
-</script>
 
 </body>
 
