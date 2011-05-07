@@ -33,7 +33,7 @@ if ( isset($argc) ) {
 	$gLabel = $argv[1];
 	$gSet = $argv[2];
 }
-else {
+else if ( !isset($gLabel) && !isset($gSet) ) {
 	// Otherwise, get the label from the querystring.
 	$gLabel = getParam('l', latestLabel($gArchive));
 	$gSet = getParam('s', 'All');
@@ -496,7 +496,7 @@ function percentageColumnChart($title, $id, $aNames, $aValues, $color="80C65A") 
 		urlencode(implode("|", $aNames)) .
 		"&chm=N**%,676767,0,,12,,::4&chxp=0,20,40,60,80,100&chxs=0,$color,11.5,0,lt,$color|1,676767,11.5,0,lt,67676700&chxtc=0,4|1,4&chxt=y,x&chbh=60,30,20&chs=500x225&cht=bvg&chco=$color&chd=t:" .
 		implode(",", $aValues) .
-		"&chtt=" . urlencode($title) . "></a>";
+		"&chtt=" . urlencode($title) . "'></a>";
 }
 
 
@@ -523,10 +523,10 @@ function horizontalBarChart($title, $id, $aNames, $aValues, $color="80C65A", $mi
 
 // example: interesting-images.js.356.Mar 29 2011.cache
 $gCacheFile = "./cache/interesting-images.js.$gRev.$gLabel.$gSet.cache";
-$snippets = "";
+$charts = "";
 
 if ( file_exists($gCacheFile) ) {
-	$snippets = file_get_contents($gCacheFile);
+	$charts = file_get_contents($gCacheFile);
 }
 
 if ( ! $snippets ) {
@@ -606,22 +606,29 @@ if ( ! $snippets ) {
 							   );
 
 
-
-	$snippets = "";
 	foreach($aSnippetFunctions as $func) {
-		$snippets .= 'gaSnippets.push("' . call_user_func($func) . '");' . "\n";
+		$chartblurb = call_user_func($func);
+		if ( $chartblurb ) {
+			$charts .= "$chartblurb\n";
+		}
 	}
 	// This won't work for web site users because of permissions.
 	// Run "php interesting-images.js" from the commandline to generate the cache file.
 	// I'll leave this line generating errors as a reminder to create the cache file.
-	file_put_contents($gCacheFile, $snippets);
+	file_put_contents($gCacheFile, $charts);
 }
-?>
 
-// HTML strings for each image
-var gaSnippets = new Array();
-
-<?php
-echo $snippets;
+$aCharts = explode("\n", $charts);
+if ( isset($gbHTML) && $gbHTML ) {
+	foreach( $aCharts as $chartblurb ) {
+		echo "<div class=ianswer>$chartblurb</div>\n";
+	}
+}
+else {
+	echo "// HTML strings for each image\nvar gaSnippets = new Array();\n\n";
+	foreach( $aCharts as $chartblurb ) {
+		echo 'gaSnippets.push("' . $chartblurb . '");' . "\n";
+	}
+}
 ?>
 
