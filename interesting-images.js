@@ -622,15 +622,20 @@ if ( ! $charts ) {
 $aCharts = explode("\n", $charts);
 if ( isset($gbHTML) && $gbHTML ) {
 	foreach( $aCharts as $chartblurb ) {
-		echo "<div class=ianswer>$chartblurb</div>\n";
+		if ( $chartblurb ) {
+			echo "<div class=ianswer>$chartblurb</div>\n";
+		}
 	}
 }
 else {
 	echo "// HTML strings for each image\nvar gaSnippets = new Array();\n\n";
 	foreach( $aCharts as $chartblurb ) {
-		echo 'gaSnippets.push("' . $chartblurb . '");' . "\n";
+		if ( $chartblurb ) {
+			echo 'gaSnippets.push("' . $chartblurb . '");' . "\n";
+		}
 	}
 }
+
 if ( $gJsonP ) {
 	echo "\n$gJsonP(gaSnippets);\n";
 }
