@@ -1316,10 +1316,12 @@ function archiveNames() {
 
 
 // Return HTML to create a select list of archive labels (eg, "Oct 2010", "Nov 2010").
-function selectArchiveLabel($archive, $curLabel, $bReverse=true) {
+function selectArchiveLabel($archive, $curLabel, $bReverse=true, $bOnchage = true) {
 	global $gPagesTable, $gDateRange;
 
-	$sSelect = "<select onchange='document.location=\"?a=$archive&l=\"+escape(this.options[this.selectedIndex].value)'>\n";
+	$sSelect = "<select" .
+		( $bOnchage ? " onchange='document.location=\"?a=$archive&l=\"+escape(this.options[this.selectedIndex].value)'" : "" ) .
+		">\n";
 
 	$query = "select label, startedDateTime from $gPagesTable where $gDateRange and archive = '$archive' group by label order by startedDateTime " . 
 		( $bReverse ? "desc" : "asc" ) . ";";
