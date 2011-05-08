@@ -25,6 +25,7 @@ Return a JavaScript array of image URLs for charts.
 // We compute these below.
 $gTotalPages = $gTotalRequests = $gMinPageid = $gMaxPageid = 0;
 $gPageidCond = "";
+$gJsonP = getParam('jsonp', '');
 
 // Add the label to the cached filename.
 $gArchive = "All";
@@ -529,7 +530,7 @@ if ( file_exists($gCacheFile) ) {
 	$charts = file_get_contents($gCacheFile);
 }
 
-if ( ! $snippets ) {
+if ( ! $charts ) {
 	// Saves a little time since we use the # of pages frequently.
 	$row = doRowQuery("select min(pageid) as minp, max(pageid) as maxp from $gPagesTable where archive='$gArchive' and label='$gLabel';");
 	$gMinPageid = $row['minp'];
@@ -629,6 +630,9 @@ else {
 	foreach( $aCharts as $chartblurb ) {
 		echo 'gaSnippets.push("' . $chartblurb . '");' . "\n";
 	}
+}
+if ( $gJsonP ) {
+	echo "\n$gJsonP(gaSnippets);\n";
 }
 ?>
 
