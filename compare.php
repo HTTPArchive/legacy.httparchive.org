@@ -22,8 +22,10 @@ $gTitle = "Compare Stats";
 $gArchive = "All";
 
 function genForm() {
-	global $gArchive;
+	global $gArchive, $gbMobile;
 	$selectRun = selectArchiveLabel($gArchive, "", true, false);
+
+	$top1000 = ( $gbMobile ? "" : "<option value='Top1000'> Top 1000" );
 
 	$sForm =<<<OUTPUT
 <table cellpadding=0 cellspacing=0 border=0>
@@ -40,7 +42,7 @@ function genForm() {
 	    <option value='All'> All
 	    <option value='intersection'> intersection
 	    <option value='Top100'> Top 100
-	    <option value='Top1000'> Top 1000
+        $top1000
       </select>
     </td>
     <td>
