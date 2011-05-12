@@ -48,6 +48,7 @@ $gSet = getParam('s', 'All');
 <p>
 Got a stat you'd like to see?
 <a href="http://code.google.com/p/httparchive/issues/entry?summary=New+Interesting+Stat&comment=Here%27s%20an%20interesting%20stat%20I%27d%20like%20to%20see%3A" target="_blank">Suggest it!</a>
+<span style="margin-left: 20px;">New feature: <a href="compare.php">Compare two runs</a></span>
 </p>
 
 <div style="float: left; margin-right: 20px;">
