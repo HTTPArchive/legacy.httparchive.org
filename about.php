@@ -99,9 +99,14 @@ $gFAQ =<<<OUTPUT
   <li> empty cache
 </ul>
 
-<p>Each URL is loaded nine times. The data from the median run (based on load) is collected via a <a href="#harfile">HAR file</a>.
+<p>Each URL is loaded 3 times. The data from the median run (based on load) is collected via a <a href="#harfile">HAR file</a>.
 The HTTP Archive collects these HAR files, parses them, and populates our database with the relevant information.</p>
 
+<p>
+For the <a href="http://mobile.httparchive.org/">HTTP Archive Mobile</a> the data is gathered using Blaze.io's mobile web performance tool 
+<a href="http://www.blaze.io/mobile/">Mobitest</a> using iPhone 4.3.
+Please see their <a href="http://origwww.blaze.io/mobile/methodology/">methodology page</a> for more information.
+</p>
 
 <h2 id=accuracy>How accurate is the data, in particular the time measurements?</h2>
 
@@ -249,6 +254,10 @@ I've received patches from several individuals including
 <a href="http://jbyers.com/">James Byers</a>,
  and Mike Pfirrmann.
 Guy Leech helped early on with the design.
+</p>
+
+<p>The <a href="http://mobile.httparchive.org/">HTTP Archive Mobile</a> test framework is provided by 
+<a href="http://www.blazeio.com/">Blaze.io</a> with much help from Guy (Guypo) Podjarny.
 </p>
 
 
