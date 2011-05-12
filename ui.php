@@ -89,11 +89,18 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
 </nav>';
 	}
 
-	$mobile = ( $gbMobile ? "<br><span style='font-style: italic; font-size: 0.7em;'>Mobile</span>" : "" );
-	$version = ( $gbMobile ? "ALPHA" : "BETA" );
+	$mobile = "";
+	$mobitest = "";
+	$version = "BETA";
+	if ( $gbMobile ) {
+		$mobile = "<br><span style='font-style: italic; font-size: 0.7em;'>Mobile</span>";
+		$mobitest = "<div style='position: absolute; left: 780px; top: 10px;'><a href='http://www.blaze.io/mobile/' alt='Web Performance Tool'><img src='/images/archivemobitest.png' border=0></a></div>";
+		$version = "ALPHA";
+	}
 
 	return <<<OUTPUT
     <header>
+$mobitest
 		<a href="index.php" id="logo" style="line-height: 0.7em;">HTTP Archive$mobile</a>$version
 		$navlinks
 	</header>
