@@ -5,7 +5,7 @@ require_once("./bootstrap.inc");
 
 echo "Reporting the test ID and URL for all failed tests...\r\n\r\n";
 
-for( $status = 400; $status <= 404; $status++ )
+for( $status = 400; $status <= 410; $status++ )
     reportTests($status);
 
 echo "Done\r\n";
