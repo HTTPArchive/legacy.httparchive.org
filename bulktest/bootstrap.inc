@@ -37,7 +37,6 @@ $video = true;
 $private = false;
 $docComplete = true;
 $fvonly = true;
-$server = 'http://httparchive.webpagetest.org/';
 $runs = 3;
 $mv = 1;
 $wptApiKey = '';
@@ -45,6 +44,13 @@ $wptApiKey = '';
 
 // list of locations to use
 $locations = array();
-$locations[] = 'Dulles_IE8';
+if ( $gbMobile ) {
+	$server = 'http://mhttparchive.blaze.io/';
+	$locations[] = 'iphone43';
+}
+else {
+	$server = 'http://httparchive.webpagetest.org/';
+	$locations[] = 'Dulles_IE8';
+}
 
 
