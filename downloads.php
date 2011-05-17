@@ -19,6 +19,45 @@ require_once("ui.php");
 require_once("utils.php");
 
 $gTitle = "Downloads";
+
+$gaNormalFiles = array(
+                       array( "httparchive_May_16_2011.gz", "May 16 2011" ),
+                       array( "httparchive_Apr_30_2011.gz", "Apr 30 2011" ),
+                       array( "httparchive_Apr_15_2011.gz", "Apr 15 2011" ),
+                       array( "httparchive_Mar_29_2011.gz", "Mar 29 2011" ),
+                       array( "httparchive_Mar_15_2011.gz", "Mar 15 2011" ),
+                       array( "httparchive_Feb_26_2011.gz", "Feb 26 2011" ),
+                       array( "httparchive_Feb_11_2011.gz", "Feb 11 2011" ),
+                       array( "httparchive_Jan_31_2011.gz", "Jan 31 2011" ),
+                       array( "httparchive_Jan_20_2011.gz", "Jan 20 2011" ),
+                       array( "httparchive_Dec_28_2010.gz", "Dec 28 2010" ),
+                       array( "httparchive_Dec_16_2010.gz", "Dec 16 2010" ),
+                       array( "httparchive_Nov_29_2010.gz", "Nov 29 2010" ),
+                       array( "httparchive_Nov_15_2010.gz", "Nov 15 2010" ),
+                       array( "httparchive_Nov_6_2010.gz", "Nov 6 2010" ),
+                       array( "httparchive_Oct_22_2010.gz", "Oct 22 2010" ),
+                       array( "httparchive_Oct_2010.gz", "Oct (5) 2010" )
+                      );
+
+$gaMobileFiles = array(
+                       array( "httparchive_mobile_May_16_2011.gz", "May 16 2011" ), 
+                       array( "httparchive_mobile_May_12_2011.gz", "May 12 2011" ), 
+                       array( "httparchive_mobile_May_8_2011.gz", "May 8 2011" ), 
+                       array( "httparchive_mobile_May_7_2011.gz", "May 7 2011" ), 
+                       array( "httparchive_mobile_May_6_2011.gz", "May 6 2011" )
+                      );
+
+function listFiles($aFiles) {
+	$sHtml = "";
+	foreach($aFiles as $fileinfo) {
+		list($filename, $label) = $fileinfo;
+		$filesize = filesize("./downloads/$filename");
+		$size = ( $filesize > 1024*1024 ? round($filesize/(1024*1024)) . " MB" : round($filesize/(1024)) . " kB" );
+		$sHtml .= "  <li> <a href='downloads/$filename'>$label</a> ($size)\n";
+	}
+
+	return $sHtml;
+}
 ?>
 <!doctype html>
 <html>
@@ -44,29 +83,12 @@ HTTP Archive (desktop):
 </p>
 
 <ul class=indent>
-  <li> <a href="downloads/httparchive_Apr_30_2011.gz">Apr 30 2011</a> (<?php echo round(filesize("./downloads/httparchive_Apr_30_2011.gz")/(1024*1024)) ?> MB)
-  <li> <a href="downloads/httparchive_Apr_15_2011.gz">Apr 15 2011</a> (<?php echo round(filesize("./downloads/httparchive_Apr_15_2011.gz")/(1024*1024)) ?> MB)
-  <li> <a href="downloads/httparchive_Mar_29_2011.gz">Mar 29 2011</a> (<?php echo round(filesize("./downloads/httparchive_Mar_29_2011.gz")/(1024*1024)) ?> MB)
-  <li> <a href="downloads/httparchive_Mar_15_2011.gz">Mar 15 2011</a> (<?php echo round(filesize("./downloads/httparchive_Mar_15_2011.gz")/(1024*1024)) ?> MB)
-  <li> <a href="downloads/httparchive_Feb_26_2011.gz">Feb 26 2011</a> (<?php echo round(filesize("./downloads/httparchive_Feb_26_2011.gz")/(1024*1024)) ?> MB)
-  <li> <a href="downloads/httparchive_Feb_11_2011.gz">Feb 11 2011</a> (<?php echo round(filesize("./downloads/httparchive_Feb_11_2011.gz")/(1024*1024)) ?> MB)
-  <li> <a href="downloads/httparchive_Jan_31_2011.gz">Jan 31 2011</a> (<?php echo round(filesize("./downloads/httparchive_Jan_31_2011.gz")/(1024*1024)) ?> MB)
-  <li> <a href="downloads/httparchive_Jan_20_2011.gz">Jan 20 2011</a> (<?php echo round(filesize("./downloads/httparchive_Jan_20_2011.gz")/(1024*1024)) ?> MB)
-  <li> <a href="downloads/httparchive_Dec_28_2010.gz">Dec 28 2010</a> (<?php echo round(filesize("./downloads/httparchive_Dec_28_2010.gz")/(1024*1024)) ?> MB)
-  <li> <a href="downloads/httparchive_Dec_16_2010.gz">Dec 16 2010</a> (<?php echo round(filesize("./downloads/httparchive_Dec_16_2010.gz")/(1024*1024)) ?> MB)
-  <li> <a href="downloads/httparchive_Nov_29_2010.gz">Nov 29 2010</a> (<?php echo round(filesize("./downloads/httparchive_Nov_29_2010.gz")/(1024*1024)) ?> MB)
-  <li> <a href="downloads/httparchive_Nov_15_2010.gz">Nov 15 2010</a> (<?php echo round(filesize("./downloads/httparchive_Nov_15_2010.gz")/(1024*1024)) ?> MB)
-  <li> <a href="downloads/httparchive_Nov_6_2010.gz">Nov 6 2010</a> (<?php echo round(filesize("./downloads/httparchive_Nov_6_2010.gz")/(1024*1024)) ?> MB)
-  <li> <a href="downloads/httparchive_Oct_22_2010.gz">Oct 22 2010</a> (<?php echo round(filesize("./downloads/httparchive_Oct_22_2010.gz")/(1024*1024)) ?> MB)
-  <li> <a href="downloads/httparchive_Oct_2010.gz">Oct (5) 2010</a> (<?php echo round(filesize("./downloads/httparchive_Oct_2010.gz")/(1024*1024)) ?> MB)
+<?php echo listFiles($gaNormalFiles) ?>
 </ul>
 
 HTTP Archive Mobile:
 <ul class=indent>
-  <li> <a href="downloads/httparchive_mobile_May_12_2011.gz">May 12 2011</a> (<?php echo round(filesize("./downloads/httparchive_mobile_May_12_2011.gz")/(1024)) ?> kB)
-  <li> <a href="downloads/httparchive_mobile_May_8_2011.gz">May 8 2011</a> (<?php echo round(filesize("./downloads/httparchive_mobile_May_8_2011.gz")/(1024)) ?> kB)
-  <li> <a href="downloads/httparchive_mobile_May_7_2011.gz">May 7 2011</a> (<?php echo round(filesize("./downloads/httparchive_mobile_May_7_2011.gz")/(1024)) ?> kB)
-  <li> <a href="downloads/httparchive_mobile_May_6_2011.gz">May 6 2011</a> (<?php echo round(filesize("./downloads/httparchive_mobile_May_6_2011.gz")/(1024)) ?> kB)
+<?php echo listFiles($gaMobileFiles) ?>
 </ul>
 
 <p>
