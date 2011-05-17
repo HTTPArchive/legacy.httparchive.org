@@ -15,8 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-require_once("./batch_lib.inc");
-require_once("./bootstrap.inc");
+require_once("../utils.php");
+require_once("batch_lib.inc");
+require_once("bootstrap.inc");
+
 
 // A file lock to guarantee there is only one instance running.
 $fp = fopen($gLockFile, "w+");
@@ -33,7 +35,7 @@ if ( ! tableExists($gStatusTable) ) {
 
 
 $pid_arr = array();
-for ( $i = 0; $i < 5; $i++ ) {
+for ( $i = 0; $i < 4; $i++ ) {
 	$pid = pcntl_fork();
 	if ( -1 == $pid ) {
 		die("cannot fork subprocesses ...");
@@ -53,10 +55,6 @@ for ( $i = 0; $i < 5; $i++ ) {
 			obtainXMLResult();
 			exit();
 		} elseif ( 3 == $i ) {
-			// Download har file
-			downloadHar();
-			exit();
-		} elseif ( 4 == $i ) {
 			// Fill page table and request table
 			fillTables();
 			exit();
@@ -64,10 +62,12 @@ for ( $i = 0; $i < 5; $i++ ) {
 	}
 }
 
+// Loop through the processes until all of them are done and then exit.
 while ( count($pid_arr) > 0 ) {
 	$myId = pcntl_waitpid(-1, $status, WNOHANG);
 	foreach ( $pid_arr as $key => $pid ) {
 		if ( $myId == $pid ) {
+echo "\n\nCVSNO: unsetting $key => $pid\n\n";
 			unset($pid_arr[$key]);
 		}
 	}
