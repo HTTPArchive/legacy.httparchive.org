@@ -20,17 +20,11 @@ require_once("../settings.inc");
 set_time_limit(0);
 
 $gArchive = "All";
-$date = getdate();
-$gLabel = $date[0];
-
 $gMarks = array();
 $gAggTimes = array();
 $gAggCounts = array();
 $ghReqOtherHeaders = array();
 $ghRespOtherHeaders = array();
-
-// Some ad-hoc fix for the problematic URLs
-$gReUrls = array("www.files.wordpress.com" => "files.wordpress.com");
 
 // The status table saves $gErrBase + i to indicate that there is a permanent error happens when the test is in the status i.
 $gErrBase = 400;
