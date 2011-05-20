@@ -19,7 +19,7 @@ if ($numUrls > MIN_RESULTS) {
     while ( $row = mysql_fetch_assoc($result) ) {
         $url = $row['urlShort'];
 		$pageid = $row['pageid'];
-        array_push($sites, array("label" => $url, "value" => $pageid));
+        array_push($sites, array("label" => $url, "value" => $url, "data-pageid" => $pageid));
     }
 }
 
