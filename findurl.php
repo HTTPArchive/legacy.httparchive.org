@@ -9,17 +9,17 @@ if ( ! $term ) {
 }
 
 $sites = array();
-// TODO - This won't work if/when we support https URLs. 
-$query = "select urlShort from $gPagesTable where ( urlShort like 'http://www.$term%' or urlShort like 'http://$term%' or urlShort like '$term%' ) group by urlShort order by urlShort asc limit " . ( MIN_RESULTS + 1 ) . ";";
+$query = "select urlShort, max(pageid) as pageid from $gPagesTable where urlShort like '%$term%' group by urlShort order by urlShort asc limit 101;";
 $result = doQuery($query);
 $numUrls = mysql_num_rows($result);
 if ($numUrls > MIN_RESULTS) {
-    array_push($sites, array("label" => "refine further", "value" => "tooMany"));
+    array_push($sites, array("label" => ( $numUrls > 100 ? "100+ URLs" : "$numUrls URLs" ) . ", refine further", "value" => "0"));
 } else {
     // less then min results - so we'll give the list of urls
     while ( $row = mysql_fetch_assoc($result) ) {
         $url = $row['urlShort'];
-        array_push($sites, array("label" => $url, "value" => $url));
+		$pageid = $row['pageid'];
+        array_push($sites, array("label" => $url, "value" => $pageid));
     }
 }
 
