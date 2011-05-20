@@ -104,14 +104,81 @@ $gMaxUrls = 20000;
 </style>
 
 
-<p style="font-weight: bold;">
+        <!-- CSS  -->
+        <link rel="stylesheet" type="text/css" 
+              href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/themes/cupertino/jquery-ui.css"/>
+
+        <!-- JS -->
+        <script src="http://www.google.com/jsapi"></script>
+        <script>
+            // Load jQuery
+            google.load("jquery", "1.5.1");
+            google.load("jqueryui", "1.8.1");
+        </script>
+        <style>
+            #formWrapper {  
+                padding:10px; position:absolute; float:left; background-color:orchid;  
+                background:rgba(255, 0, 0, 0.4);
+                -moz-border-radius:10px;  
+                -webkit-border-radius:10px; 
+                border-radius:10px;  
+            }  
+            #formWrapper span {  
+                display:block; 
+                width:400px; 
+                padding:10px 0; 
+                margin:0 0 20px;  
+                text-indent:20px; 
+                font:22px Georgia, Serif; 
+                color:#fff;  
+            }  
+
+            #formWrapper input {  
+                display:block; 
+                width:370px; 
+                padding:3px; 
+                margin-top: -22px;
+                margin-left: 35px;
+                border:1px solid #aaa;  
+            } 
+            .ui-autocomplete-loading { background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat; }
+        </style>
+        <script>
+            $(function() {
+                $( "#site" ).autocomplete({
+                    source: "findurl.php",
+                    minLength: 2,
+                    select: function( event, ui ) {
+                        document.location = "http://dev.httparchive.org/viewsite.php?pageid=" + ui.item.value;
+                    }
+                });
+            });
+        </script>
+
+<style>
+TABLE { border: 0; width: auto; }
+tr:nth-child(2n+1) td { background: none; }
+TD { padding-top: 0; padding-bottom: 0; }
+.ui-widget, .ui-menu-item{ font-size: 1em; }
+</style>
+
+<table cellpadding=0 cellspacing=0 border=0 style="width: auto;">
+<tr>
+<td style="font-weight: bold;">
 <?php
 $query = "select count(distinct(url)) from $gPagesTable where archive = '$gArchive';";
 $count = doSimpleQuery($query);
 echo "$count total URLs";
 ?>
-</p>
-
+</td>
+<td style="padding-left: 40px;">
+  <div class="ui-widget" style="font-size: 1em;">
+    <label for="birds" style="vertical-align: baseline;">find URL: </label>
+    <input id="site" style="vertical-align: baseline;"/>
+  </div>
+</td>
+</tr>
+</table>
 
 <div id=alphaindex>
 <ul>
