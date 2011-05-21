@@ -252,6 +252,7 @@ Several folks on Google's Make the Web Faster team chipped in.
 I've received patches from several individuals including 
 <a href="http://www.ioncannon.net/">Carson McDonald</a>, 
 <a href="http://jbyers.com/">James Byers</a>,
+<a href="http://greenido.wordpress.com/">Ido Green</a>,
  and Mike Pfirrmann.
 Guy Leech helped early on with the design.
 </p>
