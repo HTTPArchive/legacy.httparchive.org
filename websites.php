@@ -149,7 +149,7 @@ $gMaxUrls = 20000;
                     source: "findurl.php",
                     minLength: 2,
                     select: function( event, ui ) {
-                        document.location = "http://dev.httparchive.org/viewsite.php?pageid=" + ui.item["data-pageid"];
+                        document.location = "viewsite.php?pageid=" + ui.item["data-pageid"];
                     }
                 });
             });
