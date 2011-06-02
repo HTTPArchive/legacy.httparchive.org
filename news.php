@@ -40,6 +40,12 @@ DD { margin-left: 40px; }
 <h1><?php echo $gTitle ?></h1>
 
 <dl id=news>
+  <dt> June 1, 2011: HTTP Archive Mobile grows from top 100 to top 1000 URLs.
+
+  <dt> May 13, 2011: <a href="http://www.stevesouders.com/blog/2011/05/13/http-archive-mobile/">HTTP Archive Mobile</a>
+  <dd> The "alpha" version of HTTP Archive Mobile is announced at the Mobilism conference in Amsterdam. 
+Initial runs are of the world's top 100 sites.
+
   <dt> April 8, 2011: <a href="http://news.cnet.com/8301-30685_3-20052018-264.html">CNET News Flash use dips at top Web sites since November</a>
   <dd> <p> Article published on CNET News citing various statistics from the HTTP Archive.
 
