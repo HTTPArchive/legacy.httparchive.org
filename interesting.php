@@ -64,7 +64,7 @@ Got a stat you'd like to see?
 	    <option value='All'<?php echo ( "All" == $gSet ? " selected" : "" ) ?>> All
 	    <option value='intersection'<?php echo ( "intersection" == $gSet ? " selected" : "" ) ?>> intersection
 	    <option value='Top100'<?php echo ( "Top100" == $gSet ? " selected" : "" ) ?>> Top 100
-	    <?php echo ( $gbMobile ? "" : "<option value='Top1000'" . ( "Top1000" == $gSet ? " selected" : "" ) . "> Top 1000" ) ?>
+	    <option value='Top1000'<?php echo ( "Top1000" == $gSet ? " selected" : "" ) ?>> Top 1000
 	</select>
 </form>
 
