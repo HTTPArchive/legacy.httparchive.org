@@ -111,6 +111,16 @@ OUTPUT;
 
 function uiFooter() {
 	return <<<OUTPUT
+<footer style="text-align: center;">
+<a href="about.php#sponsors">sponsors</a>: 
+<a title="Google" href="http://www.google.com/">Google</a>,
+<a title="Mozilla" href="http://www.mozilla.org/Firefox">Mozilla</a>,
+<a title="New Relic" href="http://www.newrelic.com/">New Relic</a>,
+<a title="O'Reilly Media" href="http://oreilly.com/">O&#8217;Reilly Media</a>,
+<a href="http://www.etsy.com/">Etsy</a>,
+<a title="Strangeloop Networks" href="http://www.strangeloopnetworks.com/">Strangeloop</a>,
+and <a title="dynaTrace Software" href="http://www.dynatrace.com/">dynaTrace Software</a>
+</footer>
 OUTPUT;
 }
 
