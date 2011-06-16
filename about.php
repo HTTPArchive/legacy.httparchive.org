@@ -266,14 +266,14 @@ Guy Leech helped early on with the design.
 <p>
 The HTTP Archive is possible through the support of these sponsors:
 <a title="Google" href="http://www.google.com/">Google</a>,
-<a title="Mozilla" href="http://www.mozilla.org/Firefox">Mozilla</a>,
+<a title="Mozilla" href="http://www.mozilla.org/firefox">Mozilla</a>,
 <a title="New Relic" href="http://www.newrelic.com/">New Relic</a>,
 <a title="O'Reilly Media" href="http://oreilly.com/">O&#8217;Reilly Media</a>,
 <a href="http://www.etsy.com/">Etsy</a>,
 <a title="Strangeloop Networks" href="http://www.strangeloopnetworks.com/">Strangeloop</a>,
 and <a title="dynaTrace Software" href="http://www.dynatrace.com/">dynaTrace Software</a>.
 </p>
-<div><a title="Google" href="http://www.google.com/"><img class="alignnone" title="Google" src="http://httparchive.org/images/google.gif" alt="" width="120" height="40" /></a> <a style="margin-left: 10px;" title="Mozilla" href="http://www.mozilla.org/Firefox"><img class="alignnone" title="Mozilla" src="http://httparchive.org/images/mozilla.png" alt="" width="145" height="100" /></a> <a style="margin-left: 10px;" title="New Relic" href="http://www.newrelic.com/"><img class="alignnone" title="New Relic" src="http://httparchive.org/images/newrelic.gif" alt="" width="120" height="22" /></a> <a style="margin-left: 10px;" title="O'Reilly Media" href="http://oreilly.com/"><img class="alignnone" title="O'Reilly Media" src="http://httparchive.org/images/oreilly.gif" alt="" width="155" height="35" /></a></div>
+<div><a title="Google" href="http://www.google.com/"><img class="alignnone" title="Google" src="http://httparchive.org/images/google.gif" alt="" width="120" height="40" /></a> <a style="margin-left: 10px;" title="Mozilla" href="http://www.mozilla.org/firefox"><img class="alignnone" title="Mozilla" src="http://httparchive.org/images/mozilla.png" alt="" width="145" height="100" /></a> <a style="margin-left: 10px;" title="New Relic" href="http://www.newrelic.com/"><img class="alignnone" title="New Relic" src="http://httparchive.org/images/newrelic.gif" alt="" width="120" height="22" /></a> <a style="margin-left: 10px;" title="O'Reilly Media" href="http://oreilly.com/"><img class="alignnone" title="O'Reilly Media" src="http://httparchive.org/images/oreilly.gif" alt="" width="155" height="35" /></a></div>
 <div style="margin-top: 20px;"><a href="http://www.etsy.com/"><img class="alignnone" title="Etsy" src="http://httparchive.org/images/etsy.png" alt="" width="106" height="61" /></a> <a style="margin-left: 10px; vertical-align: top;" title="Strangeloop Networks" href="http://www.strangeloopnetworks.com/"><img class="alignnone" title="Strangeloop" src="http://httparchive.org/images/strangeloop.gif" alt="" width="120" height="25" /></a> <a style="margin-left: 10px;" title="dynaTrace Software" href="http://www.dynatrace.com/"><img class="alignnone" title="dynaTrace Software" src="http://httparchive.org/images/dynatrace.gif" alt="" width="120" height="31" /></a></div>
 
 
