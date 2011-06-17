@@ -42,6 +42,8 @@ $gaNormalFiles = array(
                       );
 
 $gaMobileFiles = array(
+                       array( "httparchive_mobile_Jun_15_2011.gz", "June 15 2011" ), 
+                       array( "httparchive_mobile_Jun_1_2011.gz", "June 1 2011" ), 
                        array( "httparchive_mobile_May_16_2011.gz", "May 16 2011" ), 
                        array( "httparchive_mobile_May_12_2011.gz", "May 12 2011" ), 
                        array( "httparchive_mobile_May_8_2011.gz", "May 8 2011" ), 
