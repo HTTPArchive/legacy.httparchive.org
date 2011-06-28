@@ -67,7 +67,6 @@ while ( count($pid_arr) > 0 ) {
 	$myId = pcntl_waitpid(-1, $status, WNOHANG);
 	foreach ( $pid_arr as $key => $pid ) {
 		if ( $myId == $pid ) {
-echo "\n\nCVSNO: unsetting $key => $pid\n\n";
 			unset($pid_arr[$key]);
 		}
 	}
