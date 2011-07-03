@@ -21,6 +21,7 @@ require_once("utils.php");
 $gTitle = "Downloads";
 
 $gaNormalFiles = array(
+                       array( "httparchive_Jul_1_2011.gz", "July 1 2011" ),
                        array( "httparchive_Jun_15_2011.gz", "June 15 2011" ),
                        array( "httparchive_June_1_2011.gz", "June 1 2011" ),
                        array( "httparchive_May_16_2011.gz", "May 16 2011" ),
@@ -42,6 +43,7 @@ $gaNormalFiles = array(
                       );
 
 $gaMobileFiles = array(
+                       array( "httparchive_mobile_Jul_1_2011.gz", "July 1 2011" ),
                        array( "httparchive_mobile_Jun_15_2011.gz", "June 15 2011" ), 
                        array( "httparchive_mobile_Jun_1_2011.gz", "June 1 2011" ), 
                        array( "httparchive_mobile_May_16_2011.gz", "May 16 2011" ), 
