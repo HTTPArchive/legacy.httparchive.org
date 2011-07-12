@@ -342,6 +342,7 @@ function jsLibraries() {
 	$hCond["Quantcast"] = "rt.url like '%quant.js%'";
 	$hCond["AddThis"] = "rt.url like '%addthis.com%'";
 	$hCond["Facebook"] = "(rt.url like '%facebook.com/plugins/%' or rt.url like '%facebook.com/widgets/%' or rt.url like '%facebook.com/connect/%')";
+	$hCond["Google +1"] = "rt.url like '%google.com/js/plusone.js%'";
 	$hCond["Twitter"] = "rt.url like '%twitter%'";
 	$hCond["ShareThis"] = "rt.url like '%sharethis%'";
 
