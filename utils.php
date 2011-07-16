@@ -17,10 +17,6 @@ limitations under the License.
 
 require_once("settings.inc");
 
-$gPagesTable = "pages";
-$gRequestsTable = "requests";
-$gStatusTable = "status";
-
 // Soon we'll add a date range selector.
 // For now I just want to exclude the early runs with only ~1500 URLs vs today's 15K URLS.
 // Later I hope it'll make it easier to identify where we need to incorporate a date
@@ -29,17 +25,41 @@ $gbDev = ( strpos(getcwd(), "/dev/") || strpos(getcwd(), "/trunk.httparchive.org
 $gbMobile = ( strpos(getcwd(), "/mobile/") || strpos(getcwd(), "/mobile.httparchive.org") );
 $gDateRange = ( $gbMobile ? "pageid >= 0" : "pageid >= 10281" );
 
+// default table names
+$gPagesTable = "pages";
+$gRequestsTable = "requests";
+$gStatusTable = "status";
+
+// Desktop tables
+$gPagesTableDesktop = $gPagesTable;
+$gRequestsTableDesktop = $gRequestsTable;
+$gStatusTableDesktop = $gStatusTable;
+
+// Mobile tables
+$gPagesTableMobile = $gPagesTable . "mobile";
+$gRequestsTableMobile = $gRequestsTable . "mobile";
+$gStatusTableMobile = $gStatusTable . "mobile";
+
+// Dev tables
+$gPagesTableDev = $gPagesTable . "dev";
+$gRequestsTableDev = $gRequestsTable . "dev";
+$gStatusTableDev = $gStatusTable . "dev";
+
+// 
+// HERE'S WHERE WE CHANGE THE DEFAULT TABLE NAMES 
+// DEPENDING ON WHETHER WE'RE DEV OR MOBILE
+// 
 if ( $gbDev ) {
 	// Use a dev version of the database tables if "dev/" is in the path.
-	$gPagesTable = "pagesdev";
-	$gRequestsTable = "requestsdev";
-	$gStatusTable = "statusdev";
+	$gPagesTable = $gPagesTableDev;
+	$gRequestsTable = $gRequestsTableDev;
+	$gStatusTable = $gStatusTableDev;
 }
 else if ( $gbMobile ) {
 	// Use a mobile version of the database tables if "mobile" is in the path.
-	$gPagesTable = "pagesmobile";
-	$gRequestsTable = "requestsmobile";
-	$gStatusTable = "statusmobile";
+	$gPagesTable = $gPagesTableMobile;
+	$gRequestsTable = $gRequestsTableMobile;
+	$gStatusTable = $gStatusTableMobile;
 }
 
 // Hide archives while we're importing them.
