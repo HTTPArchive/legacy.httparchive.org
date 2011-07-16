@@ -1371,7 +1371,7 @@ function archiveLabels($archive = "All", $bEpoch = false, $format = "n/j/y" ) {
 		$label = $row['label'];
 		$epoch = $row['epoch'];
 		if ( $bEpoch ) {
-			array_push($aLabels, date($format, $epoch));
+			array_push($aLabels, gmdate($format, $epoch));
 		}
 		else {
 			array_push($aLabels, $label);
