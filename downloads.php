@@ -88,15 +88,17 @@ function listFiles($aFiles) {
 There's a download file for each run:
 </p>
 
-<p>
-HTTP Archive (desktop):
-</p>
+<style>
+.indent LI { margin-bottom: 2px; }
+</style>
+
+<strong>HTTP Archive (desktop):</strong>
 
 <ul class=indent>
 <?php echo listFiles($gaNormalFiles) ?>
 </ul>
 
-HTTP Archive Mobile:
+<strong>HTTP Archive Mobile:</strong>
 <ul class=indent>
 <?php echo listFiles($gaMobileFiles) ?>
 </ul>
