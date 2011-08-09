@@ -255,6 +255,7 @@ I've received patches from several individuals including
 <a href="http://greenido.wordpress.com/">Ido Green</a>,
  and Mike Pfirrmann.
 Guy Leech helped early on with the design.
+More recently, <a href="https://twitter.com/#!/stephenhay">Stephen Hay</a> created the new logo.
 </p>
 
 <p>The <a href="http://mobile.httparchive.org/">HTTP Archive Mobile</a> test framework is provided by 
