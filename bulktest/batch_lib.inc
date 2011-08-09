@@ -89,7 +89,6 @@ function submitTest(&$record, $status) {
 	$doc = new DOMDocument();
 	if ( $doc ) {
 		$response = fetchUrl($request);
-//echo "CVSNO: submitTest: request = $request\nresponse = $response\n\n";
 		if ( strlen($response) ) {
 			$doc->loadXML($response);
 			$nodes = $doc->getElementsByTagName('statusCode');
@@ -99,7 +98,6 @@ function submitTest(&$record, $status) {
 				$nodes = $doc->getElementsByTagName('testId');
 				$id = trim($nodes->item(0)->nodeValue);
 				$cmd = sprintf("UPDATE %s SET wptid = '%s', wptRetCode = %d WHERE statusid = %d;", $gStatusTable, mysql_real_escape_string($id), $code, $record['statusid']);
-//echo "CVSNO: submitTest: cmd = $cmd\n";
 				doSimpleCommand($cmd);
 				setStatus($record['statusid'], SUBMITTED);
 			} else {
@@ -136,20 +134,23 @@ function checkWPTStatus() {
 			$doc = new DOMDocument();
 			if ( $doc ) {
 				$response = fetchUrl($request);
-//echo "CVSNO: checkWPTStatus: request = $request\nresponse = $response\n\n";
 				if ( strlen($response) ) {
 					$doc->loadXML($response);
 					$nodes = $doc->getElementsByTagName('statusCode');
 					$code = (int)trim($nodes->item(0)->nodeValue);
+					unset($doc);
+
 					if ( 200 == $code ) {
 						setStatus($row['statusid'], SUBMIT_DONE);
-					} elseif ( 400 <= $code ) {
+					} 
+					elseif ( 400 <= $code ) {
 						setStatus($row['statusid'], SUBMITTED + $gErrBase);
 					}
+					else {
+						break;
+					}
 				}
-				
 			}	
-			unset($doc);
 		}
 	}
 }
@@ -560,6 +561,18 @@ function countFailedTests() {
 }
 
 
+function totalInProcessing() {
+	global $gErrBase;
+
+	$loadedUrls = countTestsWithCode(NOT_STARTED);
+	$submittedTests = countTestsWithCode(SUBMITTED);
+	$completedTests = countTestsWithCode(SUBMIT_DONE);
+	$total_in_processing = $loadedUrls + $submittedTests + $completedTests;
+
+	return $total_in_processing;
+}
+
+
 function reportSummary() {
 	global $gErrBase;
 	$totalUrls = countTestsWithCode(-1);
@@ -591,6 +604,8 @@ function reportSummary() {
 		lprint("	-Test result processing failed: $failedProcessResult");
 	if ( $failedImportHar > 0 ) 
 		lprint("	-Har importing failed: $failedImportHar");
+
+	return $total_in_processing;
 }
 
 
