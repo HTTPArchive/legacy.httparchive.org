@@ -29,6 +29,7 @@ $gDateRange = ( $gbMobile ? "pageid >= 0" : "pageid >= 10281" );
 $gPagesTable = "pages";
 $gRequestsTable = "requests";
 $gStatusTable = "status";
+$gUrlsTable = "urls";
 
 // Desktop tables
 $gPagesTableDesktop = $gPagesTable;
@@ -44,6 +45,7 @@ $gStatusTableMobile = $gStatusTable . "mobile";
 $gPagesTableDev = $gPagesTable . "dev";
 $gRequestsTableDev = $gRequestsTable . "dev";
 $gStatusTableDev = $gStatusTable . "dev";
+$gUrlsTableDev = $gUrlsTable . "dev";
 
 // 
 // HERE'S WHERE WE CHANGE THE DEFAULT TABLE NAMES 
@@ -54,6 +56,7 @@ if ( $gbDev ) {
 	$gPagesTable = $gPagesTableDev;
 	$gRequestsTable = $gRequestsTableDev;
 	$gStatusTable = $gStatusTableDev;
+	$gUrlsTable = $gUrlsTableDev;
 }
 else if ( $gbMobile ) {
 	// Use a mobile version of the database tables if "mobile" is in the path.
@@ -1670,9 +1673,12 @@ SCHEMA CHANGES:
 12/1/10 - Added the "pageid" index to requestsdev. 
   This made the aggregateStats function 10x faster during import.
   mysql> create index pageid on requestsdev (pageid);
+
+7/21/2011 - Added the "rank" column to pages table:
+  mysql> alter table pagesdev add column rank int(10) unsigned after PageSpeed;
 *******************************************************************************/
 function createTables() {
-	global $gPagesTable, $gRequestsTable, $gStatusTable;
+	global $gPagesTable, $gRequestsTable, $gStatusTable, $gUrlsTable;
 	global $ghReqHeaders, $ghRespHeaders;
 
 	if ( ! tableExists($gPagesTable) ) {
@@ -1694,6 +1700,7 @@ function createTables() {
 			", onContentLoaded int(10) unsigned" .
 			", onLoad int(10) unsigned" .
 			", PageSpeed int(4) unsigned" .
+			", rank int(10) unsigned" .
 
 			", reqTotal int(4) unsigned not null" .
 			", reqHtml int(4) unsigned not null" .
@@ -1793,6 +1800,19 @@ function createTables() {
 			", pagespeedScore int(4) unsigned" .
 			", primary key (statusid)" .
 			", index(statusid)" .
+			");";
+		doSimpleCommand($command);
+	}
+
+	// Create Urls Table
+	if ( ! tableExists($gUrlsTable) ) {
+		$command = "create table $gUrlsTable (" .
+			"urlid int unsigned not null auto_increment" .
+			", urlOrig text" .
+			", urlDerived text" .
+			", rank int(10) unsigned" .
+			", primary key (urlid)" .
+			", index(rank)" .
 			");";
 		doSimpleCommand($command);
 	}
