@@ -42,7 +42,7 @@ p, ul, ol {
 header {
 	display: block;
 	position: absolute;
-	height: 75px;
+	height: 110px;
 	left: 0;
 	top: 0;
 	z-index: 199;
@@ -50,23 +50,22 @@ header {
 	border-bottom: 4px dashed #fff;
 	width: 100%;
 	min-width: 1200px;
-	padding: 25px 0 0 0; }
+	padding: 5px 0 0 0; }
 #logo {
 	font-size: 2.875em;
 	line-height: 1em;
 	font-family: "Helvetica LT 67 Medium Condensed", "HelveticaNeue LT 67 MdCn", Helvetica, Arial, sans-serif;
 	color: #000;
-	width: 260px;
+	width: 186px;
 	display: block;
 	float: left;
 	text-indent: -999em;
-	background: url(images/logo-sprite.png) no-repeat 0 0;
-	height: 33px;
+	background: url(images/http-archive-logo-color-h100.png) no-repeat 0 0;
+	height: 100px;
 	margin: 6px 0 0 25px; }
 #logo .protocol {
 	left: 0; }
 #logo:focus, #logo:hover {
-	background: url(images/logo-sprite.png) no-repeat 0 -33px;
 	border: none; }
 #logo:focus img, #logo:hover img {
 	visibility: hidden; }
