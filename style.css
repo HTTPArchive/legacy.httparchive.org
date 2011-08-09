@@ -69,13 +69,20 @@ header {
 	border: none; }
 #logo:focus img, #logo:hover img {
 	visibility: hidden; }
+.mobilelabel {
+	float:left;
+	margin-top: 75px;
+	margin-left: 8px;
+	color: black;
+	font-style: italic;
+	font-size: 1.5em; }
 nav {
 	display: block;
 	position: absolute;
 	left: 450px;
 	font-size: 1.125em; /* 18px */
 	line-height: 2.55;
-	margin-top: .55em; }
+	margin-top: 65px; }
 nav ul {
 	overflow: auto;
 	margin: 0;
