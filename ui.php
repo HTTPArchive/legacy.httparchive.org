@@ -98,10 +98,15 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
 		$version = "ALPHA";
 	}
 
+	if ( $version ) {
+		$version = "<div style='position: absolute; width: 211px; top: 20px; text-align: right;'>$version</div>";
+	}
+
 	return <<<OUTPUT
     <header>
 $mobitest
-		<a href="index.php" id="logo" style="line-height: 0.7em;">HTTP Archive$mobile</a>$version
+$version
+		<a href="index.php" id="logo" style="line-height: 0.7em;">HTTP Archive$mobile</a>
 		$navlinks
 	</header>
 
