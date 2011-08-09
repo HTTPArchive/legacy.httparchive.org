@@ -93,7 +93,7 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
 	$mobitest = "";
 	$version = "BETA";
 	if ( $gbMobile ) {
-		$mobile = "<br><span style='font-style: italic; font-size: 0.7em;'>Mobile</span>";
+		$mobile = "<div class=mobilelabel>MOBILE</div>";
 		$mobitest = "<div style='position: absolute; left: 780px; top: 10px;'><a href='http://www.blaze.io/mobile/' alt='Web Performance Tool'><img src='/images/archivemobitest.png' border=0></a></div>";
 		$version = "ALPHA";
 	}
@@ -106,7 +106,8 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
     <header>
 $mobitest
 $version
-		<a href="index.php" id="logo" style="line-height: 0.7em;">HTTP Archive$mobile</a>
+		<a href="index.php" id="logo" style="line-height: 0.7em;">HTTP Archive</a>
+		$mobile
 		$navlinks
 	</header>
 
