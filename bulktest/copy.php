@@ -34,7 +34,6 @@ $minid = $row['minid'];
 $maxid = $row['maxid'];
 echo "Run \"$gLabel\": min pageid = $minid, max pageid = $maxid\n";
 
-/*
 // copy the rows to production
 if ( ! $gbMobile ) {
 	echo "Copy rows to production...\n";
@@ -42,11 +41,9 @@ if ( ! $gbMobile ) {
 	doSimpleCommand("insert into $gRequestsTableDesktop select * from $gRequestsTableDev where pageid >= $minid and pageid <= $maxid;");
 	echo "...DONE.\n";
 }
-*/
 
 // mysqldump file
 $dumpfile = "../downloads/httparchive_" . ( $gbMobile ? "mobile_" : "" ) . str_replace(" ", "_", $gLabel);
-/*
 echo "Creating mysqldump file $dumpfile ...\n";
 if ( $gbMobile ) {
 	$cmd = "mysqldump --where='pageid >= $minid and pageid <= $maxid' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gPagesTableMobile $gRequestsMobile > $dumpfile";
@@ -56,7 +53,7 @@ else {
 }
 exec($cmd);
 exec("gzip $dumpfile");
-*/
+
 if ( ! $gbMobile ) {
 	exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
 }
