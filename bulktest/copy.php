@@ -18,7 +18,7 @@ limitations under the License.
 // CVSNO - do this better
 include './settings.inc';
 require_once("../settings.inc");
-require_once("../utils.php");
+require_once("../utils.inc");
 
 $gArchive = "All";
 $gLabel = $argv[1];
