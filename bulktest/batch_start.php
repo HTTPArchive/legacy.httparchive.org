@@ -15,25 +15,47 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-require_once("../utils.php");
+require_once("../utils.inc");
 require_once("batch_lib.inc");
 require_once("bootstrap.inc");
 
 
 // Load the URLs in urls.txt file into status table.
 function loadUrlsFromFile($label) {
-	global $locations, $gArchive;
-
 	$urls = file('./urls.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
 	foreach( $urls as $url ) {
 		$url = trim($url);
 		if( strlen($url) ) {
-			$url = refineUrl($url);
-			foreach ( $locations as $location ) {
-				insertToStatusTable($url, $location, $label);
-			}
+			loadUrl($label, $url);
 		}
+	}
+}
+
+
+// Load the URLs in urls.txt file into status table.
+function loadUrlsFromDB($label, $numUrls) {
+	global $gUrlsTable;
+
+	$result = doQuery("select domain, url from $gUrlsTable where rank <= $numUrls order by rank asc;");
+	while ($row = mysql_fetch_assoc($result)) {
+		$domain = $row['domain'];
+		$url = $row['url'];
+		if ( ! $url ) {
+			$url = "http://www.$domain/";
+		}
+		loadUrl($label, $url);
+	}
+}
+
+
+
+// Submit the specified URL to all the locations.
+function loadUrl($label, $url) {
+	global $locations;
+
+	foreach ( $locations as $location ) {
+		insertToStatusTable($url, $location, $label);
 	}
 }
 
@@ -112,7 +134,9 @@ emptyStatusTable();
 // WARNING: Two runs submitted on the same day will have the same label.
 $date = getdate();
 $label = substr($date['month'], 0, 3) . " " . $date['mday'] . " " . $date['year'];
-loadUrlsFromFile($label);
+
+//loadUrlsFromFile($label);
+loadUrlsFromDB($label, 30000);
 
 echo "DONE submitting batch run\n";
 ?>
