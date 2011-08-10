@@ -1,7 +1,7 @@
 DirectoryIndex index.php
 Options -Indexes
 
-<FilesMatch "(settings.inc|cachegen.php|check.php|import.php)">
+<FilesMatch "(\.inc|cachegen)">
 order allow,deny
 deny from all
 </FilesMatch>
