@@ -35,8 +35,7 @@ if ( ! tableExists($gStatusTable) ) {
 
 
 // Now that we're running as a cronjob, we need to emit nothing to stdout when we're all done.
-$total_in_processing_before = totalInProcessing();
-if ( 0 == $total_in_processing_before ) {
+if ( 0 == totalNotDone() ) {
    exit(0);
 }
 
