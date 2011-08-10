@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-require_once("utils.php");
+require_once("utils.inc");
 
 $aSets = array("All", "intersection", "Top100", "Top1000");
 $aLabels = archiveLabels();

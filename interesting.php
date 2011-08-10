@@ -15,8 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-require_once("ui.php");
-require_once("utils.php");
+require_once("ui.inc");
+require_once("utils.inc");
 
 $gArchive = "All";
 $gLabel = getParam('l', latestLabel($gArchive));
