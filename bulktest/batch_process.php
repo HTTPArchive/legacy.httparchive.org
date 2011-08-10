@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-require_once("../utils.php");
+require_once("../utils.inc");
 require_once("batch_lib.inc");
 require_once("bootstrap.inc");
 
@@ -31,6 +31,13 @@ if ( !flock($fp, LOCK_EX | LOCK_NB) ) {
 if ( ! tableExists($gStatusTable) ) {
 	echo "Please run batch_start to kick off a new batch!";
 	exit(-2);
+}
+
+
+// Now that we're running as a cronjob, we need to emit nothing to stdout when we're all done.
+$total_in_processing_before = totalInProcessing();
+if ( 0 == $total_in_processing_before ) {
+   exit(0);
 }
 
 
