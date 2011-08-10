@@ -1,5 +1,5 @@
 <?php
-require_once("utils.php");
+require_once("utils.inc");
 
 define("MIN_RESULTS", 12); // TODO - move it to conf file
 

@@ -18,7 +18,7 @@ limitations under the License.
 /*
 Include file for generating trending charts. 
 */
-require_once("utils.php");
+require_once("utils.inc");
 ?>
 
 <style>
