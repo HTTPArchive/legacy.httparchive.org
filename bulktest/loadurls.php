@@ -21,7 +21,7 @@ DESCRIPTION: Create a table of ranked URLs to crawl from a file.
 
 require_once("utils.inc");
 
-$gUrlsFile = "./lists/Quantcast-Top-Million.txt";
+$gUrlsFile = "../lists/Quantcast-Top-Million.txt";
 
 if ( ! file_exists($gUrlsFile) ) {
    echo "ERROR: URLs file \"$gUrlsFile\" doesn't exist.\n";
