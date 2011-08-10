@@ -552,15 +552,17 @@ function countFailedTests() {
 }
 
 
-function totalInProcessing() {
+function totalNotDone() {
 	global $gErrBase;
 
 	$loadedUrls = countTestsWithCode(NOT_STARTED);
 	$submittedTests = countTestsWithCode(SUBMITTED);
 	$completedTests = countTestsWithCode(SUBMIT_DONE);
-	$total_in_processing = $loadedUrls + $submittedTests + $completedTests;
+	$xmlDoneTests = countTestsWithCode(META_DONE);
 
-	return $total_in_processing;
+	$totalNotDone = $loadedUrls + $submittedTests + $completedTests + $xmlDoneTests;
+
+	return $totalNotDone;
 }
 
 
