@@ -19,30 +19,21 @@ limitations under the License.
 DESCRIPTION: Create a table of ranked URLs to crawl from a file.
 */
 
-require_once("utils.php");
+require_once("utils.inc");
 
-$gUrlsTableNew = $gUrlsTable . time();
-$gUrlsTablePrev = $gUrlsTable . "Prev";
 $gUrlsFile = "./lists/Quantcast-Top-Million.txt";
-$cnt = 0;
 
 if ( ! file_exists($gUrlsFile) ) {
    echo "ERROR: URLs file \"$gUrlsFile\" doesn't exist.\n";
    exit();
 }
 
+createTables();  // create the URLs table
 
-// Create a temporary URLs table.
-$urlsTableOrig = $gUrlsTable;
-$gUrlsTable = $gUrlsTableNew;
-createTables();
-$gUrlsTable = $urlsTableOrig;
-
-if ( ! tableExists($gUrlsTableNew) ) {
-	echo "ERROR: Temporary table \"$gUrlsTableNew\" wasn't created.\n";
-	exit();
-}
-
+// Clear out all the current rankings.
+// If a URL is no longer in the list, it'll stay in the table but not be referenced.
+// This is good - perhaps that URL might come back in the list and we want to preserve it's derived URL.
+doSimpleCommand("update $gUrlsTable set rank=null;");
 
 // File is too big to read with file()
 // $lines = file($gUrlsFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -53,18 +44,8 @@ if ( $handle ) {
 		$line = rtrim($line);
 		if ( preg_match('/^([0-9]*)\s(.*)$/', $line, $aMatches) ) {
 			$rank = $aMatches[1];
-			$urlOrig = $aMatches[2];  // for Quantcast this is just a domain, eg, "google.com"
-			$url = doSimpleCommand("select url from $gUrlsTable where urlOrig='$urlOrig';");
-			if ( ! $url ) {
-				// TODO - When we do the crawl we'll have to improve the quality of the URLs - avoid redirects, etc.
-				$url = "http://www." . $urlOrig . "/";
-			}
-			$cmd = "insert into $gUrlsTableNew set rank=$rank, url='$url', urlOrig='$urlOrig';";
-			doSimpleCommand($cmd);
-		}
-		$cnt++;
-		if ( $cnt > 100000 ) {
-			break;
+			$domain = $aMatches[2];    // Quantcast's list just has a domain, eg, "google.com"
+			doSimpleCommand("replace into $gUrlsTable set domain='$domain', rank=$rank;");
 		}
     }
     fclose($handle);
@@ -73,10 +54,6 @@ else {
 	echo "ERROR: Unable to open file \"$gUrlsFile\".\n";
 }
 
-// Remove the temporary table.
-doSimpleCommand("drop table $gUrlsTablePrev;");
-doSimpleCommand("rename table $gUrlsTable to $gUrlsTablePrev;");
-doSimpleCommand("rename table $gUrlsTableNew to $gUrlsTable;");
 
 echo "DONE\n";
 ?>
