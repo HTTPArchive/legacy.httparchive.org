@@ -1,26 +1,14 @@
 <?php
 
-require_once("../utils.php");
+require_once("../utils.inc");
 
 $gArchiveDir = dirname(getcwd()) . "/archives";  // CVSNO
-
-// Some ad-hoc fix for the problematic URLs
-$gReUrls = array("www.files.wordpress.com" => "files.wordpress.com");
 
 define("NOT_STARTED", 0);
 define("SUBMITTED", 1);
 define("SUBMIT_DONE", 2);
 define("META_DONE", 3);
 define("DONE", 4);
-
-// Some ad-hoc modifications on a URL
-function refineUrl($url) {
-	global $gReUrls;
-	if ( array_key_exists($url, $gReUrls) ) {
-		return $gReUrls[$url];
-	}
-	return $url;
-}
 
 
 // Obtain the tests with specified status code
@@ -465,7 +453,7 @@ function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 
 // Collect all the aggregate stats for a single website.
 function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultRow) {
-	global $gPagesTable, $gRequestsTable;
+	global $gPagesTable, $gRequestsTable, $gUrlsTable;
 
 	// CVSNO - move this error checking to the point before this function is called
 	if ( ! $firstUrl ) {
@@ -519,6 +507,8 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultRow) {
 	$urlHtml = $firstHtmlUrl;
 	$urlHtmlShort = substr($urlHtml, 0, 255);
 
+	$rank = doSimpleQuery("select rank from $gUrlsTable where url='$url';");
+
 	$cmd = "UPDATE $gPagesTable SET url = " . "'" . mysql_real_escape_string($url) . "'" .
 		", urlShort = " . "'" . mysql_real_escape_string($urlShort) . "'" .
 		", urlHtml = " . "'" . mysql_real_escape_string($urlHtml) . "'" .
@@ -535,6 +525,7 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultRow) {
 		", wptrun = " . $resultRow['medianRun'] . 
 		", renderStart = " . $resultRow['startRender'] . 
 		", PageSpeed = " . $resultRow['pagespeedScore'] .
+		( $rank ? ", rank = $rank" : "" ) . 
 		" where pageid = $pageid;";
 	doSimpleCommand($cmd);
 
