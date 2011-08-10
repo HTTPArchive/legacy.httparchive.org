@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-require_once("utils.php");
+require_once("utils.inc");
 
 /*
 DESCRIPTION: 
@@ -336,7 +336,7 @@ function jsLibraries() {
 
 	$hCond = array();
 	$hCond["jQuery"] = "rt.url like '%jquery%'";
-	$hCond["YUI"] = "rt.url like '%/yui/%'";
+	$hCond["YUI"] = "(rt.url like '%/yui-min.js%' or rt.url like '%/yui.js%' or rt.url like '%/yui-debug.js%' or rt.url like '%/yahoo.js%' or rt.url like '%/yahoo-min.js%' or rt.url like '%/yahoo-debug.js%' or rt.url like '%/yahoo-dom-event.js%')";
 	$hCond["Dojo"] = "rt.url like '%dojo%'";
 	$hCond["Google Analytics"] = "(rt.url like '%/ga.js%' or rt.url like '%/urchin.js%')";
 	$hCond["Quantcast"] = "rt.url like '%quant.js%'";
