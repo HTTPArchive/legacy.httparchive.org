@@ -70,6 +70,20 @@ $ghHiddenArchives = array(
 						  "Fortune 1000" => 1
 						  );
 
+$ghMonths = array(
+				  "Jan" => 1,
+				  "Feb" => 2,
+				  "Mar" => 3,
+				  "Apr" => 4,
+				  "May" => 5,
+				  "Jun" => 6,
+				  "Jul" => 7,
+				  "Aug" => 8,
+				  "Sep" => 9,
+				  "Oct" => 10,
+				  "Nov" => 11,
+				  "Dec" => 12
+				  );
 
 // mapping of headers to DB fields
 // IF YOU CHANGE THESE YOU HAVE TO REBUILD THE REQUESTS TABLE!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1447,6 +1461,23 @@ function onBlacklist($url) {
 
 	return $bBlacklisted;
 }
+
+
+// Extract and convert the date string in mysql dump gzip files to a LOCAL epoch time.
+function dumpfileEpochTime($filename) {
+	global $ghMonths;
+
+	if ( preg_match('/.*_([A-Z][a-z][a-z])_([0-9]+)_(2[0-9][0-9][0-9])\.gz/', $filename, $aMatches) ) {
+		$month = $ghMonths[$aMatches[1]];
+		$day = $aMatches[2];
+		$year = $aMatches[3];
+		$epoch = mktime(12, 0, 0, $month, $day, $year);
+		return $epoch;
+	}
+	
+	return null;
+}
+
 
 // Convert bytes to kB
 function formatSize($num) {
