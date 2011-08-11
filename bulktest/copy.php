@@ -15,8 +15,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// CVSNO - do this better
-include './settings.inc';
 require_once("../settings.inc");
 require_once("../utils.inc");
 
@@ -51,12 +49,14 @@ if ( $gbMobile ) {
 else {
 	$cmd = "mysqldump --where='pageid >= $minid and pageid <= $maxid' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gPagesTableDesktop $gRequestsTableDesktop > $dumpfile";
 }
+
 exec($cmd);
 exec("gzip $dumpfile");
 
 if ( ! $gbMobile ) {
 	exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
 }
+
 echo "...mysqldump file created: $dumpfile\n";
 
 
