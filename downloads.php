@@ -20,50 +20,16 @@ require_once("utils.inc");
 
 $gTitle = "Downloads";
 
-$gaNormalFiles = array(
-                       array( "httparchive_Aug_1_2011.gz", "August 1 2011" ),
-                       array( "httparchive_Jul_15_2011.gz", "July 15 2011" ),
-                       array( "httparchive_Jul_1_2011.gz", "July 1 2011" ),
-                       array( "httparchive_Jun_15_2011.gz", "June 15 2011" ),
-                       array( "httparchive_June_1_2011.gz", "June 1 2011" ),
-                       array( "httparchive_May_16_2011.gz", "May 16 2011" ),
-                       array( "httparchive_Apr_30_2011.gz", "Apr 30 2011" ),
-                       array( "httparchive_Apr_15_2011.gz", "Apr 15 2011" ),
-                       array( "httparchive_Mar_29_2011.gz", "Mar 29 2011" ),
-                       array( "httparchive_Mar_15_2011.gz", "Mar 15 2011" ),
-                       array( "httparchive_Feb_26_2011.gz", "Feb 26 2011" ),
-                       array( "httparchive_Feb_11_2011.gz", "Feb 11 2011" ),
-                       array( "httparchive_Jan_31_2011.gz", "Jan 31 2011" ),
-                       array( "httparchive_Jan_20_2011.gz", "Jan 20 2011" ),
-                       array( "httparchive_Dec_28_2010.gz", "Dec 28 2010" ),
-                       array( "httparchive_Dec_16_2010.gz", "Dec 16 2010" ),
-                       array( "httparchive_Nov_29_2010.gz", "Nov 29 2010" ),
-                       array( "httparchive_Nov_15_2010.gz", "Nov 15 2010" ),
-                       array( "httparchive_Nov_6_2010.gz", "Nov 6 2010" ),
-                       array( "httparchive_Oct_22_2010.gz", "Oct 22 2010" ),
-                       array( "httparchive_Oct_2010.gz", "Oct (5) 2010" )
-                      );
-
-$gaMobileFiles = array(
-                       array( "httparchive_mobile_Aug_1_2011.gz", "Aug 1 2011" ),
-                       array( "httparchive_mobile_Jul_15_2011.gz", "July 15 2011" ),
-                       array( "httparchive_mobile_Jul_1_2011.gz", "July 1 2011" ),
-                       array( "httparchive_mobile_Jun_15_2011.gz", "June 15 2011" ), 
-                       array( "httparchive_mobile_Jun_1_2011.gz", "June 1 2011" ), 
-                       array( "httparchive_mobile_May_16_2011.gz", "May 16 2011" ), 
-                       array( "httparchive_mobile_May_12_2011.gz", "May 12 2011" ), 
-                       array( "httparchive_mobile_May_8_2011.gz", "May 8 2011" ), 
-                       array( "httparchive_mobile_May_7_2011.gz", "May 7 2011" ), 
-                       array( "httparchive_mobile_May_6_2011.gz", "May 6 2011" )
-                      );
-
-function listFiles($aFiles) {
+function listFiles($hFiles) {
 	$sHtml = "";
-	foreach($aFiles as $fileinfo) {
-		list($filename, $label) = $fileinfo;
-		$filesize = filesize("./downloads/$filename");
+	$aKeys = array_keys($hFiles);
+	sort($aKeys, SORT_NUMERIC);
+	foreach( array_reverse($aKeys) as $epoch ) {
+		$filename = $hFiles[$epoch];
+		$label = date("M j, Y", $epoch);
+		$filesize = filesize($filename);
 		$size = ( $filesize > 1024*1024 ? round($filesize/(1024*1024)) . " MB" : round($filesize/(1024)) . " kB" );
-		$sHtml .= "  <li> <a href='downloads/$filename'>$label</a> ($size)\n";
+		$sHtml .= "  <li> <a href='$filename'>$label</a> ($size)\n";
 	}
 
 	return $sHtml;
@@ -84,6 +50,22 @@ function listFiles($aFiles) {
 <?php echo uiHeader($gTitle); ?>
 <h1>Downloads</h1>
 
+<?php
+$desktopFiles = array();
+$mobileFiles = array();
+foreach ( glob("downloads/httparchive_*.gz") as $filename ) {
+	$epoch = dumpfileEpochTime($filename);
+	if ( $epoch ) {
+		if ( FALSE ===  strpos($filename, "httparchive_mobile_") ) {
+			$desktopFiles[$epoch] = $filename;
+		}
+		else {
+			$mobileFiles[$epoch] = $filename;
+		}
+	}
+}
+?>
+
 <p>
 There's a download file for each run:
 </p>
@@ -95,12 +77,12 @@ There's a download file for each run:
 <strong>HTTP Archive (desktop):</strong>
 
 <ul class=indent>
-<?php echo listFiles($gaNormalFiles) ?>
+<?php echo listFiles($desktopFiles) ?>
 </ul>
 
 <strong>HTTP Archive Mobile:</strong>
 <ul class=indent>
-<?php echo listFiles($gaMobileFiles) ?>
+<?php echo listFiles($mobileFiles) ?>
 </ul>
 
 <p>
