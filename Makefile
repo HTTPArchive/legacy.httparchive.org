@@ -1,5 +1,5 @@
 push :
-	cp -p *.php *.inc *.js *.css favicon.ico ~/httparchive.org/.
+	cp -p *.php *.inc *.js *.css favicon.ico robots.txt ~/httparchive.org/.
 	/bin/rm ~/httparchive.org/admin.php
 	mkdir -p ~/httparchive.org/images
 	cp -p images/*.* ~/httparchive.org/images/.
@@ -13,7 +13,7 @@ push :
 	echo "CREATE interesting-images.js.cache !!!!!!!!!!!"
 
 pushmobile :
-	cp -p *.php *.inc *.js *.css favicon.ico ~/mobile.httparchive.org/.
+	cp -p *.php *.inc *.js *.css favicon.ico robots.txt ~/mobile.httparchive.org/.
 	/bin/rm ~/mobile.httparchive.org/admin.php
 	mkdir -p ~/mobile.httparchive.org/images
 	cp -p images/*.* ~/mobile.httparchive.org/images/.
@@ -28,7 +28,7 @@ pushmobile :
 
 pushbeta :
 	mkdir -p ~/beta.httparchive.org
-	cp -p *.php *.inc *.js *.css favicon.ico .htaccess ~/beta.httparchive.org/.
+	cp -p *.php *.inc *.js *.css favicon.ico robots.txt .htaccess ~/beta.httparchive.org/.
 	/bin/rm ~/beta.httparchive.org/admin.php
 	mkdir -p ~/beta.httparchive.org/images
 	cp -p images/*.* ~/beta.httparchive.org/images/.
