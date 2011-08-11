@@ -50,7 +50,7 @@ if ( $gbMobile ) {
 }
 else {
 	$server = 'http://httparchive.webpagetest.org/';
-	$locations[] = 'Dulles_IE8';
+	$locations[] = 'IE8';
 }
 
 
