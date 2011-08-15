@@ -15,9 +15,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+require_once("bootstrap.inc");
 require_once("../utils.inc");
 require_once("batch_lib.inc");
-require_once("bootstrap.inc");
 
 
 // A file lock to guarantee there is only one instance running.
