@@ -135,8 +135,12 @@ emptyStatusTable();
 $date = getdate();
 $label = substr($date['month'], 0, 3) . " " . $date['mday'] . " " . $date['year'];
 
-//loadUrlsFromFile($label);
-loadUrlsFromDB($label, 30000);
+if ( $gbMobile ) {
+	loadUrlsFromFile($label);
+}
+else {
+	loadUrlsFromDB($label, 30000);
+}
 
 echo "DONE submitting batch run\n";
 ?>
