@@ -16,6 +16,7 @@ limitations under the License.
 */
 
 require_once("../settings.inc");
+require_once("../utils.inc");
 
 set_time_limit(0);
 
@@ -30,7 +31,7 @@ $ghRespOtherHeaders = array();
 $gErrBase = 400;
 
 // The file used as a file lock to coordinate the interaction of processes.
-$gLockFile = '/tmp/httparchive_batch_lock.txt';
+$gLockFile = '/tmp/httparchive_batch_lock' . ( $gbMobile ? '_mobile' : '' ) . '.txt';
 
 // global options
 $video = true;
