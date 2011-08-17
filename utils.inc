@@ -1260,6 +1260,15 @@ $gaTop1000 = array(
 
 // Don't link to some websites.
 $ghBlackList = array(
+					 "xhamsterhq.com" => 1, "www.xhamsterhq.com" => 1,
+					 "xxxbunker.com" => 1, "www.xxxbunker.com" => 1,
+					 "grannybet.com" => 1, "www.grannybet.com" => 1,
+					 "zoosection.com" => 1, "www.zoosection.com" => 1,
+					 "sexlunch.com" => 1, "www.sexlunch.com" => 1,
+					 "freepornii.com" => 1, "www.freepornii.com" => 1,
+					 "amateurniches.com" => 1, "www.amateurniches.com" => 1,
+					 "video-one.com" => 1, "www.video-one.com" => 1,
+					 "yournnpic.com" => 1, "www.yournnpic.com" => 1,
 					 "cumdisgrace.com" => 1,
 					 "www.cumdisgrace.com" => 1,
 					 "cumilf.com" => 1,
