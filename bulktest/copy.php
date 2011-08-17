@@ -32,13 +32,18 @@ $minid = $row['minid'];
 $maxid = $row['maxid'];
 echo "Run \"$gLabel\": min pageid = $minid, max pageid = $maxid\n";
 
+
+
 // copy the rows to production
 if ( ! $gbMobile ) {
-	echo "Copy rows to production...\n";
+	echo "Copy 'pages' rows to production...\n";
 	doSimpleCommand("insert into $gPagesTableDesktop select * from $gPagesTableDev where pageid >= $minid and pageid <= $maxid;");
+	echo "Copy 'requests' rows to production...\n";
 	doSimpleCommand("insert into $gRequestsTableDesktop select * from $gRequestsTableDev where pageid >= $minid and pageid <= $maxid;");
 	echo "...DONE.\n";
 }
+
+
 
 // mysqldump file
 $dumpfile = "../downloads/httparchive_" . ( $gbMobile ? "mobile_" : "" ) . str_replace(" ", "_", $gLabel);
@@ -55,10 +60,19 @@ exec("gzip $dumpfile");
 
 if ( ! $gbMobile ) {
 	exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
+	exec("cp -p $dumpfile.gz ~/beta.httparchive.org/downloads/");
 }
 
-echo "...mysqldump file created: $dumpfile\n";
+echo "...mysqldump file created and copied: $dumpfile\n";
 
 
+// Create cache files
+echo "Creating cache files...\n";
+//exec("/bin/rm -f ../cache/*'$gLabel'*");   // remove any incomplete cache files that might have been creating during the crawl
+passthru("cd ..; php cachegen.php");
+if ( ! $gbMobile ) {
+   exec("cp -p ../cache/*'$gLabel'* ~/httparchive.org/cache/.");
+   exec("cp -p ../cache/*'$gLabel'* ~/beta.httparchive.org/cache/.");
+}
 
-
+echo "...cache files created and copied.\n";
