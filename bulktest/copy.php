@@ -68,7 +68,7 @@ echo "...mysqldump file created and copied: $dumpfile\n";
 
 // Create cache files
 echo "Creating cache files...\n";
-//exec("/bin/rm -f ../cache/*'$gLabel'*");   // remove any incomplete cache files that might have been creating during the crawl
+exec("/bin/rm -f ../cache/*'$gLabel'*");   // remove any incomplete cache files that might have been creating during the crawl
 passthru("cd ..; php cachegen.php");
 if ( ! $gbMobile ) {
    exec("cp -p ../cache/*'$gLabel'* ~/httparchive.org/cache/.");
