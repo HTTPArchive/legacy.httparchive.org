@@ -1442,6 +1442,16 @@ function latestLabel($archive) {
 }
 
 
+// Return HTML to create a select list of data slices (All, intersection, Top 100, etc.)
+function selectSlice($cur="") {
+	return "<select>" . 
+		"<option value='All'" . ( 'All' == $cur ? " selected" : "" ) . "> All\n" . 
+	    "<option value='intersection'" . ( 'intersection' == $cur ? " selected" : "" ) . "> intersection\n" . 
+	    "<option value='Top100'" . ( 'Top100' == $cur ? " selected" : "" ) . "> Top 100\n" . 
+		"<option value='Top1000'" . ( 'Top1000' == $cur ? " selected" : "" ) . "> Top 1000\n" . 
+		"</select>\n";
+}
+
 
 // Display a link (or not) to a URL.
 function siteLink($url) {
