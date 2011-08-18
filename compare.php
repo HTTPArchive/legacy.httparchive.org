@@ -21,9 +21,20 @@ require_once("utils.inc");
 $gTitle = "Compare Stats";
 $gArchive = "All";
 
-function genForm() {
+$run1 = $set1 = $run2 = $set2 = null;
+if ( array_key_exists("r1", $_GET) && array_key_exists("s1", $_GET) ) {
+	$run1 = $_GET["r1"];
+	$set1 = $_GET["s1"];
+}
+if ( array_key_exists("r2", $_GET) && array_key_exists("s2", $_GET) ) {
+	$run2 = $_GET["r2"];
+	$set2 = $_GET["s2"];
+}
+
+function genForm($curLabel="", $curSet="") {
 	global $gArchive, $gbMobile;
-	$selectRun = selectArchiveLabel($gArchive, "", true, false);
+	$selectRun = selectArchiveLabel($gArchive, $curLabel, true, false);
+	$selectSet = selectSlice($curSet);
 
 	$sForm =<<<OUTPUT
 <table cellpadding=0 cellspacing=0 border=0>
@@ -35,14 +46,7 @@ function genForm() {
 
   <tr>
 	<td> <label>Choose URLs:</label> </td>
-	<td> 
-      <select>
-	    <option value='All'> All
-	    <option value='intersection'> intersection
-	    <option value='Top100'> Top 100
-		<option value='Top1000'> Top 1000
-      </select>
-    </td>
+	<td> $selectSet </td>
     <td>
       <input type=submit value="Get Charts">
     </td>
@@ -95,6 +99,20 @@ function update(id, snippets) {
 
 	elem.innerHTML = sHtml;
 }
+
+function getLink() {
+	var selectrun1 = document.getElementById("compare1").getElementsByTagName('select')[0];
+	var selectset1 = document.getElementById("compare1").getElementsByTagName('select')[1];
+	var selectrun2 = document.getElementById("compare2").getElementsByTagName('select')[0];
+	var selectset2 = document.getElementById("compare2").getElementsByTagName('select')[1];
+
+	var url = "compare.php?" +
+	    "&r1=" + escape(selectrun1.options[selectrun1.selectedIndex].value) +
+	    "&s1=" + escape(selectset1.options[selectset1.selectedIndex].value) +
+	    "&r2=" + escape(selectrun2.options[selectrun2.selectedIndex].value) +
+	    "&s2=" + escape(selectset2.options[selectset2.selectedIndex].value);
+	document.location = url;
+}
 </script>
 
 <link type="text/css" rel="stylesheet" href="style.css" />
@@ -110,6 +128,8 @@ function update(id, snippets) {
 
 <?php echo uiHeader($gTitle); ?>
 
+
+<a style="float: right; font-size: 0.9em; margin-right: 20px;" href="javascript:getLink()" title="generate full URL">get link</a>
 <h1>Compare stats</h1>
 
 <style>
@@ -123,7 +143,7 @@ TD { padding-top: 0; padding-bottom: 0; }
   <tr>
     <td id=compare1>
       <form onsubmit="doSubmit('1'); return false;">
-      <?php echo genForm(); ?>
+      <?php echo genForm($run1, $set1); ?>
       </form>
 
       <div id=interesting1 style="margin-top: 40px; min-width: 640px;">
@@ -132,7 +152,7 @@ TD { padding-top: 0; padding-bottom: 0; }
 
     <td id=compare2>
       <form onsubmit="doSubmit('2'); return false;">
-      <?php echo genForm(); ?>
+      <?php echo genForm($run2, $set2); ?>
       </form>
 
       <div id=interesting2 style="margin-top: 40px; min-width: 640px;">
@@ -142,6 +162,17 @@ TD { padding-top: 0; padding-bottom: 0; }
 </table>
 
 <?php echo uiFooter() ?>
+
+<script type="text/javascript">
+<?php
+if ( $run1 && $set1 ) {
+	echo "doSubmit(1);\n";
+}
+if ( $run2 && $set2 ) {
+	echo "doSubmit(2);\n";
+}
+?>
+</script>
 
 </body>
 
