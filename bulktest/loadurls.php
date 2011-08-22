@@ -19,7 +19,7 @@ limitations under the License.
 DESCRIPTION: Create a table of ranked URLs to crawl from a file.
 */
 
-require_once("utils.inc");
+require_once("../utils.inc");
 
 $gUrlsFile = "../lists/Quantcast-Top-Million.txt";
 

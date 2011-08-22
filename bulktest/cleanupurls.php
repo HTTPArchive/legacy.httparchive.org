@@ -22,7 +22,7 @@ We want to pick the most typical real world URL and use that in our crawl.
 This script examines previous tests and determines the best URL to crawl.
 */
 
-require_once("utils.inc");
+require_once("../utils.inc");
 
 //doSimpleCommand("update $gUrlsTable set url=null where urlid < 200;"); // CVSNO
 
