@@ -58,9 +58,12 @@ else {
 exec($cmd);
 exec("gzip $dumpfile");
 
-if ( ! $gbMobile ) {
+if ( $gbMobile ) {
 	exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
-	exec("cp -p $dumpfile.gz ~/beta.httparchive.org/downloads/");
+}
+else {
+	exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
+	exec("cp -p $dumpfile.gz ~/mobile.httparchive.org/downloads/");
 }
 
 echo "...mysqldump file created and copied: $dumpfile\n";
@@ -69,6 +72,7 @@ echo "...mysqldump file created and copied: $dumpfile\n";
 // Create cache files
 echo "Creating cache files...\n";
 exec("/bin/rm -f ../cache/*'$gLabel'*");   // remove any incomplete cache files that might have been creating during the crawl
+exec("/bin/rm -f ../cache/*intersection*");   // remove intersection files since they've changed
 passthru("cd ..; php cachegen.php");
 if ( ! $gbMobile ) {
    exec("cp -p ../cache/*'$gLabel'* ~/httparchive.org/cache/.");
