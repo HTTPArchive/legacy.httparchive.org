@@ -150,7 +150,7 @@ function format2LineChart($field, $field2, $hStats, $aRunNames, $labels) {
 		"&chxp=0&chdl=" . urlencode(fieldTitle($field)) . "|" . urlencode(fieldTitle($field2)) . "+(kB)&chdlp=bv|r" .
 		"";
 
-	return "<div style='margin: 40px 0 60px 0;'><img src=$url></div>\n";
+	return "<div id='$field2&$field' style='margin: 40px 0 60px 0;'><a href='#$field2&$field'><img src=$url width=600 height=300></a></div>\n";
 }
 
 
@@ -162,7 +162,7 @@ function formatChart($field, $hStats, $aRunNames, $labels) {
 		"&chxl=0:|$labels&chxt=x&chs=600x300&cht=lxy&chco=$color" .
 		"&chxs=0,676767,11.5,0,lt,676767&chxtc=0,8&chm=N" . ( $suffix ? "**+$suffix" : "" ) .
 		",$color,0,,12,,::8&chds=0,100,$min,$max&chts=$color,32&chtt=" . urlencode(fieldTitle($field)) . "&chls=2&chma=5,5,5,25";
-	return "<div style='margin: 40px 0 60px 0;'><img src=$url></div>\n";
+	return "<div id='$field' style='margin: 40px 0 60px 0;'><a href='#$field'><img src=$url width=600 height=300></a></div>\n";
 }
 
 
