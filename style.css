@@ -69,6 +69,37 @@ header {
 	border: none; }
 #logo:focus img, #logo:hover img {
 	visibility: hidden; }
+
+/* Special CSS for Custom Column Table */
+#requestCustomCols {
+	margin-left: 20px;
+	padding: 4px;
+	border: 1px solid;
+}
+#CustomColTable {
+    border: 0;
+	margin-left: 0;
+}
+#CustomColTable input {
+    margin: 0;
+    text-align: right;
+}
+#CustomColTable td {
+    padding: 0.3em 0.5em 0.3em 0;
+	font-size: 0.8em;
+	background: #FFF;
+}
+.customCol {
+	font-size: 0.9em;
+}
+input.customColToggleButton {
+	vertical-align: baseline;
+	width: 1.5em;
+	margin: 0 5px;
+	padding: 0;
+	background: #FFF;
+}
+
 .mobilelabel {
 	float:left;
 	margin-top: 75px;
