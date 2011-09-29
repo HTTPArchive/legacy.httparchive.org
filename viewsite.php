@@ -406,52 +406,90 @@ function fixUrls($line) {
 
 <h2 id=requests>Requests</h2>
 <a href="download.php?p=<?php echo $gPageid ?>&format=csv">download CSV</a>
+<div class="customCol"><input type="button" class="customColToggleButton" onclick="toggleCustomColDiag();" value="+" /> customize columns</div>
+<?php 
+// An array with all the columns, whether they're sortable, and the initial visibility state
+$columns = array(array('name'=>'Req#', 'sortable'=>true),
+				 array('name'=>'URL'),
+				 array('name'=>'Mime type', 'dbName'=>'mimeType', 'class'=>'nobr'),
+				 array('name'=>'Method', 'dbName'=>'method', 'hidden'=>true),
+				 array('name'=>'Status', 'dbName'=>'status', 'sortable'=>true),
+				 array('name'=>'Time', 'dbName'=>'time', 'sortable'=>true, 'hidden'=>true),
+				 array('name'=>'Response Size', 'dbName'=>'respSize','suffix'=>'kB', 'sortable'=>true),
+				 array('name'=>'Request Cookie Len', 'dbName'=>'reqCookieLen','prefix'=>'b', 'sortable'=>true, 'hidden'=>true),
+				 array('name'=>'Response Cookie Len', 'dbName'=>'respCookieLen','prefix'=>'b', 'sortable'=>true, 'hidden'=>true),
+				 array('name'=>'Request Http&nbsp;Ver', 'dbName'=>'reqHttpVersion', 'hidden'=>true),
+				 array('name'=>'Response Http&nbsp;Ver', 'dbName'=>'respHttpVersion', 'hidden'=>true),
+				 array('name'=>'Request Accept', 'dbName'=>'req_accept','suffix'=>'snip', 'class'=>'nobr', 'hidden'=>true),
+				 array('name'=>'Request Accept-Charset', 'dbName'=>'req_accept_charset', 'hidden'=>true),
+				 array('name'=>'Request Accept-Encoding', 'dbName'=>'req_accept_encoding', 'class'=>'nobr', 'hidden'=>true),
+				 array('name'=>'Requst Accept-Language', 'dbName'=>'req_accept_language', 'hidden'=>true),
+				 array('name'=>'Request Connect', 'dbName'=>'req_connection', 'hidden'=>true),
+				 array('name'=>'Request Host', 'dbName'=>'req_host', 'hidden'=>true),
+				 array('name'=>'Request Referer', 'dbName'=>'req_referer','suffix'=>'url', 'hidden'=>true),
+				 array('name'=>'Response Accept-Ranges', 'dbName'=>'resp_accept_ranges', 'hidden'=>true),
+				 array('name'=>'Response Age', 'dbName'=>'resp_age', 'hidden'=>true),
+				 array('name'=>'Response Cache-Control', 'dbName'=>'resp_cache_control'),
+				 array('name'=>'Response Connection', 'dbName'=>'resp_connection', 'hidden'=>true),
+				 array('name'=>'Response Content-Encoding', 'dbName'=>'resp_content_encoding'),
+				 array('name'=>'Response Content-Language', 'dbName'=>'resp_content_language', 'hidden'=>true),
+				 array('name'=>'Response Content-Length', 'dbName'=>'resp_content_length', 'hidden'=>true),
+				 array('name'=>'Response Content-Location', 'dbName'=>'resp_content_location', 'hidden'=>true),
+				 array('name'=>'Response Content-Type', 'dbName'=>'resp_content_type', 'hidden'=>true),
+				 array('name'=>'Response Date', 'dbName'=>'resp_date', 'class'=>'nobr', 'hidden'=>true),
+				 array('name'=>'Response ETag', 'dbName'=>'resp_etag'),
+				 array('name'=>'Response Expires', 'dbName'=>'resp_expires', 'class'=>'nobr', 'hidden'=>true),
+				 array('name'=>'Response Keep-Alive', 'dbName'=>'resp_keep_alive', 'hidden'=>true),
+				 array('name'=>'Response Last-Modified', 'dbName'=>'resp_last_modified'),
+				 array('name'=>'Response Location', 'dbName'=>'resp_location','suffix'=>'url', 'hidden'=>true),
+				 array('name'=>'Response Pragma', 'dbName'=>'resp_pragma', 'hidden'=>true),
+				 array('name'=>'Response Server', 'dbName'=>'resp_server', 'hidden'=>true),
+				 array('name'=>'Response Transfer-Encoding', 'dbName'=>'resp_transfer_encoding', 'hidden'=>true),
+				 array('name'=>'Response Vary', 'dbName'=>'resp_vary', 'hidden'=>true),
+				 array('name'=>'Response Via', 'dbName'=>'resp_via', 'hidden'=>true),
+				 array('name'=>'X-Powered-By', 'dbName'=>'resp_x_powered_by', 'hidden'=>true)
+				 );
+?>
 
-<table id=stats class=tablesort border=0 cellpadding=0 cellspacing=0>
-	<tr>
-<th class="sortnum">req#</th> 
-<th>URL</th> 
-<th>mime type</th>
-<th>method</th>
-<th class=sortnum>status</th>
-<th class="sortnum">time</th> 
-<th class=sortnum>response<br>Size</th>
-<th class=sortnum>request<br>Cookie Len</th>
-<th class=sortnum>response<br>Cookie Len</th>
-<th>request<br>Http&nbsp;Ver</th>
-<th>response<br>Http&nbsp;Ver</th>
-<th>request Accept</th>
-<th>request Accept-Charset</th>
-<th>request Accept-Encoding</th>
-<th>request Accept-Language</th>
-<th>request Connection</th>
-<th>request Host</th>
-<th>request Referer</th>
-
-<th>response<br>Accept-Ranges</th>
-<th>response<br>Age</th>
-<th>response<br>Cache-Control</th>
-<th>response<br>Connection</th>
-<th>response<br>Content-Encoding</th>
-<th>response<br>Content-Language</th>
-<th>response<br>Content-Length</th>
-<th>response<br>Content-Location</th>
-<th>response<br>Content-Type</th>
-<th>response<br>Date</th>
-<th>response<br>Etag</th>
-<th>response<br>Expires</th>
-<th>response<br>Keep-Alive</th>
-<th>response<br>Last-Modified</th>
-<th>response<br>Location</th>
-<th>response<br>Pragma</th>
-<th>response<br>Server</th>
-<th>response<br>Transfer-Encoding</th>
-<th>response<br>Vary</th>
-<th>response<br>Via</th>
-<th>response<br>X-Powered-By</th>
-</tr>
+<div id='requestCustomCols' style='display: none;' >
+<form autocomplete='off'>
+<table id='CustomColTable'>
 
 <?php
+// Generate the custom column selection form
+$len = count($columns);
+for ( $i = 0; $i < $len; $i++ ) {
+	//split the custom col table into five columns
+	if ( 0 == ($i % 5) ) {
+		echo "<tr>\n";
+	}
+	$column = $columns[$i];
+	$name = $column['name'];
+	$checked = ( array_key_exists('hidden', $column) ? "" : " checked='checked'" );
+	echo "  <td><input type='checkbox'$checked onclick='toggleColByName(\"$name\")'></td><td>$name</td>\n";
+	if ( 4 == ($i % 5) ) {
+		echo "</tr>\n";
+	}
+}
+?>
+
+</table></form></div>
+
+<table id='stats' class='tablesort' border=0 cellpadding=0 cellspacing=0>
+<?php
+// Print the table headers
+echo "<tr>\n";
+for ( $i = 0; $i < $len; $i++ ) {
+	$column = $columns[$i];
+	$sTh = "<th" .
+		( array_key_exists('sortable', $column) ? " class='sortnum'" : "" ) .
+		( array_key_exists('hidden', $column) ? " style='display:none;'" : "" ) .
+		">" . $column['name'] . "</th>\n";
+	echo $sTh;
+}
+echo "</tr>\n";
+
+
 // MySQL Table
 $sRows = "";
 $iRow = 0;
@@ -460,57 +498,28 @@ $gFirstStart = 0;
 $query = "select * from $gRequestsTable where pageid = '$gPageid';";
 $result = doQuery($query);
 if ( $result ) {
-	while ($row = mysql_fetch_assoc($result)) {
+	while ( $row = mysql_fetch_assoc($result) ) {
 		if ( !$gFirstStart ) {
-			$gFirstStart = intval($row['startedDateTime']);
+            $gFirstStart = intval($row['startedDateTime']);
 		}
 		$iRow++;
 		$sRow = "<tr" . ( $iRow % 2 == 0 ? " class=odd" : "" ) . ">";
-		$sRow .= "<td class=tdnum>$iRow</td> ";
-		$sRow .= "<td class=nobr style='font-size: 0.9em;'><a href='" . $row['url'] . "'>" . shortenUrl($row['url']) . "</a></td> ";
-		$sRow .= tdStat($row, "mimeType", "", "nobr");
-		$sRow .= tdStat($row, "method", "", "");
-		$sRow .= tdStat($row, "status");
-		$sRow .= tdStat($row, "time");
-		$sRow .= tdStat($row, "respSize", "kB");
-		$sRow .= tdStat($row, "reqCookieLen", "b");
-		$sRow .= tdStat($row, "respCookieLen", "b");
-		$sRow .= tdStat($row, "reqHttpVersion", "", "");
-		$sRow .= tdStat($row, "respHttpVersion", "", "");
-		$sRow .= tdStat($row, "req_accept", "snip", "nobr");
-		$sRow .= tdStat($row, "req_accept_charset", "", "");
-		$sRow .= tdStat($row, "req_accept_encoding", "", "nobr");
-		$sRow .= tdStat($row, "req_accept_language", "", "");
-		$sRow .= tdStat($row, "req_connection", "", "");
-		$sRow .= tdStat($row, "req_host", "", "");
-		$sRow .= tdStat($row, "req_referer", "url", "");
-		$sRow .= tdStat($row, "resp_accept_ranges", "", "");
-		$sRow .= tdStat($row, "resp_age", "", "");
-		$sRow .= tdStat($row, "resp_cache_control", "", "");
-		$sRow .= tdStat($row, "resp_connection", "", "");
-		$sRow .= tdStat($row, "resp_content_encoding", "", "");
-		$sRow .= tdStat($row, "resp_content_language", "", "");
-		$sRow .= tdStat($row, "resp_content_length", "", "");
-		$sRow .= tdStat($row, "resp_content_location", "url", "");
-		$sRow .= tdStat($row, "resp_content_type", "", "");
-		$sRow .= tdStat($row, "resp_date", "", "nobr");
-		$sRow .= tdStat($row, "resp_etag", "", "");
-		$sRow .= tdStat($row, "resp_expires", "", "nobr");
-		$sRow .= tdStat($row, "resp_keep_alive", "", "");
-		$sRow .= tdStat($row, "resp_last_modified", "", "nobr");
-		$sRow .= tdStat($row, "resp_location", "url", "");
-		$sRow .= tdStat($row, "resp_pragma", "", "");
-		$sRow .= tdStat($row, "resp_server", "", "");
-		$sRow .= tdStat($row, "resp_transfer_encoding", "", "");
-		$sRow .= tdStat($row, "resp_vary", "", "");
-		$sRow .= tdStat($row, "resp_via", "", "");
-		$sRow .= tdStat($row, "resp_x_powered_by", "", "");
-
+		$sRow .= "<td class='tdnum '>$iRow</td> ";
+		$sRow .= "<td class='nobr ' style='font-size: 0.9em;'><a href='" . $row['url'] . "'>" . shortenUrl($row['url']) . "</a></td> ";
+		for ( $i = 0; $i < $len; $i++ ) {
+			$column = $columns[$i];
+			if ( ('Req#' != $column['name']) && ('URL' != $column['name'])){
+				$class = ( array_key_exists('class', $column) ? $column['class'] : "tdnum" );
+				$suffix = ( array_key_exists('suffix', $column) ? $column['suffix'] : "" );
+				$hidden = ( array_key_exists('hidden', $column) ? $column['hidden'] : "" );
+				$sRow .= tdStat($row, $column['dbName'], $suffix, $class, $hidden);
+			}
+		}
 		$sRows .= $sRow;
 	}
 	mysql_free_result($result);
+	echo $sRows;
 }
-echo $sRows;
 ?>
 </table>
 
@@ -520,6 +529,42 @@ tsjs.src = "tablesort.js";
 tsjs.onload = function() { TS.init(); };
 tsjs.onreadystatechange = function() { if ( tsjs.readyState == 'complete' || tsjs.readyState == 'loaded' ) { TS.init(); } };
 document.getElementsByTagName('head')[0].appendChild(tsjs);
+
+
+function toggleColByName(colName) {
+    var i = 0;
+    var colId = 0;
+    var shown = false;
+    jQuery('#stats > thead > tr:nth-child(1) > th').each( 
+														 function() {
+															 if (colName == jQuery(this).text()) {
+																 colId = i + 1;
+																 shown = jQuery(this).is(":visible");
+															 }
+															 i++;
+														 } );
+    if ( 0 != colId ) {
+		if ( shown ) {
+			jQuery('#stats > tbody > tr > td:nth-child(' + colId + '),#stats > thead > tr > th:nth-child(' + colId + ')').hide(); 
+		} 
+		else {
+			jQuery('#stats > tbody > tr > td:nth-child(' + colId + '),#stats > thead > tr > th:nth-child(' + colId + ')').show(); 
+		}
+    }
+}
+
+
+function toggleCustomColDiag() {
+    var toggleButton = jQuery('input.customColToggleButton');
+    if ( '+' == toggleButton.val() ) {
+		toggleButton.val('-'); 
+		jQuery('#requestCustomCols').show();
+    } 
+	else {
+		toggleButton.val('+'); 
+		jQuery('#requestCustomCols').hide();
+    }
+}
 </script>
 
 
@@ -547,7 +592,7 @@ require_once('trends.inc');
 </html>
 
 <?php
-function tdStat($row, $field, $suffix = "", $class = "tdnum") {
+function tdStat($row, $field, $suffix = "", $class = "tdnum", $bHidden = false) {
 	global $gFirstStart;
 
 	$value = $row[$field];
@@ -592,7 +637,9 @@ function tdStat($row, $field, $suffix = "", $class = "tdnum") {
 	if ( $class ) {
 		$class = " class=$class";
 	}
-	
-	return ( $suffix ? "<td$class>$value&nbsp;$suffix</td>" : "<td$class>$value</td>" );
+
+	$hidden = ( $bHidden ? " style='display: none;'" : "" );
+
+	return ( $suffix ? "<td$class$hidden>$value&nbsp;$suffix</td>" : "<td$class$hidden>$value</td>" );
 }
 ?>
