@@ -161,7 +161,7 @@ are well known, the entire website doesn't necessarily map well to a single URL.
 					<p>The HTTP waterfall chart is generated from the HAR file via JavaScript. The code is from Jan Odvarko's <a href='http://www.softwareishard.com/har/viewer/'>HAR Viewer</a>. Jan is also one of the creators of the HAR specification. Thanks Jan!</p>
 
 
-<h2 id=intersection>When looking at <a href="http://dev.httparchive.org/trends.php">trends</a> what does it mean to choose the "intersection" URLs?</h2>
+<h2 id=intersection>When looking at Trends what does it mean to choose the "intersection" URLs?</h2>
 <p>
 The number and exact list of URLs changes from run to run.
 Comparing trends for "All" the URLs from run to run is a bit like comparing apples and oranges.
@@ -291,12 +291,12 @@ Make sure to designate your donation is for the "HTTP Archive".
 
 OUTPUT;
 
-// extract all the 
+// extract all the questions
 $aQuestions = explode("<h2", $gFAQ);
 echo "<ul style='list-style-type: none;'>\n";
 foreach($aQuestions as $q) {
 	$aMatches = array();
-	if ( preg_match('/id=(.*)\>(.*)\<\/h2\>/', $q, $aMatches) ) {
+	if ( preg_match('/id=(.*?)\>(.*)\<\/h2\>/', $q, $aMatches) ) {
 		$id = $aMatches[1];
 		$question = $aMatches[2];
 		echo " <li> <a href='#$id'>Q: $question</a>\n";
