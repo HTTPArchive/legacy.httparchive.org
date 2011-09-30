@@ -265,10 +265,11 @@ td {
 	border-bottom: 1px solid #e0e0e0;
 	padding: 1em .75em .5em .75em; }
 tr:nth-child(2n) td {
-	background: #f2f2f2;
 	border-bottom: none; }
 tr:nth-child(2n+1) td {
 	border-bottom: none; }
+tr.odd td {
+	background: #f2f2f2; }
 
 #stats {
 	font-size: .875em; }
@@ -384,3 +385,13 @@ footer li {
 	margin-right: 1em; }
 footer li + li + li + li {
 	border: none; }
+
+.netDomainCol {
+	width: 80px; }
+.netHrefCol {
+	width: 160px; }
+.netSizeCol {
+	width: 60px; }
+.netStatusCol {
+	width: 30px; }
+
