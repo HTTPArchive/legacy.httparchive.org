@@ -59,7 +59,7 @@ $harfileWptUrl = "{$server}export.php?test=$wptid&run=$wptrun&cached=0";
 
 <?php echo headfirst() ?>
 <link type="text/css" rel="stylesheet" href="style.css" />
-<link rel="stylesheet" href="har.css" type="text/css">
+<link rel="stylesheet" href="harviewer/css/harViewer.css" type="text/css">
 </head>
 
 <body class=viewsite id=top>
@@ -176,38 +176,28 @@ OUTPUT;
 
 <h2 id=waterfall>HTTP Waterfall</h2>
 
-<div id=harviewer>
-<div id=pageliststeve></div>
-<div class=tabDOMBody id=tabDOMBody></div>
+<div id="content">
 </div>
 
 
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 <script src='schema.js'></script>
-<script src='har.js'></script>
 <script src='harviewer.js?u=<?php echo urlencode($harfileWptUrl) ?>'></script>
 
 <script>
-function initHAR() {
-	var _3cb = document.getElementById('pageliststeve');
-	var _3cc = HARjson;
-	if ( _3cc ) {
-		// in IE there's a race condition
-		if ( "undefined" === typeof(HAR.Model) ) {
-			setTimeout(initHAR, 1000);
-			return;
-		}
-
-		HAR.Model.appendData(_3cc);
-		HAR.Tab.Preview.append(_3cc, _3cb);
-		var _3ce = document.getElementById("tabDOMBody");
-		_3ce.updated = false;
-	}
-};
-
-initHAR();
+$("#content").bind("onPreviewInit", 
+				   function(event) {
+					   var viewer = event.target.repObject;
+					   viewer.appendPreview(HARjson);
+				   }
+				   );
 </script>
-
-
+<script data-main="harviewer/scripts/harPreview" src="harviewer/scripts/require.js"></script>
+<style>
+.pageInfoCol {
+	background: #fff;
+}
+</style>
 
 
 <h2 id=pagespeed>Page Speed</h2>
@@ -220,7 +210,6 @@ if ( ! $gbMobile ) {
 </style>
 <div id="pagespeedreport" style="margin-top: 10px; font-size: 0.9em;"></div>
 
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 <script type="text/javascript" src="{$server}widgets/pagespeed/tree?test=$wptid&div=pagespeedreport"></script>
 OUTPUT;
 }
