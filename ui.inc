@@ -59,6 +59,7 @@ _gaq.push(['_trackPageLoadTime']);
 	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
 </script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 <!--[if lt IE 9]>
 <script>
 // we use some new HTML tags - make them work in IE<9 - hrrmphf
@@ -80,12 +81,22 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
 	if ( $bNavlinks ) {
 		$navlinks = '
 <nav>
-	<ul>
-		<li> <a href="trends.php">Trends</a>
-		<li> <a href="interesting.php">Stats</a>
-		<li><a href=websites.php>Websites</a>
-		<li><a href=about.php>About</a></li>
-    </ul>
+<ul>
+  <li> <a id="trendsnav" href="trends.php">Trends</a>
+  <li> <a id="statsnav" href="interesting.php">Stats</a>
+  <li><a id="websitesnav" href="websites.php">Websites</a>
+  <li id="aboutnav" onmouseover="jQuery(\'#aboutdropdown\').show();" onmouseout="jQuery(\'#aboutdropdown\').hide();"><a href="about.php">About</a>
+    <ul id="aboutdropdown">
+ 	  <li><a href="about.php#mission">Mission</a></li>
+	  <li><a href="about.php#faq">FAQ</a></li>
+ 	  <li><a href="downloads.php">Download Data</a></li>
+ 	  <li><a href="http://code.google.com/p/httparchive/source/browse">Source Code</a></li>
+ 	  <li><a href="http://code.google.com/p/httparchive/issues/list">Bug List</a></li>
+ 	  <li><a href="news.php">News</a></li>
+ 	  <li><a href="http://groups.google.com/group/httparchive/topics">Contact Us</a></li>
+ 	</ul>
+  </li>
+</ul>
 </nav>';
 	}
 
@@ -129,6 +140,7 @@ and <a title="dynaTrace Software" href="http://www.dynatrace.com/">dynaTrace Sof
 <br>
 powered by <a href="http://www.webpagetest.org">WebPagetest</a>
 </footer>
+<script type="text/javascript">jQuery('#aboutdropdown').hide();</script>
 OUTPUT;
 }
 
