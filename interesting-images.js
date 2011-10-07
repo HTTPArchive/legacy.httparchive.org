@@ -32,12 +32,12 @@ $gArchive = "All";
 if ( isset($argc) ) {
 	// Handle commandline arguments when we're creating cached files from a script.
 	$gLabel = $argv[1];
-	$gSet = $argv[2];
+	$gSlice = $argv[2];
 }
-else if ( !isset($gLabel) && !isset($gSet) ) {
+else if ( !isset($gLabel) && !isset($gSlice) ) {
 	// Otherwise, get the label from the querystring.
 	$gLabel = getParam('l', latestLabel($gArchive));
-	$gSet = getParam('s', 'All');
+	$gSlice = getParam('s', 'All');
 }
 
 // Add the revision # to the cached filename.
@@ -524,7 +524,7 @@ function horizontalBarChart($title, $id, $aNames, $aValues, $color="80C65A", $mi
 
 
 // example: interesting-images.js.356.Mar 29 2011.cache
-$gCacheFile = "./cache/interesting-images.js.$gRev.$gLabel.$gSet.cache";
+$gCacheFile = "./cache/interesting-images.js.$gRev.$gLabel.$gSlice.cache";
 $charts = "";
 
 if ( file_exists($gCacheFile) ) {
@@ -538,8 +538,8 @@ if ( ! $charts ) {
 	$gMaxPageid = $row['maxp'];
 	$gPageidCond = "pageid >= $gMinPageid and pageid <= $gMaxPageid";
 
-	if ( isset($gSet) ) {
-    	if ( "intersection" === $gSet ) {
+	if ( isset($gSlice) ) {
+    	if ( "intersection" === $gSlice ) {
 			// Find the set of URLs that are constant across all labels;
 			$numLabels = doSimpleQuery("select count(distinct(label)) from $gPagesTable where $gDateRange;");
 			$query = "select url, count(label) as num from $gPagesTable where $gDateRange group by url having num = $numLabels;";
@@ -560,9 +560,9 @@ if ( ! $charts ) {
 
 			$gPageidCond = "pageid in ('" . implode("','", $aPageids) . "')";
 		}
-		else if ( "Top100" === $gSet || "Top1000" === $gSet ) {
+		else if ( "Top100" === $gSlice || "Top1000" === $gSlice ) {
 			$query = "select pageid from $gPagesTable where pageid >= $gMinPageid and pageid <= $gMaxPageid and url in ('" . 
-				implode("','", ( "Top100" === $gSet ? $gaTop100 : $gaTop1000 )) . "');";
+				implode("','", ( "Top100" === $gSlice ? $gaTop100 : $gaTop1000 )) . "');";
 			$result = doQuery($query);
 			$aPageids = array();
 			while ( $row = mysql_fetch_assoc($result) ) {
