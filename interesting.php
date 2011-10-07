@@ -21,7 +21,7 @@ require_once("utils.inc");
 $gArchive = "All";
 $gLabel = getParam('l', latestLabel($gArchive));
 $gTitle = "Interesting Stats";
-$gSet = getParam('s', 'All');
+$gSlice = getParam('s', 'All');
 ?>
 <!doctype html>
 <html>
@@ -60,12 +60,9 @@ Got a stat you'd like to see?
 
 <form>
 	<label>Choose URLs:</label>
-	<select onchange='document.location="?a=<?php echo $archive ?>&l=<?php echo $gLabel ?>&s="+escape(this.options[this.selectedIndex].value)'>
-	    <option value='All'<?php echo ( "All" == $gSet ? " selected" : "" ) ?>> All
-	    <option value='intersection'<?php echo ( "intersection" == $gSet ? " selected" : "" ) ?>> intersection
-	    <option value='Top100'<?php echo ( "Top100" == $gSet ? " selected" : "" ) ?>> Top 100
-	    <option value='Top1000'<?php echo ( "Top1000" == $gSet ? " selected" : "" ) ?>> Top 1000
-	</select>
+<?php
+echo selectSlice($gSlice, "onchange='document.location=\"?a=$archive&l=$gLabel&s=\"+escape(this.options[this.selectedIndex].value)'");
+?>
 </form>
 
 <div id=interesting style="margin-top: 40px;">
