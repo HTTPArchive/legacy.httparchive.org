@@ -561,7 +561,7 @@ function toggleCustomColDiag() {
 <h2 id=trends>Trends</h2>
 
 <?php
-$gSet = "url";
+$gSlice = "url";
 $gUrl = $url;
 require_once('trends.inc');
 ?>
