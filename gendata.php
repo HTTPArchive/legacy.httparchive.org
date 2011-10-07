@@ -6,7 +6,7 @@
 ?topscripts - script1,per1|script2,per2 - a full URL and percent of sites that use it
 */
 
-$gRev = '$Rev: 536 $';
+$gRev = '$Rev$';
 
 $ghVersions = array(
 					534 => array('CVSNO1', 'CVSNO2'),
