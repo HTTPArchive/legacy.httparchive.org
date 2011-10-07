@@ -52,9 +52,9 @@ $aFields = array(
 
 
 // Intersection or All?
-$setWhere = "";
-if ( isset($gSet) ) {
-    if ( "intersection" === $gSet ) {
+$sliceWhere = "";
+if ( isset($gSlice) ) {
+    if ( "intersection" === $gSlice ) {
 		// Find the set of URLs that are constant across all labels;
 		$numLabels = doSimpleQuery("select count(distinct(label)) from $gPagesTable where $gDateRange;");
 		$query = "select url, count(label) as num from $gPagesTable where $gDateRange group by url having num = $numLabels;";
@@ -64,16 +64,16 @@ if ( isset($gSet) ) {
 			$aUrls[] = $row['url'];
 		}
 		mysql_free_result($result);
-		$setWhere = " and url in ('" . implode("','", $aUrls) . "')";
+		$sliceWhere = " and url in ('" . implode("','", $aUrls) . "')";
 	}
-	else if ( "Top100" === $gSet ) {
-		$setWhere = " and url in ('" . implode("','", $gaTop100) . "')";
+	else if ( "Top100" === $gSlice ) {
+		$sliceWhere = " and url in ('" . implode("','", $gaTop100) . "')";
 	}
-	else if ( "Top1000" === $gSet ) {
-		$setWhere = " and url in ('" . implode("','", $gaTop1000) . "')";
+	else if ( "Top1000" === $gSlice ) {
+		$sliceWhere = " and url in ('" . implode("','", $gaTop1000) . "')";
 	}
-	else if ( "url" === $gSet && isset($gUrl) ) {
-		$setWhere = " and url = '$gUrl'";
+	else if ( "url" === $gSlice && isset($gUrl) ) {
+		$sliceWhere = " and url = '$gUrl'";
 	}
 }
 
@@ -87,7 +87,7 @@ foreach($aFields as $field) {
 	$divisor = ( false === strpos($field, "bytes") ? 1 : 1024 );
 	$query .= ( ("reqFlash" === $field || "reqHtml" === $field || "reqCSS" === $field) ? ", TRUNCATE(AVG($field), 1) as $field" : ", ROUND(AVG($field)/$divisor) as $field" );
 }
-$query .= " from $gPagesTable where archive = '$gArchive'$setWhere and $gDateRange group by label;";
+$query .= " from $gPagesTable where archive = '$gArchive'$sliceWhere and $gDateRange group by label;";
 $result = doQuery($query);
 
 // Separate the stats by label.
@@ -102,7 +102,7 @@ $aRunNames = archiveLabels($gArchive, false);
 $aAxisLabels = archiveLabels($gArchive, true, "n/j");
 $labels = getLabels($aAxisLabels); 
 
-if ( "url" != $gSet ) {
+if ( "url" != $gSlice ) {
 	// show URLs first so people can see if they're doing intersection or not
 	// but don't show it if we're only looking at a single URL
 	echo formatChart('numurls', $hStats, $aRunNames, $labels);
