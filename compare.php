@@ -21,20 +21,20 @@ require_once("utils.inc");
 $gTitle = "Compare Stats";
 $gArchive = "All";
 
-$run1 = $set1 = $run2 = $set2 = null;
+$run1 = $slice1 = $run2 = $slice2 = null;
 if ( array_key_exists("r1", $_GET) && array_key_exists("s1", $_GET) ) {
 	$run1 = $_GET["r1"];
-	$set1 = $_GET["s1"];
+	$slice1 = $_GET["s1"];
 }
 if ( array_key_exists("r2", $_GET) && array_key_exists("s2", $_GET) ) {
 	$run2 = $_GET["r2"];
-	$set2 = $_GET["s2"];
+	$slice2 = $_GET["s2"];
 }
 
-function genForm($curLabel="", $curSet="") {
+function genForm($curLabel="", $curSlice="") {
 	global $gArchive, $gbMobile;
 	$selectRun = selectArchiveLabel($gArchive, $curLabel, true, false);
-	$selectSet = selectSlice($curSet);
+	$selectSlice = selectSlice($curSlice);
 
 	$sForm =<<<OUTPUT
 <table cellpadding=0 cellspacing=0 border=0>
@@ -46,7 +46,7 @@ function genForm($curLabel="", $curSet="") {
 
   <tr>
 	<td> <label>Choose URLs:</label> </td>
-	<td> $selectSet </td>
+	<td> $selectSlice </td>
     <td>
       <input type=submit value="Get Charts">
     </td>
@@ -68,12 +68,12 @@ OUTPUT;
 <script type="text/javascript">
 function doSubmit(num) {
 	var selectrun = document.getElementById("compare"+num).getElementsByTagName('select')[0];
-	var selectset = document.getElementById("compare"+num).getElementsByTagName('select')[1];
+	var selectslice = document.getElementById("compare"+num).getElementsByTagName('select')[1];
 
 	var script = document.createElement('script');
 	script.src = "interesting-images.js?jsonp=interesting" + num + 
 	    "&l=" + escape(selectrun.options[selectrun.selectedIndex].value) +
-	    "&s=" + escape(selectset.options[selectset.selectedIndex].value) +
+	    "&s=" + escape(selectslice.options[selectslice.selectedIndex].value) +
 	    "";
 	document.getElementsByTagName('head')[0].appendChild(script);
 }
@@ -102,15 +102,15 @@ function update(id, snippets) {
 
 function getLink() {
 	var selectrun1 = document.getElementById("compare1").getElementsByTagName('select')[0];
-	var selectset1 = document.getElementById("compare1").getElementsByTagName('select')[1];
+	var selectslice1 = document.getElementById("compare1").getElementsByTagName('select')[1];
 	var selectrun2 = document.getElementById("compare2").getElementsByTagName('select')[0];
-	var selectset2 = document.getElementById("compare2").getElementsByTagName('select')[1];
+	var selectslice2 = document.getElementById("compare2").getElementsByTagName('select')[1];
 
 	var url = "compare.php?" +
 	    "&r1=" + escape(selectrun1.options[selectrun1.selectedIndex].value) +
-	    "&s1=" + escape(selectset1.options[selectset1.selectedIndex].value) +
+	    "&s1=" + escape(selectslice1.options[selectslice1.selectedIndex].value) +
 	    "&r2=" + escape(selectrun2.options[selectrun2.selectedIndex].value) +
-	    "&s2=" + escape(selectset2.options[selectset2.selectedIndex].value);
+	    "&s2=" + escape(selectslice2.options[selectslice2.selectedIndex].value);
 	document.location = url;
 }
 </script>
@@ -143,7 +143,7 @@ TD { padding-top: 0; padding-bottom: 0; }
   <tr>
     <td id=compare1>
       <form onsubmit="doSubmit('1'); return false;">
-      <?php echo genForm($run1, $set1); ?>
+      <?php echo genForm($run1, $slice1); ?>
       </form>
 
       <div id=interesting1 style="margin-top: 40px; min-width: 640px;">
@@ -152,7 +152,7 @@ TD { padding-top: 0; padding-bottom: 0; }
 
     <td id=compare2>
       <form onsubmit="doSubmit('2'); return false;">
-      <?php echo genForm($run2, $set2); ?>
+      <?php echo genForm($run2, $slice2); ?>
       </form>
 
       <div id=interesting2 style="margin-top: 40px; min-width: 640px;">
@@ -165,10 +165,10 @@ TD { padding-top: 0; padding-bottom: 0; }
 
 <script type="text/javascript">
 <?php
-if ( $run1 && $set1 ) {
+if ( $run1 && $slice1 ) {
 	echo "doSubmit(1);\n";
 }
-if ( $run2 && $set2 ) {
+if ( $run2 && $slice2 ) {
 	echo "doSubmit(2);\n";
 }
 ?>
