@@ -100,7 +100,7 @@ mysql_free_result($result);
 // Create a chart for each field.
 $aRunNames = archiveLabels($gArchive, false);
 $aAxisLabels = archiveLabels($gArchive, true, "n/j");
-$labels = urlencode(implode("|", $aAxisLabels));
+$labels = getLabels($aAxisLabels); 
 
 if ( "url" != $gSet ) {
 	// show URLs first so people can see if they're doing intersection or not
@@ -131,6 +131,7 @@ function format2LineChart($field, $field2, $hStats, $aRunNames, $labels) {
 	$step = ( $max > 1500 ? 500 : ( $max > 200 ? 100 : ( $max > 100 ? 20 : 10 ) ) );
 	$fieldVals2 = fieldValues($field2, $hStats, $aRunNames, $min2, $max2, false);
 	$step2 = ( $max2 > 1500 ? 500 : ( $max2 > 200 ? 100 : ( $max2 > 100 ? 20 : 10 ) ) );
+	$skip = getSkip(count($aRunNames));
 	$url = "http://chart.apis.google.com/chart" .
 		"?chd=t:-1|$fieldVals|-1|$fieldVals2" .
 		"&chxl=0:|$labels" .
@@ -138,7 +139,7 @@ function format2LineChart($field, $field2, $hStats, $aRunNames, $labels) {
 		"&chs=600x300" .
 		"&cht=lxy" .
 		"&chco=$color,$color2" .
-		"&chm=N" . ( $suffix ? "**+$suffix" : "" ) . ",$color,0,,12,,:-8:8" . "|N" . ( $suffix2 ? "**$suffix2" : "" ) . ",$color2,1,,12,,:-16:8" .
+		"&chm=N" . ( $suffix ? "**+$suffix" : "" ) . ",$color,0,$skip,12,,h::8" . "|N" . ( $suffix2 ? "**$suffix2" : "" ) . ",$color2,1,$skip,12,,h::8" .
 		"&chds=9,99,$min,$max,9,99,$min2,$max2" .
 		"&chts=$color2,24" .
 		"&chtt=" . urlencode(fieldTitle($field2)) . "+%26+" . urlencode(fieldTitle($field)) . 
@@ -157,12 +158,38 @@ function format2LineChart($field, $field2, $hStats, $aRunNames, $labels) {
 function formatChart($field, $hStats, $aRunNames, $labels) {
 	$color = fieldColor($field);
 	$suffix = fieldUnits($field);
+	$skip = getSkip(count($aRunNames));
 	$url = "http://chart.apis.google.com/chart" .
 		"?chd=t:-1|" . fieldValues($field, $hStats, $aRunNames, $min, $max) . 
 		"&chxl=0:|$labels&chxt=x&chs=600x300&cht=lxy&chco=$color" .
 		"&chxs=0,676767,11.5,0,lt,676767&chxtc=0,8&chm=N" . ( $suffix ? "**+$suffix" : "" ) .
-		",$color,0,,12,,::8&chds=0,100,$min,$max&chts=$color,32&chtt=" . urlencode(fieldTitle($field)) . "&chls=2&chma=5,5,5,25";
+		",$color,0,$skip,12,,h::8&chds=0,100,$min,$max&chts=$color,32&chtt=" . urlencode(fieldTitle($field)) . "&chls=2&chma=5,5,5,25";
 	return "<div id='$field' style='margin: 40px 0 60px 0;'><a href='#$field'><img src=$url width=600 height=300></a></div>\n";
+}
+
+
+function getSkip($num, $bNum = false) {
+	$skip = ( $num < 22 ? 1 : ( $num < 32 ? 2 : 3 ) );
+
+	if ( $bNum ) {
+		return $skip;
+	}
+	else {
+		// always show the LAST value
+		return ( 0 === ($num % 2) ? "1::$skip" : "::$skip" );
+	}
+}
+
+
+function getLabels($aLabels) {
+	$skip = abs(getSkip(count($aLabels), true));
+	$len = count($aLabels);
+	$aNewLabels = array_fill(0, $len, " ");  // have to create all array elements to set in reverse order? php weirdness?
+	for ( $i = $len-1; $i >= 0; $i-- ) {
+		$aNewLabels[$i] = ( 0 === ($i % $skip) ? " " : $aLabels[$i] );
+	}
+
+	return urlencode(implode("|", $aNewLabels));
 }
 
 
