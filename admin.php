@@ -39,14 +39,9 @@ $gTitle = "Admin";
 <?php
 $gAction = getParam('a');
 if ( "create" === $gAction ) {
-	echo "<p>Creating MySQL tables...<br>\n";
+	echo "<p>Creating MySQL tables...</p>\n";
 	createTables();
-	if ( tableExists($gPagesTable) ) {
-		echo "$gPagesTable created.<br>\n";
-	}
-	if ( tableExists($gRequestsTable) ) {
-		echo "$gRequestsTable created.<br>\n";
-	}
+	echo "<p>DONE</p>\n";
 }
 ?>
 </div>
