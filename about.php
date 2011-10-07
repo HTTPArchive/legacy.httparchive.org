@@ -46,7 +46,7 @@ LI.sublist { margin-bottom: 0; }
 </ul>
 
 
-<h1>Mission</h1>
+<h1 id="mission">Mission</h1>
 
 <p>
 Successful societies and institutions recognize the need to record their history - this provides a way to review the past, 
