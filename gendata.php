@@ -1,6 +1,6 @@
 <?php
 /*
-?location - Dulles, UK, 
+?location - Dulles, UK, etc
 ?most404s
 ?servers - server1|per1,server2|per2,
 ?topscripts - script1,per1|script2,per2 - a full URL and percent of sites that use it
