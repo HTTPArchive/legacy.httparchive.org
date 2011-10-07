@@ -112,7 +112,7 @@ nav {
 	position: absolute;
 	left: 450px;
 	font-size: 1.125em; /* 18px */
-	line-height: 2.55;
+	line-height: 2.45;
 	margin-top: 65px; }
 nav ul {
 	overflow: auto;
@@ -134,6 +134,32 @@ nav a, nav a:visited {
 nav a:focus, nav a:hover {
 	border-bottom: none;
 	color: #3c7dc8; }
+
+/* Styles for About Dropdown */
+#aboutnav:hover {
+	color: black;
+}
+
+#aboutdropdown {
+    /* display:none; */
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#aboutdropdown > li {
+    margin: 0;
+    padding: 3px;
+    line-height: 100%;
+    background-color: #eaeaea;
+    width: 110px;
+    font-size: 90%;
+}
+
+#aboutdropdown > li:hover {
+    background-color: white;
+}
+
 
 h1 {
 	display: block;
