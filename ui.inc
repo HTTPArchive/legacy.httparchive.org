@@ -59,7 +59,12 @@ _gaq.push(['_trackPageLoadTime']);
 	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
 </script>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script src="http://www.google.com/jsapi"></script>
+<script>
+// Load jQuery
+google.load("jquery", "1.5.1");
+</script>
+
 <!--[if lt IE 9]>
 <script>
 // we use some new HTML tags - make them work in IE<9 - hrrmphf
