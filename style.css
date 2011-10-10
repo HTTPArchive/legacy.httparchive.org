@@ -141,7 +141,7 @@ nav a:focus, nav a:hover {
 }
 
 #aboutdropdown {
-    /* display:none; */
+    display:none;
     margin: 0;
     padding: 0;
     overflow: hidden;
