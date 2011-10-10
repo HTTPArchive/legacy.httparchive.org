@@ -180,7 +180,6 @@ OUTPUT;
 </div>
 
 
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 <script src='schema.js'></script>
 <script src='harviewer.js?u=<?php echo urlencode($harfileWptUrl) ?>'></script>
 
