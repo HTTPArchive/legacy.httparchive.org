@@ -109,10 +109,10 @@ $gMaxUrls = 20000;
               href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/themes/cupertino/jquery-ui.css"/>
 
         <!-- JS -->
-        <script src="http://www.google.com/jsapi"></script>
         <script>
             // Load jQuery
-            google.load("jquery", "1.5.1");
+	        // jquery.min.js loaded elsewhere
+	        // google.load("jquery", "1.5.1");
             google.load("jqueryui", "1.8.1");
         </script>
         <style>
