@@ -141,7 +141,7 @@ nav a:focus, nav a:hover {
 }
 
 #aboutdropdown {
-    display:none;
+    display: none;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -149,10 +149,10 @@ nav a:focus, nav a:hover {
 
 #aboutdropdown > li {
     margin: 0;
-    padding: 3px;
+    padding: 3px 0.5em;
     line-height: 100%;
     background-color: #eaeaea;
-    width: 110px;
+    width: 120px;
     font-size: 90%;
 }
 
