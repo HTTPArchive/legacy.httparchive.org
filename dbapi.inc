@@ -70,8 +70,6 @@ function sliceCond($label, $slice, $device, $url = "") {
 	$sliceCond = "pageid>=$minid and pageid<=$maxid"; // "All"
 
 	if ( "intersection" === $slice ) {
-		$sliceCond = sliceCondIntersection($device);
-
 		// Find the set of URLs that are constant across all labels;
 		$numLabels = doSimpleQuery("select count(distinct(label)) from $pagesTable where $gDateRange;");
 		$query = "select url, count(label) as num from $pagesTable where $gDateRange group by url having num = $numLabels;";
@@ -100,7 +98,7 @@ function sliceCond($label, $slice, $device, $url = "") {
 			$aPageids[] = $row['pageid'];
 		}
 		mysql_free_result($result);
-		$sliceCond = "pageid in ('" . implode("','", $aPageids) . "')";
+		$sliceCond = "pageid in (" . implode(",", $aPageids) . ")";
 	}
 	else if ( "url" === $slice && isset($url) ) {
 		$sliceCond .= " and url = '$url'";
@@ -128,12 +126,16 @@ $gaTrendStats = array(
 					  "reqCSS",
 					  "reqImg",
 					  "reqFlash",
+					  "reqJson",
+					  "reqOther",
 					  "bytesTotal",
 					  "bytesHtml",
 					  "bytesJS",
 					  "bytesCSS",
 					  "bytesImg",
 					  "bytesFlash",
+					  "bytesJson",
+					  "bytesOther",
 					  "numDomains"
 					  );
 
@@ -175,6 +177,7 @@ function computeStatsData($label, $slice, $device) {
 	$hStats += computeTrendStats($label, $slice, $device, $sliceCond);
 	$hStats += computeCorrelations($label, $slice, $device, $sliceCond, "onLoad");
 	$hStats += computeCorrelations($label, $slice, $device, $sliceCond, "renderStart");
+	$hStats += computeOther($label, $slice, $device, $sliceCond);
 
 	return $hStats;
 }
@@ -256,7 +259,92 @@ function computeCorrelations($label, $slice, $device, $sliceCond, $var1) {
 }
 
 
-///////////// DATA
+function computeOther($label, $slice, $device, $sliceCond) {
+	$pagesTable = pagesTable($label, $slice, $device);
+	$requestsTable = requestsTable($label, $slice, $device);
+
+	// total page & request count so we can do percentages
+	$totalPages = doSimpleQuery("select count(*) from $pagesTable where $sliceCond;");
+	$totalRequests = doSimpleQuery("select count(*) from $requestsTable where $sliceCond;");
+
+	$hTuples = array();
+
+	// redirects
+	$num = doSimpleQuery("select count(distinct pageid) as num from $requestsTable where $sliceCond and status>=300 and status<400 and status!=304;");
+	$hTuples['perRedirects'] = round(100*$num/$totalPages);
+
+	// errors
+	$num = doSimpleQuery("select count(distinct pageid) as num from $requestsTable where $sliceCond and status>=400 and status<600;");
+	$hTuples['perErrors'] = round(100*$num/$totalPages);
+
+	// flash usage
+	$num = doSimpleQuery("select count(*) from $pagesTable where $sliceCond and reqFlash > 0;");
+	$hTuples['perFlash'] = round(100*$num/$totalPages);
+
+	// Google Ajax Libraries	
+	$tmpPageidCond = str_replace("pageid", "rt.pageid", $sliceCond); // need to scope the pageid variable to a specific table.
+	$num = doSimpleQuery("select count(distinct $pagesTable.pageid) from $pagesTable, $requestsTable rt where $tmpPageidCond and rt.pageid=$pagesTable.pageid and rt.url like '%googleapis.com%';");
+	$hTuples['perGlibs'] = round(100*$num/$totalPages);
+
+	// https
+	$num = doSimpleQuery("select count(*) from $requestsTable where $sliceCond and url like 'https://%'");
+	$hTuples['perHttps'] = round(100*$num/$totalRequests);
+
+	// max-age caching
+	$query = "select ceil( convert( substring( resp_cache_control, (length(resp_cache_control) + 2 - locate('=ega-xam', reverse(resp_cache_control))) ), SIGNED ) / 86400) as maxagedays, count(*) as num from $requestsTable where $sliceCond and resp_cache_control like '%max-age=%' group by maxagedays order by maxagedays asc;";
+	$result = doQuery($query);
+	$zeroOrNeg = $day = $month = $year = $yearplus = 0;
+	while ($row = mysql_fetch_assoc($result)) {
+		$maxagedays = $row['maxagedays'];
+		$num = $row['num'];
+
+		if ( $maxagedays < 1 ) {
+			$zeroOrNeg += $num;
+		}
+		else if ( 1 == $maxagedays ) {
+			$day = $num;
+		}
+		else if ( 1 < $maxagedays && $maxagedays <= 30 ) {
+			$month += $num;
+		}
+		else if ( 30 < $maxagedays && $maxagedays <= 365 ) {
+			$year += $num;
+		}
+		else if ( 365 < $maxagedays ) {
+			$yearplus += $num;
+		}
+	}
+	mysql_free_result($result);
+	$hTuples['maxageNull'] = round(100 * ($totalRequests - ($zeroOrNeg + $day + $month + $year + $yearplus))/$totalRequests);
+	$hTuples['maxage0'] = round(100 * $zeroOrNeg / $totalRequests);
+	$hTuples['maxage1'] = round(100 * $day / $totalRequests);
+	$hTuples['maxage30'] = round(100 * $month / $totalRequests);
+	$hTuples['maxage365'] = round(100 * $year / $totalRequests);
+	$hTuples['maxageMore'] = round(100 * $yearplus / $totalRequests);
+
+	$row = doRowQuery("select count(*) as req, TRUNCATE(AVG(respSize), 1) as bytes from $requestsTable where $sliceCond and resp_content_type like '%image/gif%';");
+	$hTuples['reqGif'] = $row['req'] / $totalPages;
+	$hTuples['bytesGif'] = ($row['req'] / $totalPages) * $row['bytes'];
+
+	$row = doRowQuery("select count(*) as req, TRUNCATE(AVG(respSize), 1) as bytes from $requestsTable where $sliceCond and (resp_content_type like '%image/jpg%' or resp_content_type like '%image/jpeg%');");
+	$hTuples['reqJpg'] = $row['req'] / $totalPages;
+	$hTuples['bytesJpg'] = ($row['req'] / $totalPages) * $row['bytes'];
+
+	$row = doRowQuery("select count(*) as req, TRUNCATE(AVG(respSize), 1) as bytes from $requestsTable where $sliceCond and resp_content_type like '%image/png%';");
+	$hTuples['reqPng'] = $row['req'] / $totalPages;
+	$hTuples['bytesPng'] = ($row['req'] / $totalPages) * $row['bytes'];
+
+	return $hTuples;
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// DATA
+//
+////////////////////////////////////////////////////////////////////////////////
 
 // return a hash where the keys are "label_slice_device", eg, "Oct 1 2011_Top1000_IE8"
 function getData($label="", $slice="", $device="") {
