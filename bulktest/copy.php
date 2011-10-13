@@ -70,13 +70,6 @@ echo "...mysqldump file created and copied: $dumpfile\n";
 
 
 // Create cache files
-echo "Creating cache files...\n";
-exec("/bin/rm -f ../cache/*'$gLabel'*");   // remove any incomplete cache files that might have been creating during the crawl
-exec("/bin/rm -f ../cache/*intersection*");   // remove intersection files since they've changed
-passthru("cd ..; php cachegen.php");
-if ( ! $gbMobile ) {
-   exec("cp -p ../cache/*'$gLabel'* ~/httparchive.org/cache/.");
-   exec("cp -p ../cache/*'$gLabel'* ~/beta.httparchive.org/cache/.");
-}
-
-echo "...cache files created and copied.\n";
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+echo "!!  CREATE STATS           !!\n";
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
