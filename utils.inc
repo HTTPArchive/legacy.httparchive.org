@@ -30,21 +30,26 @@ $gPagesTable = "pages";
 $gRequestsTable = "requests";
 $gStatusTable = "status";
 $gUrlsTable = "urls";
+$gDataTable = "data";
+$gSettingsTable = "settings"; // for storing misc settings persistently
 
 // Desktop tables
 $gPagesTableDesktop = $gPagesTable;
 $gRequestsTableDesktop = $gRequestsTable;
 $gStatusTableDesktop = $gStatusTable;
+$gDataTableDesktop = $gDataTable;
 
 // Mobile tables
 $gPagesTableMobile = $gPagesTable . "mobile";
 $gRequestsTableMobile = $gRequestsTable . "mobile";
 $gStatusTableMobile = $gStatusTable . "mobile";
+$gDataTableMobile = $gDataTable;  // share the data table - a first step toward a single DB
 
 // Dev tables
 $gPagesTableDev = $gPagesTable . "dev";
 $gRequestsTableDev = $gRequestsTable . "dev";
 $gStatusTableDev = $gStatusTable . "dev";
+$gDataTableDev = $gDataTable . "dev";
 $gUrlsTableDev = $gUrlsTable . "dev";
 
 // 
@@ -56,6 +61,7 @@ if ( $gbDev ) {
 	$gPagesTable = $gPagesTableDev;
 	$gRequestsTable = $gRequestsTableDev;
 	$gStatusTable = $gStatusTableDev;
+	$gDataTable = $gDataTableDev;
 	$gUrlsTable = $gUrlsTableDev;
 }
 else if ( $gbMobile ) {
@@ -63,12 +69,23 @@ else if ( $gbMobile ) {
 	$gPagesTable = $gPagesTableMobile;
 	$gRequestsTable = $gRequestsTableMobile;
 	$gStatusTable = $gStatusTableMobile;
+	$gDataTable = $gDataTableMobile;
 }
 
 // Hide archives while we're importing them.
 $ghHiddenArchives = array(
 						  "Fortune 1000" => 1
 						  );
+
+// The different "slices" of URLs a user can view.
+// Each element is an array of [dbname, UI name]
+$gaSlices = array( array("All", "All"),
+					array("intersection", "intersection"),
+					array("Top100", "Top 100"),
+					array("Top1000", "Top 1000")
+					);
+
+$gaDevices = array( "IE", "iphone" );
 
 $ghMonths = array(
 				  "Jan" => 1,
@@ -1443,13 +1460,39 @@ function latestLabel($archive) {
 
 
 // Return HTML to create a select list of data slices (All, intersection, Top 100, etc.)
-function selectSlice($cur="") {
-	return "<select>" . 
-		"<option value='All'" . ( 'All' == $cur ? " selected" : "" ) . "> All\n" . 
-	    "<option value='intersection'" . ( 'intersection' == $cur ? " selected" : "" ) . "> intersection\n" . 
-	    "<option value='Top100'" . ( 'Top100' == $cur ? " selected" : "" ) . "> Top 100\n" . 
-		"<option value='Top1000'" . ( 'Top1000' == $cur ? " selected" : "" ) . "> Top 1000\n" . 
-		"</select>\n";
+function selectSlice($cur="", $onchange="") {
+	global $gaSlices;
+
+	$sSlice = "<select $onchange>";
+	foreach($gaSlices as $aSlice) {
+		$dbname = $aSlice[0];
+		$uiname = $aSlice[1];
+		$sSlice .= "<option value='$dbname'" . ( $dbname == $cur ? " selected" : "" ) . "> $uiname\n";
+	}
+	$sSlice .= "</select>\n";
+
+	return $sSlice;
+}
+
+
+// return an array of URL "slices" 
+function sliceNames($bUinames = false) {
+	global $gaSlices;
+
+	$aSlices = array();
+	foreach($gaSlices as $aSlice) {
+		$dbname = $aSlice[0];
+		$uiname = $aSlice[1];
+		$aSlices[] = ( $bUiname ? $uiname : $dbname );
+	}
+
+	return $aSlices;
+}
+
+
+function deviceNames() {
+	global $gaDevices;
+	return $gaDevices;
 }
 
 
@@ -1543,6 +1586,7 @@ $ghFieldUnits = array("onLoad" => "ms",
 					  "bytesHtml" => "kB",
 					  "bytesJS" => "kB",
 					  "bytesCSS" => "kB",
+					  "bytesFlash" => "kB",
 					  "bytesImg" => "kB"
 					  );
 
@@ -1697,6 +1741,7 @@ function doRowQuery($query) {
 function doSimpleQuery($query) {
 	$value = NULL;
 	$result = doQuery($query);
+
 	if ( $result ) {
 		$row = mysql_fetch_assoc($result);
 		if ( $row ) {
@@ -1728,7 +1773,7 @@ SCHEMA CHANGES:
   mysql> alter table pagesdev add column rank int(10) unsigned after PageSpeed;
 *******************************************************************************/
 function createTables() {
-	global $gPagesTable, $gRequestsTable, $gStatusTable, $gUrlsTable;
+	global $gPagesTable, $gRequestsTable, $gStatusTable, $gDataTable, $gUrlsTable, $gSettingsTable;
 	global $ghReqHeaders, $ghRespHeaders;
 
 	if ( ! tableExists($gPagesTable) ) {
@@ -1854,6 +1899,97 @@ function createTables() {
 		doSimpleCommand($command);
 	}
 
+	if ( ! tableExists($gDataTable) ) {
+		$command = "create table $gDataTable (" .
+			"label varchar (32) not null" .           // "Oct 1 2011"
+			", slice varchar (32) not null" .         // "Top100", "Top1000", "intersection", or "All"
+			", device varchar (32) not null" .        // "iphone43", "isim", or "IE8"
+			", version int(6) unsigned not null" .    // the SVN version # so we can track what values to recompute
+			", numurls int unsigned" .       // even "Top100" might only be 98 URLs
+
+			// averages across ALL SITES in the slice
+			", PageSpeed float unsigned" .
+			", numDomains float unsigned" .
+			", reqTotal float unsigned" .
+			", reqHtml float unsigned" .
+			", reqJS float unsigned" .
+			", reqCSS float unsigned" .
+			", reqImg float unsigned" .
+			", reqGif float unsigned" .
+			", reqJpg float unsigned" .
+			", reqPng float unsigned" .
+			", reqFlash float unsigned" .
+			", reqJson float unsigned" .
+			", reqOther float unsigned" .
+			", bytesTotal int(10) unsigned" .
+			", bytesHtml int(10) unsigned" .
+			", bytesJS int(10) unsigned" .
+			", bytesCSS int(10) unsigned" .
+			", bytesImg int(10) unsigned" .
+			", bytesGif int(10) unsigned" .
+			", bytesJpg int(10) unsigned" .
+			", bytesPng int(10) unsigned" .
+			", bytesFlash int(10) unsigned" .
+			", bytesJson int(10) unsigned" .
+			", bytesOther int(10) unsigned" .
+
+			// % of sites with at least one of these conditions
+			", perRedirects float unsigned" .
+			", perErrors float unsigned" .
+			", perFlash float unsigned" .
+			", perGlibs float unsigned" .
+
+			// % of sites that use this JS library
+			", perjQuery float unsigned" .
+			", perYUI float unsigned" .
+			", perDojo float unsigned" .
+			", perGA float unsigned" .
+			", perQuantcast float unsigned" .
+			", perAddThis float unsigned" .
+			", perFacebook float unsigned" .
+			", perGPlusOne float unsigned" .
+			", perTwitter float unsigned" .
+			", perShareThis float unsigned" .
+
+			// % of requests that are https
+			", perHttps float unsigned" .
+
+			// % of sites with max-age in this range
+			// "maxage30" === maxage > 1 day AND maxage <= 30 days
+			", maxageNull float unsigned" .
+			", maxage0 float unsigned" .
+			", maxage1 float unsigned" .
+			", maxage30 float unsigned" .
+			", maxage365 float unsigned" .
+			", maxageMore float unsigned" .
+
+			// correlation coefficients: top 5 correlations for onload and render
+			", onloadccf1 varchar (32)" .
+			", onloadccv1 float unsigned" .
+			", onloadccf2 varchar (32)" .
+			", onloadccv2 float unsigned" .
+			", onloadccf3 varchar (32)" .
+			", onloadccv3 float unsigned" .
+			", onloadccf4 varchar (32)" .
+			", onloadccv4 float unsigned" .
+			", onloadccf5 varchar (32)" .
+			", onloadccv5 float unsigned" .
+			", renderccf1 varchar (32)" .
+			", renderccv1 float unsigned" .
+			", renderccf2 varchar (32)" .
+			", renderccv2 float unsigned" .
+			", renderccf3 varchar (32)" .
+			", renderccv3 float unsigned" .
+			", renderccf4 varchar (32)" .
+			", renderccv4 float unsigned" .
+			", renderccf5 varchar (32)" .
+			", renderccv5 float unsigned" .
+
+			", primary key (label, slice, device)" .
+			");";
+		doSimpleCommand($command);
+	}
+
 	// Create Urls Table
 	if ( ! tableExists($gUrlsTable) ) {
 		$command = "create table $gUrlsTable (" .
@@ -1867,6 +2003,15 @@ function createTables() {
 		doSimpleCommand($command);
 	}
 
+	// Create Settings Table
+	if ( ! tableExists($gSettingsTable) ) {
+		$command = "create table $gSettingsTable (" .
+			"setting varchar (64)" .
+			", val varchar (255)" .
+			", primary key (setting)" .
+			");";
+		doSimpleCommand($command);
+	}
 }
 
 
