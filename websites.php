@@ -104,56 +104,27 @@ $gMaxUrls = 20000;
 </style>
 
 
-        <!-- CSS  -->
-        <link rel="stylesheet" type="text/css" 
-              href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/themes/cupertino/jquery-ui.css"/>
-
-        <!-- JS -->
-        <script>
-            // Load jQuery
-	        // jquery.min.js loaded elsewhere
-	        // google.load("jquery", "1.5.1");
-            google.load("jqueryui", "1.8.1");
-        </script>
-        <style>
-            #formWrapper {  
-                padding:10px; position:absolute; float:left; background-color:orchid;  
-                background:rgba(255, 0, 0, 0.4);
-                -moz-border-radius:10px;  
-                -webkit-border-radius:10px; 
-                border-radius:10px;  
-            }  
-            #formWrapper span {  
-                display:block; 
-                width:400px; 
-                padding:10px 0; 
-                margin:0 0 20px;  
-                text-indent:20px; 
-                font:22px Georgia, Serif; 
-                color:#fff;  
-            }  
-
-            #formWrapper input {  
-                display:block; 
-                width:370px; 
-                padding:3px; 
-                margin-top: -22px;
-                margin-left: 35px;
-                border:1px solid #aaa;  
-            } 
-            .ui-autocomplete-loading { background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat; }
-        </style>
-        <script>
-            $(function() {
-                $( "#site" ).autocomplete({
-                    source: "findurl.php",
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/themes/cupertino/jquery-ui.css"/>
+<script>
+// Load jQuery
+// jquery.min.js loaded elsewhere
+// google.load("jquery", "1.5.1");
+google.load("jqueryui", "1.8.1");
+</script>
+<style>
+.ui-autocomplete-loading { background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat; }
+</style>
+<script>
+$(function() {
+		$( "#site" ).autocomplete({
+				source: "findurl.php",
                     minLength: 2,
                     select: function( event, ui ) {
-                        document.location = "viewsite.php?pageid=" + ui.item["data-pageid"];
-                    }
-                });
-            });
-        </script>
+					document.location = "viewsite.php?pageid=" + ui.item["data-pageid"];
+				}
+			});
+	});
+</script>
 
 <style>
 TABLE { border: 0; width: auto; }
