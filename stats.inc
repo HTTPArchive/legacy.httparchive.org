@@ -19,11 +19,27 @@ require_once("utils.inc");
 require_once("dbapi.inc");
 
 
-function addStats($label, $slice, $device, $hTuples) {
+function addStats($label, $slice, $device, $hStats=null) {
 	if ( getStatsData($label, $slice, $device) ) {
-		removeStatsData($label, $slice, $device);
+		return;
 	}
-	return addStatsData($label, $slice, $device, $hTuples);
+
+	if ( ! $hStats ) {
+		$hStats = computeStats($label, $slice, $device);
+	}
+
+	return addStatsData($label, $slice, $device, $hStats);
+}
+
+
+function replaceStats($label, $slice, $device, $hStats=null) {
+	if ( ! $hStats ) {
+		$hStats = computeStats($label, $slice, $device);
+	}
+
+	removeStatsData($label, $slice, $device);
+
+	return addStatsData($label, $slice, $device, $hStats);
 }
 
 
@@ -38,9 +54,7 @@ function removeStats($label, $slice, $device) {
 
 
 function computeStats($label, $slice, $device) {
-	return computeStatsData($label, $slice, $device, $hTuples);
+	return computeStatsData($label, $slice, $device);
 }
 
-$hStats = computeStats("Oct 1 2011", "Top100", "IE8");
-addStats("Oct 1 2011", "Top100", "IE8", $hStats);
 ?>
