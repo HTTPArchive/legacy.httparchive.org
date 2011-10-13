@@ -17,6 +17,9 @@ limitations under the License.
 
 require_once("settings.inc");
 
+// TODO - remove this - it's deprecated
+$gArchive = "All";
+
 // Soon we'll add a date range selector.
 // For now I just want to exclude the early runs with only ~1500 URLs vs today's 15K URLS.
 // Later I hope it'll make it easier to identify where we need to incorporate a date
@@ -30,26 +33,26 @@ $gPagesTable = "pages";
 $gRequestsTable = "requests";
 $gStatusTable = "status";
 $gUrlsTable = "urls";
-$gDataTable = "data";
+$gStatsTable = "stats";
 $gSettingsTable = "settings"; // for storing misc settings persistently
 
 // Desktop tables
 $gPagesTableDesktop = $gPagesTable;
 $gRequestsTableDesktop = $gRequestsTable;
 $gStatusTableDesktop = $gStatusTable;
-$gDataTableDesktop = $gDataTable;
+$gStatsTableDesktop = $gStatsTable;
 
 // Mobile tables
 $gPagesTableMobile = $gPagesTable . "mobile";
 $gRequestsTableMobile = $gRequestsTable . "mobile";
 $gStatusTableMobile = $gStatusTable . "mobile";
-$gDataTableMobile = $gDataTable;  // share the data table - a first step toward a single DB
+$gStatsTableMobile = $gStatsTable;  // share the data table - a first step toward a single DB
 
 // Dev tables
 $gPagesTableDev = $gPagesTable . "dev";
 $gRequestsTableDev = $gRequestsTable . "dev";
 $gStatusTableDev = $gStatusTable . "dev";
-$gDataTableDev = $gDataTable . "dev";
+$gStatsTableDev = $gStatsTable . "dev";
 $gUrlsTableDev = $gUrlsTable . "dev";
 
 // 
@@ -61,7 +64,7 @@ if ( $gbDev ) {
 	$gPagesTable = $gPagesTableDev;
 	$gRequestsTable = $gRequestsTableDev;
 	$gStatusTable = $gStatusTableDev;
-	$gDataTable = $gDataTableDev;
+	$gStatsTable = $gStatsTableDev;
 	$gUrlsTable = $gUrlsTableDev;
 }
 else if ( $gbMobile ) {
@@ -69,7 +72,7 @@ else if ( $gbMobile ) {
 	$gPagesTable = $gPagesTableMobile;
 	$gRequestsTable = $gRequestsTableMobile;
 	$gStatusTable = $gStatusTableMobile;
-	$gDataTable = $gDataTableMobile;
+	$gStatsTable = $gStatsTableMobile;
 }
 
 // Hide archives while we're importing them.
@@ -160,7 +163,7 @@ $ghColumnTitles = array (
 						 "bytesImg" => "Image Transfer Size",
 						 "reqFlash" => "Flash Requests",
 						 "bytesFlash" => "Flash Transfer Size",
-						 "numDomains" => "Domains Used in Page"
+						 "numDomains" => "Domains"
 						 );
 
 
@@ -1359,6 +1362,12 @@ $ghBlackList = array(
 					 );
 
 
+function isDev() {
+	global $gbDev;
+	return $gbDev;
+}
+
+
 // Return an array of the archive names.
 function archiveNames() {
 	global $gPagesTable, $gbDev, $ghHiddenArchives;
@@ -1773,7 +1782,7 @@ SCHEMA CHANGES:
   mysql> alter table pagesdev add column rank int(10) unsigned after PageSpeed;
 *******************************************************************************/
 function createTables() {
-	global $gPagesTable, $gRequestsTable, $gStatusTable, $gDataTable, $gUrlsTable, $gSettingsTable;
+	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gSettingsTable;
 	global $ghReqHeaders, $ghRespHeaders;
 
 	if ( ! tableExists($gPagesTable) ) {
@@ -1899,8 +1908,8 @@ function createTables() {
 		doSimpleCommand($command);
 	}
 
-	if ( ! tableExists($gDataTable) ) {
-		$command = "create table $gDataTable (" .
+	if ( ! tableExists($gStatsTable) ) {
+		$command = "create table $gStatsTable (" .
 			"label varchar (32) not null" .           // "Oct 1 2011"
 			", slice varchar (32) not null" .         // "Top100", "Top1000", "intersection", or "All"
 			", device varchar (32) not null" .        // "iphone43", "isim", or "IE8"
@@ -1923,7 +1932,7 @@ function createTables() {
 			", reqOther float unsigned" .
 			", bytesTotal int(10) unsigned" .
 			", bytesHtml int(10) unsigned" .
-			", bytesJS int(10) unsigned" .
+			", bytesJS int(10) unsigned" .     // eg, average total bytes of JS downloaded per page
 			", bytesCSS int(10) unsigned" .
 			", bytesImg int(10) unsigned" .
 			", bytesGif int(10) unsigned" .
@@ -1934,11 +1943,11 @@ function createTables() {
 			", bytesOther int(10) unsigned" .
 
 			// % of sites with at least one of these conditions
-			", perRedirects float unsigned" .
-			", perErrors float unsigned" .
-			", perFlash float unsigned" .
-			", perGlibs float unsigned" .
-
+			", perRedirects int(4) unsigned" .
+			", perErrors int(4) unsigned" .
+			", perFlash int(4) unsigned" .
+			", perGlibs int(4) unsigned" .
+/*
 			// % of sites that use this JS library
 			", perjQuery float unsigned" .
 			", perYUI float unsigned" .
@@ -1950,40 +1959,40 @@ function createTables() {
 			", perGPlusOne float unsigned" .
 			", perTwitter float unsigned" .
 			", perShareThis float unsigned" .
-
+*/
 			// % of requests that are https
 			", perHttps float unsigned" .
 
 			// % of sites with max-age in this range
 			// "maxage30" === maxage > 1 day AND maxage <= 30 days
-			", maxageNull float unsigned" .
-			", maxage0 float unsigned" .
-			", maxage1 float unsigned" .
-			", maxage30 float unsigned" .
-			", maxage365 float unsigned" .
-			", maxageMore float unsigned" .
+			", maxageNull int(4) unsigned" .
+			", maxage0 int(4) unsigned" .
+			", maxage1 int(4) unsigned" .
+			", maxage30 int(4) unsigned" .
+			", maxage365 int(4) unsigned" .
+			", maxageMore int(4) unsigned" .
 
 			// correlation coefficients: top 5 correlations for onload and render
-			", onloadccf1 varchar (32)" .
-			", onloadccv1 float unsigned" .
-			", onloadccf2 varchar (32)" .
-			", onloadccv2 float unsigned" .
-			", onloadccf3 varchar (32)" .
-			", onloadccv3 float unsigned" .
-			", onloadccf4 varchar (32)" .
-			", onloadccv4 float unsigned" .
-			", onloadccf5 varchar (32)" .
-			", onloadccv5 float unsigned" .
-			", renderccf1 varchar (32)" .
-			", renderccv1 float unsigned" .
-			", renderccf2 varchar (32)" .
-			", renderccv2 float unsigned" .
-			", renderccf3 varchar (32)" .
-			", renderccv3 float unsigned" .
-			", renderccf4 varchar (32)" .
-			", renderccv4 float unsigned" .
-			", renderccf5 varchar (32)" .
-			", renderccv5 float unsigned" .
+			", onLoadccf1 varchar (32)" .
+			", onLoadccv1 float unsigned" .
+			", onLoadccf2 varchar (32)" .
+			", onLoadccv2 float unsigned" .
+			", onLoadccf3 varchar (32)" .
+			", onLoadccv3 float unsigned" .
+			", onLoadccf4 varchar (32)" .
+			", onLoadccv4 float unsigned" .
+			", onLoadccf5 varchar (32)" .
+			", onLoadccv5 float unsigned" .
+			", renderStartccf1 varchar (32)" .
+			", renderStartccv1 float unsigned" .
+			", renderStartccf2 varchar (32)" .
+			", renderStartccv2 float unsigned" .
+			", renderStartccf3 varchar (32)" .
+			", renderStartccv3 float unsigned" .
+			", renderStartccf4 varchar (32)" .
+			", renderStartccv4 float unsigned" .
+			", renderStartccf5 varchar (32)" .
+			", renderStartccv5 float unsigned" .
 
 			", primary key (label, slice, device)" .
 			");";
@@ -2048,4 +2057,18 @@ function lprint($msg) {
 	echo htmlspecialchars("$msg\n");
 }
 
+
+// like implode but works with a hash
+// $separator is used between a key and value, eg, "="
+function hashImplode( $glue, $separator, $hash, $quote="'" ) {
+    if ( ! is_array( $hash ) ) {
+		return $hash;
+	}
+
+    $aTuples = array();
+    foreach ( $hash as $key => $val ) {
+        $aTuples[] = ( is_numeric($val) ? "{$key}{$separator}{$val}" : "{$key}{$separator}{$quote}{$val}{$quote}" );
+    }
+    return implode( $glue, $aTuples );
+}
 ?>
