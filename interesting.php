@@ -17,11 +17,14 @@ limitations under the License.
 
 require_once("ui.inc");
 require_once("utils.inc");
+require_once("stats.inc");
+require_once("charts.inc");
 
 $gArchive = "All";
 $gLabel = getParam('l', latestLabel($gArchive));
 $gTitle = "Interesting Stats";
 $gSlice = getParam('s', 'All');
+$hStats = getStats($gLabel, $gSlice, ($gbMobile ? "iphone" : "IE8"));
 ?>
 <!doctype html>
 <html>
@@ -66,9 +69,24 @@ echo selectSlice($gSlice, "onchange='document.location=\"?a=$archive&l=$gLabel&s
 </form>
 
 <div id=interesting style="margin-top: 40px;">
-<?php
-$gbHTML = true;
-require_once("interesting-images.js");
+<?php 
+/*
+ "jsLibraries",
+ "popularScripts",
+ "popularServers",
+ "most404s",
+*/
+echo bytesContentTypeChart($hStats);
+echo responseSizes($hStats);
+echo percentGoogleLibrariesAPI($hStats);
+echo percentFlash($hStats);
+echo popularImageFormats($hStats);
+echo maxage($hStats);
+echo percentByProtocol($hStats);
+echo requestErrors($hStats);
+echo redirects($hStats);
+echo correlationChart($hStats, "onLoad");
+echo correlationChart($hStats, "renderStart");
 ?>
 </div>
 
