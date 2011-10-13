@@ -35,7 +35,7 @@ a:focus, a:hover {
 	color: #3c7dc8;
 	border-bottom: 2px solid #e0e0e0; }
 a.image-link:focus, a.image-link:hover { border: none; }
-p, ul, ol {
+p, ul, ol, pre {
 	margin-bottom: 1.4em;
 	max-width: 575px; }
 
@@ -421,3 +421,15 @@ footer li + li + li + li {
 .netStatusCol {
 	width: 30px; }
 
+/* use this with PRE */
+.codesample { 
+	overflow: auto; 
+	font-family: monospace;
+	white-space: pre;
+	margin-left: 2em;
+	padding: 4px 8px; 
+	background: #EEE; }
+
+.warning { 
+	font-weight: bold;
+	color: #C00; }
