@@ -58,22 +58,52 @@ function statsTable($label, $slice, $device) {
 }
 
 
-// return a where condition to select the appropriate URL slice
-function sliceCond($slice, $device, $url = "") {
-	global $gaTop100, $gaTop1000;
+// return a where condition to select the appropriate URL slice based on pageid
+function sliceCond($label, $slice, $device, $url = "") {
+	global $gaTop100, $gaTop1000, $gDateRange;
 
-	$sliceCond = "";
+	$pagesTable = pagesTable($label, $slice, $device);
+	$row = doRowQuery("select min(pageid) as minid, max(pageid) as maxid from $pagesTable where label='$label';");
+	$minid = $row['minid'];
+	$maxid = $row['maxid'];
+
+	$sliceCond = "pageid>=$minid and pageid<=$maxid"; // "All"
+
 	if ( "intersection" === $slice ) {
 		$sliceCond = sliceCondIntersection($device);
+
+		// Find the set of URLs that are constant across all labels;
+		$numLabels = doSimpleQuery("select count(distinct(label)) from $pagesTable where $gDateRange;");
+		$query = "select url, count(label) as num from $pagesTable where $gDateRange group by url having num = $numLabels;";
+		$result = doQuery($query);
+		$aUrls = array();
+		while ( $row = mysql_fetch_assoc($result) ) {
+			$aUrls[] = $row['url'];
+		}
+		mysql_free_result($result);
+
+		$query = "select pageid from $pagesTable where $sliceCond and url in ('" . implode("','", $aUrls) . "');";
+		$result = doQuery($query);
+		$aPageids = array();
+		while ( $row = mysql_fetch_assoc($result) ) {
+			$aPageids[] = $row['pageid'];
+		}
+		mysql_free_result($result);
+		$sliceCond = "pageid in ('" . implode("','", $aPageids) . "')";
 	}
-	else if ( "Top100" === $slice ) {
-		$sliceCond = " and url in ('" . implode("','", $gaTop100) . "') ";
-	}
-	else if ( "Top1000" === $slice ) {
-		$sliceCond = " and url in ('" . implode("','", $gaTop1000) . "') ";
+	else if ( "Top100" === $slice || "Top1000" === $slice ) {
+		$urls = ( "Top100" === $slice ? $gaTop100 : $gaTop1000 );
+		$query = "select pageid from $pagesTable where $sliceCond and url in ('" . implode("','", $urls) . "');";
+		$result = doQuery($query);
+		$aPageids = array();
+		while ( $row = mysql_fetch_assoc($result) ) {
+			$aPageids[] = $row['pageid'];
+		}
+		mysql_free_result($result);
+		$sliceCond = "pageid in ('" . implode("','", $aPageids) . "')";
 	}
 	else if ( "url" === $slice && isset($url) ) {
-		$sliceCond = " and url = '$url' ";
+		$sliceCond .= " and url = '$url'";
 	}
 
 	return $sliceCond;
@@ -141,8 +171,10 @@ function removeStatsData($label, $slice, $device) {
 // return a hash of stats
 function computeStatsData($label, $slice, $device) {
 	$hStats = array();
-	$sliceCond = sliceCond($slice, $device);  // this might be expensive - compute it once
+	$sliceCond = sliceCond($label, $slice, $device);  // this might be expensive - compute it once
 	$hStats += computeTrendStats($label, $slice, $device, $sliceCond);
+	$hStats += computeCorrelations($label, $slice, $device, $sliceCond, "onLoad");
+	$hStats += computeCorrelations($label, $slice, $device, $sliceCond, "renderStart");
 
 	return $hStats;
 }
@@ -158,7 +190,7 @@ function computeTrendStats($label, $slice, $device, $sliceCond) {
 					? ", TRUNCATE(AVG($field), 1) as $field"   // truncate requests to 1 decimal place
 					: ", ROUND(AVG($field)) as $field" );      // round bytes to nearest integer
 	}
-	$query .= " from $pagesTable where archive = 'All' and label='$label' $sliceCond;";
+	$query .= " from $pagesTable where archive = 'All' and label='$label' and $sliceCond;";
 	$row = doRowQuery($query);
 
 	return $row;
@@ -171,28 +203,15 @@ function trendStatsFields() {
 }
 
 
-function computeCorrelations($label, $slice, $device, $sliceCond) {
-}
-
-function onloadCorrelation() {
-	return findCorrelation("onLoad", "load", "Highest Correlation to Load Time");
-}
-
-
-function renderCorrelation() {
-	return findCorrelation("renderStart", "render");
-}
-
-
 function computeCorrelations($label, $slice, $device, $sliceCond, $var1) {
-	global $gPageidCond, $gPagesTable, $ghColumnTitles;
+	$pagesTable = pagesTable($label, $slice, $device);
 
 	// TODO - make this more flexible
+	$hCC = array(); // hash key is the CC *VALUE*
 	$aVars = array("PageSpeed", "reqTotal", "reqHtml", "reqJS", "reqCSS", "reqImg", "reqFlash", "reqJson", "reqOther", "bytesTotal", "bytesHtml", "bytesJS", "bytesCSS", "bytesImg", "bytesFlash", "bytesJson", "bytesOther", "numDomains");
-	$hCC = array();
 	foreach ($aVars as $var2) {
 		// from http://www.freeopenbook.com/mysqlcookbook/mysqlckbk-chp-13-sect-6.html
-		$cmd = "SELECT @n := COUNT($var1) AS n, @sumX := SUM($var2) AS 'sumX', @sumXX := SUM($var2*$var2) 'sumXX', @sumY := SUM($var1) AS 'sumY', @sumYY := SUM($var1*$var1) 'sumYY', @sumXY := SUM($var2*$var1) AS 'sumXY' FROM $gPagesTable where $gPageidCond and $var2 is not null and $var2 > 0;";
+		$cmd = "SELECT @n := COUNT($var1) AS n, @sumX := SUM($var2) AS 'sumX', @sumXX := SUM($var2*$var2) 'sumXX', @sumY := SUM($var1) AS 'sumY', @sumYY := SUM($var1*$var1) 'sumYY', @sumXY := SUM($var2*$var1) AS 'sumXY' FROM $pagesTable where $sliceCond and $var2 is not null and $var2 > 0;";
 		$row = doRowQuery($cmd);
 		$n = $row['n'];
 		if ( $n ) {
@@ -213,17 +232,17 @@ function computeCorrelations($label, $slice, $device, $sliceCond, $var1) {
 		}
 	}
 
+	// Take the CC values(!) in descending order and return the top 5 results.
 	$aCC = array_keys($hCC);
 	rsort($aCC, SORT_NUMERIC);
 	$iRows = 0;
-	$aVarNames = array();
-	$aVarValues = array();
+	$hTuples = array();
 	foreach($aCC as $cc) {
 		$prettyCC = round($cc*100)/100;
 		foreach($hCC[$cc] as $var2) {
-			array_push($aVarNames, $ghColumnTitles[$var2]);
-			array_push($aVarValues, $prettyCC);
 			$iRows++;
+			$hTuples[$var1 . "ccf$iRows"] = $var2;
+			$hTuples[$var1 . "ccv$iRows"] = $prettyCC;
 			if ( 5 <= $iRows ) {
 				break;
 			}
@@ -233,7 +252,7 @@ function computeCorrelations($label, $slice, $device, $sliceCond, $var1) {
 		}
 	}
 
-	return correlationColumnChart($title, $var1, $aVarNames, $aVarValues, $color);
+	return $hTuples;
 }
 
 
