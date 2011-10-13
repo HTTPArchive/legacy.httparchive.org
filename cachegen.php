@@ -16,23 +16,22 @@ limitations under the License.
 */
 
 require_once("utils.inc");
+require_once("stats.inc");
 
-$aSlices = array("All", "intersection", "Top100", "Top1000");
+$aDevices = array("IE8", "iphone");
 $aLabels = archiveLabels();
-$len = count($aLabels);
-
-for ( $i = $len-1; $i >= 0; $i-- ) {
-	$label = $aLabels[$i];
-
-	for ( $s = 0; $s < count($aSlices); $s++ ) {
-		$slice = $aSlices[$s];
-		echo "starting \"$label\" for \"$slice\"...";
-		$cmd = "php interesting-images.js '$label' '$slice' > /dev/null";
-		exec($cmd);
-		echo "...DONE\n";
+$aSlices = sliceNames();
+foreach ( $aDevices as $device ) {
+	for ( $i = count($aLabels)-1; $i >= 0; $i-- ) {
+		// do labels in reverse chrono order so newest are ready first
+		$label = $aLabels[$i];
+		foreach ( $aSlices as $slice ) {
+			echo "$label $slice $device...";
+			addStats($label, $slice, $device);
+			echo "DONE\n";
+		}
 	}
 }
-
 
 echo "finished all slices and labels\n";
 ?>
