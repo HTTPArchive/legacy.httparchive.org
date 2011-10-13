@@ -5,12 +5,9 @@ push :
 	cp -p images/*.* ~/httparchive.org/images/.
 	mkdir -p ~/httparchive.org/lists
 	cp -p lists/*.txt ~/httparchive.org/lists/.
-	mkdir -p ~/httparchive.org/cache
-	chmod 777 ~/httparchive.org/cache
 	mkdir -p ~/httparchive.org/downloads
 	cp -pu downloads/*.gz ~/httparchive.org/downloads/.
 	echo "push .htaccess!"
-	echo "CREATE interesting-images.js.cache !!!!!!!!!!!"
 
 pushmobile :
 	cp -p *.php *.inc *.js *.css favicon.ico robots.txt ~/mobile.httparchive.org/.
@@ -19,12 +16,9 @@ pushmobile :
 	cp -p images/*.* ~/mobile.httparchive.org/images/.
 	mkdir -p ~/mobile.httparchive.org/lists
 	cp -p lists/*.txt ~/mobile.httparchive.org/lists/.
-	mkdir -p ~/mobile.httparchive.org/cache
-	chmod 777 ~/mobile.httparchive.org/cache
 	mkdir -p ~/mobile.httparchive.org/downloads
 	cp -pu downloads/*.gz ~/mobile.httparchive.org/downloads/.
 	echo "push .htaccess!"
-	echo "CREATE interesting-images.js.cache !!!!!!!!!!!"
 
 pushbeta :
 	mkdir -p ~/beta.httparchive.org
@@ -36,7 +30,3 @@ pushbeta :
 	cp -p lists/*.txt ~/beta.httparchive.org/lists/.
 	mkdir -p ~/beta.httparchive.org/downloads
 	cp -pu downloads/*.gz ~/beta.httparchive.org/downloads/.
-	php cachegen.php
-	mkdir -p ~/beta.httparchive.org/cache
-	chmod 777 ~/beta.httparchive.org/cache
-	cp -pu cache/interesting* ~/beta.httparchive.org/cache/.
