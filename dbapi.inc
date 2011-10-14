@@ -160,6 +160,27 @@ function getStatsData($label, $slice, $device) {
 }
 
 
+// Returns a hash where the key is the label (run name, eg, "Oct 1 2011").
+// The value for each key is another hash of all the trends data fields. 
+function getTrendsData($slice, $device) {
+	$statsTable = statsTable(null, $slice, $device);
+	$query = "select label, numurls" .
+		", ROUND(reqTotal) as reqTotal, TRUNCATE(reqHtml, 1) as reqHtml, ROUND(reqJS) as reqJS, TRUNCATE(reqCSS, 1) as reqCSS, ROUND(reqImg) as reqImg" .
+		", TRUNCATE(reqFlash, 1) as reqFlash, ROUND(bytesTotal/1024) as bytesTotal, ROUND(bytesHtml/1024) as bytesHtml, ROUND(bytesJS/1024) as bytesJS" .
+		", ROUND(bytesCSS/1024) as bytesCSS, ROUND(bytesImg/1024) as bytesImg, ROUND(bytesFlash/1024) as bytesFlash" .
+		", ROUND(PageSpeed) as PageSpeed, ROUND(numDomains) as numDomains" .
+		" from $statsTable where slice='$slice' and device='$device';";
+	$result = doQuery($query);
+	$hTrends = array();
+	while ( $row = mysql_fetch_assoc($result) ) {
+		$hTrends[$row['label']] = $row;
+	}
+	mysql_free_result($result);
+
+	return $hTrends;
+}
+
+
 // return a hash of values for a single stats record
 function removeStatsData($label, $slice, $device) {
 	$statstable = statsTable($label, $slice, $device);
