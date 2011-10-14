@@ -44,7 +44,20 @@ function replaceStats($label, $slice, $device, $hStats=null) {
 
 
 function getStats($label, $slice, $device) {
-	return getStatsData($label, $slice, $device);
+	$hStats = getStatsData($label, $slice, $device);
+	if ( ! $hStats ) {
+		// TODO - REVISIT THIS!!
+		// For now, go ahead and compute the stats if they're not found.
+		addStats($label, $slice, $device);
+		$hStats = getStatsData($label, $slice, $device);
+	}
+
+	return $hStats;
+}
+
+
+function getTrends($slice, $device) {
+	return getTrendsData($slice, $device);
 }
 
 
