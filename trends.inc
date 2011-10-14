@@ -19,6 +19,9 @@ limitations under the License.
 Include file for generating trending charts. 
 */
 require_once("utils.inc");
+require_once("stats.inc");
+require_once("charts.inc");
+
 ?>
 
 <style>
@@ -29,107 +32,44 @@ require_once("utils.inc");
 </style>
 	
 <?php
-// The database fields we want to plot.
-$aFields = array(
-				 //"onLoad",
-				 //"renderStart",
-				 "PageSpeed",
-				 "reqTotal",
-				 "reqHtml",
-				 "reqJS",
-				 "reqCSS",
-				 "reqImg",
-				 "reqFlash",
-				 "bytesTotal",
-				 "bytesHtml",
-				 "bytesJS",
-				 "bytesCSS",
-				 "bytesImg",
-				 "bytesFlash",
-				 "numDomains"
-				 );
+$device = ($gbMobile ? "iphone" : "IE8");
+$hTrends = getTrends($gSlice, $device);
 
-
-
-// Intersection or All?
-$sliceWhere = "";
-if ( isset($gSlice) ) {
-    if ( "intersection" === $gSlice ) {
-		// Find the set of URLs that are constant across all labels;
-		$numLabels = doSimpleQuery("select count(distinct(label)) from $gPagesTable where $gDateRange;");
-		$query = "select url, count(label) as num from $gPagesTable where $gDateRange group by url having num = $numLabels;";
-		$result = doQuery($query);
-		$aUrls = array();
-		while ( $row = mysql_fetch_assoc($result) ) {
-			$aUrls[] = $row['url'];
-		}
-		mysql_free_result($result);
-		$sliceWhere = " and url in ('" . implode("','", $aUrls) . "')";
-	}
-	else if ( "Top100" === $gSlice ) {
-		$sliceWhere = " and url in ('" . implode("','", $gaTop100) . "')";
-	}
-	else if ( "Top1000" === $gSlice ) {
-		$sliceWhere = " and url in ('" . implode("','", $gaTop1000) . "')";
-	}
-	else if ( "url" === $gSlice && isset($gUrl) ) {
-		$sliceWhere = " and url = '$gUrl'";
-	}
-}
-
-// Build the query to pull the stats for ALL fields for ALL labels, for example:
-//   select label, count(*) as numurls, ROUND(AVG(PageSpeed)/1) as PageSpeed, ROUND(AVG(reqTotal)/1) as reqTotal, ROUND(AVG(reqHtml)/1) as reqHtml, 
-//     ROUND(AVG(reqJS)/1) as reqJS, ROUND(AVG(reqCSS)/1) as reqCSS, ROUND(AVG(reqImg)/1) as reqImg, ROUND(AVG(bytesTotal)/1024) as bytesTotal, 
-//     ROUND(AVG(bytesHtml)/1024) as bytesHtml, ROUND(AVG(bytesJS)/1024) as bytesJS, ROUND(AVG(bytesCSS)/1024) as bytesCSS, 
-//     ROUND(AVG(bytesImg)/1024) as bytesImg, ROUND(AVG(numDomains)/1) as numDomains from pagesdev where archive = 'All' group by label;
-$query = "select label, count(*) as numurls";
-foreach($aFields as $field) {
-	$divisor = ( false === strpos($field, "bytes") ? 1 : 1024 );
-	$query .= ( ("reqFlash" === $field || "reqHtml" === $field || "reqCSS" === $field) ? ", TRUNCATE(AVG($field), 1) as $field" : ", ROUND(AVG($field)/$divisor) as $field" );
-}
-$query .= " from $gPagesTable where archive = '$gArchive'$sliceWhere and $gDateRange group by label;";
-$result = doQuery($query);
-
-// Separate the stats by label.
-$hStats = array();
-while ( $row = mysql_fetch_assoc($result) ) {
-	$hStats[$row['label']] = $row;
-}
-mysql_free_result($result);
 
 // Create a chart for each field.
 $aRunNames = archiveLabels($gArchive, false);
 $aAxisLabels = archiveLabels($gArchive, true, "n/j");
 $labels = getLabels($aAxisLabels); 
 
+
 if ( "url" != $gSlice ) {
 	// show URLs first so people can see if they're doing intersection or not
 	// but don't show it if we're only looking at a single URL
-	echo formatChart('numurls', $hStats, $aRunNames, $labels);
+	echo formatChart('numurls', $hTrends, $aRunNames, $labels);
 }
 
-echo format2LineChart('reqTotal', 'bytesTotal', $hStats, $aRunNames, $labels);
-echo format2LineChart('reqHtml', 'bytesHtml', $hStats, $aRunNames, $labels);
-echo format2LineChart('reqJS', 'bytesJS', $hStats, $aRunNames, $labels);
-echo format2LineChart('reqCSS', 'bytesCSS', $hStats, $aRunNames, $labels);
-echo format2LineChart('reqImg', 'bytesImg', $hStats, $aRunNames, $labels);
-echo format2LineChart('reqFlash', 'bytesFlash', $hStats, $aRunNames, $labels);
+echo format2LineChart('reqTotal', 'bytesTotal', $hTrends, $aRunNames, $labels);
+echo format2LineChart('reqHtml', 'bytesHtml', $hTrends, $aRunNames, $labels);
+echo format2LineChart('reqJS', 'bytesJS', $hTrends, $aRunNames, $labels);
+echo format2LineChart('reqCSS', 'bytesCSS', $hTrends, $aRunNames, $labels);
+echo format2LineChart('reqImg', 'bytesImg', $hTrends, $aRunNames, $labels);
+echo format2LineChart('reqFlash', 'bytesFlash', $hTrends, $aRunNames, $labels);
 
 foreach(array('PageSpeed', 'numDomains') as $field) {
-	echo formatChart($field, $hStats, $aRunNames, $labels);
+	echo formatChart($field, $hTrends, $aRunNames, $labels);
 }
 
 
-function format2LineChart($field, $field2, $hStats, $aRunNames, $labels) {
+function format2LineChart($field, $field2, $hTrends, $aRunNames, $labels) {
 	$color = fieldColor($field);
 	$suffix = fieldUnits($field);
 	$color2 = fieldColor($field2);
 	$suffix2 = fieldUnits($field2);
 
-	$fieldVals = fieldValues($field, $hStats, $aRunNames, $min, $max, false);
+	$fieldVals = fieldValues($field, $hTrends, $aRunNames, $min, $max, false);
 	$max = intval(intval($max)*1.5);
 	$step = ( $max > 1500 ? 500 : ( $max > 200 ? 100 : ( $max > 100 ? 20 : 10 ) ) );
-	$fieldVals2 = fieldValues($field2, $hStats, $aRunNames, $min2, $max2, false);
+	$fieldVals2 = fieldValues($field2, $hTrends, $aRunNames, $min2, $max2, false);
 	$step2 = ( $max2 > 1500 ? 500 : ( $max2 > 200 ? 100 : ( $max2 > 100 ? 20 : 10 ) ) );
 	$skip = getSkip(count($aRunNames));
 	$url = "http://chart.apis.google.com/chart" .
@@ -155,12 +95,12 @@ function format2LineChart($field, $field2, $hStats, $aRunNames, $labels) {
 }
 
 
-function formatChart($field, $hStats, $aRunNames, $labels) {
+function formatChart($field, $hTrends, $aRunNames, $labels) {
 	$color = fieldColor($field);
 	$suffix = fieldUnits($field);
 	$skip = getSkip(count($aRunNames));
 	$url = "http://chart.apis.google.com/chart" .
-		"?chd=t:-1|" . fieldValues($field, $hStats, $aRunNames, $min, $max) . 
+		"?chd=t:-1|" . fieldValues($field, $hTrends, $aRunNames, $min, $max) . 
 		"&chxl=0:|$labels&chxt=x&chs=600x300&cht=lxy&chco=$color" .
 		"&chxs=0,676767,11.5,0,lt,676767&chxtc=0,8&chm=N" . ( $suffix ? "**+$suffix" : "" ) .
 		",$color,0,$skip,12,,h::8&chds=0,100,$min,$max&chts=$color,32&chtt=" . urlencode(fieldTitle($field)) . "&chls=2&chma=5,5,5,25";
@@ -193,10 +133,10 @@ function getLabels($aLabels) {
 }
 
 
-function fieldValues($field, $hStats, $aRunNames, &$min, &$max, $bZero = true) {
+function fieldValues($field, $hTrends, $aRunNames, &$min, &$max, $bZero = true) {
 	$aValues = array();
 	foreach($aRunNames as $run) {
-		$aValues[] = ( array_key_exists($run, $hStats) ? $hStats[$run][$field] : "_" );
+		$aValues[] = ( array_key_exists($run, $hTrends) ? $hTrends[$run][$field] : "_" );
 	}
 	findScale($aValues, $min, $max, $bZero);
 
