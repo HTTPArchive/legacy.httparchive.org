@@ -33,7 +33,7 @@ require_once("charts.inc");
 	
 <?php
 $device = ($gbMobile ? "iphone" : "IE8");
-$hTrends = getTrends($gSlice, $device);
+$hTrends = getTrends($gSlice, $device, $gUrl);
 
 
 // Create a chart for each field.
