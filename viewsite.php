@@ -72,10 +72,11 @@ $harfileWptUrl = "{$server}export.php?test=$wptid&run=$wptrun&cached=0";
 	<ul class=quicklinks>
 		<li><a href="#top">Top of page</a></li>
 		<li><a href="#filmstrip">Filmstrip</a></li>
+		<li><a href="#sitestats">Stats</a></li>
+		<li><a href="#trends">Trends</a></li>
 		<li><a href="#waterfall">Waterfall</a></li>
 		<li><a href="#pagespeed">Page Speed</a></li>
 		<li><a href="#requests">Requests</a></li>
-		<li><a href="#trends">Trends</a></li>
 		<li><a href="#downloads">Downloads</a></li>
 	</ul>
 	
@@ -172,6 +173,30 @@ OUTPUT;
   <li> <a href="<?php echo $server ?>video/compare.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0">WPT filmstrip</a>
   <li> <a href="<?php echo $server ?>video/create.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0&id=<?php echo $wptid ?>.<?php echo $wptrun ?>.0">watch video</a>
 </ul>
+
+
+<h2 id=sitestats>Stats</h2>
+
+<?php
+$gSlice = "url";
+$gUrl = $url;
+
+require_once("stats.inc");
+require_once("charts.inc");
+
+$hStats = getStats($gLabel, $gSlice, ($gbMobile ? "iphone" : "IE8"), $url);
+echo bytesContentTypeChart($hStats);
+echo responseSizes($hStats);
+echo popularImageFormats($hStats);
+echo maxage($hStats);
+echo percentByProtocol($hStats);
+?>
+
+<h2 id=trends>Trends</h2>
+
+<?php
+require_once('trends.inc');
+?>
 
 
 <h2 id=waterfall>HTTP Waterfall</h2>
@@ -555,15 +580,6 @@ function toggleCustomColDiag() {
 }
 </script>
 
-
-
-<h2 id=trends>Trends</h2>
-
-<?php
-$gSlice = "url";
-$gUrl = $url;
-require_once('trends.inc');
-?>
 
 
 <h2 id=downloads>Downloads</h2>
