@@ -124,7 +124,7 @@ function popularImageFormats($hStats) {
 	$aVarNames = array("GIF $gif%", "JPEG $jpg%", "PNG $png%", "Other $other%");
 	$aVarValues = array($gif, $jpg, $png, $other);
 
-	return pieChart("Image Formats (# of requests)", "imageformats", $aVarNames, $aVarValues, "E94E19");
+	return pieChart("Image Requests by Format", "imageformats", $aVarNames, $aVarValues, "E94E19");
 }
 
 
