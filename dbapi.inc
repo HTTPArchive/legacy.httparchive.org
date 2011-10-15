@@ -160,16 +160,104 @@ function getStatsData($label, $slice, $device) {
 }
 
 
+// return a hash of values for a single stats record
+function getStatsDataForUrl($label, $slice, $device, $url) {
+	$pagesTable = pagesTable($label, $slice, $device);
+	$requestsTable = requestsTable($label, $slice, $device);
+
+	// Get the info from the pages table.
+	$query = "select * from $pagesTable where label='$label' and url='$url';";
+	$hStats = doRowQuery($query);
+
+	// Add other derived info.
+	$pageidCond = "pageid=" . $hStats['pageid'];
+	$totalRequests = $hStats['reqTotal'];
+
+	// https
+	$num = doSimpleQuery("select count(*) from $requestsTable where $pageidCond and url like 'https://%'");
+	$hStats['perHttps'] = round(100*$num/$totalRequests);
+
+	// max-age caching
+	$query = "select ceil( convert( substring( resp_cache_control, (length(resp_cache_control) + 2 - locate('=ega-xam', reverse(resp_cache_control))) ), SIGNED ) / 86400) as maxagedays, count(*) as num from $requestsTable where $pageidCond and resp_cache_control like '%max-age=%' group by maxagedays order by maxagedays asc;";
+	$result = doQuery($query);
+	$zeroOrNeg = $day = $month = $year = $yearplus = 0;
+	while ($row = mysql_fetch_assoc($result)) {
+		$maxagedays = $row['maxagedays'];
+		$num = $row['num'];
+
+		if ( $maxagedays < 1 ) {
+			$zeroOrNeg += $num;
+		}
+		else if ( 1 == $maxagedays ) {
+			$day = $num;
+		}
+		else if ( 1 < $maxagedays && $maxagedays <= 30 ) {
+			$month += $num;
+		}
+		else if ( 30 < $maxagedays && $maxagedays <= 365 ) {
+			$year += $num;
+		}
+		else if ( 365 < $maxagedays ) {
+			$yearplus += $num;
+		}
+	}
+	mysql_free_result($result);
+	$hStats['maxageNull'] = round(100 * ($totalRequests - ($zeroOrNeg + $day + $month + $year + $yearplus))/$totalRequests);
+	$hStats['maxage0'] = round(100 * $zeroOrNeg / $totalRequests);
+	$hStats['maxage1'] = round(100 * $day / $totalRequests);
+	$hStats['maxage30'] = round(100 * $month / $totalRequests);
+	$hStats['maxage365'] = round(100 * $year / $totalRequests);
+	$hStats['maxageMore'] = round(100 * $yearplus / $totalRequests);
+
+
+	$row = doRowQuery("select count(*) as req, SUM(respSize) as bytes from $requestsTable where $pageidCond and resp_content_type like '%image/gif%';");
+	$hStats['reqGif'] = $row['req'];
+	$hStats['bytesGif'] = $row['bytes'];
+
+	$row = doRowQuery("select count(*) as req, SUM(respSize) as bytes from $requestsTable where $pageidCond and (resp_content_type like '%image/jpg%' or resp_content_type like '%image/jpeg%');");
+	$hStats['reqJpg'] = $row['req'];
+	$hStats['bytesJpg'] = $row['bytes'];
+
+	$row = doRowQuery("select count(*) as req, SUM(respSize) as bytes from $requestsTable where $pageidCond and resp_content_type like '%image/png%';");
+	$hStats['reqPng'] = $row['req'];
+	$hStats['bytesPng'] = $row['bytes'];
+
+	return $hStats;
+}
+
+
 // Returns a hash where the key is the label (run name, eg, "Oct 1 2011").
 // The value for each key is another hash of all the trends data fields. 
 function getTrendsData($slice, $device) {
-	$statsTable = statsTable(null, $slice, $device);
+	$statsTable = statsTable(NULL, $slice, $device);
 	$query = "select label, numurls" .
 		", ROUND(reqTotal) as reqTotal, TRUNCATE(reqHtml, 1) as reqHtml, ROUND(reqJS) as reqJS, TRUNCATE(reqCSS, 1) as reqCSS, ROUND(reqImg) as reqImg" .
 		", TRUNCATE(reqFlash, 1) as reqFlash, ROUND(bytesTotal/1024) as bytesTotal, ROUND(bytesHtml/1024) as bytesHtml, ROUND(bytesJS/1024) as bytesJS" .
 		", ROUND(bytesCSS/1024) as bytesCSS, ROUND(bytesImg/1024) as bytesImg, ROUND(bytesFlash/1024) as bytesFlash" .
 		", ROUND(PageSpeed) as PageSpeed, ROUND(numDomains) as numDomains" .
 		" from $statsTable where slice='$slice' and device='$device';";
+	$result = doQuery($query);
+	$hTrends = array();
+	while ( $row = mysql_fetch_assoc($result) ) {
+		$hTrends[$row['label']] = $row;
+	}
+	mysql_free_result($result);
+
+	return $hTrends;
+}
+
+
+// Returns a hash where the key is the label (run name, eg, "Oct 1 2011").
+// The value for each key is another hash of all the trends data fields. 
+function getTrendsDataForUrl($url, $device) {
+	$pagesTable = pagesTable(NULL, NULL, $device);
+
+	$query = "select label, count(*) as numurls" .
+		", reqTotal, reqHtml, reqJS, reqCSS, reqImg" .
+		", reqFlash, ROUND(bytesTotal/1024) as bytesTotal, ROUND(bytesHtml/1024) as bytesHtml, ROUND(bytesJS/1024) as bytesJS" .
+		", ROUND(bytesCSS/1024) as bytesCSS, ROUND(bytesImg/1024) as bytesImg, ROUND(bytesFlash/1024) as bytesFlash" .
+		", ROUND(PageSpeed) as PageSpeed, ROUND(numDomains) as numDomains" .
+		" from $pagesTable where url = '$url' group by label;";
 	$result = doQuery($query);
 	$hTrends = array();
 	while ( $row = mysql_fetch_assoc($result) ) {
