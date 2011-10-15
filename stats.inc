@@ -43,7 +43,11 @@ function replaceStats($label, $slice, $device, $hStats=null) {
 }
 
 
-function getStats($label, $slice, $device) {
+function getStats($label, $slice, $device, $url=NULL) {
+	if ( $url ) {
+		return getStatsDataForUrl($label, $slice, $device, $url);
+	}
+		
 	$hStats = getStatsData($label, $slice, $device);
 	if ( ! $hStats ) {
 		// TODO - REVISIT THIS!!
@@ -56,8 +60,13 @@ function getStats($label, $slice, $device) {
 }
 
 
-function getTrends($slice, $device) {
-	return getTrendsData($slice, $device);
+function getTrends($slice, $device, $url=NULL) {
+	if ( $url ) {
+		return getTrendsDataForUrl($url, $device);
+	}
+	else {
+		return getTrendsData($slice, $device);
+	}
 }
 
 
