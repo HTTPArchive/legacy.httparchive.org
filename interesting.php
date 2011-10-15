@@ -17,14 +17,11 @@ limitations under the License.
 
 require_once("ui.inc");
 require_once("utils.inc");
-require_once("stats.inc");
-require_once("charts.inc");
 
 $gArchive = "All";
 $gLabel = getParam('l', latestLabel($gArchive));
-$gTitle = "Interesting Stats";
 $gSlice = getParam('s', 'All');
-$hStats = getStats($gLabel, $gSlice, ($gbMobile ? "iphone" : "IE8"));
+$gTitle = "Interesting Stats";
 ?>
 <!doctype html>
 <html>
@@ -70,6 +67,11 @@ echo selectSlice($gSlice, "onchange='document.location=\"?a=$archive&l=$gLabel&s
 
 <div id=interesting style="margin-top: 40px;">
 <?php 
+require_once("stats.inc");
+require_once("charts.inc");
+
+$hStats = getStats($gLabel, $gSlice, ($gbMobile ? "iphone" : "IE8"));
+
 /*
  "jsLibraries",
  "popularScripts",
