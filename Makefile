@@ -8,6 +8,7 @@ push :
 	mkdir -p ~/httparchive.org/downloads
 	cp -pu downloads/*.gz ~/httparchive.org/downloads/.
 	echo "push .htaccess!"
+	echo "CVSNO: ln -s ~/dev.httparchive.org/aaa/harviewer/webapp harviewer"
 
 pushmobile :
 	cp -p *.php *.inc *.js *.css favicon.ico robots.txt ~/mobile.httparchive.org/.
@@ -19,6 +20,7 @@ pushmobile :
 	mkdir -p ~/mobile.httparchive.org/downloads
 	cp -pu downloads/*.gz ~/mobile.httparchive.org/downloads/.
 	echo "push .htaccess!"
+	echo "CVSNO: ln -s ~/dev.httparchive.org/aaa/harviewer/webapp harviewer"
 
 pushbeta :
 	mkdir -p ~/beta.httparchive.org
@@ -30,3 +32,4 @@ pushbeta :
 	cp -p lists/*.txt ~/beta.httparchive.org/lists/.
 	mkdir -p ~/beta.httparchive.org/downloads
 	cp -pu downloads/*.gz ~/beta.httparchive.org/downloads/.
+	echo "CVSNO: ln -s ~/dev.httparchive.org/aaa/harviewer/webapp harviewer"
