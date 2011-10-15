@@ -21,26 +21,77 @@ require_once("dbapi.inc");
 
 // eg: average total amount of JS downloaded per page
 function bytesContentTypeChart($hStats) {
-	$aVarValues = array( formatSize($hStats['bytesHtml']), formatSize($hStats['bytesImg']), formatSize($hStats['bytesJS']), 
-						 formatSize($hStats['bytesCSS']), formatSize($hStats['bytesFlash']), formatSize($hStats['bytesJson']+$hStats['bytesOther']) );
-	$aVarNames = array("HTML - " . $aVarValues[0] . " kB", "Images - " . $aVarValues[1] . " kB", "Scripts - " . $aVarValues[2] . " kB", 
-					   "Stylesheets - " . $aVarValues[3] . " kB", "Flash - " . $aVarValues[4] . " kB", "Other - " . $aVarValues[5] . " kB");
-	return pieChart("Average Bytes per Page by Content Type", "bytesperpage", $aVarNames, $aVarValues, "007099", "total " . formatSize($hStats['bytesTotal']) . " kB");
+	$aVarValues = array();
+	$aVarNames = array();
+	if ( 0 != $hStats['bytesHtml'] ) { 
+		$bytes = formatSize($hStats['bytesHtml']);
+		$aVarValues[] = $bytes;
+		$aVarNames[] = "HTML - $bytes kB";
+	}
+	if ( 0 != $hStats['bytesImg'] ) { 
+		$bytes = formatSize($hStats['bytesImg']);
+		$aVarValues[] = $bytes;
+		$aVarNames[] = "Images - $bytes kB";
+	}
+	if ( 0 != $hStats['bytesJS'] ) { 
+		$bytes = formatSize($hStats['bytesJS']);
+		$aVarValues[] = $bytes;
+		$aVarNames[] = "Scripts - $bytes kB";
+	}
+	if ( 0 != $hStats['bytesCSS'] ) { 
+		$bytes = formatSize($hStats['bytesCSS']);
+		$aVarValues[] = $bytes;
+		$aVarNames[] = "Stylesheets - $bytes kB";
+	}
+	if ( 0 != $hStats['bytesFlash'] ) { 
+		$bytes = formatSize($hStats['bytesFlash']);
+		$aVarValues[] = $bytes;
+		$aVarNames[] = "Flash - $bytes kB";
+	}
+	if ( 0 != $hStats['bytesJson'] || 0 != $hStats['bytesOther'] ) { 
+		$bytes = formatSize($hStats['bytesJson'] + $hStats['bytesOther']);
+		$aVarValues[] = $bytes;
+		$aVarNames[] = "Other - $bytes kB";
+	}
+
+	return pieChart("Average Bytes per Page by Content Type", "bytesperpage", $aVarNames, $aVarValues, "007099", 
+					"total " . formatSize($hStats['bytesTotal']) . " kB");
 }
 
 
 function responseSizes($hStats) {
-	$aVarNames = array("GIF", "JPEG", "PNG", "HTML", "JS", "CSS", "Flash");
-	$aVarValues = array( formatSize( $hStats['bytesGif'] / $hStats['reqGif'] ),
-						 formatSize( $hStats['bytesJpg'] / $hStats['reqJpg'] ),
-						 formatSize( $hStats['bytesPng'] / $hStats['reqPng'] ),
-						 formatSize( $hStats['bytesHtml'] / $hStats['reqHtml'] ),
-						 formatSize( $hStats['bytesJS'] / $hStats['reqJS'] ),
-						 formatSize( $hStats['bytesCSS'] / $hStats['reqCSS'] ),
-						 formatSize( $hStats['bytesFlash'] / $hStats['reqFlash'] )
-						 );
+	$aVarValues = array();
+	$aVarNames = array();
+	if ( 0 != $hStats['bytesGif'] ) {
+		$aVarValues[] = formatSize( $hStats['bytesGif'] / $hStats['reqGif'] );
+		$aVarNames[] = "GIF";
+	}
+	if ( 0 != $hStats['bytesJpg'] ) {
+		$aVarValues[] = formatSize( $hStats['bytesJpg'] / $hStats['reqJpg'] );
+		$aVarNames[] = "JPEG";
+	}
+	if ( 0 != $hStats['bytesPng'] ) {
+		$aVarValues[] = formatSize( $hStats['bytesPng'] / $hStats['reqPng'] );
+		$aVarNames[] = "PNG";
+	}
+	if ( 0 != $hStats['bytesHtml'] ) {
+		$aVarValues[] = formatSize( $hStats['bytesHtml'] / $hStats['reqHtml'] );
+		$aVarNames[] = "HTML";
+	}
+	if ( 0 != $hStats['bytesJS'] ) {
+		$aVarValues[] = formatSize( $hStats['bytesJS'] / $hStats['reqJS'] );
+		$aVarNames[] = "JS";
+	}
+	if ( 0 != $hStats['bytesCSS'] ) {
+		$aVarValues[] = formatSize( $hStats['bytesCSS'] / $hStats['reqCSS'] );
+		$aVarNames[] = "CSS";
+	}
+	if ( 0 != $hStats['bytesFlash'] ) {
+		$aVarValues[] = formatSize( $hStats['bytesFlash'] / $hStats['reqFlash'] );
+		$aVarNames[] = "Flash";
+	}
 
-	return horizontalBarChart("Avg Individual Response Size", "responsesizes", $aVarNames, $aVarValues, "3B356A", 0, max($aVarValues)+10, 
+	return horizontalBarChart("Average Individual Response Size", "responsesizes", $aVarNames, $aVarValues, "3B356A", 0, max($aVarValues)+10, 
 							  "average response size (kB)", false, "+kB");
 }
 
@@ -73,7 +124,7 @@ function popularImageFormats($hStats) {
 	$aVarNames = array("GIF $gif%", "JPEG $jpg%", "PNG $png%", "Other $other%");
 	$aVarValues = array($gif, $jpg, $png, $other);
 
-	return pieChart("Image Formats", "imageformats", $aVarNames, $aVarValues, "E94E19");
+	return pieChart("Image Formats (# of requests)", "imageformats", $aVarNames, $aVarValues, "E94E19");
 }
 
 
