@@ -23,35 +23,35 @@ require_once("dbapi.inc");
 function bytesContentTypeChart($hStats) {
 	$aVarValues = array();
 	$aVarNames = array();
-	if ( 0 != $hStats['bytesHtml'] ) { 
-		$bytes = formatSize($hStats['bytesHtml']);
-		$aVarValues[] = $bytes;
-		$aVarNames[] = "HTML - $bytes kB";
+	$kb = formatSize($hStats['bytesHtml']);
+	if ( $kb ) {
+		$aVarValues[] = $kb;
+		$aVarNames[] = "HTML - $kb kB";
 	}
-	if ( 0 != $hStats['bytesImg'] ) { 
-		$bytes = formatSize($hStats['bytesImg']);
-		$aVarValues[] = $bytes;
-		$aVarNames[] = "Images - $bytes kB";
+	$kb = formatSize($hStats['bytesImg']);
+	if ( $kb ) {
+		$aVarValues[] = $kb;
+		$aVarNames[] = "Images - $kb kB";
 	}
-	if ( 0 != $hStats['bytesJS'] ) { 
-		$bytes = formatSize($hStats['bytesJS']);
-		$aVarValues[] = $bytes;
-		$aVarNames[] = "Scripts - $bytes kB";
+	$kb = formatSize($hStats['bytesJS']);
+	if ( $kb ) {
+		$aVarValues[] = $kb;
+		$aVarNames[] = "Scripts - $kb kB";
 	}
-	if ( 0 != $hStats['bytesCSS'] ) { 
-		$bytes = formatSize($hStats['bytesCSS']);
-		$aVarValues[] = $bytes;
-		$aVarNames[] = "Stylesheets - $bytes kB";
+	$kb = formatSize($hStats['bytesCSS']);
+	if ( $kb ) {
+		$aVarValues[] = $kb;
+		$aVarNames[] = "Stylesheets - $kb kB";
 	}
-	if ( 0 != $hStats['bytesFlash'] ) { 
-		$bytes = formatSize($hStats['bytesFlash']);
-		$aVarValues[] = $bytes;
-		$aVarNames[] = "Flash - $bytes kB";
+	$kb = formatSize($hStats['bytesFlash']);
+	if ( $kb ) {
+		$aVarValues[] = $kb;
+		$aVarNames[] = "Flash - $kb kB";
 	}
-	if ( 0 != $hStats['bytesJson'] || 0 != $hStats['bytesOther'] ) { 
-		$bytes = formatSize($hStats['bytesJson'] + $hStats['bytesOther']);
-		$aVarValues[] = $bytes;
-		$aVarNames[] = "Other - $bytes kB";
+	$kb = formatSize($hStats['bytesJson'] + $hStats['bytesOther']);
+	if ( $kb ) {
+		$aVarValues[] = $kb;
+		$aVarNames[] = "Other - $kb kB";
 	}
 
 	return pieChart("Average Bytes per Page by Content Type", "bytesperpage", $aVarNames, $aVarValues, "007099", 
