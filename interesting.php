@@ -72,12 +72,6 @@ require_once("charts.inc");
 
 $hStats = getStats($gLabel, $gSlice, ($gbMobile ? "iphone" : "IE8"));
 
-/*
- "jsLibraries",
- "popularScripts",
- "popularServers",
- "most404s",
-*/
 echo bytesContentTypeChart($hStats);
 echo responseSizes($hStats);
 echo percentGoogleLibrariesAPI($hStats);
