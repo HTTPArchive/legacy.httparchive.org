@@ -18,20 +18,7 @@ limitations under the License.
 require_once("utils.inc");
 require_once("stats.inc");
 
-$aDevices = array("IE8", "iphone");
-$aLabels = archiveLabels();
-$aSlices = sliceNames();
-foreach ( $aDevices as $device ) {
-	for ( $i = count($aLabels)-1; $i >= 0; $i-- ) {
-		// do labels in reverse chrono order so newest are ready first
-		$label = $aLabels[$i];
-		foreach ( $aSlices as $slice ) {
-			echo "$label $slice $device...";
-			addStats($label, $slice, $device);
-			echo "DONE\n";
-		}
-	}
-}
+computeMissingStats(NULL, true);
 
 echo "finished all slices and labels\n";
 ?>
