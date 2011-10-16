@@ -270,9 +270,12 @@ function getTrendsDataForUrl($url, $device) {
 
 
 // return a hash of values for a single stats record
-function removeStatsData($label, $slice, $device) {
+function removeStatsData($label, $slice=NULL, $device=NULL) {
 	$statstable = statsTable($label, $slice, $device);
-	$cmd = "delete from $statstable where label='$label' and slice='$slice' and device='$device';";
+	$cmd = "delete from $statstable where label='$label'" .
+		( $slice ? " and slice='$slice'" : "" ) .
+		( $device ? " and device='$device'" : "" ) .
+		";";
 	doSimpleCommand($cmd);
 
 	return true;
@@ -446,6 +449,11 @@ function computeOther($label, $slice, $device, $sliceCond) {
 	return $hTuples;
 }
 
+
+// Add the end of a crawl we compute the stats and then copy them to production.
+function copyStatsToTable($statsTableSource, $statsTableTarget) {
+	//doSimpleCommand("insert into $statsTableTarget select * from $statsTableSource;");
+}
 
 
 
