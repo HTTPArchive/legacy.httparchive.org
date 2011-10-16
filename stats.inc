@@ -21,7 +21,7 @@ require_once("dbapi.inc");
 
 function addStats($label, $slice, $device, $hStats=null) {
 	if ( getStatsData($label, $slice, $device) ) {
-		return;
+		return true;
 	}
 
 	if ( ! $hStats ) {
@@ -50,10 +50,9 @@ function getStats($label, $slice, $device, $url=NULL) {
 		
 	$hStats = getStatsData($label, $slice, $device);
 	if ( ! $hStats ) {
-		// TODO - REVISIT THIS!!
-		// For now, go ahead and compute the stats if they're not found.
-		addStats($label, $slice, $device);
-		$hStats = getStatsData($label, $slice, $device);
+		// We do NOT want to do this because it might get called in the middle of a run.
+		//addStats($label, $slice, $device);
+		//$hStats = getStatsData($label, $slice, $device);
 	}
 
 	return $hStats;
@@ -70,13 +69,40 @@ function getTrends($slice, $device, $url=NULL) {
 }
 
 
-function removeStats($label, $slice, $device) {
+function removeStats($label, $slice=NULL, $device=NULL) {
+	if ( !$label && !$slice && !$device ) {
+		// error - you have to supply SOMETHING
+		return NULL;
+	}
+
 	return removeStatsData($label, $slice, $device);
 }
 
 
 function computeStats($label, $slice, $device) {
 	return computeStatsData($label, $slice, $device);
+}
+
+
+function computeMissingStats($device, $bVerbose) {
+	$aDevices = ( $device ? array($device) : array("IE8", "iphone") );
+	$aLabels = archiveLabels();
+	$aSlices = sliceNames();
+	foreach ( $aDevices as $device ) {
+		for ( $i = count($aLabels)-1; $i >= 0; $i-- ) {
+			// do labels in reverse chrono order so newest are ready first
+			$label = $aLabels[$i];
+			foreach ( $aSlices as $slice ) {
+				if ( $bVerbose ) {
+					echo "$label $slice $device...";
+				}
+				addStats($label, $slice, $device);
+				if ( $bVerbose ) {
+					echo "DONE\n";
+				}
+			}
+		}
+	}
 }
 
 ?>
