@@ -48,7 +48,8 @@ $wptrun = $row['wptrun'];
 $onLoad = $row['onLoad'];
 $renderStart = $row['renderStart'];
 
-$harfileWptUrl = "{$server}export.php?test=$wptid&run=$wptrun&cached=0";
+$wptServer = wptServer();
+$harfileWptUrl = "{$wptServer}export.php?test=$wptid&run=$wptrun&cached=0";
 
 ?>
 <!doctype html>
@@ -170,8 +171,8 @@ OUTPUT;
 ?>
 
 <ul class=horizlist>
-  <li> <a href="<?php echo $server ?>video/compare.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0">WPT filmstrip</a>
-  <li> <a href="<?php echo $server ?>video/create.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0&id=<?php echo $wptid ?>.<?php echo $wptrun ?>.0">watch video</a>
+  <li> <a href="<?php echo $wptServer ?>video/compare.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0">WPT filmstrip</a>
+  <li> <a href="<?php echo $wptServer ?>video/create.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0&id=<?php echo $wptid ?>.<?php echo $wptrun ?>.0">watch video</a>
 </ul>
 
 
@@ -234,7 +235,7 @@ if ( ! $gbMobile ) {
 </style>
 <div id="pagespeedreport" style="margin-top: 10px; font-size: 0.9em;"></div>
 
-<script type="text/javascript" src="{$server}widgets/pagespeed/tree?test=$wptid&div=pagespeedreport"></script>
+<script type="text/javascript" src="{$wptServer}widgets/pagespeed/tree?test=$wptid&div=pagespeedreport"></script>
 OUTPUT;
 }
 else {
