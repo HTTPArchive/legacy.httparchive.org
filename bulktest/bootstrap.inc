@@ -45,13 +45,8 @@ $wptApiKey = '';
 
 // list of locations to use
 $locations = array();
-if ( $gbMobile ) {
-	$server = 'http://mhttparchive.blaze.io/';
-	$locations[] = 'iphone43';
-}
-else {
-	$server = 'http://httparchive.webpagetest.org/';
-	$locations[] = 'IE8';
-}
+$server = 'http://httparchive.webpagetest.org/';
+$locations[] = ( $gbMobile ? 'iphone43' : 'IE8' );
+
 
 
