@@ -1662,24 +1662,6 @@ function shortenUrl($url) {
 }
 
 
-// Given a website's URL return the full path to it's HAR file for a given archive & label.
-function getHarPathname($archive, $label, $url) {
-	// TODO - This assumes the HAR filename is $url without "http://" plus ".har" suffix.
-	$aMatches = array();
-	if ( $url && preg_match('/http[s]*:\/\/(.*)\//', $url, $aMatches) ) {
-		return getHarDir($archive, $label) . $aMatches[1] . ".har";
-	}
-
-	return "";
-}
-
-
-// Return the directory of HAR files for a given archive & label.
-function getHarDir($archive, $label) {
-	return "./archives/$archive/" . ( $label ? "$label/" : "" );
-}
-
-
 function getHarFileContents($filename) {
 	return file_get_contents($filename);
 }
