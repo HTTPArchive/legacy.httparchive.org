@@ -18,7 +18,8 @@ limitations under the License.
 require_once("utils.inc");
 require_once("stats.inc");
 
-computeMissingStats(NULL, true);
+$device = ($gbMobile ? "iphone" : "IE8");
+computeMissingStats($device, true);
 
 echo "finished all slices and labels\n";
 ?>
