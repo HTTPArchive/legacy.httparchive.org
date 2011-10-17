@@ -45,8 +45,4 @@ $wptApiKey = '';
 
 // list of locations to use
 $locations = array();
-$server = 'http://httparchive.webpagetest.org/';
 $locations[] = ( $gbMobile ? 'iphone43' : 'IE8' );
-
-
-
