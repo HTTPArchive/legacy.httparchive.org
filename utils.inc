@@ -1368,6 +1368,11 @@ function isDev() {
 }
 
 
+function wptServer() {
+	return "http://httparchive.webpagetest.org/";
+}
+
+
 // Return an array of the archive names.
 function archiveNames() {
 	global $gPagesTable, $gbDev, $ghHiddenArchives;
