@@ -50,17 +50,10 @@ function setStatus($statusid, $status) {
 // Submit the unfinished tests to WPT
 function submitTest(&$record, $status) {
 	global $gStatusTable, $gErrBase;
+	global $video, $private, $runs, $docComplete, $fvonly, $mv, $wptApiKey;
 
-	global $video;
-	global $private;
-	global $runs;
-	global $server;
-	global $docComplete;
-	global $fvonly;
-	global $mv;
-	global $wptApiKey;
-
-	$request = $server . 'runtest.php?f=xml&priority=6&url=' . urlencode($record['url']) . "&location={$record['location']}&runs=$runs";
+	$wptServer = wptServer();
+	$request = $wptServer . 'runtest.php?f=xml&priority=6&url=' . urlencode($record['url']) . "&location={$record['location']}&runs=$runs";
 	if( $private )
 		$request .= '&private=1';
 	if ( $video )
@@ -114,11 +107,13 @@ function submitBatch() {
 // Check if the test is done on WPT server.
 function checkWPTStatus() {
 	// Query the status table to get wpt id list
-	global $server, $gStatusTable, $gErrBase;
+	global $gStatusTable, $gErrBase;
+
+	$wptServer = wptServer();
 	$result = obtainTestsWithCode(SUBMITTED);
 	if ( $result ) {
 		while ( $row = mysql_fetch_assoc($result) ) {
-			$request = $server . "testStatus.php?f=xml&test=" . $row['wptid'];
+			$request = $wptServer . "testStatus.php?f=xml&test=" . $row['wptid'];
 			$doc = new DOMDocument();
 			if ( $doc ) {
 				$response = fetchUrl($request);
@@ -159,14 +154,16 @@ function parseXMLResult($doc, &$result) {
 
 // Obtain XML file of the test result
 function obtainXMLResult() {
-	global $server, $gStatusTable, $gErrBase;
+	global $gStatusTable, $gErrBase;
+
+	$wptServer = wptServer();
 	$tests = obtainTestsWithCode(SUBMIT_DONE);
 	if ( !isEmptyQuery($tests) ) {
 		while ( $row = mysql_fetch_assoc($tests) ) {
 			// Fetch the result xml file
 			$doc = new DOMDocument();
 			if ( $doc ) {
-				$request = $server . "xmlResult.php?test=" . $row['wptid'] . "&pagespeed=1";
+				$request = $wptServer . "xmlResult.php?test=" . $row['wptid'] . "&pagespeed=1";
 				$response = fetchUrl($request);
 				if ( strlen($response) ) {
 					$doc->loadXML($response);
@@ -194,12 +191,14 @@ function obtainXMLResult() {
 
 // Fill the pagestable and requesttable with the info of the median run.
 function fillTables() {
-	global $server, $gErrBase;
+	global $gErrBase;
+
+	$wptServer = wptServer();
 	$tests = obtainTestsWithCode(META_DONE);
 	if ( !IsEmptyQuery($tests) ) {
 		while ($row = mysql_fetch_assoc($tests)) {
 			// We refetch a php compatible HAR file from WPT server instead of using the local copy.
-			$request = $server . "export.php?test={$row['wptid']}&run={$row['medianRun']}&cached=0&php=1";
+			$request = $wptServer . "export.php?test={$row['wptid']}&run={$row['medianRun']}&cached=0&php=1";
 			$response = fetchUrl($request);
 			if ( strlen($response) ) {
 				if ( ImportHarJson($response, $row) )
