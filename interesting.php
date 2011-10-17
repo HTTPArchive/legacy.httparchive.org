@@ -72,17 +72,17 @@ require_once("charts.inc");
 
 $hStats = getStats($gLabel, $gSlice, ($gbMobile ? "iphone" : "IE8"));
 
-echo bytesContentTypeChart($hStats);
-echo responseSizes($hStats);
-echo percentGoogleLibrariesAPI($hStats);
-echo percentFlash($hStats);
-echo popularImageFormats($hStats);
-echo maxage($hStats);
-echo percentByProtocol($hStats);
-echo requestErrors($hStats);
-echo redirects($hStats);
-echo correlationChart($hStats, "onLoad");
-echo correlationChart($hStats, "renderStart");
+echo bytesContentTypeChart($hStats) . "\n";
+echo responseSizes($hStats) . "\n";
+echo percentGoogleLibrariesAPI($hStats) . "\n";
+echo percentFlash($hStats) . "\n";
+echo popularImageFormats($hStats) . "\n";
+echo maxage($hStats) . "\n";
+echo percentByProtocol($hStats) . "\n";
+echo requestErrors($hStats) . "\n";
+echo redirects($hStats) . "\n";
+echo correlationChart($hStats, "onLoad") . "\n";
+echo correlationChart($hStats, "renderStart") . "\n";
 ?>
 </div>
 
