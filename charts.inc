@@ -62,31 +62,31 @@ function bytesContentTypeChart($hStats) {
 function responseSizes($hStats) {
 	$aVarValues = array();
 	$aVarNames = array();
-	if ( 0 != $hStats['bytesGif'] ) {
+	if ( 0 != $hStats['reqGif'] ) {
 		$aVarValues[] = formatSize( $hStats['bytesGif'] / $hStats['reqGif'] );
 		$aVarNames[] = "GIF";
 	}
-	if ( 0 != $hStats['bytesJpg'] ) {
+	if ( 0 != $hStats['reqJpg'] ) {
 		$aVarValues[] = formatSize( $hStats['bytesJpg'] / $hStats['reqJpg'] );
 		$aVarNames[] = "JPEG";
 	}
-	if ( 0 != $hStats['bytesPng'] ) {
+	if ( 0 != $hStats['reqPng'] ) {
 		$aVarValues[] = formatSize( $hStats['bytesPng'] / $hStats['reqPng'] );
 		$aVarNames[] = "PNG";
 	}
-	if ( 0 != $hStats['bytesHtml'] ) {
+	if ( 0 != $hStats['reqHtml'] ) {
 		$aVarValues[] = formatSize( $hStats['bytesHtml'] / $hStats['reqHtml'] );
 		$aVarNames[] = "HTML";
 	}
-	if ( 0 != $hStats['bytesJS'] ) {
+	if ( 0 != $hStats['reqJS'] ) {
 		$aVarValues[] = formatSize( $hStats['bytesJS'] / $hStats['reqJS'] );
 		$aVarNames[] = "JS";
 	}
-	if ( 0 != $hStats['bytesCSS'] ) {
+	if ( 0 != $hStats['reqCSS'] ) {
 		$aVarValues[] = formatSize( $hStats['bytesCSS'] / $hStats['reqCSS'] );
 		$aVarNames[] = "CSS";
 	}
-	if ( 0 != $hStats['bytesFlash'] ) {
+	if ( 0 != $hStats['reqFlash'] ) {
 		$aVarValues[] = formatSize( $hStats['bytesFlash'] / $hStats['reqFlash'] );
 		$aVarNames[] = "Flash";
 	}
