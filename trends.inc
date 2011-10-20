@@ -55,10 +55,9 @@ echo format2LineChart('reqCSS', 'bytesCSS', $hTrends, $aRunNames, $labels);
 echo format2LineChart('reqImg', 'bytesImg', $hTrends, $aRunNames, $labels);
 echo format2LineChart('reqFlash', 'bytesFlash', $hTrends, $aRunNames, $labels);
 
-foreach(array('PageSpeed', 'numDomains') as $field) {
+foreach(array('PageSpeed', 'numDomains', 'perGlibs', 'perFlash', 'maxageNull', 'perHttps', 'perErrors', 'perRedirects') as $field) {
 	echo formatChart($field, $hTrends, $aRunNames, $labels);
 }
-
 
 function format2LineChart($field, $field2, $hTrends, $aRunNames, $labels) {
 	$color = fieldColor($field);
@@ -99,11 +98,16 @@ function formatChart($field, $hTrends, $aRunNames, $labels) {
 	$color = fieldColor($field);
 	$suffix = fieldUnits($field);
 	$skip = getSkip(count($aRunNames));
+	$fieldVals = fieldValues($field, $hTrends, $aRunNames, $min, $max);
+	if ( strpos("x|perFlash|PageSpeed|perGlibs|maxageNull|perErrors|perRedirects|perHttps|", "|$field|") ) {
+		$max = 100;
+	}
+
 	$url = "http://chart.apis.google.com/chart" .
-		"?chd=t:-1|" . fieldValues($field, $hTrends, $aRunNames, $min, $max) . 
+		"?chd=t:-1|$fieldVals" . 
 		"&chxl=0:|$labels&chxt=x&chs=600x300&cht=lxy&chco=$color" .
 		"&chxs=0,676767,11.5,0,lt,676767&chxtc=0,8&chm=N" . ( $suffix ? "**+$suffix" : "" ) .
-		",$color,0,$skip,12,,h::8&chds=0,100,$min,$max&chts=$color,32&chtt=" . urlencode(fieldTitle($field)) . "&chls=2&chma=5,5,5,25";
+		",$color,0,$skip,12,,h::8&chds=0,100,$min,$max&chts=$color,24&chtt=" . urlencode(fieldTitle($field)) . "&chls=2&chma=5,5,5,25";
 	return "<div id='$field' style='margin: 40px 0 60px 0;'><a href='#$field'><img src=$url width=600 height=300></a></div>\n";
 }
 
