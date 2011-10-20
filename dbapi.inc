@@ -234,7 +234,7 @@ function getTrendsData($slice, $device) {
 		", ROUND(reqTotal) as reqTotal, TRUNCATE(reqHtml, 1) as reqHtml, ROUND(reqJS) as reqJS, TRUNCATE(reqCSS, 1) as reqCSS, ROUND(reqImg) as reqImg" .
 		", TRUNCATE(reqFlash, 1) as reqFlash, ROUND(bytesTotal/1024) as bytesTotal, ROUND(bytesHtml/1024) as bytesHtml, ROUND(bytesJS/1024) as bytesJS" .
 		", ROUND(bytesCSS/1024) as bytesCSS, ROUND(bytesImg/1024) as bytesImg, ROUND(bytesFlash/1024) as bytesFlash" .
-		", ROUND(PageSpeed) as PageSpeed, ROUND(numDomains) as numDomains" .
+		", ROUND(PageSpeed) as PageSpeed, ROUND(numDomains) as numDomains, perFlash, perGlibs, maxageNull, perErrors, perHttps, perRedirects" .
 		" from $statsTable where slice='$slice' and device='$device';";
 	$result = doQuery($query);
 	$hTrends = array();
