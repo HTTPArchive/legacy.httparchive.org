@@ -148,7 +148,7 @@ function percentByProtocol($hStats) {
 	$aVarNames = array("HTTP $http%", "HTTPS $https%");
 	$aVarValues = array($http, $https);
 
-	return pieChart("Requests by Protocol", "protocol", $aVarNames, $aVarValues, "B4B418");
+	return pieChart("HTTPS Requests", "protocol", $aVarNames, $aVarValues, "B4B418");
 }
 
 
