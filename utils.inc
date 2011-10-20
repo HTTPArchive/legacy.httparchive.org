@@ -163,7 +163,13 @@ $ghColumnTitles = array (
 						 "bytesImg" => "Image Transfer Size",
 						 "reqFlash" => "Flash Requests",
 						 "bytesFlash" => "Flash Transfer Size",
-						 "numDomains" => "Domains"
+						 "numDomains" => "Domains",
+						 "perFlash" => "Sites with Flash",
+						 "maxageNull" => "Requests without Caching Headers",
+						 "perGlibs" => "Sites using Google Libraries API",
+						 "perHttps" => "HTTPS Requests",
+						 "perErrors" => "Pages with Errors (4xx, 5xx)",
+						 "perRedirects" => "Pages with Redirects (3xx)"
 						 );
 
 
@@ -1591,7 +1597,13 @@ $ghFieldColors = array(
 					   "bytesCSS" => "400040", //B4B418",
 					   "bytesImg" => "00009D", //CF557B",
 					   "bytesFlash" => "222222",
-					   "numDomains" => "AA0033"
+					   "numDomains" => "AA0033",
+					   "perFlash" => "AA0033",
+					   "perErrors" => "B09542",
+					   "perHttps" => "B4B418",
+					   "perRedirects" => "008000",
+					   "maxageNull" => "184852",
+					   "perGlibs" => "7777CC",
 					   );
 
 $ghFieldUnits = array("onLoad" => "ms",
@@ -1601,7 +1613,13 @@ $ghFieldUnits = array("onLoad" => "ms",
 					  "bytesJS" => "kB",
 					  "bytesCSS" => "kB",
 					  "bytesFlash" => "kB",
-					  "bytesImg" => "kB"
+					  "bytesImg" => "kB",
+					  "perFlash" => "%",
+					  "perErrors" => "%",
+					  "perRedirects" => "%",
+					  "perHttps" => "%",
+					  "maxageNull" => "%",
+					  "perGlibs" => "%"
 					  );
 
 // Return the same color for a given database field.
