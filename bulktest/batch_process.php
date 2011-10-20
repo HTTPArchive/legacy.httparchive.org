@@ -21,7 +21,8 @@ require_once("batch_lib.inc");
 
 
 // A file lock to guarantee there is only one instance running.
-$fp = fopen($gLockFile, "w+");
+$fp = fopen(lockFilename($locations[0], "ALL"), "w+");
+
 if ( !flock($fp, LOCK_EX | LOCK_NB) ) {
 	echo "There is one instance running already!\r\n";
 	reportSummary();
@@ -40,40 +41,55 @@ if ( 0 == totalNotDone() ) {
 }
 
 
-$pid_arr = array();
+$aChildPids = array();
 for ( $i = 0; $i < 4; $i++ ) {
+	// fork the child process
+	// return: 
+	//   -1 - error
+	//    0 - we're the forked child process
+	//   >0 - we're the parent process and this is the process ID of the child process
 	$pid = pcntl_fork();
+
 	if ( -1 == $pid ) {
 		die("cannot fork subprocesses ...");
-	} else {
+	} 
+	else {
 		if ( $pid ) {
-			// Parent process
-			$pid_arr[] = $pid;
-		} elseif ( 0 == $i ) {
-			submitBatch();
-			exit();
-		} elseif ( 1 == $i ) {
-			// Check the test status with WPT server
-			checkWPTStatus();
-			exit();
-		} elseif ( 2 == $i ) {
-			// Obtain XML result
-			obtainXMLResult();
-			exit();
-		} elseif ( 3 == $i ) {
-			// Fill page table and request table
-			fillTables();
-			exit();
+			// parent process - save the child process ID
+			$aChildPids[] = $pid;
+		} 
+		else {
+			// child process
+			if ( 0 == $i ) {
+				submitBatch();
+				exit();
+			} 
+			else if ( 1 == $i ) {
+				// Check the test status with WPT server
+				checkWPTStatus();
+				exit();
+			} 
+			else if ( 2 == $i ) {
+				// Obtain XML result
+				obtainXMLResult();
+				exit();
+			} 
+			else if ( 3 == $i ) {
+				// Fill page table and request table
+				fillTables();
+				exit();
+			}
 		}
 	}
 }
 
+
 // Loop through the processes until all of them are done and then exit.
-while ( count($pid_arr) > 0 ) {
+while ( count($aChildPids) > 0 ) {
 	$myId = pcntl_waitpid(-1, $status, WNOHANG);
-	foreach ( $pid_arr as $key => $pid ) {
+	foreach ( $aChildPids as $key => $pid ) {
 		if ( $myId == $pid ) {
-			unset($pid_arr[$key]);
+			unset($aChildPids[$key]);
 		}
 	}
 	usleep(100);
