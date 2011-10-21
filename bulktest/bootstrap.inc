@@ -30,9 +30,6 @@ $ghRespOtherHeaders = array();
 // The status table saves $gErrBase + i to indicate that there is a permanent error happens when the test is in the status i.
 $gErrBase = 400;
 
-// The file used as a file lock to coordinate the interaction of processes.
-$gLockFile = '/tmp/httparchive_batch_lock' . ( $gbMobile ? '_mobile' : '' ) . '.txt';
-
 // global options
 $video = true;
 $private = false;
