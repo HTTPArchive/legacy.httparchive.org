@@ -650,4 +650,42 @@ function prettyMimetype($mimeType) {
 	return "other";
 }
 
+function lockFilename($device, $proc="uber") {
+	// The file used as a file lock to coordinate the interaction of processes.
+	$lockFile = "/tmp/httparchive_batch_lock_{$device}_{$proc}.txt";
+	return $lockFile;
+}
+
+
+function killProcessAndChildren($pid, $signal=9) { 
+	exec("ps -ef | awk '\$3 == '$pid' { print  \$2 }'", $output, $ret); 
+	if ( $ret ) {
+		return 'you need ps, grep, and awk'; 
+	}
+
+	while ( list(, $t) = each($output) ) { 
+		if ( $t != $pid ) { 
+			killProcessAndChildren($t,$signal); 
+		} 
+	} 
+
+	posix_kill($pid, $signal); 
+}
+
+
+function getPid($text) {
+	exec("ps -ef | grep '$text' | grep -v 'grep $text' | awk '{ print \$2 }'", $output, $ret);
+	if ( $ret ) {
+		return -1;
+	}
+	else {
+		if ( count($output) ) {
+			return $output[0];
+		}
+		else {
+			return 0;
+		}
+	}
+}
+
 ?>
