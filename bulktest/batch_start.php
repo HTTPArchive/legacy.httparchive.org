@@ -16,6 +16,7 @@ limitations under the License.
 */
 
 require_once("../utils.inc");
+require_once("../dbapi.inc");
 require_once("batch_lib.inc");
 require_once("bootstrap.inc");
 
@@ -34,10 +35,12 @@ function loadUrlsFromFile($label) {
 
 
 // Load the URLs in urls.txt file into status table.
-function loadUrlsFromDB($label, $numUrls) {
+function loadUrlsFromDB($label, $numUrls, $bNull=false) {
 	global $gUrlsTable;
 
-	$result = doQuery("select domain, url from $gUrlsTable where rank <= $numUrls order by rank asc;");
+	$query = "select domain, url from $gUrlsTable where rank <= $numUrls " .
+		( $bNull ? "OR rank is NULL " : "" ) . "order by rank asc;";
+	$result = doQuery($query);
 	while ($row = mysql_fetch_assoc($result)) {
 		$domain = $row['domain'];
 		$url = $row['url'];
@@ -55,80 +58,31 @@ function loadUrl($label, $url) {
 	global $locations;
 
 	foreach ( $locations as $location ) {
-		insertToStatusTable($url, $location, $label);
-	}
-}
-
-
-// Insert a row into the status table.
-function insertToStatusTable($url, $loc, $label) {
-	global $gStatusTable, $gArchive;
-	$now = time();
-	$cmd = "REPLACE INTO $gStatusTable SET url = '" . mysql_real_escape_string($url) . 
-		"' , location = '" . mysql_real_escape_string($loc) . 
-		"', archive = '$gArchive', label = '$label', status = '" . NOT_STARTED . "', timeofLastChange = '$now';";
-	doSimpleCommand($cmd);
-}
-
-
-function emptyStatusTable() {
-	global $gStatusTable;
-	$cmd = "TRUNCATE TABLE $gStatusTable;";
-	doSimpleCommand($cmd);
-}
-
-
-function killProcessAndChildren($pid, $signal=9) { 
-	exec("ps -ef | awk '\$3 == '$pid' { print  \$2 }'", $output, $ret); 
-	if ( $ret ) {
-		return 'you need ps, grep, and awk'; 
-	}
-
-	while ( list(, $t) = each($output) ) { 
-		if ( $t != $pid ) { 
-			killProcessAndChildren($t,$signal); 
-		} 
-	} 
-
-	posix_kill($pid, $signal); 
-}
-
-
-function getPid($text) {
-	exec("ps -ef | grep '$text' | grep -v 'grep $text' | awk '{ print \$2 }'", $output, $ret);
-	if ( $ret ) {
-		return -1;
-	}
-	else {
-		if ( count($output) ) {
-			return $output[0];
-		}
-		else {
-			return 0;
-		}
+		addStatusData($url, $location, $label);
 	}
 }
 
 
 // Start a new batch
 // A file lock to guarantee there is only one instance running.
-$fp = fopen($gLockFile, "w+");
+$fp = fopen(lockFilename($locations[0], "ALL"), "w+");
+
 if ( !flock($fp, LOCK_EX | LOCK_NB) ) {
 	$pid = getPid("php batch_process.php");
 	if ( 0 < $pid ) {
-		killProcessAndChildren($pid);
+		echo "There's already a batch_process.php process running: $pid\nYou'll have to edit batch_start.php or kill that process yourself.\n";
+		exit();
+		// TODO - I guess the previous logic was to kill batch_process if batch_start was ever called.
+		// That scares me. It's too easy to type the wrong thing.
+		// killProcessAndChildren($pid);
 	}
 }
 
 // Create all the tables if they are not there.
 createTables();
 
-// Report the summary of the tests
-echo "PREVIOUS TEST:\n";
-reportSummary();
-
 // Empty the status table
-emptyStatusTable();
+removeAllStatusData();
 
 // Load the next batch
 // WARNING: Two runs submitted on the same day will have the same label.
