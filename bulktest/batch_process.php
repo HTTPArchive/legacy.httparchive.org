@@ -19,66 +19,73 @@ require_once("bootstrap.inc");
 require_once("../utils.inc");
 require_once("batch_lib.inc");
 
-
-// A file lock to guarantee there is only one instance running.
-$fp = fopen(lockFilename($locations[0], "ALL"), "w+");
-
-if ( !flock($fp, LOCK_EX | LOCK_NB) ) {
-	echo "There is one instance running already!\r\n";
-	reportSummary();
-	exit(-1);
-}
-
 if ( ! tableExists($gStatusTable) ) {
-	echo "Please run batch_start to kick off a new batch!";
-	exit(-2);
+	echo "Please run batch_start to kick off a new batch!\n";
+	exit();
 }
 
 
 // Now that we're running as a cronjob, we need to emit nothing to stdout when we're all done.
 if ( 0 == totalNotDone() ) {
-   exit(0);
+	exit(0);
 }
 
+// TODO - Combine "obtain" and "parse"?
+// The "crawl" process has multiple distinct tasks. This is because the URLs are
+// sent to and queued at WebPagetest which is asynchronous.
+// We create a child process for each task. 
+// Each task has a unique file lock, so that a long task does NOT block a
+// shorter process from being restarted during the next cronjob.
 
+$aTasks = array("submit", "status", "obtain", "parse");
 $aChildPids = array();
-for ( $i = 0; $i < 4; $i++ ) {
-	// fork the child process
-	// return: 
-	//   -1 - error
-	//    0 - we're the forked child process
-	//   >0 - we're the parent process and this is the process ID of the child process
-	$pid = pcntl_fork();
-
-	if ( -1 == $pid ) {
-		die("cannot fork subprocesses ...");
-	} 
+foreach ( $aTasks as $task ) {
+	// lock file for this specific task.
+	$lockfile = lockFilename($locations[0], $task);
+	$fp = fopen($lockfile, "w+");
+	if ( !flock($fp, LOCK_EX | LOCK_NB) ) {
+		// this task is still running
+		echo "Task \"$task\" already running. Bail.\n";
+	}
 	else {
+		// start this task
+		echo "Starting task \"$task\"...\n";
+
+		// fork the child process
+		// return: 
+		//   -1 - error
+		//    0 - we're the forked child process
+		//   >0 - we're the parent process and this is the process ID of the child process
+		$pid = pcntl_fork();
+		if ( -1 === $pid ) {
+			die("ERROR: failed to fork child process.\n");
+		}
+
 		if ( $pid ) {
 			// parent process - save the child process ID
 			$aChildPids[] = $pid;
 		} 
 		else {
 			// child process
-			if ( 0 == $i ) {
+			if ( "submit" === $task ) {
+				// Submit the jobs to WebPagetest.
 				submitBatch();
-				exit();
 			} 
-			else if ( 1 == $i ) {
+			else if ( "status" === $task ) {
 				// Check the test status with WPT server
 				checkWPTStatus();
-				exit();
 			} 
-			else if ( 2 == $i ) {
+			else if ( "obtain" === $task ) {
 				// Obtain XML result
 				obtainXMLResult();
-				exit();
 			} 
-			else if ( 3 == $i ) {
+			else if ( "parse" === $task ) {
 				// Fill page table and request table
 				fillTables();
-				exit();
 			}
+			fclose($fp);
+			echo "...DONE with task \"$task\"!\n";
+			exit();
 		}
 	}
 }
@@ -86,13 +93,21 @@ for ( $i = 0; $i < 4; $i++ ) {
 
 // Loop through the processes until all of them are done and then exit.
 while ( count($aChildPids) > 0 ) {
-	$myId = pcntl_waitpid(-1, $status, WNOHANG);
-	foreach ( $aChildPids as $key => $pid ) {
-		if ( $myId == $pid ) {
-			unset($aChildPids[$key]);
+	// Call pcntl_waitpid as many times as there are processes before sleeping.
+	$numChildren = count($aChildPids);
+	for ( $i = 0; $i < $numChildren; $i++ ) {
+		$exitPid = pcntl_waitpid(-1, $status, WNOHANG); // catch the child process when it exits
+		if ( $exitPid ) {
+			foreach ( $aChildPids as $key => $childPid ) {
+				if ( $childPid === $exitPid ) {
+					unset($aChildPids[$key]);
+				}
+			}
 		}
 	}
-	usleep(100);
+	if ( count($aChildPids) > 0 ) {
+		sleep(60);
+	}
 }
 
 reportSummary();
