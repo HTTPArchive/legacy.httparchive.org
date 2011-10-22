@@ -457,6 +457,42 @@ function copyStatsToTable($statsTableSource, $statsTableTarget) {
 
 
 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// URLS - the table used by bulktest
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// STATUS - the table used by bulktest
+//
+////////////////////////////////////////////////////////////////////////////////
+
+function addStatusData($url, $loc, $label) {
+	global $gStatusTable, $gArchive;
+	$now = time();
+	$cmd = "REPLACE INTO $gStatusTable SET url = '" . mysql_real_escape_string($url) . 
+		"' , location = '" . mysql_real_escape_string($loc) . 
+		"', archive = '$gArchive', label = '$label', status = '" . NOT_STARTED . "', timeofLastChange = '$now';";
+	doSimpleCommand($cmd);
+}
+
+
+function removeAllStatusData() {
+	global $gStatusTable;
+	$cmd = "TRUNCATE TABLE $gStatusTable;";
+	doSimpleCommand($cmd);
+}
+
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // DATA
