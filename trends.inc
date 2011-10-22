@@ -144,6 +144,15 @@ function fieldValues($field, $hTrends, $aRunNames, &$min, &$max, $bZero = true) 
 	foreach($aRunNames as $run) {
 		$aValues[] = ( array_key_exists($run, $hTrends) ? $hTrends[$run][$field] : "_" );
 	}
+
+	if ( "maxageNull" === $field ) {
+		// take the inverse
+		$len = count($aValues);
+		for ( $i = 0; $i < $len; $i++ ) {
+			$aValues[$i] = 100 - $aValues[$i];
+		}
+	}
+
 	findScale($aValues, $min, $max, $bZero);
 
 	return implode(",", $aValues);
