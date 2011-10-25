@@ -55,8 +55,14 @@ echo format2LineChart('reqCSS', 'bytesCSS', $hTrends, $aRunNames, $labels);
 echo format2LineChart('reqImg', 'bytesImg', $hTrends, $aRunNames, $labels);
 echo format2LineChart('reqFlash', 'bytesFlash', $hTrends, $aRunNames, $labels);
 
-foreach(array('PageSpeed', 'numDomains', 'perGlibs', 'perFlash', 'maxageNull', 'perHttps', 'perErrors', 'perRedirects') as $field) {
+foreach(array('PageSpeed', 'numDomains') as $field) {
 	echo formatChart($field, $hTrends, $aRunNames, $labels);
+}
+
+if ( "url" != $gSlice ) {
+	foreach(array('perGlibs', 'perFlash', 'maxageNull', 'perHttps', 'perErrors', 'perRedirects') as $field) {
+		echo formatChart($field, $hTrends, $aRunNames, $labels);
+	}
 }
 
 function format2LineChart($field, $field2, $hTrends, $aRunNames, $labels) {
@@ -99,6 +105,7 @@ function formatChart($field, $hTrends, $aRunNames, $labels) {
 	$suffix = fieldUnits($field);
 	$skip = getSkip(count($aRunNames));
 	$fieldVals = fieldValues($field, $hTrends, $aRunNames, $min, $max);
+
 	if ( strpos("x|perFlash|PageSpeed|perGlibs|maxageNull|perErrors|perRedirects|perHttps|", "|$field|") ) {
 		$max = 100;
 	}
