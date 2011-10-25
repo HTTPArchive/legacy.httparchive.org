@@ -2007,9 +2007,10 @@ function createTables() {
 	// Create Urls Table
 	if ( ! tableExists($gUrlsTable) ) {
 		$command = "create table $gUrlsTable (" .
-			"urlOrig text" .
+			"urlOrig text character set binary" . // use "binary" so it's case *sensitive*
 			", urlFixed text" .
 			", rank int(10) unsigned" .
+			", ranktmp int(10) unsigned" . // use this while we're updating the rank every night
 			", other boolean not null" .   // is this URL from some other source and we should crawl it EVERY time
 			", optout boolean not null" .  // did the website owner ask us NOT to crawl their site
 			", primary key (urlOrig(255))" .
