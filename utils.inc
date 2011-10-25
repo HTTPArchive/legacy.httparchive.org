@@ -165,7 +165,7 @@ $ghColumnTitles = array (
 						 "bytesFlash" => "Flash Transfer Size",
 						 "numDomains" => "Domains",
 						 "perFlash" => "Sites with Flash",
-						 "maxageNull" => "Requests without Caching Headers",
+						 "maxageNull" => "Requests with Caching Headers",
 						 "perGlibs" => "Sites using Google Libraries API",
 						 "perHttps" => "HTTPS Requests",
 						 "perErrors" => "Pages with Errors (4xx, 5xx)",
@@ -2007,12 +2007,12 @@ function createTables() {
 	// Create Urls Table
 	if ( ! tableExists($gUrlsTable) ) {
 		$command = "create table $gUrlsTable (" .
-			"urlid int unsigned not null auto_increment" .
-			", domain varchar (255)" .
-			", url text" .
+			"urlOrig text" .
+			", urlFixed text" .
 			", rank int(10) unsigned" .
-			", primary key (urlid)" .
-			", unique(domain)" .
+			", other boolean not null" .   // is this URL from some other source and we should crawl it EVERY time
+			", optout boolean not null" .  // did the website owner ask us NOT to crawl their site
+			", primary key (urlOrig(255))" .
 			");";
 		doSimpleCommand($command);
 	}
