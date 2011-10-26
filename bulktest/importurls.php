@@ -21,22 +21,31 @@ DESCRIPTION: Create a table of ranked URLs to crawl from a file.
 
 require_once("../utils.inc");
 
+createTables();
+
 $gUrlsFile = $argv[1];
+$gFileType = $argv[2];
+if ( $gUrlsFile && "alexa" != $gFileType && "other" != $gFileType ) {
+	die("ERROR: If you specifiy a urlsfile you must also specify the file type: \"alexa\" or \"other\".\n");
+}
+
 if ( !$gUrlsFile ) {
 	// download the list of URLs into a file
 	$gUrlsFile = downloadAlexaList();
+	$gFileType = "alexa";
 }
 
 if ( ! file_exists($gUrlsFile) ) {
-	echo "ERROR: URLs file \"$gUrlsFile\" doesn't exist.\n";
-	exit();
+	die("ERROR: URLs file \"$gUrlsFile\" doesn't exist.\n");
 }
 
 
 // Clear out all the current rankings.
 // If a URL is no longer in the list, it'll stay in the table but not be referenced.
 // This is good - perhaps that URL might come back in the list and we want to preserve it's derived URL.
-doSimpleCommand("update $gUrlsTable set rank=null;");
+if ( "alexa" === $gFileType ) {
+	doSimpleCommand("update $gUrlsTable set ranktmp=null;");
+}
 
 
 $handle = @fopen($gUrlsFile, "r");
@@ -44,32 +53,68 @@ if ( $handle ) {
 	$sInsert = "";
 	$n = 0;
 	echo "Insert count: $n ";
-    while (($line = fgets($handle, 4096)) !== false) {
+
+	while (($line = fgets($handle, 4096)) !== false) {
 		$line = rtrim($line);
-		if ( preg_match('/^([0-9]*),(.*)$/', $line, $aMatches) ) {
-			$rank = $aMatches[1];
-			$domain = $aMatches[2];    // Alexa's list just has a domain, eg, "google.com"
-			$sInsert .= ",('$domain', $rank)";
+		$urlOrig = $rank = $other = "";
+		if ( "alexa" === $gFileType ) {
+			if ( preg_match('/^([0-9]*),(.*)$/', $line, $aMatches) ) {
+				$urlOrig = "http://www." . $aMatches[2] . "/";
+				$rank = $aMatches[1];
+			}
+		}
+		else if ( "other" === $gFileType ) {
+			if ( preg_match('/^(http[s]*:\/\/.*\/)$/', $line, $aMatches) ) {
+				$urlOrig = $aMatches[1];
+				$other = "true";
+			}
+		}
+
+		if ( $urlOrig ) {
+			$sInsert .= ",('$urlOrig'" . 
+				( $rank  ? ", $rank"  : "" ) . 
+				( $other ? ", $other" : "" ) .
+				")";
 			$n++;
 			if ( 0 === ( $n % 1000 ) ) {
 				// faster to do many inserts at a time
-				doSimpleCommand("replace into $gUrlsTable (domain, rank) VALUES " . substr($sInsert, 1));
+				doSimpleCommand("insert into $gUrlsTable (urlOrig" .
+								( $rank  ? ", ranktmp"  : "" ) .
+								( $other ? ", other" : "" ) . 
+								") VALUES " . substr($sInsert, 1) .
+								" ON DUPLICATE KEY UPDATE " .
+								( $rank  ? "ranktmp=VALUES(ranktmp)"  : "" ) .
+								( $other ? ($rank ? ", " : "" ) . "other=VALUES(other)" : "" )
+								);
 				$sInsert = "";
 				echo "$n ";
 			}
-			if ( $rank >= 1000500 ) {
-				break;
-			}
 		}
-    }
+	}
+
+	// catch any final inserts
 	if ( $sInsert ) {
-		doSimpleCommand("replace into $gUrlsTable (domain, rank) VALUES " . substr($sInsert, 1));
+				doSimpleCommand("insert into $gUrlsTable (urlOrig" .
+								( $rank  ? ", ranktmp"  : "" ) .
+								( $other ? ", other" : "" ) . 
+								") VALUES " . substr($sInsert, 1) .
+								" ON DUPLICATE KEY UPDATE " .
+								( $rank  ? "ranktmp=VALUES(ranktmp)"  : "" ) .
+								( $other ? ($rank ? ", " : "" ) . "other=VALUES(other)" : "" )
+								);
 	}
 	echo "$n\n";
+
     fclose($handle);
 }
 else {
 	echo "ERROR: Unable to open file \"$gUrlsFile\".\n";
+}
+
+if ( "alexa" === $gFileType ) {
+	doSimpleCommand("update $gUrlsTable set rank=ranktmp;");
+	echo "The ranks have been updated.\n";
+	echo "CVSNO: copy to production!!!!!!!!!!!!!!!!!!\n";
 }
 
 echo "DONE\n";
