@@ -42,8 +42,14 @@ if ( ! $gbMobile ) {
 	else {
 		echo "Copy 'pages' rows to production...\n";
 		doSimpleCommand("insert into $gPagesTableDesktop select * from $gPagesTableDev where pageid >= $minid and pageid <= $maxid;");
+
 		echo "Copy 'requests' rows to production...\n";
 		doSimpleCommand("insert into $gRequestsTableDesktop select * from $gRequestsTableDev where pageid >= $minid and pageid <= $maxid;");
+
+		// TODO - should we do this for $gbMobile too???
+		echo "Copy 'urls' rows to production...\n";
+		doSimpleCommand("insert into $gUrlsTable select * from $gUrlsTableDev;");
+
 		echo "...DONE.\n";
 	}
 }
