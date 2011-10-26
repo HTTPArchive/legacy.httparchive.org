@@ -35,19 +35,16 @@ function loadUrlsFromFile($label) {
 
 
 // Load the URLs in urls.txt file into status table.
-function loadUrlsFromDB($label, $numUrls, $bNull=false) {
+function loadUrlsFromDB($label, $numUrls, $bOther=false) {
 	global $gUrlsTable;
 
-	$query = "select domain, url from $gUrlsTable where rank <= $numUrls " .
-		( $bNull ? "OR rank is NULL " : "" ) . "order by rank asc;";
+	$query = "select urlOrig, urlFixed from $gUrlsTable where (rank <= $numUrls" . ( $bOther ? " OR other=true" : "" ) . ")" .
+		" and optout=false order by rank asc;";
 	$result = doQuery($query);
 	while ($row = mysql_fetch_assoc($result)) {
-		$domain = $row['domain'];
-		$url = $row['url'];
-		if ( ! $url ) {
-			$url = "http://www.$domain/";
-		}
-		loadUrl($label, $url);
+		$urlOrig = $row['urlOrig'];
+		$urlFixed = $row['urlFixed'];
+		loadUrl($label, ( $urlFixed ? $urlFixed : $urlOrig ));
 	}
 }
 
@@ -63,7 +60,12 @@ function loadUrl($label, $url) {
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
 // Start a new batch
+//
+////////////////////////////////////////////////////////////////////////////////
+
 // A file lock to guarantee there is only one instance running.
 $fp = fopen(lockFilename($locations[0], "ALL"), "w+");
 
@@ -81,6 +83,9 @@ if ( !flock($fp, LOCK_EX | LOCK_NB) ) {
 // Create all the tables if they are not there.
 createTables();
 
+// Update the list of URLs from Alexa:
+require_once("importurls.php");
+
 // Empty the status table
 removeAllStatusData();
 
@@ -90,11 +95,10 @@ $date = getdate();
 $label = substr($date['month'], 0, 3) . " " . $date['mday'] . " " . $date['year'];
 
 if ( $gbMobile ) {
-	loadUrlsFromFile($label);
+	loadUrlsFromDB($label, 2000);
 }
 else {
-	loadUrlsFromFile($label);
-	//loadUrlsFromDB($label, 30000);
+	loadUrlsFromDB($label, 30000, true);
 }
 
 echo "DONE submitting batch run\n";
