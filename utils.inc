@@ -1796,7 +1796,7 @@ function createTables() {
 			", createDate int(10) unsigned not null" .
 			", archive varchar (255) not null" .
 			", label varchar (255) not null" .
-			", harfile varchar (255)" .
+			", harfile varchar (255)" . // TODO remove this but change unique key
 			", wptid varchar (64) not null" .        // webpagetest.org id
 			", wptrun int(2) unsigned not null" .    // webpagetest.org median #
 			", title varchar (255) not null" .
@@ -2053,14 +2053,21 @@ function mysqlEscape($text) {
 }
 
 
+// These were a little hard to setup on Dreamhost.
+// In order to override the default php.ini I added this to .htaccess:
+//    AddHandler php-cgi .php
+//    Action php-cgi /cgi-bin/php.cgi
+// I created cgi-bin.
+// I copied php.cgi from ~/stevesouders.com/cgi-bin/
+
 // Simple logging/debugging function.
 function dprint($msg) {
-	echo htmlspecialchars("DPRINT: $msg\n");
+	error_log( htmlspecialchars("DPRINT: $msg") );
 }
 
 // Simple logging/debugging function.
 function lprint($msg) {
-	echo htmlspecialchars("$msg\n");
+	error_log( htmlspecialchars("$msg") );
 }
 
 
