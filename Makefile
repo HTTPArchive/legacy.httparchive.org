@@ -21,6 +21,7 @@ pushmobile :
 	cp -pu downloads/*.gz ~/mobile.httparchive.org/downloads/.
 	echo "push .htaccess!"
 	echo "CVSNO: ln -s ~/dev.httparchive.org/aaa/harviewer/webapp harviewer"
+	echo "CVSNO: har_to_pagespeed and harfiles-delme"
 
 pushbeta :
 	mkdir -p ~/beta.httparchive.org
