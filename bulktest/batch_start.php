@@ -84,7 +84,10 @@ if ( !flock($fp, LOCK_EX | LOCK_NB) ) {
 createTables();
 
 // Update the list of URLs from Alexa:
-require_once("importurls.php");
+if ( ! $gbMobile ) {
+   // TODO - Should we do this for $gbMobile too?????
+   require_once("importurls.php");
+}
 
 // Empty the status table
 removeAllStatusData();
