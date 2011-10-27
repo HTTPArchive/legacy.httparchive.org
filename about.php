@@ -40,7 +40,7 @@ LI.sublist { margin-bottom: 0; }
 <ul class="aboutlinks">
   <li> <a href="downloads.php">Download data</a>
   <li> <a href="http://code.google.com/p/httparchive/source/browse">Source code</a>
-  <li> <a href="http://code.google.com/p/httparchive/issues/list">Bug list</a>
+  <li> <a href="http://code.google.com/p/httparchive/issues/list">Bugs</a>
   <li> <a href="news.php">News</a>
   <li> <a href="http://groups.google.com/group/httparchive/topics">Contact us</a>
 </ul>
