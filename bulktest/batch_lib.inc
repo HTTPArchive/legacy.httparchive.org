@@ -197,14 +197,16 @@ function fillTables() {
 	$tests = obtainTestsWithCode(META_DONE);
 	if ( !IsEmptyQuery($tests) ) {
 		while ($row = mysql_fetch_assoc($tests)) {
-			// We refetch a php compatible HAR file from WPT server instead of using the local copy.
+			// Fetch a php compatible HAR file from WPT.
 			$request = $wptServer . "export.php?test={$row['wptid']}&run={$row['medianRun']}&cached=0&php=1";
 			$response = fetchUrl($request);
 			if ( strlen($response) ) {
-				if ( ImportHarJson($response, $row) )
+				if ( ImportHarJson($response, $row) ) {
 					setStatus($row['statusid'], DONE);
-				else
+				}
+				else {
 					setStatus($row['statusid'], META_DONE + $gErrBase); // CVSNO
+				}
 			}
 		}
 	}
