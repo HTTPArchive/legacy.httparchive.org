@@ -26,11 +26,13 @@ if ( !$gLabel ) {
 }
 
 
+
 // find min & max pageid of the latest run
 $row = doRowQuery("select min(pageid) as minid, max(pageid) as maxid from $gPagesTable where label='$gLabel';");
 $minid = $row['minid'];
 $maxid = $row['maxid'];
 echo "Run \"$gLabel\": min pageid = $minid, max pageid = $maxid\n";
+
 
 
 // copy the rows to production
@@ -54,34 +56,6 @@ if ( ! $gbMobile ) {
 	}
 }
 
-
-
-// mysqldump file
-$dumpfile = "../downloads/httparchive_" . ( $gbMobile ? "mobile_" : "" ) . str_replace(" ", "_", $gLabel);
-if ( file_exists("$dumpfile.gz") ) {
-	echo "Mysqldump file already exists.\n";
-}
-else {
-	echo "Creating mysqldump file $dumpfile ...\n";
-	if ( $gbMobile ) {
-		$cmd = "mysqldump --where='pageid >= $minid and pageid <= $maxid' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gPagesTableMobile $gRequestsTableMobile > $dumpfile";
-	}
-	else {
-		$cmd = "mysqldump --where='pageid >= $minid and pageid <= $maxid' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gPagesTableDesktop $gRequestsTableDesktop > $dumpfile";
-	}
-	exec($cmd);
-	exec("gzip $dumpfile");
-
-	if ( $gbMobile ) {
-		exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
-	}
-	else {
-		exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
-		exec("cp -p $dumpfile.gz ~/mobile.httparchive.org/downloads/");
-	}
-
-	echo "...mysqldump file created and copied: $dumpfile\n";
-}
 
 
 // Compute stats
@@ -108,5 +82,47 @@ else {
 	}
 	echo "...stats computed and copied.\n";
 }
+
+
+
+// mysqldump file
+$dumpfile = "../downloads/httparchive_" . ( $gbMobile ? "mobile_" : "" ) . str_replace(" ", "_", $gLabel);
+if ( file_exists("$dumpfile.gz") ) {
+	echo "Mysqldump file \"$dumpfile\" already exists.\n";
+}
+else {
+	echo "Creating mysqldump file $dumpfile ...\n";
+	if ( $gbMobile ) {
+		$cmd = "mysqldump --where='pageid >= $minid and pageid <= $maxid' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gPagesTableMobile $gRequestsTableMobile > $dumpfile";
+	}
+	else {
+		$cmd = "mysqldump --where='pageid >= $minid and pageid <= $maxid' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gPagesTableDesktop $gRequestsTableDesktop > $dumpfile";
+	}
+	exec($cmd);
+	exec("gzip $dumpfile");
+
+	if ( $gbMobile ) {
+		exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
+	}
+	else {
+		exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
+		exec("cp -p $dumpfile.gz ~/mobile.httparchive.org/downloads/");
+	}
+
+	echo "...mysqldump file created and copied: $dumpfile\n";
+}
+
+// stats mysql dump
+$dumpfile = "../downloads/httparchive_stats";
+echo "Creating mysqldump file $dumpfile ...\n";
+$cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop > $dumpfile";
+exec($cmd);
+exec("gzip -f $dumpfile");
+exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
+exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
+exec("cp -p $dumpfile.gz ~/mobile.httparchive.org/downloads/");
+echo "...mysqldump file created and copied: $dumpfile\n";
+
+
 
 echo "DONE copying latest run to production.\n";
