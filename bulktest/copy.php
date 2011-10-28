@@ -119,7 +119,6 @@ $cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table -u $gMys
 exec($cmd);
 exec("gzip -f $dumpfile");
 exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
-exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
 exec("cp -p $dumpfile.gz ~/mobile.httparchive.org/downloads/");
 echo "...mysqldump file created and copied: $dumpfile\n";
 
