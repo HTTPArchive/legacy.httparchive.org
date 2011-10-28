@@ -2,8 +2,6 @@
 
 require_once("../utils.inc");
 
-$gArchiveDir = dirname(getcwd()) . "/archives";  // CVSNO
-
 define("NOT_STARTED", 0);
 define("SUBMITTED", 1);
 define("SUBMIT_DONE", 2);
@@ -273,7 +271,7 @@ function importHarJson($json_text, $result) {
 // MAJOR ASSUMPTION: THERE'S ONLY ONE PAGE PER HAR FILE!
 // (otherwise, harviewer and har_to_pagespeed won't work)
 function importPage($page, $result) {
-	global $gPagesTable, $gRequestsTable, $gArchiveDir;;
+	global $gPagesTable, $gRequestsTable;
 	$archive = $result['archive'];
 	$label = $result['label'];
 
