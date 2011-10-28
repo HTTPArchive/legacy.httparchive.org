@@ -1785,6 +1785,13 @@ SCHEMA CHANGES:
 
 7/21/2011 - Added the "rank" column to pages table:
   mysql> alter table pagesdev add column rank int(10) unsigned after PageSpeed;
+
+Oct 27, 2011 - Remove "harfile" column and reset unique index. Shorten columns.
+  mysql> alter table pagesdev modify column archive varchar (16) not null;
+  mysql> alter table pagesdev modify column label varchar (32) not null;
+  mysql> drop index startedDateTime on pagesdev;
+  mysql> alter table pagesdev add unique key (label, urlShort);
+  mysql> alter table pagesdev drop column harfile;
 *******************************************************************************/
 function createTables() {
 	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gSettingsTable;
@@ -1794,9 +1801,8 @@ function createTables() {
 		$command = "create table $gPagesTable (" .
 			"pageid int unsigned not null auto_increment" .
 			", createDate int(10) unsigned not null" .
-			", archive varchar (255) not null" .
-			", label varchar (255) not null" .
-			", harfile varchar (255)" . // TODO remove this but change unique key
+			", archive varchar (16) not null" .
+			", label varchar (32) not null" .
 			", wptid varchar (64) not null" .        // webpagetest.org id
 			", wptrun int(2) unsigned not null" .    // webpagetest.org median #
 			", title varchar (255) not null" .
@@ -1831,7 +1837,7 @@ function createTables() {
 
 			", numDomains int(4) unsigned not null" .
 			", primary key (pageid)" .
-			", unique key (startedDateTime, harfile)" .
+			", unique key (label, urlShort)" .
 			");";
 		doSimpleCommand($command);
 	}
