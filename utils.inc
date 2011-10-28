@@ -75,11 +75,6 @@ else if ( $gbMobile ) {
 	$gStatsTable = $gStatsTableMobile;
 }
 
-// Hide archives while we're importing them.
-$ghHiddenArchives = array(
-						  "Fortune 1000" => 1
-						  );
-
 // The different "slices" of URLs a user can view.
 // Each element is an array of [dbname, UI name]
 $gaSlices = array( array("All", "All"),
@@ -1376,25 +1371,6 @@ function isDev() {
 
 function wptServer() {
 	return "http://httparchive.webpagetest.org/";
-}
-
-
-// Return an array of the archive names.
-function archiveNames() {
-	global $gPagesTable, $gbDev, $ghHiddenArchives;
-
-	$aNames = array();
-	$query = "select archive from $gPagesTable group by archive order by archive asc;";
-	$result = doQuery($query);
-	while ($row = mysql_fetch_assoc($result)) {
-		$archive = $row['archive'];
-		if ( $gbDev || !array_key_exists($archive, $ghHiddenArchives) ) {
-			array_push($aNames, $archive);
-		}
-	}
-	mysql_free_result($result);
-
-	return $aNames;
 }
 
 
