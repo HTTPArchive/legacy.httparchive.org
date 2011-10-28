@@ -84,9 +84,16 @@ All of the downloads are gzipped mysqldumps.
 </p>
 
 <p style="margin-bottom: 1em;">
+There's a download containing the schema for the tables referenced in the data dumps:
+</p>
+<ul class=indent>
+  <li> <a href="downloads/httparchive_schema.sql">schema</a>
+</ul>
+
+
+<p style="margin-bottom: 1em;">
 There's a download containing the aggregated stats for <em>all</em> runs:
 </p>
-
 <ul class=indent>
   <li> <a href="downloads/httparchive_stats.gz">stats</a>
 </ul>
@@ -94,7 +101,6 @@ There's a download containing the aggregated stats for <em>all</em> runs:
 <p style="margin-bottom: 1em;">
 There's a download file for each run for desktop ("IE") and mobile ("iPhone"):
 </p>
-
 <ul class=indent>
 <?php echo listFiles($hFiles) ?>
 </ul>
