@@ -122,6 +122,15 @@ exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
 exec("cp -p $dumpfile.gz ~/mobile.httparchive.org/downloads/");
 echo "...mysqldump file created and copied: $dumpfile\n";
 
+// schema mysql dump
+$dumpfile = "../downloads/httparchive_schema.sql";
+echo "Creating mysqldump file $dumpfile ...\n";
+$cmd = "mysqldump --no-data --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop $gPagesTableDesktop $gRequestsTableDesktop $gPagesTableMobile $gRequestsTableMobile > $dumpfile";
+exec($cmd);
+exec("cp -p $dumpfile ~/httparchive.org/downloads/");
+exec("cp -p $dumpfile ~/mobile.httparchive.org/downloads/");
+echo "...mysqldump file created and copied: $dumpfile\n";
+
 
 
 echo "DONE copying latest run to production.\n";
