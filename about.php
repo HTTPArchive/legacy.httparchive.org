@@ -234,6 +234,15 @@ Definitions for each of the HTTP headers can be found in the
 
 
 
+<h2 id=removesite>How do I get my website removed from the HTTP Archive?</h2>
+<p>
+You can have your site removed from the HTTP Archive via the
+<a href="removesite.php">Remove Your Site page</a>.
+</p>
+
+
+
+
 			   <h2 id=adultcontent>How do I report inappropriate (adult only) content?</h2>
 					 <p>
 Please report any inappropriate content by
