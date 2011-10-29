@@ -33,6 +33,7 @@ $gPagesTable = "pages";
 $gRequestsTable = "requests";
 $gStatusTable = "status";
 $gUrlsTable = "urls";
+$gUrlsChangeTable = "urlschange";
 $gStatsTable = "stats";
 $gSettingsTable = "settings"; // for storing misc settings persistently
 
@@ -54,6 +55,7 @@ $gRequestsTableDev = $gRequestsTable . "dev";
 $gStatusTableDev = $gStatusTable . "dev";
 $gStatsTableDev = $gStatsTable . "dev";
 $gUrlsTableDev = $gUrlsTable . "dev";
+$gUrlsChangeTableDev = $gUrlsChangeTable . "dev";
 
 // 
 // HERE'S WHERE WE CHANGE THE DEFAULT TABLE NAMES 
@@ -66,6 +68,7 @@ if ( $gbDev ) {
 	$gStatusTable = $gStatusTableDev;
 	$gStatsTable = $gStatsTableDev;
 	$gUrlsTable = $gUrlsTableDev;
+	$gUrlsChangeTable = $gUrlsChangeTableDev;
 }
 else if ( $gbMobile ) {
 	// Use a mobile version of the database tables if "mobile" is in the path.
@@ -1770,7 +1773,7 @@ Oct 27, 2011 - Remove "harfile" column and reset unique index. Shorten columns.
   mysql> alter table pagesdev drop column harfile;
 *******************************************************************************/
 function createTables() {
-	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gSettingsTable;
+	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gUrlsChangeTable, $gSettingsTable;
 	global $ghReqHeaders, $ghRespHeaders;
 
 	if ( ! tableExists($gPagesTable) ) {
@@ -1996,6 +1999,18 @@ function createTables() {
 			", other boolean not null" .   // is this URL from some other source and we should crawl it EVERY time
 			", optout boolean not null" .  // did the website owner ask us NOT to crawl their site
 			", primary key (urlOrig(255))" .
+			");";
+		doSimpleCommand($command);
+	}
+
+	// Create Urls Change Table
+	// If someone chooses to have their site removed, we queue the request here.
+	if ( ! tableExists($gUrlsChangeTable) ) {
+		$command = "create table $gUrlsChangeTable (" .
+			"url text character set binary" . // use "binary" so it's case *sensitive*
+			", action varchar(16)" .  // "add", "remove" for now
+			", createDate int(10) unsigned not null" .
+			", primary key (url(255), action)" .
 			");";
 		doSimpleCommand($command);
 	}
