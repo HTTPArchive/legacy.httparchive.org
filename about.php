@@ -233,6 +233,17 @@ Definitions for each of the HTTP headers can be found in the
 
 
 
+<?php 
+/*
+<h2 id=addsite>How do I add a website to the HTTP Archive?</h2>
+<p>
+You can add a website to the HTTP Archive via the
+<a href="addsite.php">Add a Site page</a>.
+</p>
+*/
+?>
+
+
 
 <h2 id=removesite>How do I get my website removed from the HTTP Archive?</h2>
 <p>
