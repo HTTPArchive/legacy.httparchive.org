@@ -42,6 +42,7 @@ $gPagesTableDesktop = $gPagesTable;
 $gRequestsTableDesktop = $gRequestsTable;
 $gStatusTableDesktop = $gStatusTable;
 $gStatsTableDesktop = $gStatsTable;
+$gUrlsChangeTableDesktop = $gUrlsChangeTable;
 
 // Mobile tables
 $gPagesTableMobile = $gPagesTable . "mobile";
