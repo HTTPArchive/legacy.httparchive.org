@@ -16,12 +16,13 @@ limitations under the License.
 */
 
 require_once("ui.inc");
+require_once("urls.inc");
 
 $gTitle = "Remove Your Site";
 $gRurl = ( array_key_exists('rurl', $_GET) ? $_GET['rurl'] : '' );
 $is_valid_url = false;
 $url_to_fetch = "";
-$is_crawlable = true;
+$bRemovalConfirmed = false;
 if ( $gRurl ) {
 	// Do some basic validation
 	$is_valid_url = preg_match("/^(http|https):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?/i", $gRurl);
@@ -30,7 +31,7 @@ if ( $gRurl ) {
 		// make sure we have a trailing slash
 		$url_to_fetch = substr($gRurl, -1) == '/' ? $gRurl : $gRurl . '/';
 		$url_to_fetch .= 'removehttparchive.txt';
-		$is_crawlable = ( FALSE === @file($url_to_fetch) );
+		$bRemovalConfirmed = ( FALSE != @file($url_to_fetch) );
 	}
 }
 
@@ -75,22 +76,37 @@ if ( $gRurl ) {
 		echo "<p class=warning>The URL entered is invalid: $gRurl</p>\n";
 	}
 	else {
-		if ( $is_crawlable ) {
-			echo "<p class=warning><a href='$url_to_fetch'>$url_to_fetch</a> was not found.<br>$gRurl is still archived.</p>\n";
+		if ( ! $bRemovalConfirmed ) {
+			echo "<p class=warning><a href='$url_to_fetch' style='text-decoration: underline; color: #870E00;'>$url_to_fetch</a> was not found.<br>$gRurl is still archived.</p>\n";
 		}
 		else {
-			echo "<p class=warning style='margin-bottom: 0;'>$gRurl has been removed from the HTTP Archive.</p>\n<p style='margin-top: 0;'>You can remove removehttparchive.txt.</p>";
+			removeSite($gRurl);  // queue it for removal
+			echo "<p class=warning style='margin-bottom: 0;'>$gRurl will be removed within five business days.</p>\n<p style='margin-top: 0;'>You can remove removehttparchive.txt now.</p>";
 		}
 	}
 }
 ?>
+
+<script type="text/javascript">
+function confirmRemove() {
+	var url = document.getElementById("rurl").value;
+	if ( ! url ) {
+		alert("Please select a URL.");
+	}
+	else if ( confirm("This will remove ALL DATA about " + url + " and remove it from all future archiving. Do you want to continue?") ) {
+		return true;
+	}
+
+	return false;
+}
+</script>
 
 <p>
 Follow these steps to remove your website's data from the HTTP Archive and prevent further archiving.
 </p>
 
 <ol style="margin-left: 2em;">
-<form action="<? echo $_SERVER['PHP_SELF'] ;?>">
+<form name=removesite action="<? echo $_SERVER['PHP_SELF'] ;?>" onsubmit="return confirmRemove()">
   <li> Select your URL:
   <span class="ui-widget" style="font-size: 1em;">
     <input id="rurl" name="rurl" style="margin: 0;" size=35 />
