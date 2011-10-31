@@ -191,21 +191,28 @@ function obtainXMLResult() {
 function fillTables() {
 	global $gErrBase;
 
-	$wptServer = wptServer();
 	$tests = obtainTestsWithCode(META_DONE);
 	if ( !IsEmptyQuery($tests) ) {
 		while ($row = mysql_fetch_assoc($tests)) {
-			// Fetch a php compatible HAR file from WPT.
-			$request = $wptServer . "export.php?test={$row['wptid']}&run={$row['medianRun']}&cached=0&php=1";
-			$response = fetchUrl($request);
-			if ( strlen($response) ) {
-				if ( ImportHarJson($response, $row) ) {
-					setStatus($row['statusid'], DONE);
-				}
-				else {
-					setStatus($row['statusid'], META_DONE + $gErrBase); // CVSNO
-				}
-			}
+			$status = importWptResults($row['wptid'], $row['medianRun']);
+			setStatus($row['statusid'], $status);
+		}
+	}
+}
+
+
+function importWptResults($wptid, $medianRun) {
+	global $gErrBase;
+
+	$wptServer = wptServer();
+	$request = $wptServer . "export.php?test=$wptid&run=$medianRun&cached=0&php=1";
+	$response = fetchUrl($request);
+	if ( strlen($response) ) {
+		if ( ImportHarJson($response, $row) ) {
+			return DONE;
+		}
+		else {
+			return (META_DONE + $gErrBase); // CVSNO
 		}
 	}
 }
