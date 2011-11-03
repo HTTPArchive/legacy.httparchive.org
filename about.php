@@ -74,7 +74,12 @@ and provides a common data set from which to conduct web performance research.
 $gFAQ =<<<OUTPUT
 			   <h2 id=listofurls>How is the list of URLs generated?</h2>
 
-<p>As of November 2010 the URLs that are analyzed is the union of the following lists:
+<p>
+Starting in November 2011, the list of URLs is based solely on the <a href="http://www.alexa.com/topsites">Alexa Top 1,000,000 Sites</a>
+(<a href="http://s3.amazonaws.com/alexa-static/top-1m.csv.zip">zip</a>).
+</p>
+
+<p>From November 2010 through October 2011 there were <a href="lists/All.txt">18,026 URLs analyzed</a>. This list was based on the union of the following lists:
 <ul class=indent>
   <li> <a href="lists/Alexa%20500.txt">Alexa 500</a> (<a href="http://www.alexa.com/topsites/global">source</a>)
   <li> <a href="lists/Alexa%20US%20500.txt">Alexa US 500</a> (<a href="http://www.alexa.com/topsites/countries/US">source</a>)
