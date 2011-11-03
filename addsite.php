@@ -40,8 +40,6 @@ if ( $gRurl ) {
 <body>
 <?php echo uiHeader($gTitle); ?>
 
-<h1><?php echo $gTitle ?></h1>
-
 <?php
 if ( $gRurl ) {
 	if ( ! $is_valid_url ) {
@@ -49,10 +47,13 @@ if ( $gRurl ) {
 	}
 	else {
 		addSite($gRurl);  // queue it for adding
-		echo "<p class=warning>$gRurl will be added within five business days.</p>\n";
+		echo "<p class=warning>$gRurl will be added within five business days and will be included in the next crawl after that.</p>\n";
 	}
 }
 ?>
+
+
+<h1><?php echo $gTitle ?></h1>
 
 <script type="text/javascript">
 function confirmAdd() {
