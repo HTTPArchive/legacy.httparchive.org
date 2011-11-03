@@ -40,6 +40,15 @@ DD { margin-left: 40px; }
 <h1><?php echo $gTitle ?></h1>
 
 <dl id=news>
+  <dt> November 1, 2011: Several changes occurred affecting the crawl and long term trends:
+<ul>
+  <li> WebPagetest upgraded from Page Speed 1.9 to 1.12. 
+This caused a noticeable drop in Page Speed scores for some long term trends - both "All" and "intersection" dropped from 82 to 75.
+  <li> The list of URLs to be crawled is now based on the <a href="http://www.alexa.com/topsites">Alexa Top 1,000,000 Sites</a>. 
+(See the related <a href="about.php#listofurls">FAQ</a>.)
+  <li> The number of URLs crawled increased from 18,026 to 36,181 as a step toward our goal of 1M URLs. The HTTP Archive Mobile URLs increased from 1K to 2K.
+</ul>
+
   <dt> June 1, 2011: HTTP Archive Mobile grows from top 100 to top 1000 URLs.
 
   <dt> May 13, 2011: <a href="http://www.stevesouders.com/blog/2011/05/13/http-archive-mobile/">HTTP Archive Mobile</a>
