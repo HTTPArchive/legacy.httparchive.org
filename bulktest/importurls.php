@@ -52,7 +52,6 @@ $handle = @fopen($gUrlsFile, "r");
 if ( $handle ) {
 	$sInsert = "";
 	$n = 0;
-	echo "Insert count: $n ";
 
 	while (($line = fgets($handle, 4096)) !== false) {
 		$line = rtrim($line);
@@ -87,7 +86,6 @@ if ( $handle ) {
 								( $other ? ($rank ? ", " : "" ) . "other=VALUES(other)" : "" )
 								);
 				$sInsert = "";
-				echo "$n ";
 			}
 		}
 	}
@@ -103,7 +101,6 @@ if ( $handle ) {
 								( $other ? ($rank ? ", " : "" ) . "other=VALUES(other)" : "" )
 								);
 	}
-	echo "$n\n";
 
     fclose($handle);
 }
@@ -114,7 +111,6 @@ else {
 if ( "alexa" === $gFileType ) {
 	doSimpleCommand("update $gUrlsTable set rank=ranktmp;");
 	echo "The ranks have been updated.\n";
-	echo "CVSNO: copy to production!!!!!!!!!!!!!!!!!!\n";
 }
 
 echo "DONE\n";
