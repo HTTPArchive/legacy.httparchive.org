@@ -40,7 +40,8 @@ DD { margin-left: 40px; }
 <h1><?php echo $gTitle ?></h1>
 
 <dl id=news>
-  <dt> November 1, 2011: Several changes occurred affecting the crawl and long term trends:
+  <dt> November 1, 2011: &#35; of URLs increased; Page Speed version changed
+  <dd> Several changes occurred affecting the crawl and long term trends:
 <ul>
   <li> WebPagetest upgraded from Page Speed 1.9 to 1.12. 
 This caused a noticeable drop in Page Speed scores for some long term trends - both "All" and "intersection" dropped from 82 to 75.
