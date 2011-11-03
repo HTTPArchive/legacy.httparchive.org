@@ -78,7 +78,9 @@ else {
 	computeMissingStats($device, true);
 
 	if ( ! $gbMobile ) {
-		echo "COPY STATS TO PRODUCTION!!!!!!!!!!!!!!!!!!!!!";
+		echo "Copy stats to production...\n";
+		$cmd = "replace into $gStatsTableDesktop select * from $gStatsTableDev where device='IE8';";
+		doSimpleCommand($cmd);
 	}
 	echo "...stats computed and copied.\n";
 }
