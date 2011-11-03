@@ -106,7 +106,7 @@ while ( count($aChildPids) > 0 ) {
 		}
 	}
 	if ( count($aChildPids) > 0 ) {
-		sleep(60);
+		sleep(10);
 	}
 }
 
