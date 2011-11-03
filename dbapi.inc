@@ -272,10 +272,23 @@ function getTrendsDataForUrl($url, $device) {
 // return a hash of values for a single stats record
 function removeStatsData($label, $slice=NULL, $device=NULL) {
 	$statstable = statsTable($label, $slice, $device);
-	$cmd = "delete from $statstable where label='$label'" .
-		( $slice ? " and slice='$slice'" : "" ) .
-		( $device ? " and device='$device'" : "" ) .
-		";";
+
+	$aWhere = array();
+	if ( $label ) {
+		$aWhere[] = "label='$label'";
+	}
+	if ( $slice ) {
+		$aWhere[] = "slice='$slice'";
+	}
+	if ( $device ) {
+		$aWhere[] = "device='$device'";
+	}
+	$sWhere = implode(" and ", $aWhere);
+	if ( ! $sWhere ) {
+		die("ERROR: need to specificy paraeters to removeStatsData.\n");
+	}
+
+	$cmd = "delete from $statstable where $sWhere" . ";";
 	doSimpleCommand($cmd);
 
 	return true;
