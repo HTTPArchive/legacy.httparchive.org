@@ -193,41 +193,46 @@ function fillTables() {
 
 	$tests = obtainTestsWithCode(META_DONE);
 	if ( !IsEmptyQuery($tests) ) {
-		while ($row = mysql_fetch_assoc($tests)) {
-			$status = importWptResults($row['wptid'], $row['medianRun']);
-			setStatus($row['statusid'], $status);
+		while ($statusInfo = mysql_fetch_assoc($tests)) {
+			$status = importWptResults($statusInfo);
+			setStatus($statusInfo['statusid'], $status);
 		}
 	}
 }
 
 
-function importWptResults($wptid, $medianRun) {
+function importWptResults($statusInfo, $bDebug=false) {
 	global $gErrBase;
+
+	$wptid = $statusInfo['wptid'];
+	$medianRun = $statusInfo['medianRun'];
 
 	$wptServer = wptServer();
 	$request = $wptServer . "export.php?test=$wptid&run=$medianRun&cached=0&php=1";
 	$response = fetchUrl($request);
 	if ( strlen($response) ) {
-		if ( ImportHarJson($response, $row) ) {
+		if ( ImportHarJson($response, $statusInfo) ) {
 			return DONE;
 		}
 		else {
 			return (META_DONE + $gErrBase); // CVSNO
 		}
 	}
+	else {
+	}
 }
 
 
 // Import a specific HAR JSON response.
-function importHarJson($json_text, $result) {
+function importHarJson($json_text, $statusInfo) {
 	global $gStatusTable, $gPagesTable, $gRequestsTable;
 	if ( !$json_text ) {
-		dprint("ERROR($gStatusTable statusid: $result[statusid]): HAR file read error.");
+		dprint("ERROR($gStatusTable statusid: $statusInfo[statusid]): HAR file read error.");
 		return false;
 	}
 	$HAR = json_decode($json_text);
 	if ( NULL == $HAR ) {
-		dprint("ERROR($gStatusTable statusid: $result[statusid]): JSON decode failed");
+		dprint("ERROR($gStatusTable statusid: $statusInfo[statusid]): JSON decode failed");
 		return false;
 	}
 	$log = $HAR->{ 'log' };
@@ -235,17 +240,16 @@ function importHarJson($json_text, $result) {
 	$pages = $log->{ 'pages' };
 	$pagecount = count($pages);
 	if ( 0 == $pagecount ) {
-		dprint("ERROR($gStatusTable statusid: $result[statusid]):: No pages found");
+		dprint("ERROR($gStatusTable statusid: $statusInfo[statusid]):: No pages found");
 		return false;
 	}
 	if ( 1 < $pagecount ) {
-		dprint("WARNING($gStatusTable statusid: $result[statusid]):: Only one page is expected per HAR file. This HAR file has " . count($pages) . " pages. Only the first page will be processed.\n");
+		dprint("WARNING($gStatusTable statusid: $statusInfo[statusid]):: Only one page is expected per HAR file. This HAR file has " . count($pages) . " pages. Only the first page will be processed.\n");
 	}
 
 	// STEP 1: Create a partial "page" record so we get a pageid.
 	t_mark('ImportPage');
-	$pageid = importPage($pages[0], $result);
-	t_aggregate('ImportPage');
+	$pageid = importPage($pages[0], $statusInfo);
 	if ( $pageid ) {
 		$entries = $log->{ 'entries' };
 		// STEP 2: Create all the resources & associate them with the pageid.
@@ -253,17 +257,16 @@ function importHarJson($json_text, $result) {
 		$firstHtmlUrl = "";
 		t_mark('ImportEntries');
 		$bEntries = importEntries($entries, $pageid, $firstUrl, $firstHtmlUrl);
-		t_aggregate('ImportEntries');
 		if ( false === $bEntries ) {
-			dprint("ERROR($gStatusTable statusid: $result[statusid]): ImportEntries failed. Purging pageid $pageid");
+			dprint("ERROR($gStatusTable statusid: $statusInfo[statusid]): ImportEntries failed. Purging pageid $pageid");
 			purgePage($pageid);
 		} else {
 			// STEP 3: Go back and fill out the rest of the "page" record based on all the resources.
 			t_mark('AggregateStats');
-			$url = aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $result);
+			$url = aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo);
 			t_aggregate('AggregateStats');
 			if ( false === $url ) {
-				dprint("ERROR($gStatusTable statusid: $result[statusid]): AggregateStats failed. Purging pageid $pageid");
+				dprint("ERROR($gStatusTable statusid: $statusInfo[statusid]): AggregateStats failed. Purging pageid $pageid");
 				purgePage($pageid);
 			}
 			else {
@@ -277,10 +280,10 @@ function importHarJson($json_text, $result) {
 // Import a website.
 // MAJOR ASSUMPTION: THERE'S ONLY ONE PAGE PER HAR FILE!
 // (otherwise, harviewer and har_to_pagespeed won't work)
-function importPage($page, $result) {
+function importPage($page, $statusInfo) {
 	global $gPagesTable, $gRequestsTable;
-	$archive = $result['archive'];
-	$label = $result['label'];
+	$archive = $statusInfo['archive'];
+	$label = $statusInfo['label'];
 
 	$now = time();
 	$aTuples = array();
@@ -324,7 +327,6 @@ function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 	global $gPagesTable, $gRequestsTable;
 	global $ghReqHeaders, $ghRespHeaders;
 	global $ghReqOtherHeaders, $ghRespOtherHeaders;
-
 	for ( $i = 0; $i < count($entries); $i++ ) {
 		$entry = $entries[$i];
 		$aTuples = array();
@@ -452,13 +454,12 @@ function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 		array_push($aTuples, "firstHtml = $bFirstHtml");
 
 		$cmd = "REPLACE INTO $gRequestsTable SET " . implode(", ", $aTuples) . ";";
-		//dprint("$cmd");
 		doSimpleCommand($cmd);
 	}
 }
 
 // Collect all the aggregate stats for a single website.
-function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultRow) {
+function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 	global $gPagesTable, $gRequestsTable, $gUrlsTable;
 
 	// CVSNO - move this error checking to the point before this function is called
@@ -482,9 +483,7 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultRow) {
 	}
 	$hDomains = array();
 
-	t_mark('aggregateStats query');
 	$result = doQuery("select mimeType, urlShort, respSize from $gRequestsTable where pageid = $pageid;");
-	t_aggregate('aggregateStats query');
 	while ($row = mysql_fetch_assoc($result)) {
 		$mimeType = prettyMimetype($row['mimeType']);
 		$respSize = intval($row['respSize']);
@@ -513,7 +512,7 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultRow) {
 	$urlHtml = $firstHtmlUrl;
 	$urlHtmlShort = substr($urlHtml, 0, 255);
 
-	$rank = doSimpleQuery("select rank from $gUrlsTable where url='$url';");
+	//CVSNO $rank = doSimpleQuery("select rank from $gUrlsTable where urlOrig='$url' or urlFixed='$url';");
 
 	$cmd = "UPDATE $gPagesTable SET url = " . "'" . mysql_real_escape_string($url) . "'" .
 		", urlShort = " . "'" . mysql_real_escape_string($urlShort) . "'" .
@@ -527,10 +526,10 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $resultRow) {
 		", reqFlash = " . $hCount['flash'] . ", bytesFlash = " . $hSize['flash'] .
 		", reqOther = " . $hCount['other'] . ", bytesOther = " . $hSize['other'] .
 		", numDomains = $numDomains" .
-		", wptid = " . "'" . mysql_real_escape_string($resultRow['wptid']) . "'" . 
-		", wptrun = " . $resultRow['medianRun'] . 
-		", renderStart = " . $resultRow['startRender'] . 
-		", PageSpeed = " . $resultRow['pagespeedScore'] .
+		", wptid = " . "'" . mysql_real_escape_string($statusInfo['wptid']) . "'" . 
+		", wptrun = " . $statusInfo['medianRun'] . 
+		", renderStart = " . $statusInfo['startRender'] . 
+		", PageSpeed = " . $statusInfo['pagespeedScore'] .
 		( $rank ? ", rank = $rank" : "" ) . 
 		" where pageid = $pageid;";
 	doSimpleCommand($cmd);
