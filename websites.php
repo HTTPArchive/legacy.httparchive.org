@@ -139,7 +139,7 @@ TD { padding-top: 0; padding-bottom: 0; }
 <?php
 $query = "select count(distinct(url)) from $gPagesTable where archive = '$gArchive';";
 $count = doSimpleQuery($query);
-echo "$count total URLs";
+echo commaize($count) . " total URLs";
 ?>
 </td>
 <td style="padding-left: 40px;">
