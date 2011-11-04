@@ -487,12 +487,14 @@ function copyStatsToTable($statsTableSource, $statsTableTarget) {
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-function addStatusData($url, $loc, $label) {
+function addStatusData($url, $loc, $label, $rank=NULL) {
 	global $gStatusTable, $gArchive;
 	$now = time();
 	$cmd = "REPLACE INTO $gStatusTable SET url = '" . mysql_real_escape_string($url) . 
 		"' , location = '" . mysql_real_escape_string($loc) . 
-		"', archive = '$gArchive', label = '$label', status = '" . NOT_STARTED . "', timeofLastChange = '$now';";
+		"', archive = '$gArchive', label = '$label'" . 
+		( $rank ? ", rank = $rank" : "" ) .
+		", status = '" . NOT_STARTED . "', timeofLastChange = '$now';";
 	doSimpleCommand($cmd);
 }
 
