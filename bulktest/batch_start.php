@@ -38,24 +38,24 @@ function loadUrlsFromFile($label) {
 function loadUrlsFromDB($label, $numUrls, $bOther=false) {
 	global $gUrlsTable;
 
-	$query = "select urlOrig, urlFixed from $gUrlsTable where (rank <= $numUrls" . ( $bOther ? " OR other=true" : "" ) . ")" .
+	$query = "select urlOrig, urlFixed, rank from $gUrlsTable where (rank <= $numUrls" . ( $bOther ? " OR other=true" : "" ) . ")" .
 		" and optout=false order by rank asc;";
 	$result = doQuery($query);
 	while ($row = mysql_fetch_assoc($result)) {
 		$urlOrig = $row['urlOrig'];
 		$urlFixed = $row['urlFixed'];
-		loadUrl($label, ( $urlFixed ? $urlFixed : $urlOrig ));
+		loadUrl($label, ( $urlFixed ? $urlFixed : $urlOrig ), $row['rank']);
 	}
 }
 
 
 
 // Submit the specified URL to all the locations.
-function loadUrl($label, $url) {
+function loadUrl($label, $url, $rank=NULL) {
 	global $locations;
 
 	foreach ( $locations as $location ) {
-		addStatusData($url, $location, $label);
+		addStatusData($url, $location, $label, $rank);
 	}
 }
 
