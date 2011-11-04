@@ -1886,6 +1886,7 @@ function createTables() {
 			", location varchar (32) not null" .
 			", archive varchar (32) not null" .
 			", label varchar (32) not null" .
+			", rank int(10) unsigned" .
 			", status varchar (32) not null" .
 			", timeOfLastChange int(10) unsigned not null" .
 			", wptid varchar (64)" .
