@@ -46,8 +46,16 @@ if ( $gRurl ) {
 		echo "<p class=warning>The URL entered is invalid: $gRurl</p>\n";
 	}
 	else {
-		addSite($gRurl);  // queue it for adding
-		echo "<p class=warning>$gRurl will be added within five business days and will be included in the next crawl after that.</p>\n";
+		$existingUrl = urlExists($gRurl);
+		if ( $existingUrl ) {
+			$query = "select max(pageid) as pageid from $gPagesTable where url='$existingUrl';";
+			$pageid = doSimpleQuery($query);
+			echo "<p class=warning>$gRurl is already in the list of URLs. See the <a href='http://dev.httparchive.org/viewsite.php?pageid=$pageid'>latest results</a>.</p>\n";
+		}
+		else {
+			addSite($gRurl);  // queue it for adding
+			echo "<p class=warning>$gRurl will be added within five business days and will be included in the next crawl after that.</p>\n";
+		}
 	}
 }
 ?>
