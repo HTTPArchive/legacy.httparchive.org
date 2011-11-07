@@ -1515,9 +1515,8 @@ function onBlacklist($url) {
 	$bBlacklisted = true;
 
 	// base blacklisting on hostname
-	$aMatches = array();
-	if ( $url && preg_match('/http[s]*:\/\/([^\/]*)/', $url, $aMatches) ) {
-		$hostname = $aMatches[1];
+	$hostname = hostname($url);
+	if ( $hostname ) {
 		$bBlacklisted = array_key_exists($hostname, $ghBlackList);
 	}
 
@@ -1623,6 +1622,38 @@ function fieldUnits($field) {
 	global $ghFieldUnits;
 
 	return ( array_key_exists($field, $ghFieldUnits) ? $ghFieldUnits[$field] : "" );
+}
+
+
+// Get the domain name, eg, "groups.google.com" from "http://groups.google.com/"
+function hostname($url) {
+	$url .= "/"; // make sure it ends in "/"
+
+	$aMatches = array();
+	if ( preg_match('/http[s]*:\/\/([^\/]*)/', $url, $aMatches) ) {
+		$hostname = $aMatches[1];
+		return $hostname;
+	}
+
+	return null;
+}
+
+
+// Get the approximate domain name, eg, "google.com" from "http://groups.google.com/"
+function secondLevelDomain($url) {
+	$sld = hostname($url);
+
+	$aMatches = array();
+	if ( preg_match('/www\.(.*)/', $sld, $aMatches) ) {
+		$sld = $aMatches[1];
+	}
+
+	if ( preg_match('/(.*)\.(.*?\.com)/', $sld, $aMatches) || preg_match('/(.*)\.(.*?\.org)/', $sld, $aMatches) || preg_match('/(.*)\.(.*?\.net)/', $sld, $aMatches) || 
+		 preg_match('/(.*)\.(.*?\.gov)/', $sld, $aMatches) || preg_match('/(.*)\.(.*?\.edu)/', $sld, $aMatches) || preg_match('/(.*)\.(.*?\.mil)/', $sld, $aMatches) ) {
+		$sld = $aMatches[2];
+	}
+
+	return $sld;
 }
 
 
