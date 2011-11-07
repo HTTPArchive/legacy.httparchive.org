@@ -70,6 +70,49 @@ function removeSite($url) {
 }
 
 
+// return true if the URL is already in the list
+function urlExists($url) { 
+	global $gUrlsTable;
+
+	$query = "select urlOrig, urlFixed from $gUrlsTable where urlOrig='$url' or urlFixed='$url';";
+	$row = doRowQuery($query);
+	return ( $row['urlFixed'] ? $row['urlFixed'] : $row['urlOrig'] );
+}
+ 
+// Returns a mysql result instance of all pending urls
+function pendingUrls() {
+	global $gUrlsChangeTable;
+	$query = "select url, createDate from $gUrlsChangeTable where action = 'add' order by createDate asc;";
+	$result = doQuery($query);
+	return ( $result ? $result : -1);
+}
+
+ 
+// Approves a url in the 'add' state.
+function approveUrl($url) {
+	global $gUrlsChangeTable;
+	addOtherUrl($url);
+	$cmd = "delete from $gUrlsChangeTable where url='$url';";
+	doSimpleCommand($cmd);
+}
+
+
+// Adds a URL to the url table with "other" flag set
+function addOtherUrl($url) {
+	global $gUrlsTable;
+	$cmd = "insert into $gUrlsTable set urlOrig='$url', other=1;";
+	$result = doSimpleCommand($cmd);
+}
+
+
+// Rejects a url in the 'add' state.
+function rejectUrl($url) {
+	global $gUrlsChangeTable;
+	$cmd = "delete from $gUrlsChangeTable where url='$url';";
+	doSimpleCommand($cmd);
+}
+
+
 function removeUrlData($url) {
 	global $gPagesTable, $gRequestsTable;
 	// TODO
