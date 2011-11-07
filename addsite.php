@@ -24,6 +24,9 @@ $is_valid_url = false;
 if ( $gRurl ) {
 	// Do some basic validation
 	$is_valid_url = preg_match("/^(http|https):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?/i", $gRurl);
+	if ( FALSE === strpos($gRurl, "/", 10) ) {
+		$gRurl .= "/";
+	}
 }
 
 ?>
