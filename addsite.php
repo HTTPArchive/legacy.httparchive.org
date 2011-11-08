@@ -20,6 +20,7 @@ require_once("urls.inc");
 
 $gTitle = "Add a Site";
 $gRurl = ( array_key_exists('rurl', $_GET) ? $_GET['rurl'] : '' );
+$gRurl = strtolower($gRurl);
 $is_valid_url = false;
 if ( $gRurl ) {
 	// Do some basic validation
