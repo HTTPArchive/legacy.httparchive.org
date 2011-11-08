@@ -56,7 +56,7 @@ $gRequestsTableDev = $gRequestsTable . "dev";
 $gStatusTableDev = $gStatusTable . "dev";
 $gStatsTableDev = $gStatsTable . "dev";
 $gUrlsTableDev = $gUrlsTable . "dev";
-$gUrlsChangeTableDev = $gUrlsChangeTable . "dev";
+$gUrlsChangeTableDev = $gUrlsChangeTable; // . "dev";
 
 // 
 // HERE'S WHERE WE CHANGE THE DEFAULT TABLE NAMES 
@@ -1394,6 +1394,7 @@ function selectArchiveLabel($archive, $curLabel, $bReverse=true, $bOnchage = tru
 		$epoch = $row['startedDateTime'];
 		$sSelect .= "  <option value='$label'" . ( $curLabel == $label ? " selected" : "" ) . "> $label\n";
 	}
+	mysql_free_result($result);
 
 	$sSelect .= "</select>\n";
 
@@ -1415,6 +1416,7 @@ function selectSiteLabel($url, $curLabel="", $bReverse=true) {
 		$epoch = $row['startedDateTime'];
 		$sSelect .= "  <option value='$label'" . ( $curLabel == $label ? " selected" : "" ) . "> $label\n";
 	}
+	mysql_free_result($result);
 
 	$sSelect .= "</select>\n";
 
@@ -1440,6 +1442,7 @@ function archiveLabels($archive = "All", $bEpoch = false, $format = "n/j/y" ) {
 			array_push($aLabels, $label);
 		}
 	}
+	mysql_free_result($result);
 
 	return $aLabels;
 }
