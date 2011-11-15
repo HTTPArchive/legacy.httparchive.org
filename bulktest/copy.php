@@ -105,6 +105,7 @@ else {
 
 	if ( $gbMobile ) {
 		exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
+		exec("cp -p $dumpfile.gz ~/dev.httparchive.org/downloads/");
 	}
 	else {
 		exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
