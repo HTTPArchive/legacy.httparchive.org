@@ -77,7 +77,7 @@ foreach ( $aTasks as $task ) {
 			} 
 			else if ( "obtain" === $task ) {
 				// Obtain XML result
-				obtainXMLResult();
+				obtainXMLResults();
 			} 
 			else if ( "parse" === $task ) {
 				// Fill page table and request table
