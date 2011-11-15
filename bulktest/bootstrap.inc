@@ -27,9 +27,6 @@ $gAggCounts = array();
 $ghReqOtherHeaders = array();
 $ghRespOtherHeaders = array();
 
-// The status table saves $gErrBase + i to indicate that there is a permanent error happens when the test is in the status i.
-$gErrBase = 400;
-
 // global options
 $video = true;
 $private = false;
