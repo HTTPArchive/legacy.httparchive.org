@@ -8,10 +8,14 @@ define("SUBMIT_DONE", 2);
 define("META_DONE", 3);
 define("DONE", 4);
 
+// The status table saves $gErrBase + i to indicate that there is a permanent error happens when the test is in the status i.
+$gErrBase = 900;
+
 
 // Obtain the tests with specified status code
 function obtainTestsWithCode($status) {
 	global $gStatusTable;
+
 	$query = "SELECT * FROM $gStatusTable WHERE status = $status;";
 	return doQuery($query);
 }
@@ -150,37 +154,47 @@ function parseXMLResult($doc, &$result) {
 }
 
 
-// Obtain XML file of the test result
-function obtainXMLResult() {
-	global $gStatusTable, $gErrBase;
-
-	$wptServer = wptServer();
+// Obtain XML file of the test results
+function obtainXMLResults() {
 	$tests = obtainTestsWithCode(SUBMIT_DONE);
 	if ( !isEmptyQuery($tests) ) {
 		while ( $row = mysql_fetch_assoc($tests) ) {
-			// Fetch the result xml file
-			$doc = new DOMDocument();
-			if ( $doc ) {
-				$request = $wptServer . "xmlResult.php?test=" . $row['wptid'] . "&pagespeed=1";
-				$response = fetchUrl($request);
-				if ( strlen($response) ) {
-					$doc->loadXML($response);
-					$nodes = $doc->getElementsByTagName('statusCode');
-					$status = (int)trim($nodes->item(0)->nodeValue);
-					$runs = (int)$doc->getElementsByTagname('runs')->item(0)->nodeValue;
-					// Sanity check
-					if ( (200 == $status) && ($runs > 0) ) {
-						// Import a website
-						$result = array();
-						parseXMLResult($doc, $result);
-						// Record medianRun in status table
-						$cmd = "UPDATE $gStatusTable SET medianRun = $result[medianRun], startRender = $result[startRender], pagespeedScore = $result[pagespeedScore] WHERE statusid = $row[statusid];";
-						doSimpleCommand($cmd);
-						setStatus($row['statusid'], META_DONE); 
-					} else {
-						setStatus($row['statusid'], SUBMIT_DONE + $gErrBase);
-					}
-				}
+			obtainXMLResult($row['statusid'], $row['wptid']);
+		}
+	}
+}
+
+
+function obtainXMLResult($statusid, $wptid) {
+	global $gStatusTable, $gErrBase;
+
+	// Fetch the result xml file
+	$wptServer = wptServer();
+	$doc = new DOMDocument();
+	if ( $doc ) {
+		$request = $wptServer . "xmlResult.php?test=$wptid&pagespeed=1";
+		$response = fetchUrl($request);
+
+		if ( strlen($response) ) {
+			$doc->loadXML($response);
+			$nodes = $doc->getElementsByTagName('statusCode');
+			$status = (int)trim($nodes->item(0)->nodeValue);
+			$runs = (int)$doc->getElementsByTagname('runs')->item(0)->nodeValue;
+			// Sanity check
+			if ( (200 == $status) && ($runs > 0) ) {
+				// Import a website
+				$result = array();
+				parseXMLResult($doc, $result);
+				// Record medianRun in status table
+				$medianRun = $result['medianRun'];
+				$startRender = $result['startRender'];
+				$pagespeedScore = $result['pagespeedScore'];
+				$cmd = "UPDATE $gStatusTable SET medianRun=$medianRun, startRender=$startRender, pagespeedScore=$pagespeedScore WHERE statusid=$statusid;";
+				doSimpleCommand($cmd);
+				setStatus($statusid, META_DONE); 
+			} 
+			else {
+				setStatus($statusid, SUBMIT_DONE + $gErrBase);
 			}
 		}
 	}
@@ -214,12 +228,9 @@ function importWptResults($statusInfo, $bDebug=false) {
 		if ( ImportHarJson($response, $statusInfo) ) {
 			return DONE;
 		}
-		else {
-			return (META_DONE + $gErrBase); // CVSNO
-		}
 	}
-	else {
-	}
+
+	return (META_DONE + $gErrBase);
 }
 
 
@@ -512,8 +523,6 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 	$urlHtml = $firstHtmlUrl;
 	$urlHtmlShort = substr($urlHtml, 0, 255);
 
-	//CVSNO $rank = doSimpleQuery("select rank from $gUrlsTable where urlOrig='$url' or urlFixed='$url';");
-
 	$cmd = "UPDATE $gPagesTable SET url = " . "'" . mysql_real_escape_string($url) . "'" .
 		", urlShort = " . "'" . mysql_real_escape_string($urlShort) . "'" .
 		", urlHtml = " . "'" . mysql_real_escape_string($urlHtml) . "'" .
@@ -530,7 +539,7 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 		", wptrun = " . $statusInfo['medianRun'] . 
 		", renderStart = " . $statusInfo['startRender'] . 
 		", PageSpeed = " . $statusInfo['pagespeedScore'] .
-		( $rank ? ", rank = $rank" : "" ) . 
+		( $statusInfo['rank'] ? ", rank = " . $statusInfo['rank'] : "" ) .
 		" where pageid = $pageid;";
 	doSimpleCommand($cmd);
 
@@ -558,8 +567,6 @@ function countFailedTests() {
 
 
 function totalNotDone() {
-	global $gErrBase;
-
 	$loadedUrls = countTestsWithCode(NOT_STARTED);
 	$submittedTests = countTestsWithCode(SUBMITTED);
 	$completedTests = countTestsWithCode(SUBMIT_DONE);
