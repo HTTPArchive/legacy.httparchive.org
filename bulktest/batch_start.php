@@ -22,8 +22,9 @@ require_once("bootstrap.inc");
 
 
 // Load the URLs in urls.txt file into status table.
-function loadUrlsFromFile($label) {
-	$urls = file( ($gbMobile ? './urls.1000' : './urls.txt'), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+function loadUrlsFromFile($label, $file=NULL) {
+	$file = ( $file ? $file : ($gbMobile ? './urls.1000' : './urls.txt') );
+	$urls = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
 	foreach( $urls as $url ) {
 		$url = trim($url);
