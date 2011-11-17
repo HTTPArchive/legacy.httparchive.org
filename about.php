@@ -71,6 +71,9 @@ and provides a common data set from which to conduct web performance research.
 
 
 <?php
+// I want some URLs to point back to the main website (currently for adding/removing sites).
+$gMainUrl = ($gbMobile ? $gHAUrl : "" );
+
 $gFAQ =<<<OUTPUT
 			   <h2 id=listofurls>How is the list of URLs generated?</h2>
 
@@ -240,7 +243,7 @@ Definitions for each of the HTTP headers can be found in the
 
 <h2 id=addsite>How do I add a website to the HTTP Archive?</h2>
 <p>
-You can add a website to the HTTP Archive via the <a href="addsite.php">Add a Site page</a>.
+You can add a website to the HTTP Archive via the <a href="{$gMainUrl}addsite.php">Add a Site page</a>.
 </p>
 
 
@@ -248,7 +251,7 @@ You can add a website to the HTTP Archive via the <a href="addsite.php">Add a Si
 <h2 id=removesite>How do I get my website removed from the HTTP Archive?</h2>
 <p>
 You can have your site removed from the HTTP Archive via the
-<a href="removesite.php">Remove Your Site page</a>.
+<a href="{$gMainUrl}removesite.php">Remove Your Site page</a>.
 </p>
 
 
