@@ -61,7 +61,7 @@ Got a stat you'd like to see?
 <form>
 	<label>Choose URLs:</label>
 <?php
-echo selectSlice($gSlice, "onchange='document.location=\"?a=$archive&l=$gLabel&s=\"+escape(this.options[this.selectedIndex].value)'");
+echo selectSlice($gSlice, "onchange='document.location=\"?a=$gArchive&l=$gLabel&s=\"+escape(this.options[this.selectedIndex].value)'");
 ?>
 </form>
 
@@ -76,6 +76,7 @@ echo bytesContentTypeChart($hStats) . "\n";
 echo responseSizes($hStats) . "\n";
 echo percentGoogleLibrariesAPI($hStats) . "\n";
 echo percentFlash($hStats) . "\n";
+echo percentFonts($hStats) . "\n";
 echo popularImageFormats($hStats) . "\n";
 echo maxage($hStats) . "\n";
 echo percentByProtocol($hStats) . "\n";
