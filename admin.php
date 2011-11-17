@@ -43,13 +43,26 @@ if ( "create" === $gAction ) {
 	createTables();
 	echo "<p>DONE</p>\n";
 } 
-else if ( "approveUrl" == $gAction) {
-	approveUrl(getParam('u'));
-	echo "<p class=warning> URL '".getParam('u')."' was approved!";
-} 
-else if ( "rejectUrl" == $gAction) {
-	rejectUrl(getParam('u'));
-	echo "<p class=warning> URL '".getParam('u')."' was rejected!";
+
+$iUrl = 1;
+while(true) {
+	$action = getParam("a$iUrl");
+	$url = urldecode(getParam("u$iUrl"));
+
+	if ( $action && $url ) {
+		if ( "approve" === $action ) {
+			approveUrl($url);
+			echo "<p class=warning> URL \"$url\" was approved!</p>";
+		} 
+		else if ( "reject" === $action) {
+			rejectUrl($url);
+			echo "<p class=warning> URL \"$url\" was rejected!</p>";
+		}
+		$iUrl++;
+		continue;
+	}
+
+	break;
 }
 ?>
 </div>
@@ -60,8 +73,9 @@ else if ( "rejectUrl" == $gAction) {
 <?php
 $result = pendingUrls();
 if ( $result != -1) {
-	echo "<table>\n<tr> <td>URL</td> <td>Date Requested</td> <td>Similar URLs</td> <td>Action</td> </tr>\n";
-	while($row = mysql_fetch_assoc($result)){
+	echo "<form name=urlsform><table>\n<tr><td align=right colspan=5><input type=submit value='Submit'></td></tr>\n<tr> <td>URL</td> <td>Date Requested</td> <td>Similar URLs</td> <td>Approve</td> <td>Reject</td> </tr>\n";
+	$iUrl = 0;
+	while($row = mysql_fetch_assoc($result) && $iUrl < 5){
 		$url = $row['url'];
 		$sld = secondLevelDomain($url);
 		$query = "select urlOrig, urlFixed, rank, other from $gUrlsTable where urlOrig like '%.$sld%' or urlOrig like '%/$sld%' or urlFixed like '%.$sld%' or urlFixed like '%/$sld%' order by rank asc;";
@@ -82,12 +96,14 @@ if ( $result != -1) {
 			$sSimilar .= "<br>" . ($iSimilar - $nShow) . " more...";
 		}
 
+		$iUrl++;
 		echo "<tr> <td><a href='$url'>$url</td> <td>" . date("h:ia m/d/Y",$row['createDate']) . "</td>" . 
-			" <td>$sSimilar</td>" . 
-			" <td><a href=\"admin.php?a=approveUrl&u=" . urlencode($url) . "\">Approve</a> | <a href=\"admin.php?a=rejectUrl&u=" . 
-			urlencode($url) . "\">Reject</a></td> </tr>\n";
+			" <td>$sSimilar</td> <input type=hidden name=u$iUrl value='" . urlencode($url) . "'>" .
+			" <td><input type=radio name=a$iUrl value='approve' style='vertical-align: top;' checked></td> " .
+			" <td><input type=radio name=a$iUrl value='reject' style='vertical-align: top;'></td> " .
+			"</tr>\n";
 	}
-	echo "</table>";
+	echo "<tr><td align=right colspan=5><input type=submit value='Submit'></td></tr>\n</table></form>\n";
 	mysql_free_result($result);
 } 
 else {
