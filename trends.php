@@ -56,6 +56,7 @@ if ( "intersection" != $gSlice ) {
 </div>
 
 <?php
+$gUrl = NULL; // TODO - get rid of this
 require_once('trends.inc');
 ?>
 
