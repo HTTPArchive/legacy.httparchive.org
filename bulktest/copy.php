@@ -122,7 +122,12 @@ $cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table -u $gMys
 exec($cmd);
 exec("gzip -f $dumpfile");
 exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
-exec("cp -p $dumpfile.gz ~/mobile.httparchive.org/downloads/");
+if ( $gbMobile ) {
+	exec("cp -p $dumpfile.gz ~/dev.httparchive.org/downloads/");
+}
+else {
+	exec("cp -p $dumpfile.gz ~/mobile.httparchive.org/downloads/");
+}
 echo "...mysqldump file created and copied: $dumpfile\n";
 
 // schema mysql dump
@@ -131,7 +136,12 @@ echo "Creating mysqldump file $dumpfile ...\n";
 $cmd = "mysqldump --no-data --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop $gPagesTableDesktop $gRequestsTableDesktop $gPagesTableMobile $gRequestsTableMobile > $dumpfile";
 exec($cmd);
 exec("cp -p $dumpfile ~/httparchive.org/downloads/");
-exec("cp -p $dumpfile ~/mobile.httparchive.org/downloads/");
+if ( $gbMobile ) {
+	exec("cp -p $dumpfile ~/dev.httparchive.org/downloads/");
+}
+else {
+	exec("cp -p $dumpfile ~/mobile.httparchive.org/downloads/");
+}
 echo "...mysqldump file created and copied: $dumpfile\n";
 
 
