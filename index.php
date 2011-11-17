@@ -86,6 +86,7 @@ gaSnippets.push("<?php echo bytesContentTypeChart($hStats) ?>");
 gaSnippets.push("<?php echo responseSizes($hStats) ?>");
 gaSnippets.push("<?php echo percentGoogleLibrariesAPI($hStats) ?>");
 gaSnippets.push("<?php echo percentFlash($hStats) ?>");
+gaSnippets.push("<?php echo percentFonts($hStats) ?>");
 gaSnippets.push("<?php echo popularImageFormats($hStats) ?>");
 gaSnippets.push("<?php echo maxage($hStats) ?>");
 gaSnippets.push("<?php echo percentByProtocol($hStats) ?>");
