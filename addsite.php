@@ -54,7 +54,12 @@ if ( $gRurl ) {
 		if ( $existingUrl ) {
 			$query = "select max(pageid) as pageid from $gPagesTable where url='$existingUrl';";
 			$pageid = doSimpleQuery($query);
-			echo "<p class=warning>$gRurl is already in the list of URLs. See the <a href='http://dev.httparchive.org/viewsite.php?pageid=$pageid'>latest results</a>.</p>\n";
+			if ( $pageid ) {
+				echo "<p class=warning>$gRurl is already in the list of URLs. See the <a href='http://dev.httparchive.org/viewsite.php?pageid=$pageid'>latest results</a>.</p>\n";
+			}
+			else {
+				echo "<p class=warning>$gRurl is already in the list of URLs.</p>\n";
+			}
 		}
 		else {
 			addSite($gRurl);  // queue it for adding
