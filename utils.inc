@@ -17,6 +17,9 @@ limitations under the License.
 
 require_once("settings.inc");
 
+$gHAUrl = "http://httparchive.org/";
+$gHAMUrl = "http://mobile.httparchive.org/";
+
 // TODO - remove this - it's deprecated
 $gArchive = "All";
 
