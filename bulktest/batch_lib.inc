@@ -13,10 +13,18 @@ $gErrBase = 900;
 
 
 // Obtain the tests with specified status code
-function obtainTestsWithCode($status) {
+// $divisor and $modulo let us split the job across multiple processes, 
+// eg, you could have 3 processes where proc 1 is modulo 1, proc 2 is 2, and proc 3 is 0
+function obtainTestsWithCode($status, $divisor=NULL, $modulo=NULL) {
 	global $gStatusTable;
 
-	$query = "SELECT * FROM $gStatusTable WHERE status = $status;";
+	if ( $divisor && ($divisor > $module) ) {
+		$query = "SELECT * FROM $gStatusTable WHERE status = $status and $modulo = (statusid % $divisor);";
+	}
+	else {
+		$query = "SELECT * FROM $gStatusTable WHERE status = $status;";
+	}
+
 	return doQuery($query);
 }
 
@@ -43,8 +51,8 @@ function fetchUrl($fn) {
 // Set status code in status table
 function setStatus($statusid, $status) {
 	global $gStatusTable;
-	$now = time();
-	$cmd = sprintf("UPDATE %s SET status = %d, timeOfLastChange = '%s' WHERE statusid = %d;", $gStatusTable, $status, mysql_real_escape_string($now), $statusid);
+
+	$cmd = "UPDATE $gStatusTable SET status = $status, timeOfLastChange = " . time() . " WHERE statusid = $statusid;";
 	doSimpleCommand($cmd);
 }
 
@@ -55,19 +63,14 @@ function submitTest(&$record, $status) {
 	global $video, $private, $runs, $docComplete, $fvonly, $mv, $wptApiKey;
 
 	$wptServer = wptServer();
-	$request = $wptServer . 'runtest.php?f=xml&priority=6&url=' . urlencode($record['url']) . "&location={$record['location']}&runs=$runs";
-	if( $private )
-		$request .= '&private=1';
-	if ( $video )
-		$request .= '&video=1';
-	if ( $docComplete )
-		$request .= '&web10=1';
-	if ( $fvonly )
-		$request .= '&fvonly=1';
-	if ( $mv )
-		$request .= '&mv=1';
-	if ( $wptApiKey )
-		$request .= "&k=$wptApiKey";
+	$request = $wptServer . 'runtest.php?f=xml&priority=6&url=' . urlencode($record['url']) . 
+		"&location={$record['location']}&runs=$runs" .
+		( $private ? "&private=1" : "" ) .
+		( $video ? "&video=1" : "" ) .
+		( $docComplete ? "&web10=1" : "" ) .
+		( $fvonly ? "&fvonly=1" : "" ) .
+		( $mv ? "&mv=1" : "" ) .
+		( $wptApiKey ? "&k=$wptApiKey" : "" );
 
 	$doc = new DOMDocument();
 	if ( $doc ) {
@@ -80,10 +83,12 @@ function submitTest(&$record, $status) {
 				// Update status col in status table
 				$nodes = $doc->getElementsByTagName('testId');
 				$id = trim($nodes->item(0)->nodeValue);
-				$cmd = sprintf("UPDATE %s SET wptid = '%s', wptRetCode = %d WHERE statusid = %d;", $gStatusTable, mysql_real_escape_string($id), $code, $record['statusid']);
+				$statusid = $record['statusid'];
+				$cmd = "UPDATE $gStatusTable SET wptid = '$id', wptRetCode = $code WHERE statusid = $statusid;", 
 				doSimpleCommand($cmd);
-				setStatus($record['statusid'], SUBMITTED);
-			} else {
+				setStatus($statusid, SUBMITTED);
+			} 
+			else {
 				$cmd = "UPDATE $gStatusTable SET wptRetCode = $code WHERE statusid = $record[statusid];";
 				doSimpleCommand($cmd);
 				$err_status = $gErrBase + $status;
@@ -155,8 +160,8 @@ function parseXMLResult($doc, &$result) {
 
 
 // Obtain XML file of the test results
-function obtainXMLResults() {
-	$tests = obtainTestsWithCode(SUBMIT_DONE);
+function obtainXMLResults($divisor=NULL, $modulo=NULL) {
+	$tests = obtainTestsWithCode(SUBMIT_DONE, $divisor, $modulo);
 	if ( !isEmptyQuery($tests) ) {
 		while ( $row = mysql_fetch_assoc($tests) ) {
 			obtainXMLResult($row['statusid'], $row['wptid']);
@@ -202,10 +207,10 @@ function obtainXMLResult($statusid, $wptid) {
 
 
 // Fill the pagestable and requesttable with the info of the median run.
-function fillTables() {
+function fillTables($divisor=NULL, $modulo=NULL) {
 	global $gErrBase;
 
-	$tests = obtainTestsWithCode(META_DONE);
+	$tests = obtainTestsWithCode(META_DONE, $divisor, $modulo);
 	if ( !IsEmptyQuery($tests) ) {
 		while ($statusInfo = mysql_fetch_assoc($tests)) {
 			$status = importWptResults($statusInfo);
