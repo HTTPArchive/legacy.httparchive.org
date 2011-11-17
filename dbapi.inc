@@ -112,6 +112,23 @@ function sliceCond($label, $slice, $device, $url = "") {
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// PAGES
+//
+////////////////////////////////////////////////////////////////////////////////
+
+function urlHasData($url) {
+	global $gPagesTable, $gDateRange;
+
+	$query = "select count(*) from $gPagesTable where url = '$url';";
+	$bHasData = doSimpleQuery($query);
+
+	return $bHasData;
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // STATS
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -234,7 +251,7 @@ function getTrendsData($slice, $device) {
 		", ROUND(reqTotal) as reqTotal, TRUNCATE(reqHtml, 1) as reqHtml, ROUND(reqJS) as reqJS, TRUNCATE(reqCSS, 1) as reqCSS, ROUND(reqImg) as reqImg" .
 		", TRUNCATE(reqFlash, 1) as reqFlash, ROUND(bytesTotal/1024) as bytesTotal, ROUND(bytesHtml/1024) as bytesHtml, ROUND(bytesJS/1024) as bytesJS" .
 		", ROUND(bytesCSS/1024) as bytesCSS, ROUND(bytesImg/1024) as bytesImg, ROUND(bytesFlash/1024) as bytesFlash" .
-		", ROUND(PageSpeed) as PageSpeed, ROUND(numDomains) as numDomains, perFlash, perGlibs, maxageNull, perErrors, perHttps, perRedirects" .
+		", ROUND(PageSpeed) as PageSpeed, ROUND(numDomains) as numDomains, perFlash, perFonts, perGlibs, maxageNull, perErrors, perHttps, perRedirects" .
 		" from $statsTable where slice='$slice' and device='$device';";
 	$result = doQuery($query);
 	$hTrends = array();
@@ -296,6 +313,7 @@ function removeStatsData($label, $slice=NULL, $device=NULL) {
 
 
 // return a hash of stats
+// (FYI - we NEVER enter here with $slice = "url")
 function computeStatsData($label, $slice, $device) {
 	$hStats = array();
 	$sliceCond = sliceCond($label, $slice, $device);  // this might be expensive - compute it once
@@ -395,25 +413,33 @@ function computeOther($label, $slice, $device, $sliceCond) {
 	$hTuples = array();
 
 	// redirects
-	$num = doSimpleQuery("select count(distinct pageid) as num from $requestsTable where $sliceCond and status>=300 and status<400 and status!=304;");
+	$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and status>=300 and status<400 and status!=304;");
 	$hTuples['perRedirects'] = round(100*$num/$totalPages);
 
 	// errors
-	$num = doSimpleQuery("select count(distinct pageid) as num from $requestsTable where $sliceCond and status>=400 and status<600;");
+	$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and status>=400 and status<600;");
 	$hTuples['perErrors'] = round(100*$num/$totalPages);
 
 	// flash usage
 	$num = doSimpleQuery("select count(*) from $pagesTable where $sliceCond and reqFlash > 0;");
 	$hTuples['perFlash'] = round(100*$num/$totalPages);
 
+	// custom fonts
+	$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and ( " .
+						 "(resp_content_type like '%font%') or " .   // content-type contains "font"
+						 "(urlShort like 'http://use.typekit.%' and resp_content_type = 'text/css') or " . // TypeKit CSS with data: URIs
+						 "(url like '%.eot' or url like '%.eot?%' or url like '%.ttf' or url like '%.ttf?%' or url like '%.ttc' or url like '%.ttc?%' or url like '%.woff' or url like '%.woff?%' or url like '%.otf' or url like '%.otf?%')" . // file extension
+						 ");");
+	$hTuples['perFonts'] = round(100*$num/$totalPages);
+
 	// Google Ajax Libraries	
-	$tmpPageidCond = str_replace("pageid", "rt.pageid", $sliceCond); // need to scope the pageid variable to a specific table.
-	$num = doSimpleQuery("select count(distinct $pagesTable.pageid) from $pagesTable, $requestsTable rt where $tmpPageidCond and rt.pageid=$pagesTable.pageid and rt.url like '%googleapis.com%';");
+	$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and url like '%googleapis.com%';");
 	$hTuples['perGlibs'] = round(100*$num/$totalPages);
 
 	// https
 	$num = doSimpleQuery("select count(*) from $requestsTable where $sliceCond and url like 'https://%'");
 	$hTuples['perHttps'] = round(100*$num/$totalRequests);
+
 
 	// max-age caching
 	$query = "select ceil( convert( substring( resp_cache_control, (length(resp_cache_control) + 2 - locate('=ega-xam', reverse(resp_cache_control))) ), SIGNED ) / 86400) as maxagedays, count(*) as num from $requestsTable where $sliceCond and resp_cache_control like '%max-age=%' group by maxagedays order by maxagedays asc;";
