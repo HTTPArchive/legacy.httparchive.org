@@ -84,7 +84,7 @@ function submitTest(&$record, $status) {
 				$nodes = $doc->getElementsByTagName('testId');
 				$id = trim($nodes->item(0)->nodeValue);
 				$statusid = $record['statusid'];
-				$cmd = "UPDATE $gStatusTable SET wptid = '$id', wptRetCode = $code WHERE statusid = $statusid;", 
+				$cmd = "UPDATE $gStatusTable SET wptid = '$id', wptRetCode = $code WHERE statusid = $statusid;";
 				doSimpleCommand($cmd);
 				setStatus($statusid, SUBMITTED);
 			} 
