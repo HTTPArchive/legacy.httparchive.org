@@ -114,6 +114,15 @@ function percentFlash($hStats) {
 }
 
 
+function percentFonts($hStats) {
+	$yes = $hStats['perFonts'];
+	$no = 100-$yes;
+	$aVarNames = array("No Fonts $no%", "Fonts $yes%");
+	$aVarValues = array($no, $yes);
+	return pieChart("Pages Using Custom Fonts", "fonts", $aVarNames, $aVarValues, "CF557B");
+}
+
+
 function popularImageFormats($hStats) {
 	$total = $hStats['reqImg'];
 	$gif = round(100*$hStats['reqGif'] / $total);
