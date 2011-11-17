@@ -20,21 +20,6 @@ require_once("urls.inc");
 
 $gTitle = "Remove Your Site";
 $gRurl = ( array_key_exists('rurl', $_GET) ? $_GET['rurl'] : '' );
-$is_valid_url = false;
-$url_to_fetch = "";
-$bRemovalConfirmed = false;
-if ( $gRurl ) {
-	// Do some basic validation
-	$is_valid_url = preg_match("/^(http|https):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?/i", $gRurl);
-  
-	if ( $is_valid_url ) {
-		// make sure we have a trailing slash
-		$url_to_fetch = substr($gRurl, -1) == '/' ? $gRurl : $gRurl . '/';
-		$url_to_fetch .= 'removehttparchive.txt';
-		$bRemovalConfirmed = ( FALSE != @file($url_to_fetch) );
-	}
-}
-
 ?>
 <!doctype html>
 <html>
@@ -71,17 +56,34 @@ $(function() {
 <h1><?php echo $gTitle ?></h1>
 
 <?php
+$is_valid_url = false;
+$url_to_fetch = "";
+$bRemovalConfirmed = false;
 if ( $gRurl ) {
+	// Do some basic validation
+	$is_valid_url = preg_match("/^(http|https):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?/i", $gRurl);
+  
 	if ( ! $is_valid_url ) {
 		echo "<p class=warning>The URL entered is invalid: $gRurl</p>\n";
 	}
 	else {
-		if ( ! $bRemovalConfirmed ) {
-			echo "<p class=warning><a href='$url_to_fetch' style='text-decoration: underline; color: #870E00;'>$url_to_fetch</a> was not found.<br>$gRurl is still archived.</p>\n";
+		$existingUrl = urlExists($gRurl);
+		if ( ! $existingUrl ) {
+			echo "<p class=warning>Nothing to remove - the URL \"$gRurl\" doesn't exist in the HTTP Archive.</p>\n";
 		}
 		else {
-			removeSite($gRurl);  // queue it for removal
-			echo "<p class=warning style='margin-bottom: 0;'>$gRurl will be removed within five business days.</p>\n<p style='margin-top: 0;'>You can remove removehttparchive.txt now.</p>";
+			// make sure we have a trailing slash
+			$url_to_fetch = substr($gRurl, -1) == '/' ? $gRurl : $gRurl . '/';
+			$url_to_fetch .= 'removehttparchive.txt';
+			// This requires setting this in php.ini: allow_url_fopen = On
+			$bRemovalConfirmed = ( FALSE === @file_get_contents($url_to_fetch) ? false : true );
+			if ( ! $bRemovalConfirmed ) {
+				echo "<p class=warning><a href='$url_to_fetch' style='text-decoration: underline; color: #870E00;'>$url_to_fetch</a> was not found.<br>$gRurl is still archived.</p>\n";
+			}
+			else {
+				removeSite($gRurl);  // queue it for removal
+				echo "<p class=warning style='margin-bottom: 0;'>$gRurl will be removed within five business days.</p>\n<p style='margin-top: 0;'>You can remove removehttparchive.txt now.</p>";
+			}
 		}
 	}
 }
