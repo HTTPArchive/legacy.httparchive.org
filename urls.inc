@@ -82,16 +82,27 @@ function urlExists($url) {
 // Returns a mysql result instance of all pending urls
 function pendingUrls() {
 	global $gUrlsChangeTable;
-	$query = "select url, createDate from $gUrlsChangeTable where action = 'add' order by createDate asc;";
+	$query = "select url, createDate, action from $gUrlsChangeTable order by action, createDate asc;";
 	$result = doQuery($query);
 	return ( $result ? $result : -1);
 }
 
  
 // Approves a url in the 'add' state.
-function approveUrl($url) {
+function approveAddUrl($url) {
 	global $gUrlsChangeTable;
 	addOtherUrl($url);
+	$cmd = "delete from $gUrlsChangeTable where url='$url';";
+	doSimpleCommand($cmd);
+}
+
+ 
+// Approves a url in the 'add' state.
+function approveRemoveUrl($url) {
+	global $gUrlsChangeTable;
+
+	removeUrlData($url);
+
 	$cmd = "delete from $gUrlsChangeTable where url='$url';";
 	doSimpleCommand($cmd);
 }
@@ -114,8 +125,28 @@ function rejectUrl($url) {
 
 
 function removeUrlData($url) {
-	global $gPagesTable, $gRequestsTable;
-	// TODO
+	global $gPagesTable, $gRequestsTable, $gUrlsTable;
+
+	// delete it from the urls table so it's no longer crawled
+	$cmd = "delete from $gUrlsTable where urlOrig='$url' or urlFixed='$url';";
+	doSimpleCommand($cmd);
+
+	$result = doQuery("select pageid from $gPagesTable where url='$url';");
+	$aPageids = array();
+	while ( $row = mysql_fetch_assoc($result) ) {
+		$aPageids[] = $row['pageid'];
+	}
+	mysql_free_result($result);
+
+	$sPageids = implode(",", $aPageids);
+	if ( $sPageids ) {
+		$cmd = "delete from $gPagesTable where pageid in ($sPageids);";
+		doSimpleCommand($cmd);
+		$cmd = "delete from $gRequestsTable where pageid in ($sPageids);";
+		doSimpleCommand($cmd);
+	}
+
+	// TODO - we should recompute all the stats at this point - ouch
 }
 
 
