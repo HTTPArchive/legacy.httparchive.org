@@ -37,7 +37,9 @@ $gTitle = "Admin";
 
 <div style="margin-top: 40px;">
 <?php
+$gbSimilar = getParam('sim', false);
 $gAction = getParam('a');
+
 if ( "create" === $gAction ) {
 	echo "<p>Creating MySQL tables...</p>\n";
 	createTables();
@@ -50,13 +52,17 @@ while(true) {
 	$url = urldecode(getParam("u$iUrl"));
 
 	if ( $action && $url ) {
-		if ( "approve" === $action ) {
-			approveUrl($url);
-			echo "<p class=warning> URL \"$url\" was approved!</p>";
+		if ( "add" === $action ) {
+			approveAddUrl($url);
+			echo "<p class=warning> URL \"$url\" was added.</p>";
+		} 
+		if ( "remove" === $action ) {
+			approveRemoveUrl($url);
+			echo "<p class=warning> URL \"$url\" was removed.</p>";
 		} 
 		else if ( "reject" === $action) {
 			rejectUrl($url);
-			echo "<p class=warning> URL \"$url\" was rejected!</p>";
+			echo "<p class=warning> URL \"$url\" was rejected.</p>";
 		}
 		$iUrl++;
 		continue;
@@ -68,39 +74,49 @@ while(true) {
 </div>
 
 <a href="admin.php?a=create">create MySQL tables</a>
-<h2>URL Add Requests</h2>
+
+
+
+
+
+<h2>URL Add/Remove Requests</h2>
  
 <?php
 $result = pendingUrls();
 if ( $result != -1) {
-	echo "<form name=urlsform><table>\n<tr><td align=right colspan=5><input type=submit value='Submit'></td></tr>\n<tr> <td>URL</td> <td>Date Requested</td> <td>Similar URLs</td> <td>Approve</td> <td>Reject</td> </tr>\n";
+	echo "<form name=urlsform><table>\n<tr><td colspan=4><a href='admin.php?sim=1'>I have time - find similar URLs</a></td> <td><input type=submit value='Submit'></td></tr>\n<tr> <td>URL</td> <td>Date Requested</td> <td>Similar URLs</td> <td>Action</td> <td>Reject</td> </tr>\n";
 	$iUrl = 0;
-	while($row = mysql_fetch_assoc($result) && $iUrl < 5){
+	while ( ($row = mysql_fetch_assoc($result)) && ($iUrl < 5) ){
 		$url = $row['url'];
+		$action = $row['action'];
+
+		// Find similar URLs.
 		$sld = secondLevelDomain($url);
-		$query = "select urlOrig, urlFixed, rank, other from $gUrlsTable where urlOrig like '%.$sld%' or urlOrig like '%/$sld%' or urlFixed like '%.$sld%' or urlFixed like '%/$sld%' order by rank asc;";
-		$result2 = doQuery($query);
 		$sSimilar = "";
 		$iSimilar = 0;
 		$nShow = 3;
-		while ($row2 = mysql_fetch_assoc($result2)) {
-			$iSimilar++;
-			if ( $iSimilar <= $nShow ) {
-				$url2 = ( $row2['urlFixed'] ? $row2['urlFixed'] : $row2['urlOrig'] );
-				$rank = ( $row2['rank'] ? commaize($row2['rank']) : ( $row2['other'] ? "other" : "n/a" ) );
-				$sSimilar .= ( $sSimilar ? "<br>" : "" ) . "$url2 ($rank)";
+		$query = "select urlOrig, urlFixed, rank, other from $gUrlsTable where urlOrig like '%.$sld%' or urlOrig like '%/$sld%' or urlFixed like '%.$sld%' or urlFixed like '%/$sld%' order by rank asc limit $nShow;";
+		if ( $gbSimilar ) {
+			$result2 = doQuery($query);
+			while ($row2 = mysql_fetch_assoc($result2)) {
+				$iSimilar++;
+				if ( $iSimilar <= $nShow ) {
+					$url2 = ( $row2['urlFixed'] ? $row2['urlFixed'] : $row2['urlOrig'] );
+					$rank = ( $row2['rank'] ? commaize($row2['rank']) : ( $row2['other'] ? "other" : "n/a" ) );
+					$sSimilar .= ( $sSimilar ? "<br>" : "" ) . "$url2 ($rank)";
+				}
 			}
-		}
-		mysql_free_result($result2);
-		if ( $iSimilar > $nShow ) {
-			$sSimilar .= "<br>" . ($iSimilar - $nShow) . " more...";
+			mysql_free_result($result2);
+			if ( $iSimilar > $nShow ) {
+				$sSimilar .= "<br>" . ($iSimilar - $nShow) . " more...";
+			}
 		}
 
 		$iUrl++;
 		echo "<tr> <td><a href='$url'>$url</td> <td>" . date("h:ia m/d/Y",$row['createDate']) . "</td>" . 
 			" <td>$sSimilar</td> <input type=hidden name=u$iUrl value='" . urlencode($url) . "'>" .
-			" <td><input type=radio name=a$iUrl value='approve' style='vertical-align: top;' checked></td> " .
-			" <td><input type=radio name=a$iUrl value='reject' style='vertical-align: top;'></td> " .
+			" <td><input type=radio name=a$iUrl value='$action' style='vertical-align: top;' checked> $action</td> " .
+			" <td><input type=radio name=a$iUrl value='reject' style='vertical-align: top;'> reject</td> " .
 			"</tr>\n";
 	}
 	echo "<tr><td align=right colspan=5><input type=submit value='Submit'></td></tr>\n</table></form>\n";
@@ -110,6 +126,7 @@ else {
 	print "An Error Occured! URLs could not be loaded.";
 }
 ?>
+
 
 
 <?php echo uiFooter() ?>
