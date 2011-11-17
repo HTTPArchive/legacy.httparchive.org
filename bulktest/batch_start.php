@@ -86,8 +86,8 @@ createTables();
 
 // Update the list of URLs from Alexa:
 if ( ! $gbMobile ) {
-   // TODO - Should we do this for $gbMobile too?????
-   require_once("importurls.php");
+	// TODO - Should we do this for $gbMobile too?????
+	require_once("importurls.php");
 }
 
 // Empty the status table
