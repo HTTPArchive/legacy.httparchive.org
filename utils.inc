@@ -164,6 +164,7 @@ $ghColumnTitles = array (
 						 "bytesFlash" => "Flash Transfer Size",
 						 "numDomains" => "Domains",
 						 "perFlash" => "Sites with Flash",
+						 "perFonts" => "Sites with Custom Fonts",
 						 "maxageNull" => "Requests with Caching Headers",
 						 "perGlibs" => "Sites using Google Libraries API",
 						 "perHttps" => "HTTPS Requests",
@@ -1581,6 +1582,7 @@ $ghFieldColors = array(
 					   "bytesFlash" => "222222",
 					   "numDomains" => "AA0033",
 					   "perFlash" => "AA0033",
+					   "perFonts" => "CF557B",
 					   "perErrors" => "B09542",
 					   "perHttps" => "B4B418",
 					   "perRedirects" => "008000",
@@ -1597,6 +1599,7 @@ $ghFieldUnits = array("onLoad" => "ms",
 					  "bytesFlash" => "kB",
 					  "bytesImg" => "kB",
 					  "perFlash" => "%",
+					  "perFonts" => "%",
 					  "perErrors" => "%",
 					  "perRedirects" => "%",
 					  "perHttps" => "%",
@@ -1806,6 +1809,13 @@ Oct 27, 2011 - Remove "harfile" column and reset unique index. Shorten columns.
   mysql> drop index startedDateTime on pagesdev;
   mysql> alter table pagesdev add unique key (label, urlShort);
   mysql> alter table pagesdev drop column harfile;
+
+Nov 3, 2011 - add "rank" column to status table
+  mysql> drop table statusdev; drop table statusmobile;
+
+Nov 16, 2011 - add perFonts column to stats table
+  mysql> alter table statsdev add column perFonts int(4) unsigned after perFlash;
+
 *******************************************************************************/
 function createTables() {
 	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gUrlsChangeTable, $gSettingsTable;
@@ -1972,6 +1982,7 @@ function createTables() {
 			", perRedirects int(4) unsigned" .
 			", perErrors int(4) unsigned" .
 			", perFlash int(4) unsigned" .
+			", perFonts int(4) unsigned" .
 			", perGlibs int(4) unsigned" .
 /*
 			// % of sites that use this JS library
