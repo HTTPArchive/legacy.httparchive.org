@@ -13,6 +13,8 @@ push :
 pushmobile :
 	cp -p *.php *.inc *.js *.css favicon.ico robots.txt ~/mobile.httparchive.org/.
 	/bin/rm ~/mobile.httparchive.org/admin.php
+	/bin/rm ~/mobile.httparchive.org/addsite.php
+	/bin/rm ~/mobile.httparchive.org/removesite.php
 	mkdir -p ~/mobile.httparchive.org/images
 	cp -p images/*.* ~/mobile.httparchive.org/images/.
 	mkdir -p ~/mobile.httparchive.org/lists
