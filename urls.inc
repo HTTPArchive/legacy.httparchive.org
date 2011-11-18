@@ -76,7 +76,17 @@ function urlExists($url) {
 
 	$query = "select urlOrig, urlFixed from $gUrlsTable where urlOrig='$url' or urlFixed='$url';";
 	$row = doRowQuery($query);
-	return ( $row['urlFixed'] ? $row['urlFixed'] : $row['urlOrig'] );
+	$existingUrl = ( $row['urlFixed'] ? $row['urlFixed'] : $row['urlOrig'] );
+
+	if ( !$existingUrl && FALSE === strpos($url, "http://www.") && FALSE === strpos($url, "https://www.") ) {
+		$url = str_replace("http://", "http://www.", $url);
+		$url = str_replace("https://", "https://www.", $url);
+		$query = "select urlOrig, urlFixed from $gUrlsTable where urlOrig='$url' or urlFixed='$url';";
+		$row = doRowQuery($query);
+		$existingUrl = ( $row['urlFixed'] ? $row['urlFixed'] : $row['urlOrig'] );
+	}
+
+	return $existingUrl;
 }
  
 // Returns a mysql result instance of all pending urls
