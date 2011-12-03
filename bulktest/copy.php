@@ -69,7 +69,7 @@ if ( getStats($gLabel, "All", $device) ) {
 else {
 	echo "Computing stats...\n";
 
-	// remove any incomplete cache files that might have been created during the crawl
+	// remove any incomplete cache data that might have been created during the crawl
 	removeStats($gLabel, NULL, $device);
 
 	// remove intersection files since the intersection might have changed
