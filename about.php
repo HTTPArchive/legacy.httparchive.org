@@ -125,9 +125,9 @@ The time measurements are gathered in a test environment, and thus have all the 
 <ul class=indent> 
 <li>browser - All tests are performed using Internet Explorer 8. 
 Page load times can vary depending on browser.
-<li>location - The HAR files are generated from WebPagetest.org's location in Dulles, Virginia.
+<li>location - The HAR files are generated from WebPagetest.org's location in Redwood City, CA.
 The distance to the site's servers can affect time measurements.
-<li>sample size - Each URL is loaded nine times. The HAR file is generated from the median test run.
+<li>sample size - Each URL is loaded three times. The HAR file is generated from the median test run.
 This is not a large sample size.
 <li>Internet connection - The connection speed, latency, and packet loss from the test location 
 is another variable that affects time measurements.
