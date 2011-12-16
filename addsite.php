@@ -25,7 +25,7 @@ $is_valid_url = false;
 if ( $gRurl ) {
 	// Do some basic validation
 	$is_valid_url = preg_match("/^(http|https):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?/i", $gRurl);
-	if ( FALSE === strpos($gRurl, "/", 10) ) {
+	if ( $is_valid_url && FALSE === strpos($gRurl, "/", 10) ) {
 		$gRurl .= "/";
 	}
 }
@@ -50,18 +50,33 @@ if ( $gRurl ) {
 		echo "<p class=warning>The URL entered is invalid: $gRurl</p>\n";
 	}
 	else {
-		$existingUrl = urlExists($gRurl);
+		$existingUrl = urlExists($gRurl, $other, $optout);
+		$bAdd = false;
 		if ( $existingUrl ) {
-			$query = "select max(pageid) as pageid from $gPagesTable where url='$existingUrl';";
-			$pageid = doSimpleQuery($query);
-			if ( $pageid ) {
-				echo "<p class=warning>$gRurl is already in the list of URLs. See the <a href='viewsite.php?pageid=$pageid'>latest results</a>.</p>\n";
+			if ( $optout ) {
+				$bAdd = false;
+				echo "<p class=warning>The owner of $gRurl has opted out of the HTTP Archive.</p>\n";
+			}
+			else if ( ! $other ) {
+				$bAdd = true;
 			}
 			else {
-				echo "<p class=warning>$gRurl is already in the list of URLs.</p>\n";
+				$bAdd = false;
+				$query = "select max(pageid) as pageid from $gPagesTable where url='$existingUrl';";
+				$pageid = doSimpleQuery($query);
+				if ( $pageid ) {
+					echo "<p class=warning>$gRurl is already in the list of URLs. See the <a href='viewsite.php?pageid=$pageid'>latest results</a>.</p>\n";
+				}
+				else {
+					echo "<p class=warning>$gRurl is already in the list of URLs but doesn't have any data yet. It will be included in the next crawl.</p>\n";
+				}
 			}
 		}
 		else {
+			$bAdd = true;
+		}
+
+		if ( $bAdd ) {
 			addSite($gRurl);  // queue it for adding
 			echo "<p class=warning>$gRurl will be added within five business days and will be included in the next crawl after that.</p>\n";
 		}
