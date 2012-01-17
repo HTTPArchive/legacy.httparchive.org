@@ -71,19 +71,23 @@ function removeSite($url) {
 
 
 // return true if the URL is already in the list
-function urlExists($url) { 
+function urlExists($url, &$other=NULL, &$optout=NULL) { 
 	global $gUrlsTable;
 
-	$query = "select urlOrig, urlFixed from $gUrlsTable where urlOrig='$url' or urlFixed='$url';";
+	$query = "select urlOrig, urlFixed, other, optout from $gUrlsTable where urlOrig='$url' or urlFixed='$url';";
 	$row = doRowQuery($query);
 	$existingUrl = ( $row['urlFixed'] ? $row['urlFixed'] : $row['urlOrig'] );
+	$other = $row['other'];
+	$optout = $row['optout'];
 
 	if ( !$existingUrl && FALSE === strpos($url, "http://www.") && FALSE === strpos($url, "https://www.") ) {
 		$url = str_replace("http://", "http://www.", $url);
 		$url = str_replace("https://", "https://www.", $url);
-		$query = "select urlOrig, urlFixed from $gUrlsTable where urlOrig='$url' or urlFixed='$url';";
+		$query = "select urlOrig, urlFixed, other, optout from $gUrlsTable where urlOrig='$url' or urlFixed='$url';";
 		$row = doRowQuery($query);
 		$existingUrl = ( $row['urlFixed'] ? $row['urlFixed'] : $row['urlOrig'] );
+		$other = $row['other'];
+		$optout = $row['optout'];
 	}
 
 	return $existingUrl;
@@ -98,7 +102,7 @@ function pendingUrls() {
 }
 
  
-// Approves a url in the 'add' state.
+// Add a url to the urls table (and remove it from the urlschanges table).
 function approveAddUrl($url) {
 	global $gUrlsChangeTable;
 	addOtherUrl($url);
@@ -107,7 +111,7 @@ function approveAddUrl($url) {
 }
 
  
-// Approves a url in the 'add' state.
+// Remove a url from the urls table (and remove it from the urlschanges table).
 function approveRemoveUrl($url) {
 	global $gUrlsChangeTable;
 
@@ -118,10 +122,10 @@ function approveRemoveUrl($url) {
 }
 
 
-// Adds a URL to the url table with "other" flag set
+// Set "other=true" for a URL in the urls table.
 function addOtherUrl($url) {
 	global $gUrlsTable;
-	$cmd = "insert into $gUrlsTable set urlOrig='$url', other=1;";
+	$cmd = "replace into $gUrlsTable set urlOrig='$url', other=1;";
 	$result = doSimpleCommand($cmd);
 }
 
