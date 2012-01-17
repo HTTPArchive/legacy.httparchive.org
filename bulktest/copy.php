@@ -42,15 +42,15 @@ if ( ! $gbMobile ) {
 		echo "Rows already copied.\n";
 	}
 	else {
-		echo "Copy 'pages' rows to production...\n";
-		doSimpleCommand("insert into $gPagesTableDesktop select * from $gPagesTableDev where pageid >= $minid and pageid <= $maxid;");
-
 		echo "Copy 'requests' rows to production...\n";
 		doSimpleCommand("insert into $gRequestsTableDesktop select * from $gRequestsTableDev where pageid >= $minid and pageid <= $maxid;");
 
+		echo "Copy 'pages' rows to production...\n";
+		doSimpleCommand("insert into $gPagesTableDesktop select * from $gPagesTableDev where pageid >= $minid and pageid <= $maxid;");
+
 		// TODO - should we do this for $gbMobile too???
 		echo "Copy 'urls' rows to production...\n";
-		doSimpleCommand("insert into $gUrlsTable select * from $gUrlsTableDev;");
+		doSimpleCommand("insert ignore into $gUrlsTable select * from $gUrlsTableDev;");
 
 		echo "...DONE.\n";
 	}
@@ -95,10 +95,10 @@ if ( file_exists("$dumpfile.gz") ) {
 else {
 	echo "Creating mysqldump file $dumpfile ...\n";
 	if ( $gbMobile ) {
-		$cmd = "mysqldump --where='pageid >= $minid and pageid <= $maxid' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gPagesTableMobile $gRequestsTableMobile > $dumpfile";
+		$cmd = "mysqldump --where='pageid >= $minid and pageid <= $maxid' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gRequestsTableMobile $gPagesTableMobile > $dumpfile";
 	}
 	else {
-		$cmd = "mysqldump --where='pageid >= $minid and pageid <= $maxid' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gPagesTableDesktop $gRequestsTableDesktop > $dumpfile";
+		$cmd = "mysqldump --where='pageid >= $minid and pageid <= $maxid' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gRequestsTableDesktop $gPagesTableDesktop > $dumpfile";
 	}
 	exec($cmd);
 	exec("gzip $dumpfile");
@@ -133,7 +133,7 @@ echo "...mysqldump file created and copied: $dumpfile\n";
 // schema mysql dump
 $dumpfile = "../downloads/httparchive_schema.sql";
 echo "Creating mysqldump file $dumpfile ...\n";
-$cmd = "mysqldump --no-data --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop $gPagesTableDesktop $gRequestsTableDesktop $gPagesTableMobile $gRequestsTableMobile > $dumpfile";
+$cmd = "mysqldump --no-data --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop $gRequestsTableDesktop $gPagesTableDesktop $gRequestsTableMobile $gPagesTableMobile > $dumpfile";
 exec($cmd);
 exec("cp -p $dumpfile ~/httparchive.org/downloads/");
 if ( $gbMobile ) {
