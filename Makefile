@@ -1,38 +1,30 @@
+gDesktopDir := /var/www/httparchive
+gMobileDir := /var/www/httparchive.mobile
+gDevDir := /var/www/httparchive.dev
+
 push :
-	cp -p *.php *.inc *.js *.css favicon.ico robots.txt ~/httparchive.org/.
-	/bin/rm ~/httparchive.org/admin.php
-	mkdir -p ~/httparchive.org/images
-	cp -p images/*.* ~/httparchive.org/images/.
-	mkdir -p ~/httparchive.org/lists
-	cp -p lists/*.txt ~/httparchive.org/lists/.
-	mkdir -p ~/httparchive.org/downloads
-	cp -pu downloads/*.gz ~/httparchive.org/downloads/.
+	cp -p *.php *.inc *.js *.css favicon.ico robots.txt $(gDesktopDir)/.
+	/bin/rm $(gDesktopDir)/admin.php
+	mkdir -p $(gDesktopDir)/images
+	cp -p images/*.* $(gDesktopDir)/images/.
+	mkdir -p $(gDesktopDir)/lists
+	cp -p lists/*.txt $(gDesktopDir)/lists/.
+	mkdir -p $(gDesktopDir)/downloads
+	cp -pu downloads/*.gz $(gDesktopDir)/downloads/.
 	echo "push .htaccess!"
-	echo "CVSNO: ln -s ~/dev.httparchive.org/aaa/harviewer/webapp harviewer"
+	echo "CVSNO: ln -s $(gDevDir)/aaa/harviewer/webapp harviewer"
 
 pushmobile :
-	cp -p *.php *.inc *.js *.css favicon.ico robots.txt ~/mobile.httparchive.org/.
-	/bin/rm ~/mobile.httparchive.org/admin.php
-	/bin/rm ~/mobile.httparchive.org/addsite.php
-	/bin/rm ~/mobile.httparchive.org/removesite.php
-	mkdir -p ~/mobile.httparchive.org/images
-	cp -p images/*.* ~/mobile.httparchive.org/images/.
-	mkdir -p ~/mobile.httparchive.org/lists
-	cp -p lists/*.txt ~/mobile.httparchive.org/lists/.
-	mkdir -p ~/mobile.httparchive.org/downloads
-	cp -pu downloads/*.gz ~/mobile.httparchive.org/downloads/.
+	cp -p *.php *.inc *.js *.css favicon.ico robots.txt $(gMobileDir)/.
+	/bin/rm $(gMobileDir)/admin.php
+	/bin/rm $(gMobileDir)/addsite.php
+	/bin/rm $(gMobileDir)/removesite.php
+	mkdir -p $(gMobileDir)/images
+	cp -p images/*.* $(gMobileDir)/images/.
+	mkdir -p $(gMobileDir)/lists
+	cp -p lists/*.txt $(gMobileDir)/lists/.
+	mkdir -p $(gMobileDir)/downloads
+	cp -pu downloads/*.gz $(gMobileDir)/downloads/.
 	echo "push .htaccess!"
-	echo "CVSNO: ln -s ~/dev.httparchive.org/aaa/harviewer/webapp harviewer"
+	echo "CVSNO: ln -s $(gDevDir)/aaa/harviewer/webapp harviewer"
 	echo "CVSNO: har_to_pagespeed and harfiles-delme"
-
-pushbeta :
-	mkdir -p ~/beta.httparchive.org
-	cp -p *.php *.inc *.js *.css favicon.ico robots.txt .htaccess ~/beta.httparchive.org/.
-	/bin/rm ~/beta.httparchive.org/admin.php
-	mkdir -p ~/beta.httparchive.org/images
-	cp -p images/*.* ~/beta.httparchive.org/images/.
-	mkdir -p ~/beta.httparchive.org/lists
-	cp -p lists/*.txt ~/beta.httparchive.org/lists/.
-	mkdir -p ~/beta.httparchive.org/downloads
-	cp -pu downloads/*.gz ~/beta.httparchive.org/downloads/.
-	echo "CVSNO: ln -s ~/dev.httparchive.org/aaa/harviewer/webapp harviewer"
