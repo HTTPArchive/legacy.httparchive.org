@@ -20,7 +20,7 @@ Header set ETag ""
 
 
 <FilesMatch "(filmstrip|harviewer|interesting-images).js">
-SetHandler application/x-httpd-php5
+SetHandler application/x-httpd-php
 Header set Content-Encoding "gzip"
 Header set Content-Type "application/javascript"
 </FilesMatch> 
