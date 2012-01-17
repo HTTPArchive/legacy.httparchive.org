@@ -93,12 +93,10 @@ function computeMissingStats($device, $bVerbose) {
 			// do labels in reverse chrono order so newest are ready first
 			$label = $aLabels[$i];
 			foreach ( $aSlices as $slice ) {
-				if ( $bVerbose ) {
-					echo "$label $slice $device...";
-				}
-				addStats($label, $slice, $device);
-				if ( $bVerbose ) {
-					echo "DONE\n";
+				if ( getStatsData($label, $slice, $device) ) {
+					if ( $bVerbose ) { echo "$label $slice $device..."; }
+					addStats($label, $slice, $device);
+					if ( $bVerbose ) { echo "DONE\n"; }
 				}
 			}
 		}
