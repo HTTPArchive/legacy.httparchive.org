@@ -1,7 +1,3 @@
-# Needed this to pull in cgi-bin/php.ini
-AddHandler php-cgi .php
-Action php-cgi /cgi-bin/php.cgi
-
 DirectoryIndex index.php
 Options -Indexes
 
