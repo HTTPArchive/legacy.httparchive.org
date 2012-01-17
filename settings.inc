@@ -21,4 +21,8 @@ $gMysqlDb = "REPLACE";
 $gMysqlUsername = "REPLACE";
 $gMysqlPassword = "REPLACE";
 
+$gDesktopDir = "/var/www/httparchive";
+$gMobileDir = "/var/www/httparchive.mobile";
+$gDevDir = "/var/www/httparchive.dev";
+
 ?>
