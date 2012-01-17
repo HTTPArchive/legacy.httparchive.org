@@ -37,7 +37,7 @@ $gTitle = "Admin";
 
 <div style="margin-top: 40px;">
 <?php
-$gbSimilar = getParam('sim', false);
+$gbSimilar = getParam('sim', 0);
 $gAction = getParam('a');
 
 if ( "create" === $gAction ) {
@@ -46,25 +46,30 @@ if ( "create" === $gAction ) {
 	echo "<p>DONE</p>\n";
 } 
 
-$iUrl = 1;
+$giUrl = 1;
 while(true) {
-	$action = getParam("a$iUrl");
-	$url = urldecode(getParam("u$iUrl"));
+	$action = getParam("a$giUrl");
+	$url = urldecode(getParam("u$giUrl"));
 
 	if ( $action && $url ) {
 		if ( "add" === $action ) {
 			approveAddUrl($url);
 			echo "<p class=warning> URL \"$url\" was added.</p>";
 		} 
-		if ( "remove" === $action ) {
+		else if ( "remove" === $action ) {
 			approveRemoveUrl($url);
 			echo "<p class=warning> URL \"$url\" was removed.</p>";
+		} 
+		else if ( "other" === $action ) {
+			addOtherUrl($url);
+			// we don't need to remove it from the urlschange table because it's not in that table
+			echo "<p class=warning> URL \"$url\" set as \"other\".</p>";
 		} 
 		else if ( "reject" === $action) {
 			rejectUrl($url);
 			echo "<p class=warning> URL \"$url\" was rejected.</p>";
 		}
-		$iUrl++;
+		$giUrl++;
 		continue;
 	}
 
@@ -82,45 +87,77 @@ while(true) {
 <h2>URL Add/Remove Requests</h2>
  
 <?php
-$result = pendingUrls();
-if ( $result != -1) {
-	echo "<form name=urlsform><table>\n<tr><td colspan=4><a href='admin.php?sim=1'>I have time - find similar URLs</a></td> <td><input type=submit value='Submit'></td></tr>\n<tr> <td>URL</td> <td>Date Requested</td> <td>Similar URLs</td> <td>Action</td> <td>Reject</td> </tr>\n";
-	$iUrl = 0;
-	while ( ($row = mysql_fetch_assoc($result)) && ($iUrl < 5) ){
-		$url = $row['url'];
-		$action = $row['action'];
+function addUrlToForm($url, $action, $createDate, $bSimilar=true) {
+	global $giUrl, $gUrlsTable;
 
-		// Find similar URLs.
+	$sRow = "";
+
+	// Find similar URLs.
+	$sSimilar = "";
+	if ( $bSimilar ) {
 		$sld = secondLevelDomain($url);
-		$sSimilar = "";
 		$iSimilar = 0;
-		$nShow = 3;
-		$query = "select urlOrig, urlFixed, rank, other from $gUrlsTable where urlOrig like '%.$sld%' or urlOrig like '%/$sld%' or urlFixed like '%.$sld%' or urlFixed like '%/$sld%' order by rank asc limit $nShow;";
-		if ( $gbSimilar ) {
-			$result2 = doQuery($query);
-			while ($row2 = mysql_fetch_assoc($result2)) {
-				$iSimilar++;
-				if ( $iSimilar <= $nShow ) {
-					$url2 = ( $row2['urlFixed'] ? $row2['urlFixed'] : $row2['urlOrig'] );
-					$rank = ( $row2['rank'] ? commaize($row2['rank']) : ( $row2['other'] ? "other" : "n/a" ) );
-					$sSimilar .= ( $sSimilar ? "<br>" : "" ) . "$url2 ($rank)";
+		$nSim = 3;
+		$query = "select urlOrig, urlFixed, rank, other from $gUrlsTable where urlOrig like '%.$sld%' or urlOrig like '%/$sld%' or urlFixed like '%.$sld%' or urlFixed like '%/$sld%' order by rank asc limit $nSim;";
+		$result = doQuery($query);
+		while ($row = mysql_fetch_assoc($result)) {
+			$iSimilar++;
+			if ( $iSimilar <= $nSim ) {
+				$urlsim = ( $row['urlFixed'] ? $row['urlFixed'] : $row['urlOrig'] );
+				$rank = ( $row['rank'] ? commaize($row['rank']) : "not ranked" );
+				$other = ( $row['other'] ? "other" : "!other" );
+				$sSimilar .= ( $sSimilar ? "<br>" : "" ) . "$urlsim ($rank, $other)";
+				if ( 1 === $iSimilar && "add" == $action && $url != $urlsim && !$row['other'] ) {
+					// In many cases people request "http://example.com" but "http://www.example.com" is already in the list.
+					// In this case we want to set other=true for http://www.example.com, so we add that as a new row.
+					// The admin can REJECT http://example.com/, and approve http://www.example.com/.
+					$sRow .= addUrlToForm($urlsim, "other", time(), false);
 				}
 			}
-			mysql_free_result($result2);
-			if ( $iSimilar > $nShow ) {
-				$sSimilar .= "<br>" . ($iSimilar - $nShow) . " more...";
-			}
+		}
+		mysql_free_result($result);
+		if ( $iSimilar > $nSim ) {
+			$sSimilar .= "<br>" . ($iSimilar - $nSim) . " more...";
+		}
+	}
+
+    $sRow = "<tr> <td><a href='$url'>$url</td> <td>" . date("h:ia m/d/Y",$createDate) . "</td>" . 
+	" <td>$sSimilar</td> <input type=hidden name=u$giUrl value='" . urlencode($url) . "'>" .
+	" <td><nobr><input type=radio name=a$giUrl value='$action' style='vertical-align: top;' checked> $action</nobr></td> " .
+	" <td><nobr><input type=radio name=a$giUrl value='" . ( "other" === $action ? "ignore" : "reject" ) . "' style='vertical-align: top;'> " .
+	( "other" === $action ? "ignore" : "reject" ) . "</nobr></td> " .
+	"</tr>\n" .
+	$sRow;  // in case there's a similar row
+	$giUrl++;
+
+	return $sRow;
+}
+
+$result = pendingUrls();
+if ( $result != -1 ) {
+	echo "<form name=urlsform><table>\n<tr><td colspan=4>\n" .
+		( $gbSimilar ? "" : "<a href='admin.php?sim=1'>I have time - find similar URLs</a>" ) .
+		"</td> <td><input type=submit value='Submit'></td></tr>\n<tr> <td>URL</td> <td>Date Requested</td> <td>Similar URLs</td> <td>Action</td> <td>Reject</td> </tr>\n";
+	$i = 0;
+	$giUrl = 1;
+	$maxUrls = 8;
+	while ( $row = mysql_fetch_assoc($result) ){
+		$i++;
+		if ( $i > $maxUrls ) {
+			// we'll just count the number of URLs via $i
+			continue;
 		}
 
-		$iUrl++;
-		echo "<tr> <td><a href='$url'>$url</td> <td>" . date("h:ia m/d/Y",$row['createDate']) . "</td>" . 
-			" <td>$sSimilar</td> <input type=hidden name=u$iUrl value='" . urlencode($url) . "'>" .
-			" <td><input type=radio name=a$iUrl value='$action' style='vertical-align: top;' checked> $action</td> " .
-			" <td><input type=radio name=a$iUrl value='reject' style='vertical-align: top;'> reject</td> " .
-			"</tr>\n";
+		echo addUrlToForm($row['url'], $row['action'], $row['createDate'], $gbSimilar);
 	}
-	echo "<tr><td align=right colspan=5><input type=submit value='Submit'></td></tr>\n</table></form>\n";
 	mysql_free_result($result);
+
+	echo "<tr><td align=right colspan=5><input type=submit value='Submit'></td></tr>\n</table>" .
+		"<input type=hidden name=sim value='$gbSimilar'></form>\n";
+	$moreUrls = $i - $maxUrls;
+	if ( $moreUrls > 0 ) {
+		echo "<p>$moreUrls more pending URLs...</p>\n";
+	}
 } 
 else {
 	print "An Error Occured! URLs could not be loaded.";
