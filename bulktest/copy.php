@@ -50,7 +50,9 @@ if ( ! $gbMobile ) {
 
 		// TODO - should we do this for $gbMobile too???
 		echo "Copy 'urls' rows to production...\n";
-		doSimpleCommand("insert ignore into $gUrlsTable select * from $gUrlsTableDev;");
+		// This is scary but the issue is we need to clear out all the previous ranks, optouts, others, etc. and use what's in urlsdev.
+		doSimpleCommand("delete from $gUrlsTable;");
+		doSimpleCommand("insert into $gUrlsTable select * from $gUrlsTableDev;");
 
 		echo "...DONE.\n";
 	}
@@ -104,12 +106,12 @@ else {
 	exec("gzip $dumpfile");
 
 	if ( $gbMobile ) {
-		exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
-		exec("cp -p $dumpfile.gz ~/dev.httparchive.org/downloads/");
+		exec("cp -p $dumpfile.gz $gDesktopDir/downloads/");
+		exec("cp -p $dumpfile.gz $gDevDir/downloads/");
 	}
 	else {
-		exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
-		exec("cp -p $dumpfile.gz ~/mobile.httparchive.org/downloads/");
+		exec("cp -p $dumpfile.gz $gDesktopDir/downloads/");
+		exec("cp -p $dumpfile.gz $gMobileDir/downloads/");
 	}
 
 	echo "...mysqldump file created and copied: $dumpfile\n";
@@ -121,12 +123,12 @@ echo "Creating mysqldump file $dumpfile ...\n";
 $cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop > $dumpfile";
 exec($cmd);
 exec("gzip -f $dumpfile");
-exec("cp -p $dumpfile.gz ~/httparchive.org/downloads/");
+exec("cp -p $dumpfile.gz $gDesktopDir/downloads/");
 if ( $gbMobile ) {
-	exec("cp -p $dumpfile.gz ~/dev.httparchive.org/downloads/");
+	exec("cp -p $dumpfile.gz $gDevDir/downloads/");
 }
 else {
-	exec("cp -p $dumpfile.gz ~/mobile.httparchive.org/downloads/");
+	exec("cp -p $dumpfile.gz $gMobileDir/downloads/");
 }
 echo "...mysqldump file created and copied: $dumpfile\n";
 
@@ -135,12 +137,12 @@ $dumpfile = "../downloads/httparchive_schema.sql";
 echo "Creating mysqldump file $dumpfile ...\n";
 $cmd = "mysqldump --no-data --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop $gRequestsTableDesktop $gPagesTableDesktop $gRequestsTableMobile $gPagesTableMobile > $dumpfile";
 exec($cmd);
-exec("cp -p $dumpfile ~/httparchive.org/downloads/");
+exec("cp -p $dumpfile $gDesktopDir/downloads/");
 if ( $gbMobile ) {
-	exec("cp -p $dumpfile ~/dev.httparchive.org/downloads/");
+	exec("cp -p $dumpfile $gDevDir/downloads/");
 }
 else {
-	exec("cp -p $dumpfile ~/mobile.httparchive.org/downloads/");
+	exec("cp -p $dumpfile $gMobileDir/downloads/");
 }
 echo "...mysqldump file created and copied: $dumpfile\n";
 
