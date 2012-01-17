@@ -27,8 +27,8 @@ $gArchive = "All";
 // For now I just want to exclude the early runs with only ~1500 URLs vs today's 15K URLS.
 // Later I hope it'll make it easier to identify where we need to incorporate a date
 // range by searching for this variable.
-$gbDev = ( strpos(getcwd(), "/dev/") || strpos(getcwd(), "/trunk.httparchive.org") );
-$gbMobile = ( strpos(getcwd(), "/mobile/") || strpos(getcwd(), "/mobile.httparchive.org") );
+$gbDev = ( FALSE !== strpos(getcwd(), $gDevDir) || strpos(getcwd(), "/trunk.httparchive.org") );
+$gbMobile = ( FALSE !== strpos(getcwd(), $gMobileDir) || strpos(getcwd(), "/mobile.httparchive.org") );
 $gDateRange = ( $gbMobile ? "pageid >= 0" : "pageid >= 10281" );
 
 // default table names
