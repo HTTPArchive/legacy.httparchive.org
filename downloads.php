@@ -37,8 +37,9 @@ function listFiles($hFiles) {
 			$filename = $hFilenames['mobile'];
 			$filesize = filesize($filename);
 			$size = ( $filesize > 1024*1024 ? round($filesize/(1024*1024)) . " MB" : round($filesize/(1024)) . " kB" );
-			$sHtml .= ( array_key_exists('desktop', $hFilenames) ? ", " : "" ) . "<a href='$filename'>iPhone</a> ($size)\n";
+			$sHtml .= ( array_key_exists('desktop', $hFilenames) ? ", " : "" ) . "<a href='$filename'>iPhone</a> ($size)";
 		}
+		$sHtml .= "\n";
 	}
 
 	return $sHtml;
