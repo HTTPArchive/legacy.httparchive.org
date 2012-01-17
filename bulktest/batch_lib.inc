@@ -18,7 +18,7 @@ $gErrBase = 900;
 function obtainTestsWithCode($status, $divisor=NULL, $modulo=NULL) {
 	global $gStatusTable;
 
-	if ( $divisor && ($divisor > $module) ) {
+	if ( $divisor && ($divisor > $modulo) ) {
 		$query = "SELECT * FROM $gStatusTable WHERE status = $status and $modulo = (statusid % $divisor);";
 	}
 	else {
@@ -583,7 +583,7 @@ function totalNotDone() {
 }
 
 
-function reportSummary() {
+function reportSummary0() {
 	global $gErrBase;
 	$totalUrls = countTestsWithCode(-1);
 	$loadedUrls = countTestsWithCode(NOT_STARTED);
@@ -615,6 +615,44 @@ function reportSummary() {
 	if ( $failedImportHar > 0 ) 
 		lprint("	-Har importing failed: $failedImportHar");
 
+	return $total_in_processing;
+}
+
+
+function reportSummary() {
+	global $gErrBase;
+	$totalUrls = countTestsWithCode(-1);
+	$loadedUrls = countTestsWithCode(NOT_STARTED);
+	$submittedTests = countTestsWithCode(SUBMITTED);
+	$completedTests = countTestsWithCode(SUBMIT_DONE);
+	$xmlDoneTests = countTestsWithCode(META_DONE);
+	$successfulTests = countTestsWithCode(DONE);
+	$failedTests = countFailedTests();
+	$failedSubmission = countTestsWithCode(NOT_STARTED + $gErrBase);
+	$failedWPTTesting = countTestsWithCode(SUBMITTED + $gErrBase);
+	$failedProcessResult = countTestsWithCode( SUBMIT_DONE + $gErrBase);
+	$failedImportHar = countTestsWithCode( META_DONE + $gErrBase);
+
+	$bHtml = array_key_exists("REMOTE_ADDR", $_SERVER);
+	echo ( $bHtml ? "<pre>\n" : "" );
+	printf("%-20s %10s %15s\n", "", "cumulative", "at this stage");
+	$sFormat = "%-20s %10d %15d\n";
+	printf($sFormat, "initial URLs", $totalUrls, $loadedUrls);
+	printf($sFormat, "submitted", $totalUrls - ($loadedUrls), $submittedTests);
+	printf($sFormat, "tested", $totalUrls - ($loadedUrls + $submittedTests), $completedTests);
+	printf($sFormat, "obtained", $totalUrls - ($loadedUrls + $submittedTests + $completedTests), $xmlDoneTests);
+	printf($sFormat, "HAR parsed", $totalUrls - ($loadedUrls + $submittedTests + $completedTests + $xmlDoneTests), 0);
+	printf("\n");
+	printf("DONE:    %10d\n", $successfulTests + $failedTests);
+	printf("success: %10d\n", $successfulTests);
+	printf("failed:  %10d (%d%%)\n", $failedTests, 100*$failedTests/$successfulTests);
+	printf("         %10d - submission failed\n", $failedSubmission);
+	printf("         %10d - WPT test failed\n", $failedWPTTesting);
+	printf("         %10d - test result processing failed\n", $failedProcessResult);
+	printf("         %10d - HAR import failed\n", $failedImportHar);
+	echo ( $bHtml ? "</pre>\n" : "" );
+
+	$total_in_processing = $loadedUrls + $submittedTests + $completedTests;
 	return $total_in_processing;
 }
 
