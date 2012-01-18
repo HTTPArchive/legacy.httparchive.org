@@ -44,12 +44,14 @@ $gSettingsTable = "settings"; // for storing misc settings persistently
 $gPagesTableDesktop = $gPagesTable;
 $gRequestsTableDesktop = $gRequestsTable;
 $gStatusTableDesktop = $gStatusTable;
+$gUrlsTableDesktop = "urls";
 $gStatsTableDesktop = $gStatsTable;
 $gUrlsChangeTableDesktop = $gUrlsChangeTable;
 
 // Mobile tables
 $gPagesTableMobile = $gPagesTable . "mobile";
 $gRequestsTableMobile = $gRequestsTable . "mobile";
+$gUrlsTableMobile = "urls";
 $gStatusTableMobile = $gStatusTable . "mobile";
 $gStatsTableMobile = $gStatsTable;  // share the data table - a first step toward a single DB
 
