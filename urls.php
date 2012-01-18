@@ -69,13 +69,13 @@ INPUT { padding: 0; margin: 0; }
 <table cellpadding=0 cellspacing=0 border=0 style="width: auto;">
 <form action="">
 <tr> <td style="text-align: right;">start:</td> <td><input type=text size=7 id=start name=start value="<?php echo $gStart ?>" style="text-align: right;"></td> </tr>
-<tr> <td style="text-align: right;">end:</td> <td><input type=text size=7 id=end name=end value="<?php echo $gEnd ?>" style="text-align: right;"></td> </tr>
+<tr> <td style="text-align: right;">end:</td> <td><input type=text size=7 id=end name=end value="<?php echo $gEnd ?>" style="text-align: right;"> <span style="font-size: 0.9em;">(capped at 10,000)</span></td> </tr>
 <tr> <td colspan=2><input type=checkbox id=nums name=nums<?php echo ($gbNums ? " checked" : "") ?>> include numbers</td> </tr>
 <tr> <td colspan=2><input type=submit value="Generate List"></td> </tr>
 </form>
 </table>
 
-<pre>
+<pre style="margin-top: 2em;">
 <?php
 $query = "select rank, urlOrig, urlFixed from $gUrlsTable where rank >= $gStart and rank <= $gEnd order by rank asc;";
 $result = doQuery($query);
