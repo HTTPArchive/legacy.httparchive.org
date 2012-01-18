@@ -40,7 +40,8 @@ DD { margin-left: 40px; }
 <h1><?php echo $gTitle ?></h1>
 
 <p>
-
+Use the form below to generate a list of the URLs used during the most recent HTTP Archive crawl.
+The URLs are sorted based on the ranking from the <a href="http://www.alexa.com/topsites">Alexa Top 1,000,000 Sites</a>.
 </p>
 
 <?php
