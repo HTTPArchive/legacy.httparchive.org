@@ -1490,7 +1490,7 @@ function sliceNames($bUinames = false) {
 	foreach($gaSlices as $aSlice) {
 		$dbname = $aSlice[0];
 		$uiname = $aSlice[1];
-		$aSlices[] = ( $bUiname ? $uiname : $dbname );
+		$aSlices[] = ( $bUinames ? $uiname : $dbname );
 	}
 
 	return $aSlices;
