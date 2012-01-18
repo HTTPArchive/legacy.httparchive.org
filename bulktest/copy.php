@@ -51,8 +51,8 @@ if ( ! $gbMobile ) {
 		// TODO - should we do this for $gbMobile too???
 		echo "Copy 'urls' rows to production...\n";
 		// This is scary but the issue is we need to clear out all the previous ranks, optouts, others, etc. and use what's in urlsdev.
-		doSimpleCommand("delete from $gUrlsTable;");
-		doSimpleCommand("insert into $gUrlsTable select * from $gUrlsTableDev;");
+		doSimpleCommand("delete from $gUrlsTableDesktop;");
+		doSimpleCommand("insert into $gUrlsTableDesktop select * from $gUrlsTableDev;");
 
 		echo "...DONE.\n";
 	}
