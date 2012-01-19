@@ -290,9 +290,9 @@ tbody th {
 td {
 	border-bottom: 1px solid #e0e0e0;
 	padding: 1em .75em .5em .75em; }
-tr:nth-child(2n) td {
+#content tr:nth-child(2n) td {
 	border-bottom: none; }
-tr:nth-child(2n+1) td {
+#content tr:nth-child(2n+1) td {
 	border-bottom: none; }
 tr.odd td {
 	background: #f2f2f2; }
