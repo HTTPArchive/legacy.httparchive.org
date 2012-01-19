@@ -57,6 +57,10 @@ if ( $gEnd > $gMax ) {
 }
 
 $gbNums = array_key_exists("nums", $_GET);
+if ( 0 === count($_GET) ) {
+   // If the user didn't submit the form then show numbers by default.
+   $gbNums = true;
+}
 ?>
 
 <style>
