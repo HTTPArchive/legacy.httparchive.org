@@ -2,6 +2,8 @@ gDesktopDir := /var/www/httparchive
 gMobileDir := /var/www/httparchive.mobile
 gDevDir := /var/www/httparchive.dev
 
+# harviewer installation: http://code.google.com/p/harviewer/wiki/Installation
+
 push :
 	cp -p *.php *.inc *.js *.css favicon.ico robots.txt $(gDesktopDir)/.
 	/bin/rm $(gDesktopDir)/admin.php
