@@ -135,6 +135,9 @@ function getSkip($num, $bNum = false) {
 function getLabels($aLabels) {
 	$skip = abs(getSkip(count($aLabels), true));
 	$len = count($aLabels);
+	if ( ! $len ) {
+		return;
+	}
 	$aNewLabels = array_fill(0, $len, " ");  // have to create all array elements to set in reverse order? php weirdness?
 	$iLabel = 0;
 	for ( $i = $len-1; $i >= 0; $i-- ) {
@@ -167,6 +170,9 @@ function fieldValues($field, $hTrends, $aRunNames, &$min, &$max, $bZero = true) 
 
 
 function findScale($aValues, &$min, &$max, $bZero = true) {
+	if ( ! count($aValues) ) {
+		return;
+	}
 	$minValue = min($aValues);
 	$maxValue = max($aValues);
 
