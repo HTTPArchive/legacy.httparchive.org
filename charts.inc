@@ -91,6 +91,10 @@ function responseSizes($hStats) {
 		$aVarNames[] = "Flash";
 	}
 
+	if ( ! count($aVarValues) ) {
+		return;
+	}
+
 	return horizontalBarChart("Average Individual Response Size", "responsesizes", $aVarNames, $aVarValues, "3B356A", 0, max($aVarValues)+10, 
 							  "average response size (kB)", false, "+kB");
 }
@@ -125,6 +129,9 @@ function percentFonts($hStats) {
 
 function popularImageFormats($hStats) {
 	$total = $hStats['reqImg'];
+	if ( ! $total ) {
+		return;
+	}
 	$gif = round(100*$hStats['reqGif'] / $total);
 	$jpg = round(100*$hStats['reqJpg'] / $total);
 	$png = round(100*$hStats['reqPng'] / $total);
