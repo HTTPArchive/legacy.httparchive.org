@@ -104,6 +104,16 @@ function addUrlToForm($url, $action, $createDate, $bSimilar=true) {
 			$iSimilar++;
 			if ( $iSimilar <= $nSim ) {
 				$urlsim = ( $row['urlFixed'] ? $row['urlFixed'] : $row['urlOrig'] );
+				if ( $url === $urlsim ) {
+					if ( $row['other'] ) {
+						// The URL supplied by the user is ALREADY in the urls table and is ALREADY other=true. There's nothing more we can do. BAIL!
+						return "";
+					}
+					else if ( "add" === $action ) {
+						// The URL is already in the urls table, so instead of "add" ask if we want to set other=true
+						$action = "other";
+					}
+				}
 				$rank = ( $row['rank'] ? commaize($row['rank']) : "not ranked" );
 				$other = ( $row['other'] ? "other" : "!other" );
 				$sSimilar .= ( $sSimilar ? "<br>" : "" ) . "$urlsim ($rank, $other)";
