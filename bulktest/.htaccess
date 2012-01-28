@@ -1,0 +1,5 @@
+# deny HTTP access to this directory - it's just for commandline (for now)
+<FilesMatch ".">
+order allow,deny
+deny from all
+</FilesMatch>
