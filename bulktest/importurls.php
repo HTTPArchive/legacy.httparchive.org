@@ -23,13 +23,18 @@ require_once("../utils.inc");
 
 createTables();
 
-$gUrlsFile = $argv[1];
-$gFileType = $argv[2];
-if ( $gUrlsFile && "alexa" != $gFileType && "other" != $gFileType ) {
+if ( array_key_exists(1, $argv) ) {
+	$gUrlsFile = $argv[1];
+}
+if ( array_key_exists(2, $argv) ) {
+	$gFileType = $argv[2];
+}
+
+if ( isset($gUrlsFile) && "alexa" != $gFileType && "other" != $gFileType ) {
 	die("ERROR: If you specifiy a urlsfile you must also specify the file type: \"alexa\" or \"other\".\n");
 }
 
-if ( !$gUrlsFile ) {
+if ( ! isset($gUrlsFile) ) {
 	// download the list of URLs into a file
 	$gUrlsFile = downloadAlexaList();
 	$gFileType = "alexa";
@@ -70,7 +75,7 @@ if ( $handle ) {
 		}
 
 		if ( $urlOrig ) {
-			$sInsert .= ",('$urlOrig'" . 
+			$sInsert .= ",('" . mysqlEscape($urlOrig) . "'" . 
 				( $rank  ? ", $rank"  : "" ) . 
 				( $other ? ", $other" : "" ) .
 				")";
