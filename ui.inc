@@ -141,7 +141,8 @@ function uiFooter() {
 <a title="O'Reilly Media" href="http://oreilly.com/">O&#8217;Reilly Media</a>,
 <a href="http://www.etsy.com/">Etsy</a>,
 <a title="Strangeloop Networks" href="http://www.strangeloopnetworks.com/">Strangeloop</a>,
-and <a title="dynaTrace Software" href="http://www.dynatrace.com/">dynaTrace Software</a>
+<a title="dynaTrace Software" href="http://www.dynatrace.com/">dynaTrace Software</a>, and
+<a title="Torbit" href="http://torbit.com/">Torbit</a>.
 <br>
 powered by <a href="http://www.webpagetest.org">WebPagetest</a>
 </footer>
