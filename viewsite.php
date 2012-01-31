@@ -70,6 +70,7 @@ $harfileWptUrl = "{$wptServer}export.php?test=$wptid&run=$wptrun&cached=0";
 	
 	<p class=summary style="margin-bottom: 4px;">took <?php echo round(($onLoad / 1000), 1) ?> seconds to load <?php echo round(($row['bytesTotal']/1024)) ?>kB of data over <?php echo $row['reqTotal'] ?> requests.</p>
 <div><a href="<?php echo rankUrl($url) ?>">Alexa rank: <?php echo commaize( rank($url, $gPageid) ) ?></a></div>
+<div><?php echo diffRuns($url, $gLabel) ?></div>
 
 	<ul class=quicklinks>
 		<li><a href="#top">Top of page</a></li>
