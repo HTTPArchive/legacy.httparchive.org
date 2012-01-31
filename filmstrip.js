@@ -36,9 +36,11 @@ $xml = new SimpleXMLElement($xmlstr);
 $frames = $xml->data->run[($wptrun - 1)]->firstView->videoFrames;
 
 $aTimes = array();
-foreach($frames->frame as $frame) {
-	$time = floatval($frame->time) * 1000;
-	$aTimes[$time] = true;
+if ( $frames->frame ) {
+	foreach($frames->frame as $frame) {
+		$time = floatval($frame->time) * 1000;
+		$aTimes[$time] = true;
+	}
 }
 
 $sTh = "";
