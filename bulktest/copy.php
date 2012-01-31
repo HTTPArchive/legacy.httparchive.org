@@ -27,12 +27,11 @@ if ( !$gLabel ) {
 
 
 
-// find min & max pageid of the latest run
+// find min & max pageid of the specified run
 $row = doRowQuery("select min(pageid) as minid, max(pageid) as maxid from $gPagesTable where label='$gLabel';");
 $minid = $row['minid'];
 $maxid = $row['maxid'];
 echo "Run \"$gLabel\": min pageid = $minid, max pageid = $maxid\n";
-
 
 
 // copy the rows to production
