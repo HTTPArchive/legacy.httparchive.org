@@ -107,6 +107,7 @@ function addUrlToForm($url, $action, $createDate, $bSimilar=true) {
 				if ( $url === $urlsim ) {
 					if ( $row['other'] ) {
 						// The URL supplied by the user is ALREADY in the urls table and is ALREADY other=true. There's nothing more we can do. BAIL!
+						rejectUrl($url);  // remove it from the urlschange table
 						return "";
 					}
 					else if ( "add" === $action ) {
