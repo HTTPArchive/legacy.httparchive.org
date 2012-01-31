@@ -27,6 +27,8 @@ pushmobile :
 	cp -p lists/*.txt $(gMobileDir)/lists/.
 	mkdir -p $(gMobileDir)/downloads
 	cp -pu downloads/*.gz $(gMobileDir)/downloads/.
+	mkdir -p $(gMobileDir)/harfiles-delme
+	ls -l $(gMobileDir)/har_to_pagespeed
 	echo "push .htaccess!"
 	echo "CVSNO: ln -s $(gDevDir)/aaa/harviewer/webapp harviewer"
 	echo "CVSNO: har_to_pagespeed and harfiles-delme"
