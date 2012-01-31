@@ -23,7 +23,7 @@ if ( getParam('pageid') ) {
 	$gPageid = getParam('pageid');
 	$query = "select * from $gPagesTable where pageid='$gPageid';";
 }
-else if ( ! $gPageid && getParam('u') && getParam('l') ) {
+else if ( ! isset($gPageid) && getParam('u') && getParam('l') ) {
 	$url = getParam('u');
 	$gLabel = getParam('l');
 	$query = "select * from $gPagesTable where url='$url' and label='$gLabel';";
