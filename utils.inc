@@ -1411,24 +1411,36 @@ function selectArchiveLabel($archive, $curLabel, $bReverse=true, $bOnchage = tru
 
 
 // Return HTML to create a select list of archive labels (eg, "Oct 2010", "Nov 2010").
-function selectSiteLabel($url, $curLabel="", $bReverse=true) {
+function selectSiteLabel($url, $curLabel="", $bChrono=false) {
 	global $gPagesTable, $gDateRange;
 
-	$sSelect = "<select class=selectSite onchange='document.location=\"?u=" . urlencode($url) . "&l=\" + escape(this.options[this.selectedIndex].value)'>\n";
-
-	$query = "select label, startedDateTime from $gPagesTable where $gDateRange and url = '$url' group by label order by startedDateTime " . 
-		( $bReverse ? "desc" : "asc" ) . ";";
-	$result = doQuery($query);
-	while ($row = mysql_fetch_assoc($result)) {
-		$label = $row['label'];
-		$epoch = $row['startedDateTime'];
+	$aLabels = archiveLabelsForUrl($url, $bChrono);
+	$sSelect = "<select class=selectSite onchange='document.location=\"?u=" . urlencode($url) .
+		"&l=\" + escape(this.options[this.selectedIndex].value)'>\n";
+	foreach($aLabels as $label) {
 		$sSelect .= "  <option value='$label'" . ( $curLabel == $label ? " selected" : "" ) . "> $label\n";
 	}
-	mysql_free_result($result);
-
 	$sSelect .= "</select>\n";
 
 	return $sSelect;
+}
+
+
+// Return an array of label names (in chrono order?) for a specific URL.
+function archiveLabelsForUrl($url, $bChrono=false, $archive = "All") {
+	global $gPagesTable, $gDateRange;
+
+	$query = "select label from $gPagesTable where $gDateRange and url = '$url' group by label order by startedDateTime " . 
+		( $bChrono ? "asc" : "desc" ) . ";";
+	$result = doQuery($query);
+	$aLabels = array();
+	while ($row = mysql_fetch_assoc($result)) {
+		$label = $row['label'];
+		array_push($aLabels, $label);
+	}
+	mysql_free_result($result);
+
+	return $aLabels;
 }
 
 
@@ -1458,12 +1470,8 @@ function archiveLabels($archive = "All", $bEpoch = false, $format = "n/j/y" ) {
 
 // Return the latest (most recent) label for an archive 
 // based on when the pages in that label were analyzed.
-function latestLabel($archive) {
+function latestLabel($archive = "All") {
 	global $gPagesTable;
-
-	if ( ! $archive ) {
-		return "";
-	}
 
 	$query = "select label from $gPagesTable where archive = '$archive' group by label order by startedDateTime desc;";
 	return doSimpleQuery($query);
@@ -1498,6 +1506,45 @@ function sliceNames($bUinames = false) {
 	}
 
 	return $aSlices;
+}
+
+
+function crawledUrlsJS($pageid=null, $n=20) {
+	$aUrls = crawledUrls($pageid, $n);
+	$sJS = "";
+
+	// optimization: find the namels of the two most recent labels
+	$aLabels = archiveLabels();
+	$label1 = $aLabels[count($aLabels)-1];
+	$label2 = $aLabels[count($aLabels)-2];
+	foreach($aUrls as $aUrl) {
+		$sJS .= ( $sJS ? ",\n" : "" );
+
+		$sJS .= "    [" . 
+			$aUrl[0] . ", " .  // pageid
+			$aUrl[1] . ", '" . // createDate
+			$aUrl[2] . "', '" . // url
+			diffRuns($aUrl[2], $label1, $aUrl[2], $label2, false) . "']";
+	}
+
+	return $sJS;
+}
+
+
+function crawledUrls($pageid=null, $n=20) {
+	global $gPagesTable;
+
+	$query = "select createDate, url, label, pageid from $gPagesTable " .
+		( $pageid ? "where pageid < $pageid " : "" ) .
+		"order by pageid desc limit $n;";
+	$result = doQuery($query);
+	$aUrls = array();
+	while ($row = mysql_fetch_assoc($result)) {
+		$aUrls[] = array( $row['pageid'], $row['createDate'], $row['url'] );
+	}
+	mysql_free_result($result);
+
+	return $aUrls;
 }
 
 
@@ -1667,6 +1714,87 @@ function secondLevelDomain($url) {
 	}
 
 	return $sld;
+}
+
+// Compare the results of two runs for given URLs.
+function diffRuns($url1, $label1="", $url2="", $label2="", $bPreamble = true) {
+	global $gPagesTable;
+
+	if ( ! $label1 ) {
+		// use the most recent label
+		$label1 = latestLabel();
+	}
+
+	if ( ! $url2 ) {
+		$url2 = $url1;
+	}
+
+	if ( ! $label2 ) {
+		if ( $url1 === $url2 ) {
+			// If the URLs are the same then compare to the label older than $label1
+			$aLabels = archiveLabelsForUrl($url1, false);
+			for ( $i = 0; $i < count($aLabels); $i++ ) {
+				if ( $aLabels[$i] === $label1 ) {
+					if ( $i+1 < count($aLabels) ) {
+						$label2 = $aLabels[$i+1];
+					}
+					else {
+						// no earlier label to compare to
+						return "";
+					}
+					break;
+				}
+			}
+		}
+		else {
+			// If the 2nd URL is different then also use the most recent label.
+			$label2 = latestLabel();
+		}
+	}
+
+	$query = "select * from $gPagesTable where url='$url1' and label='$label1';";
+	$row1 = doRowQuery($query);
+	$query = "select * from $gPagesTable where url='$url2' and label='$label2';";
+	$row2 = doRowQuery($query);
+
+	// Now, what should we highlight?
+	$sDiff = 
+		bigDiff("Page Speed", $row1['PageSpeed'], $row2['PageSpeed'], 5) .
+		bigDiff("requests", $row1['reqTotal'], $row2['reqTotal'], 5) .
+		bigDiff("scripts", $row1['reqJS'], $row2['reqJS'], 2) .
+		bigDiff("images", $row1['reqImg'], $row2['reqImg'], 4) .
+		bigDiff("size", intval($row1['bytesTotal']/1024), intval($row2['bytesTotal']/1024), 50, "kB") .
+		bigDiff("JS size", intval($row1['bytesJS']/1024), intval($row2['bytesJS']/1024), 20, "kB") .
+		bigDiff("image size", intval($row1['bytesImg']/1024), intval($row2['bytesImg']/1024), 30, "kB") .
+		bigDiff("domains", $row1['numDomains'], $row2['numDomains'], 3) .
+		"";
+
+	if ( $sDiff ) {
+		// trim trailing comma-space
+		$sDiff = substr($sDiff, 0, count($sDiff)-3);
+		if ( $bPreamble ) {
+			$sDiff = "compared to $label2: " . $sDiff;
+		}
+	}
+
+	return $sDiff;
+}
+
+
+function bigDiff($thing, $num1, $num2, $sig = 5, $units = "") {
+	$units = ( $units ? " $units" : "" ); // prepend with a space
+
+	if ( abs($num1 - $num2) > $sig || 
+		 ($num2 && 100*abs($num2-$num1)/$num2 > 20) ) {
+		if ( $num1 > $num2 ) {
+			return "$thing &uarr;" . ($num1-$num2) . "$units, ";
+		}
+		else {
+			return "$thing &darr;" . ($num2-$num1) . "$units, ";
+		}
+	}
+	
+	return "";
 }
 
 
