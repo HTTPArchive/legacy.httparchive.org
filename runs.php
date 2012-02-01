@@ -59,8 +59,12 @@ function addUrls(aUrls) {
 		if ( ! gFirstPageid ) {
 			gFirstPageid = aUrl[0];
 		}
-		sHtml += "<code style='font-size: 0.9em'>" + formatDate(aUrl[1]) + "</code> <a href='viewsite.php?pageid=" + aUrl[0] + "'>" +
-			aUrl[2] + "</a>" +
+		// TODO: hmmm - We can't push this to production because the crawl is done in dev and the results are 
+		// copied in bulk when all done. Later we should investigate copying the results as the crawl progresses.
+		// For now, we'll watch the dev databases but NOT link to the results.
+		// sHtml += "<code style='font-size: 0.9em'>" + formatDate(aUrl[1]) + "</code> <a href='viewsite.php?pageid=" + aUrl[0] + "'>" +
+		sHtml += "<code style='font-size: 0.9em'>" + formatDate(aUrl[1]) + "</code> " +
+			aUrl[2] +
 			( aUrl[3] ? " - " + aUrl[3] : "" ) +
 			"<br>\n";
 		gLastPageid = aUrl[0];
