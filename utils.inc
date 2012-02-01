@@ -84,7 +84,7 @@ else if ( $gbMobile ) {
 }
 
 
-$gDateRange = ( $gbMobile ? "pageid >= 0" : "pageid >= 10281" );
+$gDateRange = ( $gbMobile ? "pageid >= 607" : "pageid >= 10281" );
 // Here's the scoop: We use $gDateRange as a nice global throughout most of our queries to limit
 // the scope of data. BUT...this is a problem when we want to, for example, present the user with 
 // a list of labels to choose from - we don't want that list of labels to be limited. 
@@ -1570,15 +1570,18 @@ function crawledUrlsJS($pageid=null, $n=20) {
 
 
 function crawledUrls($pageid=null, $n=20) {
-	global $gPagesTable;
+	global $gPagesTableDev;
 
-	$query = "select createDate, url, label, pageid from $gPagesTable " .
+	$query = "select createDate, url, label, pageid from $gPagesTableDev " .
 		( $pageid ? "where pageid < $pageid " : "" ) .
 		"order by pageid desc limit $n;";
 	$result = doQuery($query);
 	$aUrls = array();
 	while ($row = mysql_fetch_assoc($result)) {
-		$aUrls[] = array( $row['pageid'], $row['createDate'], $row['url'] );
+		if ( $row['url'] ) {
+			// There's a race condition where the pageid is created but there's no URL.
+			$aUrls[] = array( $row['pageid'], $row['createDate'], $row['url'] );
+		}
 	}
 	mysql_free_result($result);
 
