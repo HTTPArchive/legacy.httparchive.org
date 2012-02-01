@@ -126,6 +126,17 @@ function urlHasData($url) {
 }
 
 
+// Return the label corresponding to a pageid.
+function pageLabel($pageid) {
+	global $gPagesTable;
+
+	$query = "select label from $gPagesTable where pageid=$pageid;";
+	$label = doSimpleQuery($query);
+
+	return $label;
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
