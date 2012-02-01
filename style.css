@@ -354,8 +354,7 @@ legend {
 	font-weight: bold; }
 label {
 	clear: left;
-	font-weight: normal;
-	cursor: pointer; }
+	font-weight: normal; }
 input, textarea, select {
 	color: #999;
 	font-size: 1em;
@@ -376,11 +375,11 @@ select {
 	color: #666; }
 button, .button {
 	background: #fcfcfc;
-	border: 1px solid #dadada;
-	padding: .4em .4em .25em .4em;
-	display: block;
-	color: #ed1c24;
+	border: 1px solid #999;
+	padding: 4px 2px;
+	color: #555;
 	text-transform: uppercase;
+	vertical-align: baseline;
 	font-weight: bold;
 	font-family: "Lucida Grande", Arial, "Trebuchet MS", Trebuchet, sans-serif;
 	font-size: .9em; }
@@ -388,7 +387,6 @@ button::-moz-focus-inner {
     border: 0;
     padding: 0; }
 .button {
-	display: block;
 	text-decoration: none; }
 button:hover, button:focus, .button:hover, .button:focus {
 	background: #fafafa;
