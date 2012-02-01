@@ -21,6 +21,8 @@ require_once("utils.inc");
 $gArchive = "All";
 $gSlice = getParam('s', 'All');
 $gTitle = "Trends";
+$gMinLabel = ( array_key_exists("minlabel", $_GET) ? $_GET['minlabel'] : "" );
+$gMaxLabel = ( array_key_exists("maxlabel", $_GET) ? $_GET['maxlabel'] : latestLabel() );
 ?>
 <!doctype html>
 <html>
@@ -39,14 +41,14 @@ $gTitle = "Trends";
 <h1>Trends</h1>
 
 
-<div style="float: left; margin-right: 20px;">
 <form>
+<div>
 	<label>Choose URLs:</label>
 <?php
-echo selectSlice($gSlice, "onchange='document.location=\"?s=\"+escape(this.options[this.selectedIndex].value)'");
+echo selectSlice($gSlice, "", "s");
 ?>
-</form>
-</div>
+
+<!--
 <div style="font-size: 0.9em;">
 <?php
 if ( "intersection" != $gSlice ) {
@@ -54,6 +56,16 @@ if ( "intersection" != $gSlice ) {
 }
 ?>
 </div>
+-->
+
+<label style="margin-left: 1em;">Start:</label>
+	<?php echo selectArchiveLabel($gArchive, $gMinLabel, false, false, "minlabel"); ?>
+
+<label style="margin-left: 1em;">End:</label>
+	<?php echo selectArchiveLabel($gArchive, $gMaxLabel, false, false, "maxlabel"); ?>
+<input style="margin-left: 1em;" class=button type=submit value="Submit">
+</div>
+</form>
 
 <?php
 $gUrl = NULL; // TODO - get rid of this
