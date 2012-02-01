@@ -48,16 +48,6 @@ $gMaxLabel = ( array_key_exists("maxlabel", $_GET) ? $_GET['maxlabel'] : latestL
 echo selectSlice($gSlice, "", "s");
 ?>
 
-<!--
-<div style="font-size: 0.9em;">
-<?php
-if ( "intersection" != $gSlice ) {
-	echo "use \"intersection\" to trend the exact same URLs over time";
-}
-?>
-</div>
--->
-
 <label style="margin-left: 1em;">Start:</label>
 	<?php echo selectArchiveLabel($gArchive, $gMinLabel, false, false, "minlabel"); ?>
 
