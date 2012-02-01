@@ -29,7 +29,6 @@ $gArchive = "All";
 // range by searching for this variable.
 $gbDev = ( FALSE !== strpos(getcwd(), $gDevDir) || strpos(getcwd(), "/trunk.httparchive.org") );
 $gbMobile = ( FALSE !== strpos(getcwd(), $gMobileDir) || strpos(getcwd(), "/mobile.httparchive.org") );
-$gDateRange = ( $gbMobile ? "pageid >= 0" : "pageid >= 10281" );
 
 // default table names
 $gPagesTable = "pages";
@@ -83,6 +82,23 @@ else if ( $gbMobile ) {
 	$gStatusTable = $gStatusTableMobile;
 	$gStatsTable = $gStatsTableMobile;
 }
+
+
+$gDateRange = ( $gbMobile ? "pageid >= 0" : "pageid >= 10281" );
+// Here's the scoop: We use $gDateRange as a nice global throughout most of our queries to limit
+// the scope of data. BUT...this is a problem when we want to, for example, present the user with 
+// a list of labels to choose from - we don't want that list of labels to be limited. 
+// So in some places we use $gDateRangeDefault to get the WHOLE range of data.
+$gDateRangeDefault = $gDateRange;
+$gMinLabel = ( array_key_exists("minlabel", $_GET) ? $_GET['minlabel'] : "" );
+$gMaxLabel = ( array_key_exists("maxlabel", $_GET) ? $_GET['maxlabel'] : "" );
+if ( array_key_exists("minlabel", $_GET) ) {
+	$gDateRange .= " and pageid >= " . labelMinid($_GET["minlabel"]);
+}
+if ( array_key_exists("maxlabel", $_GET) ) {
+	$gDateRange .= " and pageid <= " . labelMaxid($_GET["maxlabel"]);
+}
+
 
 // The different "slices" of URLs a user can view.
 // Each element is an array of [dbname, UI name]
@@ -1387,14 +1403,15 @@ function wptServer() {
 
 
 // Return HTML to create a select list of archive labels (eg, "Oct 2010", "Nov 2010").
-function selectArchiveLabel($archive, $curLabel, $bReverse=true, $bOnchage = true) {
-	global $gPagesTable, $gDateRange;
+function selectArchiveLabel($archive, $curLabel, $bReverse=true, $bOnchage = true, $id="") {
+	global $gPagesTable, $gDateRangeDefault;
 
 	$sSelect = "<select" .
+		( $id ? " id='$id' name='$id'" : "" ) .
 		( $bOnchage ? " onchange='document.location=\"?a=$archive&l=\"+escape(this.options[this.selectedIndex].value)'" : "" ) .
 		">\n";
 
-	$query = "select label, startedDateTime from $gPagesTable where $gDateRange and archive = '$archive' group by label order by startedDateTime " . 
+	$query = "select label, startedDateTime from $gPagesTable where $gDateRangeDefault and archive = '$archive' group by label order by startedDateTime " . 
 		( $bReverse ? "desc" : "asc" ) . ";";
 	$result = doQuery($query);
 	while ($row = mysql_fetch_assoc($result)) {
@@ -1446,10 +1463,11 @@ function archiveLabelsForUrl($url, $bChrono=false, $archive = "All") {
 
 // Return an array of label names (in chrono order?) for an archive.
 // If $bEpoch is true return labels based on 
-function archiveLabels($archive = "All", $bEpoch = false, $format = "n/j/y" ) {
+function archiveLabels($archive = "All", $bEpoch = false, $format = "n/j/y", $bAll=false) {
 	global $gPagesTable, $gDateRange;
 
-	$query = "select label, min(startedDateTime) as epoch from $gPagesTable where $gDateRange and archive = '$archive' group by label order by epoch asc;";
+	$query = "select label, min(startedDateTime) as epoch from $gPagesTable where " .
+		( $bAll ? $gDateRangeDefault : $gDateRange ) . " and archive = '$archive' group by label order by epoch asc;";
 	$result = doQuery($query);
 	$aLabels = array();
 	while ($row = mysql_fetch_assoc($result)) {
@@ -1478,11 +1496,31 @@ function latestLabel($archive = "All") {
 }
 
 
+function labelMinid($label) {
+	global $gPagesTable;
+
+	$query = "select min(pageid) as minid from $gPagesTable where label='$label';";
+	$pageid = doSimpleQuery($query);
+
+	return $pageid;
+}
+
+
+function labelMaxid($label) {
+	global $gPagesTable;
+
+	$query = "select max(pageid) as maxid from $gPagesTable where label='$label';";
+	$pageid = doSimpleQuery($query);
+
+	return $pageid;
+}
+
+
 // Return HTML to create a select list of data slices (All, intersection, Top 100, etc.)
-function selectSlice($cur="", $onchange="") {
+function selectSlice($cur="", $onchange="", $id="") {
 	global $gaSlices;
 
-	$sSlice = "<select $onchange>";
+	$sSlice = "<select id='$id' name='$id' $onchange>\n";
 	foreach($gaSlices as $aSlice) {
 		$dbname = $aSlice[0];
 		$uiname = $aSlice[1];
