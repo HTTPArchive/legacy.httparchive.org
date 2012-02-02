@@ -1570,9 +1570,9 @@ function crawledUrlsJS($pageid=null, $n=20) {
 
 
 function crawledUrls($pageid=null, $n=20) {
-	global $gPagesTableDev;
+	global $gPagesTableDev, $gbMobile, $gPagesTableMobile;
 
-	$query = "select createDate, url, label, pageid from $gPagesTableDev " .
+	$query = "select createDate, url, label, pageid from " . ($gbMobile ? $gPagesTableMobile : $gPagesTableDev) . " " .
 		( $pageid ? "where pageid < $pageid " : "" ) .
 		"order by pageid desc limit $n;";
 	$result = doQuery($query);
