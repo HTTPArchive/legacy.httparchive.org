@@ -1,209 +1,152 @@
 <?php
-/*
-Copyright 2010 Google Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-     http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
+function cssPath($file) { return "bootstrap/bootstrap/css/" . $file; }
+function jsPath($file) { return "bootstrap/bootstrap/js/" . $file; }
 require_once("ui.inc");
 require_once("utils.inc");
 
 $gTitle = "HTTP Archive";
+
 ?>
-<!doctype html>
-<html>
-<head>	
-<title><?php echo genTitle() ?></title>
-<meta charset="UTF-8">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>HTTPArchive</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-<?php echo headfirst() ?>
-<link type="text/css" rel="stylesheet" href="style.css" />
-<style>
-.column {
-	float: left;
-	width: 50%; }
-h2 {
-	clear: both; }
-.arrow { 
-	vertical-align: top;
-	padding-top: 100px; }
-#rightarrow {
-	text-align: left; }
-#interestingcontainer {
-	margin-top: 30px;
-	width: auto; 
-	border: 0; }
-</style>
-</head>
+    <!-- Le styles -->
+    <link href="<?php echo cssPath('bootstrap.css'); ?>" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+    </style>
+    <link href="<?php echo cssPath('bootstrap-responsive.css'); ?>" rel="stylesheet">
 
-<body>
-<?php echo uiHeader($gTitle); ?>
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="<?php echo jsPath('html5.js'); ?>"></script>
+    <![endif]-->
 
-<p class="summary">The <a href="about.php">HTTP Archive</a> tracks how the Web is built.</p>
+    <?php /* TODO - do we have touch icons? */ ?>
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  </head>
 
-<ul class="even-columns keypoints">
-  <li><strong><a href="trends.php">Trends in web technology</a></strong><br>load times, download sizes, performance scores
-  <li><strong><a href="interesting.php">Interesting stats</a></strong><br>popular scripts, image formats, errors, redirects
-  <li><strong><a href="websites.php">Website performance</a></strong><br>specific URL screenshots, waterfall charts, HTTP headers
-</ul>
+  <body>
 
-The <a href="http://code.google.com/p/httparchive/source/checkout">HTTP Archive code</a> is open source and the data is <a href="downloads.php">downloadable</a>.
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="index.php">HTTP Archive</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li class="active"><a href="index.php">Home</a></li>
+              <li><a href="trends.php">Trends</a></li>
+              <li><a href="interesting.php">Stats</a></li>
+              <li><a href="websites.php">Websites</a></li>
+              <li><a href="about.php">About</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
 
+    <div class="container">
+        <h1>The HTTP Archive tracks how the web is built.</h1>
 
-<center>
-<table id=interestingcontainer cellspacing=0 cellpadding=0 border=0>
-<tr>
-<td id=leftarrow class=arrow></td>
-<td>
-<div id=interesting>
-<!-- chart will be inserted here -->
-</div>
-</td>
-<td id=rightarrow class=arrow></td>
-</table>
-</center>
+      <!-- Main hero unit for a primary marketing message or call to action -->
+      <div class="row">
+      <div class="span8 offset2">
+        <div id="statsCarousel" class="carousel">
+            <?php
+                require_once("stats.inc");
+                require_once("charts.inc");
+                $hStats = getStats(latestLabel("All"), "All", ($gbMobile ? "iphone" : "IE8"));
+            ?>
+            <div class="carousel-inner">
+                <div class="active item">
+                    <a class=image-link href='interesting.php'><?php echo bytesContentTypeChart($hStats) ?></a>
+                    <div class="carousel-caption">
+                        <h4>Bytes per Page by Content Time</h4>
+                    </div>
+                </div>
+                <div class="item"><a class=image-link href='interesting.php'><?php echo responseSizes($hStats) ?></a></div>
+                <div class="item"><a class=image-link href='interesting.php'><?php echo percentGoogleLibrariesAPI($hStats) ?></a></div>
+                <div class="item"><a class=image-link href='interesting.php'><?php echo percentFlash($hStats) ?></a></div>
+                <div class="item"><a class=image-link href='interesting.php'><?php echo percentFonts($hStats) ?></a></div>
+                <div class="item"><a class=image-link href='interesting.php'><?php echo popularImageFormats($hStats) ?></a></div>
+                <div class="item"><a class=image-link href='interesting.php'><?php echo maxage($hStats) ?></a></div>
+                <div class="item"><a class=image-link href='interesting.php'><?php echo percentByProtocol($hStats) ?></a></div>
+                <div class="item"><a class=image-link href='interesting.php'><?php echo requestErrors($hStats) ?></a></div>
+                <div class="item"><a class=image-link href='interesting.php'><?php echo redirects($hStats) ?></a></div>
+                <div class="item"><a class=image-link href='interesting.php'><?php echo correlationChart($hStats, "onLoad") ?></a></div>
+                <div class="item"><a class=image-link href='interesting.php'><?php echo correlationChart($hStats, "renderStart") ?></a></div>
+            </div>
+            <a class="left carousel-control" href="#statsCarousel" data-slide="prev">&lsaquo;</a>
+            <a class="right carousel-control" href="#statsCarousel" data-slide="next">&rsaquo;</a>
+        </div>
+      </div>
+      </div>
 
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="span4">
+          <h2>Trends in web technology</h2>
+           <p>Load times, download sizes, performance scores</p>
+          <p><a class="btn" href="trends.php">View details &raquo;</a></p>
+        </div>
+        <div class="span4">
+          <h2>Interesting stats</h2>
+           <p>Popular scripts, image formats, errors, redirects</p>
+          <p><a class="btn" href="interesting.php">View details &raquo;</a></p>
+       </div>
+        <div class="span4">
+          <h2>Website performance</h2>
+          <p>Specific URL screenshots, waterfall charts, HTTP headers</p>
+          <p><a class="btn" href="websites.php">View details &raquo;</a></p>
+        </div>
+      </div>
+
+        <h3>The HTTP Archive code is <a href="http://httparchive.googlecode.org">open source</a> and the data is <a href="">downloadable</a></h3>
+
+      <hr>
+
+      <footer>
+        <p>The HTTP Archive is <a href="about.php#sponsors">sponsored by</a> 
+        <a title="Google" href="http://www.google.com/">Google</a>,
+        <a title="Mozilla" href="http://www.mozilla.org/firefox">Mozilla</a>,
+        <a title="New Relic" href="http://www.newrelic.com/">New Relic</a>,
+        <a title="O'Reilly Media" href="http://oreilly.com/">O&#8217;Reilly Media</a>,
+        <a href="http://www.etsy.com/">Etsy</a>,
+        <a title="Strangeloop Networks" href="http://www.strangeloopnetworks.com/">Strangeloop</a>,
+        <a title="dynaTrace Software" href="http://www.dynatrace.com/">dynaTrace Software</a>, and
+        <a title="Torbit" href="http://torbit.com/">Torbit</a>, and powered by <a href="http://www.webpagetest.org">WebPagetest</a>.
+      </footer>
+
+    </div> <!-- /container -->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="<?php echo jsPath('jquery.js'); ?>"></script>
+    <script src="<?php echo jsPath('bootstrap.js'); ?>"></script>
 <script type="text/javascript">
-// HTML strings for each image
-var gaSnippets = new Array();
 
-<?php
-require_once("stats.inc");
-require_once("charts.inc");
-$hStats = getStats(latestLabel("All"), "All", ($gbMobile ? "iphone" : "IE8"));
-?>
-gaSnippets.push("<?php echo bytesContentTypeChart($hStats) ?>");
-gaSnippets.push("<?php echo responseSizes($hStats) ?>");
-gaSnippets.push("<?php echo percentGoogleLibrariesAPI($hStats) ?>");
-gaSnippets.push("<?php echo percentFlash($hStats) ?>");
-gaSnippets.push("<?php echo percentFonts($hStats) ?>");
-gaSnippets.push("<?php echo popularImageFormats($hStats) ?>");
-gaSnippets.push("<?php echo maxage($hStats) ?>");
-gaSnippets.push("<?php echo percentByProtocol($hStats) ?>");
-gaSnippets.push("<?php echo requestErrors($hStats) ?>");
-gaSnippets.push("<?php echo redirects($hStats) ?>");
-gaSnippets.push("<?php echo correlationChart($hStats, "onLoad") ?>");
-gaSnippets.push("<?php echo correlationChart($hStats, "renderStart") ?>");
+    $('#statsCarousel').carousel();
 
 
-// The DOM element that is created from each snippet.
-var gaSnippetElems = new Array();
-var curSnippet;
-
-function showSnippet(parentId, bPrev) {
-	var parent = document.getElementById(parentId);
-	if ( ! parent ) {
-		return;
-	}
-
-	var iSnippet = Math.floor(gaSnippets.length * Math.random());
-	if ( curSnippet ) {
-		iSnippet = parseInt(curSnippet.id)
-		//fade(curSnippet, true);
-		curSnippet.style.display = 'none';
-	}
-
-	iSnippet = ( bPrev ? iSnippet-1 : iSnippet+1 );
-	if ( iSnippet >= gaSnippets.length ) {
-		iSnippet = 0;
-	}
-	else if ( iSnippet < 0 ) {
-		iSnippet = gaSnippets.length - 1;
-	}
-
-	var newSnippet = gaSnippetElems[iSnippet];
-	if ( "undefined" === typeof(newSnippet) ) {
-		newSnippet = document.createElement('div');
-		newSnippet.id = iSnippet;
-		gaSnippetElems[iSnippet] = newSnippet;
-		newSnippet.innerHTML = "<a class=image-link href='interesting.php'>" + gaSnippets[iSnippet] + "</a>";
-		var aPosition = findPos(parent);
-		newSnippet.style.left = aPosition[0] + "px";
-		newSnippet.style.top = aPosition[1] + "px";
-		parent.appendChild(newSnippet);
-	}
-	else {
-		newSnippet.style.display = "block";
-	}
-
-	curSnippet = newSnippet;
-	fade(newSnippet);
-}
-
-
-function insertNav(parentId) {
-	var arrow = document.getElementById('leftarrow');
-	if ( arrow ) {
-		arrow.innerHTML = "<a class='image-link' href='javascript:showSnippet(\"" + parentId + "\", 1)'><img src='images/tri-lft-t-14x28.gif' width=14 height=28 border=0></a>";
-	}
-
-	arrow = document.getElementById('rightarrow');
-	if ( arrow ) {
-		arrow.innerHTML = "<a class='image-link' href='javascript:showSnippet(\"" + parentId + "\")'><img src='images/tri-rt-t-14x28.gif' width=14 height=28 border=0></a>";
-	}
-}
-
-
-// opacity is a number 0-100 inclusive
-function fade(idOrElem, bOut) {
-	var elem = idOrElem;
-	if ( "string" === typeof(idOrElem) || "number" === typeof(idOrElem) ) {
-		elem = document.getElementById(idOrElem);
-	}
-	if ( ! elem ) {
-		return;
-	}
-
-	opacity = ( elem.style.opacity ? parseInt(elem.style.opacity * 100) : ( bOut ? 100 : 0 ) );
-	opacity = ( bOut ? opacity - 10 : opacity + 10 );
-	opacity = ( 100 < opacity ? 100 : ( 0 > opacity ? 0 : opacity ) );
-
-	elem.style.opacity = opacity/100;
-	elem.style.filter = "alpha(opacity = " + opacity + ")";
-
-	if ( (bOut && 0 < opacity ) || ( !bOut && 100 > opacity) ) {
-		setTimeout(function() { fade(elem, bOut); }, 50);
-	}
-	else if ( bOut ) {
-		elem.style.display = "none";
-	}
-}
-
-
-// from http://www.quirksmode.org/js/findpos.html
-function findPos(obj) {
-	var curleft = curtop = 0;
-	if (obj.offsetParent) {
-		do {
-			curleft += obj.offsetLeft;
-			curtop += obj.offsetTop;
-		} while (obj = obj.offsetParent);
-	}
-	return [curleft,curtop];
-}
-
-
-function dprint(msg) {
-	if ( "undefined" != typeof(console) ) {
-		console.log(msg);
-	}
-}
-
-showSnippet('interesting'); 
-insertNav('interesting');
 </script>
-
-<?php echo uiFooter() ?>
-
-</body>
+  </body>
 </html>
