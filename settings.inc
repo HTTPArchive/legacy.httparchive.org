@@ -16,10 +16,10 @@ limitations under the License.
 */
 
 // Replace "REPLACE" with the correct values for your database.
-$gMysqlServer = "REPLACE";
-$gMysqlDb = "REPLACE";
-$gMysqlUsername = "REPLACE";
-$gMysqlPassword = "REPLACE";
+$gMysqlServer = "localhost";
+$gMysqlDb = "httparchive";
+$gMysqlUsername = "root";
+$gMysqlPassword = "";
 
 $gDesktopDir = "/var/www/httparchive";
 $gMobileDir = "/var/www/httparchive.mobile";
