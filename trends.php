@@ -62,7 +62,19 @@ $gMaxLabel = ( array_key_exists("maxlabel", $_GET) ? $_GET['maxlabel'] : latestL
               <li class="active"><a href="trends.php">Trends</a></li>
               <li><a href="interesting.php">Stats</a></li>
               <li><a href="websites.php">Websites</a></li>
-              <li><a href="about.php">About</a></li>
+              <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown"  href="about.php">About <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                      <li><a href="about.php#mission">Mission</a></li>
+                      <li><a href="about.php#faq">FAQ</a></li>
+                      <li><a href="downloads.php">Download Data</a></li>
+                      <li><a href="news.php">News</a></li>
+                      <li><hr></li>
+                      <li><a href="http://code.google.com/p/httparchive/source/browse">Source Code</a></li>
+                      <li><a href="http://code.google.com/p/httparchive/issues/list">Bugs</a></li>
+                      <li><a href="http://groups.google.com/group/httparchive/topics">Contact Us</a></li>
+                    </ul>
+              </li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>
