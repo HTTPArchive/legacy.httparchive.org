@@ -37,21 +37,6 @@ $gMaxLabel = ( array_key_exists("maxlabel", $_GET) ? $_GET['maxlabel'] : latestL
 
     <!-- Le styles -->
     <link href="<?php echo cssPath('bootstrap.css'); ?>" rel="stylesheet">
-    <style type="text/css">
-      body {
-        padding-top: 60px;
-        padding-bottom: 40px;
-      }
-
-    /* just doing this to push the thing under the subnav when you click the in-page anchor */
-    .image-link img { padding-top: 60px; }
-
-
-
-
-
-
-    </style>
     <link href="<?php echo cssPath('bootstrap-responsive.css'); ?>" rel="stylesheet">
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -66,16 +51,36 @@ $gMaxLabel = ( array_key_exists("maxlabel", $_GET) ? $_GET['maxlabel'] : latestL
     <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
   </head>
 
-  <body>
+<body><div class="container-fluid"><div class="row-fluid">
+    <div class="span2">
+    <div class="subnav">
+      <ul class="nav nav-pills nav-stacked">
+        <li><a href="#numurls">URLs Analyzed</a></li>
+        <li><a href="#bytesTotal&reqTotal">Total bytes/reqs</a></li>
+        <li><a href="#bytesHtml&reqHtml">HTML bytes/reqs</a></li>
+        <li><a href="#bytesJS&reqJS">JS bytes/reqs</a></li>
+        <li><a href="#bytesCSS&reqCSS">CSS bytes/reqs</a></li>
+        <li><a href="#bytesImg&reqImg">Total image bytes and requests</a></li>
+        <li><a href="#PageSpeed">Page Speed</a></li>
+        <li><a href="#numDomains"># domains</a></li>
+        <li><a href="#perGlibs">Goog libs</a></li>
+        <li><a href="#perFlash">Flash</a></li>
+        <li><a href="#perFonts">Goog fonts</a></li>
+        <li><a href="#maxageNull">Maxagenull</a></li>
+        <li><a href="#perHttps">Https</a></li>
+        <li><a href="#perErrors">Errors</a></li>
+        <li><a href="#perRedirects">Redirects</a></li>
+      </ul>
+    </div>
+
+    </div>
+    <div class="span10">
+    </div>
+</div></div></body>
 
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
           <a class="brand" href="index.php">HTTP Archive</a>
           <div class="nav-collapse">
             <ul class="nav">
@@ -88,32 +93,6 @@ $gMaxLabel = ( array_key_exists("maxlabel", $_GET) ? $_GET['maxlabel'] : latestL
           </div><!--/.nav-collapse -->
         </div>
       </div>
-    <div class="subnav">
-      <ul class="nav nav-pills">
-        <li><a href="#numurls">URLs Analyzed</a></li>
-
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Bytes/reqs transferred <b class="caret">X</b></a>
-          <ul class="dropdown-menu">
-            <li><a href="#bytesTotal&reqTotal">Total bytes/reqs</a></li>
-            <li><a href="#bytesHtml&reqHtml">HTML bytes/reqs</a></li>
-            <li><a href="#bytesJS&reqJS">JS bytes/reqs</a></li>
-            <li><a href="#bytesCSS&reqCSS">CSS bytes/reqs</a></li>
-            <li><a href="#bytesImg&reqImg">Image bytes/reqs</a></li>
-          </ul>
-        </li>
-
-        <li><a href="#PageSpeed">Page Speed</a></li>
-        <li><a href="#numDomains"># domains</a></li>
-        <li><a href="#perGlibs">Goog libs</a></li>
-        <li><a href="#perFlash">Flash</a></li>
-        <li><a href="#perFonts">Goog fonts</a></li>
-        <li><a href="#maxageNull">Maxagenull</a></li>
-        <li><a href="#perHttps">Https</a></li>
-        <li><a href="#perErrors">Errors</a></li>
-        <li><a href="#perRedirects">Redirects</a></li>
-      </ul>
-    </div>
     </div>
 <div class="container">
 
