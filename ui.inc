@@ -133,8 +133,10 @@ OUTPUT;
 
 function uiFooter() {
 	return <<<OUTPUT
-<footer style="text-align: center;">
-<a href="about.php#sponsors">sponsors</a>: 
+<hr>
+
+<footer>
+<p>The HTTP Archive is <a href="about.php#sponsors">sponsored by</a> 
 <a title="Google" href="http://www.google.com/">Google</a>,
 <a title="Mozilla" href="http://www.mozilla.org/firefox">Mozilla</a>,
 <a title="New Relic" href="http://www.newrelic.com/">New Relic</a>,
@@ -142,10 +144,9 @@ function uiFooter() {
 <a href="http://www.etsy.com/">Etsy</a>,
 <a title="Strangeloop Networks" href="http://www.strangeloopnetworks.com/">Strangeloop</a>,
 <a title="dynaTrace Software" href="http://www.dynatrace.com/">dynaTrace Software</a>, and
-<a title="Torbit" href="http://torbit.com/">Torbit</a>.
-<br>
-powered by <a href="http://www.webpagetest.org">WebPagetest</a>
+<a title="Torbit" href="http://torbit.com/">Torbit</a>, and powered by <a href="http://www.webpagetest.org">WebPagetest</a>.
 </footer>
+
 <script type="text/javascript">jQuery('#aboutdropdown').hide();</script>
 OUTPUT;
 }

@@ -121,20 +121,7 @@ $gTitle = "HTTP Archive";
 
         <h3>The HTTP Archive code is <a href="http://httparchive.googlecode.org">open source</a> and the data is <a href="">downloadable</a></h3>
 
-      <hr>
-
-      <footer>
-        <p>The HTTP Archive is <a href="about.php#sponsors">sponsored by</a> 
-        <a title="Google" href="http://www.google.com/">Google</a>,
-        <a title="Mozilla" href="http://www.mozilla.org/firefox">Mozilla</a>,
-        <a title="New Relic" href="http://www.newrelic.com/">New Relic</a>,
-        <a title="O'Reilly Media" href="http://oreilly.com/">O&#8217;Reilly Media</a>,
-        <a href="http://www.etsy.com/">Etsy</a>,
-        <a title="Strangeloop Networks" href="http://www.strangeloopnetworks.com/">Strangeloop</a>,
-        <a title="dynaTrace Software" href="http://www.dynatrace.com/">dynaTrace Software</a>, and
-        <a title="Torbit" href="http://torbit.com/">Torbit</a>, and powered by <a href="http://www.webpagetest.org">WebPagetest</a>.
-      </footer>
-
+    <?php echo uiFooter() ?>
     </div> <!-- /container -->
 
     <!-- Le javascript

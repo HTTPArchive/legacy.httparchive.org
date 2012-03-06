@@ -68,10 +68,11 @@ $gMaxLabel = ( array_key_exists("maxlabel", $_GET) ? $_GET['maxlabel'] : latestL
         </div>
       </div>
     </div>
-<div class="container-fluid"><div class="row-fluid">
+<div style="margin-top: 60px" class="container-fluid"><div class="row-fluid">
     <div class="span2">
-    <div class="subnav">
-      <ul class="nav nav-pills nav-stacked">
+    <div class="well sidebar-nav">
+      <ul class="nav nav-list">
+        <li class="nav-header">Trend charts</li>
         <li><a href="#numurls">URLs Analyzed</a></li>
         <li><a href="#bytesTotal&reqTotal">Total bytes/reqs</a></li>
         <li><a href="#bytesHtml&reqHtml">HTML bytes/reqs</a></li>
@@ -124,20 +125,7 @@ $gMaxLabel = ( array_key_exists("maxlabel", $_GET) ? $_GET['maxlabel'] : latestL
         ?>
 
     </div>
-      <hr>
-
-      <footer>
-        <p>The HTTP Archive is <a href="about.php#sponsors">sponsored by</a> 
-        <a title="Google" href="http://www.google.com/">Google</a>,
-        <a title="Mozilla" href="http://www.mozilla.org/firefox">Mozilla</a>,
-        <a title="New Relic" href="http://www.newrelic.com/">New Relic</a>,
-        <a title="O'Reilly Media" href="http://oreilly.com/">O&#8217;Reilly Media</a>,
-        <a href="http://www.etsy.com/">Etsy</a>,
-        <a title="Strangeloop Networks" href="http://www.strangeloopnetworks.com/">Strangeloop</a>,
-        <a title="dynaTrace Software" href="http://www.dynatrace.com/">dynaTrace Software</a>, and
-        <a title="Torbit" href="http://torbit.com/">Torbit</a>, and powered by <a href="http://www.webpagetest.org">WebPagetest</a>.
-      </footer>
-
+    <?php echo uiFooter() ?>
     </div> <!-- /container -->
 
     <!-- Le javascript
