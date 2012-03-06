@@ -51,7 +51,24 @@ $gMaxLabel = ( array_key_exists("maxlabel", $_GET) ? $_GET['maxlabel'] : latestL
     <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
   </head>
 
-<body><div class="container-fluid"><div class="row-fluid">
+<body>
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="index.php">HTTP Archive</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li><a href="index.php">Home</a></li>
+              <li class="active"><a href="trends.php">Trends</a></li>
+              <li><a href="interesting.php">Stats</a></li>
+              <li><a href="websites.php">Websites</a></li>
+              <li><a href="about.php">About</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+<div class="container-fluid"><div class="row-fluid">
     <div class="span2">
     <div class="subnav">
       <ul class="nav nav-pills nav-stacked">
@@ -78,22 +95,6 @@ $gMaxLabel = ( array_key_exists("maxlabel", $_GET) ? $_GET['maxlabel'] : latestL
     </div>
 </div></div></body>
 
-    <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <a class="brand" href="index.php">HTTP Archive</a>
-          <div class="nav-collapse">
-            <ul class="nav">
-              <li><a href="index.php">Home</a></li>
-              <li class="active"><a href="trends.php">Trends</a></li>
-              <li><a href="interesting.php">Stats</a></li>
-              <li><a href="websites.php">Websites</a></li>
-              <li><a href="about.php">About</a></li>
-            </ul>
-          </div><!--/.nav-collapse -->
-        </div>
-      </div>
-    </div>
 <div class="container">
 
 
