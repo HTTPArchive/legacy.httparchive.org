@@ -118,7 +118,9 @@ function checkWPTStatus() {
 
 	$wptServer = wptServer();
 	$result = obtainTestsWithCode(SUBMITTED);
+
 	if ( $result ) {
+		$nNoResult = 0;
 		while ( $row = mysql_fetch_assoc($result) ) {
 			$request = $wptServer . "testStatus.php?f=xml&test=" . $row['wptid'];
 			$doc = new DOMDocument();
@@ -137,7 +139,14 @@ function checkWPTStatus() {
 						setStatus($row['statusid'], SUBMITTED + $gErrBase);
 					}
 					else {
-						break;
+						$nNoResult++;
+						if ( $nNoResult > 50 ) {
+							// Quick bail:
+							// If we've exhausted all the completed results we do NOT want
+							// to continue checking EVERY remaining test. So instead we bail
+							// after seeing many (50?) incomplete tests.
+							break;
+						}
 					}
 				}
 			}	
