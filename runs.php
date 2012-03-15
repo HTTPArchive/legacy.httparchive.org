@@ -64,7 +64,7 @@ function addUrls(aUrls) {
 		// For now, we'll watch the dev databases but NOT link to the results.
 		// sHtml += "<code style='font-size: 0.9em'>" + formatDate(aUrl[1]) + "</code> <a href='viewsite.php?pageid=" + aUrl[0] + "'>" +
 		sHtml += "<code style='font-size: 0.9em'>" + formatDate(aUrl[1]) + "</code> " +
-			aUrl[2] +
+			"<a href='" + aUrl[2] + "' target='_blank'>" + aUrl[2] + "</a>" +
 			( aUrl[3] ? " - " + aUrl[3] : "" ) +
 			"<br>\n";
 		gLastPageid = aUrl[0];
