@@ -1,4 +1,37 @@
+<?php 
+/*
+Copyright 2010 Google Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+require_once(dirname(dirname(dirname(__FILE__))) . "/ui.inc");
+
+$gTitle = "HTTP Archive API, v1";
+?>
 <!doctype html>
+<html>
+<head>
+<title><?php echo $gTitle ?></title>
+<meta charset="UTF-8">
+
+<?php echo headfirst() ?>
+<link type="text/css" rel="stylesheet" href="../../style.css" />
+</head>
+
+<body>
+<?php echo uiHeader($gTitle); ?>
+
 <h1>So you want to draw your own charts?</h1>
 <h2>The HTTPArchive API is designed to let you do just that.</h2>
 
@@ -172,3 +205,8 @@ myData({
     }
 })
 </pre>
+
+<?php echo uiFooter() ?>
+
+</body>
+</html>
