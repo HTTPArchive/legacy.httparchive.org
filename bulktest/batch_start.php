@@ -102,7 +102,7 @@ if ( $gbMobile ) {
 	loadUrlsFromDB($label, 2000);
 }
 else {
-	loadUrlsFromDB($label, 75000, true);
+	loadUrlsFromDB($label, 100000, true);
 }
 
 echo "DONE submitting batch run\n";
