@@ -106,10 +106,15 @@ $gMaxUrls = 20000;
 
 <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/themes/cupertino/jquery-ui.css"/>
 <script>
-// Load jQuery
-// jquery.min.js loaded elsewhere
-// google.load("jquery", "1.5.1");
-google.load("jqueryui", "1.8.1");
+function loadScript(url) {
+	var sNew = document.createElement("script");
+	sNew.asyn = true;
+	sNew.src = url;
+	var s0 = document.getElementsByTagName('script')[0];
+	s0.parentNode.insertBefore(sNew, s0);
+}
+
+loadScript("http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/jquery-ui.min.js");
 </script>
 <style>
 .ui-autocomplete-loading { background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat; }
