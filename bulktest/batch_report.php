@@ -20,4 +20,23 @@ require_once("batch_lib.inc");
 require_once("bootstrap.inc");
 
 reportSummary();
+
+echo "<pre>running tasks:\n";
+$aTasks = array("submit", "status", "obtain", "parse1", "parse2");
+$device = ($gbMobile ? "iphone" : "IE8");
+foreach ( $aTasks as $task ) {
+	// lock file for this specific task.
+	$lockfile = lockFilename($device, $task);
+	$fp = fopen($lockfile, "w+");
+	if ( ! flock($fp, LOCK_EX | LOCK_NB) ) {
+		// this task is still running
+		echo "    $task\n";
+	}
+}
+echo "</pre>\n";
+
+echo "<pre>recent batches:\n" . `grep "DONE:" batch.log | tac | head -4` . "</pre>";
 ?>
+<script>
+setTimeout("document.location='batch_report.php'", 1000*60*10);
+</script>
