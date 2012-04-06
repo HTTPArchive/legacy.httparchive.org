@@ -84,6 +84,9 @@ if ( !flock($fp, LOCK_EX | LOCK_NB) ) {
 // Create all the tables if they are not there.
 createTables();
 
+// remove log file
+unlink("batch.log");
+
 // Update the list of URLs from Alexa:
 if ( ! $gbMobile ) {
 	// TODO - Should we do this for $gbMobile too?????
