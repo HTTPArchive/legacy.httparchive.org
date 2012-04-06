@@ -148,7 +148,7 @@ $result = pendingUrls();
 if ( $result != -1 ) {
 	echo "<form name=urlsform><table>\n<tr><td colspan=4>\n" .
 		( $gbSimilar ? "" : "<a href='admin.php?sim=1'>I have time - find similar URLs</a>" ) .
-		"</td> <td><input type=submit value='Submit'></td></tr>\n<tr> <td>URL</td> <td>Date Requested</td> <td>Similar URLs</td> <td>Action</td> <td>Reject</td> </tr>\n";
+		"</td> <td><input class=button type=submit value='Submit'></td></tr>\n<tr> <td>URL</td> <td>Date Requested</td> <td>Similar URLs</td> <td>Action</td> <td>Reject</td> </tr>\n";
 	$i = 0;
 	$giUrl = 1;
 	$maxUrls = 8;
@@ -163,7 +163,7 @@ if ( $result != -1 ) {
 	}
 	mysql_free_result($result);
 
-	echo "<tr><td align=right colspan=5><input type=submit value='Submit'></td></tr>\n</table>" .
+	echo "<tr><td align=right colspan=5><input class=button type=submit value='Submit'></td></tr>\n</table>" .
 		"<input type=hidden name=sim value='$gbSimilar'></form>\n";
 	$moreUrls = $i - $maxUrls;
 	if ( $moreUrls > 0 ) {
