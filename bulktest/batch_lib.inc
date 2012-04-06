@@ -164,7 +164,9 @@ function parseXMLResult($doc, &$result) {
 	$result['loadTime'] = (int)$median->getElementsByTagName('docTime')->item(0)->nodeValue;
 	$result['startRender'] = (int)$median->getElementsByTagName('render')->item(0)->nodeValue;
 	// PageSpeed Score
-	$result['pagespeedScore'] = (int)$median->getElementsByTagName('PageSpeedScore')->item(0)->nodeValue;
+	if ( $median->getElementsByTagName('PageSpeedScore') ) {
+		$result['pagespeedScore'] = (int)$median->getElementsByTagName('PageSpeedScore')->item(0)->nodeValue;
+	}
 }
 
 
@@ -616,7 +618,7 @@ function reportSummary() {
 	printf($sFormat, "obtained", $totalUrls - ($loadedUrls + $submittedTests + $completedTests), $xmlDoneTests);
 	printf($sFormat, "HAR parsed", $totalUrls - ($loadedUrls + $submittedTests + $completedTests + $xmlDoneTests), 0);
 	printf("\n");
-	printf("DONE:    %10d\n", $successfulTests + $failedTests);
+	printf("DONE:    %10d    %s\n", $successfulTests + $failedTests, date("H:i M j"));
 	printf("success: %10d\n", $successfulTests);
 	printf("failed:  %10d (%d%%)\n", $failedTests, 100*$failedTests/$successfulTests);
 	printf("         %10d - submission failed\n", $failedSubmission);
