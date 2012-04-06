@@ -3,3 +3,13 @@
 order allow,deny
 deny from all
 </FilesMatch>
+
+<FilesMatch "batch_report.php">
+order allow,deny
+allow from all
+</FilesMatch>
+
+<FilesMatch "batch.log">
+order allow,deny
+allow from all
+</FilesMatch>
