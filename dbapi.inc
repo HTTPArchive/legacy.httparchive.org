@@ -277,6 +277,11 @@ function getTrendsData($slice, $device) {
 
 // Returns a hash where the key is the label (run name, eg, "Oct 1 2011").
 // The value for each key is another hash of all the trends data fields. 
+// WARNING: This is slow and will get slower as we get more data!
+// It searches through EVERY RUN!
+// ideas:
+//   - Add a "urlhash" field to the pages table (same as urls table) - right now we're searching on "url".
+//   - Cache trending data per URL - that's a big table.
 function getTrendsDataForUrl($url, $device) {
 	$pagesTable = pagesTable(NULL, NULL, $device);
 
@@ -287,6 +292,7 @@ function getTrendsDataForUrl($url, $device) {
 		", ROUND(PageSpeed) as PageSpeed, ROUND(numDomains) as numDomains" .
 		" from $pagesTable where url = '$url' group by label;";
 	$result = doQuery($query);
+
 	$hTrends = array();
 	while ( $row = mysql_fetch_assoc($result) ) {
 		$hTrends[$row['label']] = $row;
