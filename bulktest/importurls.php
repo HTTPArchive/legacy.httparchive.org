@@ -118,6 +118,11 @@ if ( "alexa" === $gFileType ) {
 	echo "The ranks have been updated.\n";
 }
 
+// update the urlhash column if null
+// WARNING: URLs added through the admin.php page do NOT have urlhash set immediately - but they should be caught here.
+doSimpleCommand("update $gUrlsTable set urlhash=conv(substring(md5(urlOrig), 1, 4), 16, 10) where urlhash is null;");
+echo "The urlhash have been updated.\n";
+
 echo "DONE\n";
 
 
