@@ -108,7 +108,7 @@ $gaSlices = array( array("All", "All"),
 					array("Top1000", "Top 1000")
 					);
 
-$gaDevices = array( "IE", "iphone" );
+$gaDevices = array( "IE8", "iphone" );
 
 $ghMonths = array(
 				  "Jan" => 1,
@@ -1308,6 +1308,7 @@ $gaTop1000 = array(
 
 
 // Don't link to some websites.
+// This is a list of domains - any URL with this domain will be considered "on the blacklist".
 $ghBlackList = array(
 					 "xhamsterhq.com" => 1, "www.xhamsterhq.com" => 1,
 					 "xxxbunker.com" => 1, "www.xxxbunker.com" => 1,
@@ -1352,10 +1353,12 @@ $ghBlackList = array(
 					 "www.xvideos.com" => 1,
 					 "pornhub.com" => 1,
 					 "www.pornhub.com" => 1,
+					 "m.pornhub.com" => 1,
 					 "xhamster.com" => 1,
 					 "www.xhamster.com" => 1,
 					 "youporn.com" => 1,
 					 "www.youporn.com" => 1,
+					 "mobile.youporn.com" => 1,
 					 "tube8.com" => 1,
 					 "www.tube8.com" => 1,
 					 "xnxx.com" => 1,
@@ -1992,6 +1995,11 @@ Nov 3, 2011 - add "rank" column to status table
 Nov 16, 2011 - add perFonts column to stats table
   mysql> alter table statsdev add column perFonts int(4) unsigned after perFlash;
 
+April 5, 2012 - add urlhash to urls table for faster lookup
+  mysql> alter table urls add column urlhash int(8) unsigned first;
+  mysql> update urls set urlhash = conv(substring(md5(urlOrig),1,4),16,10);
+  mysql> create index urlhash on urls (urlhash);
+  
 *******************************************************************************/
 function createTables() {
 	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gUrlsChangeTable, $gSettingsTable;
@@ -2215,13 +2223,15 @@ function createTables() {
 	// Create Urls Table
 	if ( ! tableExists($gUrlsTable) ) {
 		$command = "create table $gUrlsTable (" .
-			"urlOrig text character set binary" . // use "binary" so it's case *sensitive*
+			"urlhash int(8) unsigned" .
+			", urlOrig text character set binary" . // use "binary" so it's case *sensitive*
 			", urlFixed text" .
 			", rank int(10) unsigned" .
 			", ranktmp int(10) unsigned" . // use this while we're updating the rank every night
 			", other boolean not null" .   // is this URL from some other source and we should crawl it EVERY time
 			", optout boolean not null" .  // did the website owner ask us NOT to crawl their site
 			", primary key (urlOrig(255))" .
+			", index(urlhash)" .
 			");";
 		doSimpleCommand($command);
 	}
