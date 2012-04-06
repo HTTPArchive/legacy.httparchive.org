@@ -21,7 +21,7 @@ require_once("dbapi.inc");
 function rankUrl($url) {
 	global $gUrlsTable;
 
-	$query = "select urlOrig from $gUrlsTable where (urlFixed='$url' or urlOrig='$url') order by rank asc;";
+	$query = "select urlOrig from $gUrlsTable where urlhash=conv(substring(md5('$url'),1,4),16,10) and (urlFixed='$url' or urlOrig='$url') order by rank asc;";
 	$urlOrig = doSimpleQuery($query);
 
 	$aMatches = array();
@@ -45,7 +45,7 @@ function rankUrl($url) {
 function rank($url, $pageid=null) {
 	global $gUrlsTable;
 
-	$query = "select rank from $gUrlsTable where urlFixed='$url' or urlOrig='$url' order by rank asc;";
+	$query = "select rank from $gUrlsTable where urlhash=conv(substring(md5('$url'),1,4),16,10) and (urlOrig='$url')order by rank asc;";
 	$rank = doSimpleQuery($query);
 
 	return ( $rank ? $rank : "n/a" );
