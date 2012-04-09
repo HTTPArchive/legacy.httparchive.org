@@ -58,11 +58,16 @@ _gaq.push(['_trackPageLoadTime']);
 	ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
-</script>
-<script src="http://www.google.com/jsapi"></script>
-<script>
-// Load jQuery
-google.load("jquery", "1.5.1");
+
+function loadScript(url) {
+	var sNew = document.createElement("script");
+	sNew.async = true;
+	sNew.src = url;
+	var s0 = document.getElementsByTagName('script')[0];
+	s0.parentNode.insertBefore(sNew, s0);
+}
+
+loadScript("http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js");
 </script>
 
 <!--[if lt IE 9]>
