@@ -59,12 +59,59 @@ _gaq.push(['_trackPageLoadTime']);
 	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
 
-function loadScript(url) {
+function loadScript(url, callback) {
 	var sNew = document.createElement("script");
 	sNew.async = true;
 	sNew.src = url;
+	if ( "function" === typeof(callback) ) {
+		sNew.onload = function() {
+			callback();
+			sNew.onload = sNew.onreadystatechange = undefined; // clear it out to avoid getting called twice
+		};
+		sNew.onreadystatechange = function() {
+			if ( "loaded" === sNew.readyState || "complete" === sNew.readyState ) {
+				sNew.onload();
+			}
+		}
+	}
 	var s0 = document.getElementsByTagName('script')[0];
 	s0.parentNode.insertBefore(sNew, s0);
+}
+
+var _jqueryq = [];
+function doJquery() {
+	for ( var i=0; i < _jqueryq.length; i++ ) {
+		var cmd = _jqueryq[i];
+		doCommand(cmd);
+	}
+	_jqueryq = undefined; // as a flat that future commands should be done immediately
+}
+
+function addCommand(cmd) {
+	if ( "undefined" === typeof(_jqueryq) ) {
+		doCommand(cmd);
+	}
+	else {
+		_jqueryq.push(cmd);
+	}
+}
+
+function doCommand(cmd) {
+	if ( "function" === typeof(cmd) ) {
+		cmd();
+	}
+	else if ( "string" === typeof(cmd) ) {
+		// Eval a string of JavaScript in the proper context.
+		if (window.execScript) {
+			window.execScript(cmd);
+		}
+		else {
+			var fn = function() {
+				window.eval.call(window, cmd);
+			};
+			fn();
+		}
+	}
 }
 
 loadScript("http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js");
