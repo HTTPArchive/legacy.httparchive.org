@@ -164,7 +164,7 @@ function parseXMLResult($doc, &$result) {
 	$result['loadTime'] = (int)$median->getElementsByTagName('docTime')->item(0)->nodeValue;
 	$result['startRender'] = (int)$median->getElementsByTagName('render')->item(0)->nodeValue;
 	// PageSpeed Score
-	if ( $median->getElementsByTagName('PageSpeedScore') ) {
+	if ( $median->getElementsByTagName('PageSpeedScore') && $median->getElementsByTagName('PageSpeedScore')->item(0) ) {
 		$result['pagespeedScore'] = (int)$median->getElementsByTagName('PageSpeedScore')->item(0)->nodeValue;
 	}
 }
@@ -204,8 +204,8 @@ function obtainXMLResult($statusid, $wptid) {
 				// Record medianRun in status table
 				$medianRun = $result['medianRun'];
 				$startRender = $result['startRender'];
-				$pagespeedScore = $result['pagespeedScore'];
-				$cmd = "UPDATE $gStatusTable SET medianRun=$medianRun, startRender=$startRender, pagespeedScore=$pagespeedScore WHERE statusid=$statusid;";
+				$pagespeedScore = ( array_key_exists('pagespeedScore', $result) ? "pagespeedScore=" . $result['pagespeedScore'] . "," : "" );
+				$cmd = "UPDATE $gStatusTable SET $pagespeedScore medianRun=$medianRun, startRender=$startRender WHERE statusid=$statusid;";
 				doSimpleCommand($cmd);
 				setStatus($statusid, META_DONE); 
 			} 
@@ -554,7 +554,7 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 		", wptid = " . "'" . mysql_real_escape_string($statusInfo['wptid']) . "'" . 
 		", wptrun = " . $statusInfo['medianRun'] . 
 		", renderStart = " . $statusInfo['startRender'] . 
-		", PageSpeed = " . $statusInfo['pagespeedScore'] .
+		( array_key_exists('pagespeedScore', $statusInfo) && NULL !== $statusInfo['pagespeedScore'] ? ", PageSpeed = " . $statusInfo['pagespeedScore'] : "" )  .
 		( $statusInfo['rank'] ? ", rank = " . $statusInfo['rank'] : "" ) .
 		" where pageid = $pageid;";
 	doSimpleCommand($cmd);
