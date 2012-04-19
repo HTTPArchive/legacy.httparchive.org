@@ -35,7 +35,7 @@ echo "Run \"$gLabel\": min pageid = $minid, max pageid = $maxid\n";
 
 
 // copy the rows to production
-if ( ! $gbMobile ) {
+if ( ! $gbMobile && ( $gPagesTableDesktop != $gPagesTableDev ) ) {
 	$count = doSimpleQuery("select count(*) from $gPagesTableDesktop where pageid >= $minid and pageid <= $maxid;");
 	if ( $count ) {
 		echo "Rows already copied.\n";
@@ -78,7 +78,7 @@ else {
 
 	computeMissingStats($device, true);
 
-	if ( ! $gbMobile ) {
+	if ( ! $gbMobile && ( $gStatsTableDesktop != $gStatsTableDev ) ) {
 		echo "Copy stats to production...\n";
 		$cmd = "replace into $gStatsTableDesktop select * from $gStatsTableDev where device='IE8';";
 		doSimpleCommand($cmd);
