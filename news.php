@@ -30,7 +30,7 @@ $gTitle = "News";
 <link type="text/css" rel="stylesheet" href="style.css" />
 <style>
 DT { font-weight: bold; margin-top: 20px; }
-DD { margin-left: 40px; }
+DD { margin-left: 40px; font-size: 0.9em; }
 </style>
 </head>
 
@@ -40,6 +40,21 @@ DD { margin-left: 40px; }
 <h1><?php echo $gTitle ?></h1>
 
 <dl id=news>
+  <dt> April 19, 2012: <a href="http://royal.pingdom.com/2012/04/19/another-reason-why-its-a-good-thing-flash-is-going-away/">Another reason why it’s a good thing Flash is going away</a>
+  <dd> Pingdom blog post about the large size of Flash resources. "HTTP Archive, a project that analyzes thousands of web pages each month to get this statistic and more. It’s a great resource, so check it out if you like technical stats about web pages."
+
+  <dt> April 18, 2012: <a href="http://zoompf.com/blog/2012/04/unsuitable-image-formats-for-websites">Unsuitable Image Formats for Websites</a>
+  <dd> Zoompf blog post about less common image formats. "According to the awesome HTTP Archive, the most common image formats on the web are PNG, GIF, and JPEG:". 
+
+  <dt> April 16, 2012: <a href="http://dl.dropbox.com/u/91644/Pages%20vs%20No.%20Resources.png">Pages vs. No. Resources</a>
+  <dd> Andy Davies' analysis of data. <a href="https://twitter.com/#!/andydavies/status/192298419765788672">"Did it to validate the 150 resource default of the proposed W3C Resource Timing spec"</a>.
+
+  <dt> April 1, 2012: Number of URLs increased to 100K.
+
+  <dt> January 2012: Migrated httparchive.org to new data center.
+
+  <dt> November 17, 2011: Added the ability for anyone to <a href="http://httparchive.org/addsite.php">add a site</a> to the crawl.
+
   <dt> November 1, 2011: &#35; of URLs increased; Page Speed version changed
   <dd> Several changes occurred affecting the crawl and long term trends:
 <ul>
