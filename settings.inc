@@ -25,4 +25,10 @@ $gDesktopDir = "/var/www/httparchive";
 $gMobileDir = "/var/www/httparchive.mobile";
 $gDevDir = "/var/www/httparchive.dev";
 
+$gHAUrl = "http://httparchive.org/";
+$gHAMUrl = "http://mobile.httparchive.org/";
+$gWPTUrl = "http://httparchive.webpagetest.org/";
+
+$gbPrivateInstance = false;
+
 ?>
