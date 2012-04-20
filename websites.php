@@ -120,7 +120,9 @@ loadScript("http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/jquery-ui.min.js
 .ui-autocomplete-loading { background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat; }
 </style>
 <script>
-$(function() {
+// Need to avoid race condition with load jQuery async.
+window.onload = function() {
+    $(function() {
 		$( "#site" ).autocomplete({
 				source: "findurl.php",
                     minLength: 2,
@@ -129,6 +131,7 @@ $(function() {
 				}
 			});
 	});
+};
 </script>
 
 <style>
