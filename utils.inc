@@ -17,9 +17,6 @@ limitations under the License.
 
 require_once("settings.inc");
 
-$gHAUrl = "http://httparchive.org/";
-$gHAMUrl = "http://mobile.httparchive.org/";
-
 // TODO - remove this - it's deprecated
 $gArchive = "All";
 
@@ -84,7 +81,7 @@ else if ( $gbMobile ) {
 }
 
 
-$gDateRange = ( $gbMobile ? "pageid >= 607" : "pageid >= 10281" );
+$gDateRange = ( isPrivateInstance() ? "pageid >= 1" : ( $gbMobile ? "pageid >= 607" : "pageid >= 10281" ) );
 // Here's the scoop: We use $gDateRange as a nice global throughout most of our queries to limit
 // the scope of data. BUT...this is a problem when we want to, for example, present the user with 
 // a list of labels to choose from - we don't want that list of labels to be limited. 
@@ -103,10 +100,13 @@ if ( array_key_exists("maxlabel", $_GET) ) {
 // The different "slices" of URLs a user can view.
 // Each element is an array of [dbname, UI name]
 $gaSlices = array( array("All", "All"),
-					array("intersection", "intersection"),
-					array("Top100", "Top 100"),
-					array("Top1000", "Top 1000")
-					);
+				   array("intersection", "intersection")
+				   );
+
+if ( ! isPrivateInstance() ) {
+	$gaSlices[] = array("Top100", "Top 100");
+	$gaSlices[] = array("Top1000", "Top 1000");
+}
 
 $gaDevices = array( "IE8", "iphone" );
 
@@ -1400,8 +1400,15 @@ function isDev() {
 }
 
 
+function isPrivateInstance() {
+	global $gbPrivateInstance;
+	return $gbPrivateInstance;
+}
+
+
 function wptServer() {
-	return "http://httparchive.webpagetest.org/";
+	global $gWPTUrl;
+	return $gWPTUrl;
 }
 
 
@@ -1937,6 +1944,7 @@ function doQuery($query) {
 
 // return the first row
 function doRowQuery($query) {
+	$row = NULL;
 	$result = doQuery($query);
 	if ( $result ) {
 		$row = mysql_fetch_assoc($result);
