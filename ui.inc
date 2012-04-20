@@ -44,8 +44,11 @@ OUTPUT;
 
 // HTML to insert first inside the HEAD element.
 function headfirst() {
+	$sHtml = "";
+
 	// Google Analytics
-	return <<<OUTPUT
+	if ( ! isPrivateInstance() ) {
+		$sHtml = <<<OUTPUT
 <script type="text/javascript">
 // Google Analytics
 var _gaq = _gaq || [];
@@ -59,6 +62,11 @@ _gaq.push(['_trackPageLoadTime']);
 	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
 
+
+OUTPUT;
+	}
+
+	$sHtml .= <<<OUTPUT
 function loadScript(url, callback) {
 	var sNew = document.createElement("script");
 	sNew.async = true;
@@ -128,6 +136,8 @@ for (var i = 0; i < e.length; i++) {
 <![endif]-->
 
 OUTPUT;
+
+    return $sHtml;
 }
 
 
