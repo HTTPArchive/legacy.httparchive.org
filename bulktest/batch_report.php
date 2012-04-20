@@ -21,7 +21,8 @@ require_once("bootstrap.inc");
 
 reportSummary();
 
-echo "<pre>running tasks:\n";
+$bHtml = array_key_exists("REMOTE_ADDR", $_SERVER);
+echo ($bHtml ? "<pre>" : "" ) . "running tasks:\n";
 $aTasks = array("submit", "status", "obtain", "parse1", "parse2");
 $device = ($gbMobile ? "iphone" : "IE8");
 foreach ( $aTasks as $task ) {
@@ -33,10 +34,11 @@ foreach ( $aTasks as $task ) {
 		echo "    $task\n";
 	}
 }
-echo "</pre>\n";
+echo ($bHtml ? "</pre>\n" : "\n");
 
-echo "<pre>recent batches:\n" . `grep "DONE:" batch.log | tac | head -4` . "</pre>";
+echo ($bHtml ? "<pre>" : "") . "recent batches:\n" . `grep "DONE:" batch.log | tac | head -4` . ($bHtml ? "</pre>\n" : "\n");
+
+if ( $bHtml ) {
+	echo "<script>\nsetTimeout('document.location=\"batch_report.php\"', 1000*60*10);\n</script>\n";
+}
 ?>
-<script>
-setTimeout("document.location='batch_report.php'", 1000*60*10);
-</script>
