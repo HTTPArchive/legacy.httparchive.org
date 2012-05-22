@@ -34,12 +34,13 @@ $xmlurl = "{$wptServer}xmlResult.php?test=$wptid";
 $xmlstr = file_get_contents($xmlurl);
 $xml = new SimpleXMLElement($xmlstr);
 $frames = $xml->data->run[($wptrun - 1)]->firstView->videoFrames;
-
+$maxFrame = 0;
 $aTimes = array();
 if ( $frames->frame ) {
 	foreach($frames->frame as $frame) {
 		$time = floatval($frame->time) * 1000;
 		$aTimes[$time] = true;
+		$maxFrame = $time;
 	}
 }
 
@@ -52,15 +53,15 @@ if ( preg_match($pattern, $wptid, $aMatches) ) {
 	$url = "{$wptServer}results/" . $aMatches[1] . "/" . $aMatches[2] . "/" . $aMatches[3] . "/" . str_replace('_', '/', $aMatches[4]) . "/video_$wptrun/frame_";
 }
 $lastFrameTime = 0;
-for ( $i = 0; $i < ($onLoad+100); $i += 100 ) {
+for ( $i = 0; $i <= $maxFrame; $i += 100 ) {
 	$sTh .= "<th id=th$i style='display: none;'>" . ($i/1000) . "s</th> ";
-	//$border = "";
+
 	$class = "thumb";
 	if ( array_key_exists($i, $aTimes) ) {
 		$lastFrameTime = $i;
-		//$border = "style='border: 3px solid #FEB301;'";
 		$class = "thumb changed";
 	}
+
 	$f = "0000" . ($lastFrameTime/100);
 	$f = substr($f, strlen($f)-4);
 	if ( $gbMobile && "0000" == $f && $gPageid < 12217 ) {
