@@ -331,6 +331,8 @@ tr.odd td {
 	margin-left: 0; }
 #video tr + tr {
 	height: 180px; }
+.thumb { 
+    text-align: center; }
 .thumb a:focus, .thumb a:hover {
 	border-bottom: none; }
 .thumb a img {
