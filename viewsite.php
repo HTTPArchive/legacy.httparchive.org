@@ -107,6 +107,7 @@ OUTPUT;
 OUTPUT;
 	}
 
+	$sBorder = ( $gbMobile ? "2px solid #E0E0E0" : "0px" );
 	echo <<<OUTPUT
 <section id="videoContainer">
 <div id="videoDiv">
@@ -124,7 +125,7 @@ function showInterval(ms) {
 	for ( var i = 0; i < len; i++ ) {
 		var t = aTds[i].id.substring(2);
 		var sDisplay = "none";
-		var sBorder = "0px";
+		var sBorder = "$sBorder";
 		var img = aTds[i].getElementsByTagName('img')[0];
 		if ( 0 === ( t % ms ) || i === len-1 ) {
 			sDisplay = "table-cell";
@@ -134,7 +135,7 @@ function showInterval(ms) {
 			if ( prevSrc != img.src ) {
 				prevSrc = img.src;
 				if ( 0 < t ) {
-					sBorder = "3px solid #000";
+					sBorder = "3px solid #FEB301";
 				}
 			}
 		}
