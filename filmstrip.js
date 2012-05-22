@@ -63,8 +63,8 @@ for ( $i = 0; $i < ($onLoad+100); $i += 100 ) {
 	}
 	$f = "0000" . ($lastFrameTime/100);
 	$f = substr($f, strlen($f)-4);
-	if ( $gbMobile && "0000" == $f ) {
-		// There's a bug in Blaze's WPT that calls the "0.0s" image "frame_0010.jpg" instead of "frame_0000.jpg".
+	if ( $gbMobile && "0000" == $f && $gPageid < 12217 ) {
+		// There's a bug in Blaze's WPT that calls the "0.0s" image "frame_0010.jpg" instead of "frame_0000.jpg" up until Oct 1, 2011.
 		$f = "0010";
 	}
 	$sTd .= "<td id=td$i class='$class' style='display: none;'><a target='_blank' href='$url$f.jpg'><img width=" .
