@@ -34,6 +34,7 @@ $maxid = $row['maxid'];
 echo "Run \"$gLabel\": min pageid = $minid, max pageid = $maxid\n";
 
 
+
 // copy the rows to production
 if ( ! $gbMobile && ( $gPagesTableDesktop != $gPagesTableDev ) ) {
 	$count = doSimpleQuery("select count(*) from $gPagesTableDesktop where pageid >= $minid and pageid <= $maxid;");
@@ -116,6 +117,8 @@ else {
 	echo "...mysqldump file created and copied: $dumpfile\n";
 }
 
+
+
 // stats mysql dump
 $dumpfile = "../downloads/httparchive_stats";
 echo "Creating mysqldump file $dumpfile ...\n";
@@ -130,6 +133,8 @@ else {
 	exec("cp -p $dumpfile.gz $gMobileDir/downloads/");
 }
 echo "...mysqldump file created and copied: $dumpfile\n";
+
+
 
 // schema mysql dump
 $dumpfile = "../downloads/httparchive_schema.sql";
