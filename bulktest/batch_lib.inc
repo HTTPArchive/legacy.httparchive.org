@@ -681,9 +681,9 @@ function prettyMimetype($mimeType) {
 	return "other";
 }
 
-function lockFilename($device, $proc="uber") {
+function lockFilename($device, $proc="uber") { // CVSNO - go back and remove $device from all callers
 	// The file used as a file lock to coordinate the interaction of processes.
-	$lockFile = "/tmp/httparchive_batch_lock_{$device}_{$proc}.txt";
+	$lockFile = "./httparchive_batch_lock_{$proc}.txt";
 	return $lockFile;
 }
 
