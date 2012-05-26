@@ -33,7 +33,7 @@ $private = false;
 $docComplete = true;
 $fvonly = true;
 $runs = 3;
-$mv = 1;
+$mv = 1;  // only save video for Median run
 $wptApiKey = '';
 @include_once('wptkey.inc.php');
 
