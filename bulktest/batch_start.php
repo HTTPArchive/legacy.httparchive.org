@@ -21,6 +21,57 @@ require_once("batch_lib.inc");
 require_once("bootstrap.inc");
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// Start a new run
+//
+////////////////////////////////////////////////////////////////////////////////
+
+$gNumUrls = 0;
+$gUrlFile = "";
+$gSublabel = "";
+$gbImportUrls = ( $gbMobile ? 0 : 1 );
+$gLocation = "";
+
+parseParams();
+checkForBatchRun();    // exit if there's already a batch run going
+createTables();        // Create all the tables if they are not there.
+if ( file_exists("batch.log") ) unlink("batch.log");   // remove log file
+
+// Update the list of URLs from Alexa:
+if ( $gbImportUrls ) {
+	// TODO - Should we do this for $gbMobile too?????
+	require_once("importurls.php");
+}
+
+// Empty the status table
+removeAllStatusData();
+
+// Load the next batch
+// WARNING: Two runs submitted on the same day will have the same label.
+$date = getdate();
+$label = substr($date['month'], 0, 3) . " " . $date['mday'] . " " . $date['year'] . $gSublabel;
+
+if ( $gUrlsFile ) {
+	loadUrlsFromFile($label, $gUrlsFile);
+}
+else if ( $gNumUrls ) {
+	loadUrlsFromDb($label, $gNumUrls, false);
+}
+else if ( $gbMobile ) {
+	loadUrlsFromDB($label, 2000, false);
+}
+else {
+	loadUrlsFromDB($label, 200000, true);
+}
+
+echo "DONE submitting batch run\n";
+
+
+
+
+
+
 // Load the URLs in urls.txt file into status table.
 function loadUrlsFromFile($label, $file=NULL) {
 	$file = ( $file ? $file : ($gbMobile ? './urls.1000' : './urls.txt') );
@@ -61,52 +112,69 @@ function loadUrl($label, $url, $rank=NULL) {
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Start a new batch
-//
-////////////////////////////////////////////////////////////////////////////////
+// exit if there's already a batch run going
+function checkForBatchRun() {
+	global $locations;
 
-// A file lock to guarantee there is only one instance running.
-$fp = fopen(lockFilename($locations[0], "ALL"), "w+");
+	// A file lock to guarantee there is only one instance running.
+	$fp = fopen(lockFilename($locations[0], "ALL"), "w+");
 
-if ( !flock($fp, LOCK_EX | LOCK_NB) ) {
-	$pid = getPid("php batch_process.php");
-	if ( 0 < $pid ) {
-		echo "There's already a batch_process.php process running: $pid\nYou'll have to edit batch_start.php or kill that process yourself.\n";
-		exit();
-		// TODO - I guess the previous logic was to kill batch_process if batch_start was ever called.
-		// That scares me. It's too easy to type the wrong thing.
-		// killProcessAndChildren($pid);
+	if ( !flock($fp, LOCK_EX | LOCK_NB) ) {
+		$pid = getPid("php batch_process.php");
+		if ( 0 < $pid ) {
+			echo "There's already a batch_process.php process running: $pid\nYou'll have to edit batch_start.php or kill that process yourself.\n";
+			exit();
+			// TODO - I guess the previous logic was to kill batch_process if batch_start was ever called.
+			// That scares me. It's too easy to type the wrong thing.
+			// killProcessAndChildren($pid);
+		}
 	}
 }
 
-// Create all the tables if they are not there.
-createTables();
 
-// remove log file
-unlink("batch.log");
-
-// Update the list of URLs from Alexa:
-if ( ! $gbMobile ) {
-	// TODO - Should we do this for $gbMobile too?????
-	require_once("importurls.php");
+function parseParams() {
+	global $argv, $argc, $gSublabel, $gbImportUrls, $locations, $gUrlsFile, $gNumUrls;
+	
+	// if there are any options they MUST be in this order:
+	//   # of URLs or URL file
+	//   location
+	//   1 or 0 for whether to import URLs
+	//   sublabel
+	for ( $i = 1; $i < $argc; $i++ ) {
+		$val = $argv[$i];
+		if ( 1 === $i ) {
+			// # of URLs or URL file
+			if ( file_exists($val) ) {
+				$gUrlsFile = $val;
+			}
+			else if ( 0 < intval($val) && $val === "" . intval($val) ) {
+				$gNumUrls = $val;
+			}
+			else {
+				echo "ERROR: Unexpected value for 'numurls|urlfile' parameter: $val\n";
+				exit();
+			}
+		}
+		else if ( 2 === $i ) {
+			$locations = array($val);
+		}
+		else if ( 3 === $i ) {
+			if ( "1" === $argv[3] ) {
+				$gbImportUrls = true;
+			}
+			else if ( "0" === $argv[3] ) {
+				$gbImportUrls = false;
+			}
+			else {
+				echo "ERROR: Unexpected value for importUrls: '" . $argv[3] . "'.\n";
+				exit();
+			}
+		}
+		else if ( 4 === $i ) {
+			// sublabel 
+			$gSublabel = $val;
+		}
+	}
 }
 
-// Empty the status table
-removeAllStatusData();
-
-// Load the next batch
-// WARNING: Two runs submitted on the same day will have the same label.
-$date = getdate();
-$label = substr($date['month'], 0, 3) . " " . $date['mday'] . " " . $date['year'];
-
-if ( $gbMobile ) {
-	loadUrlsFromDB($label, 2000);
-}
-else {
-	loadUrlsFromDB($label, 200000, true);
-}
-
-echo "DONE submitting batch run\n";
 ?>
