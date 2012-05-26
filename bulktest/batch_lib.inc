@@ -155,17 +155,24 @@ function checkWPTStatus() {
 }
 
 
+// Get the "meta" information about a single URL's WPT results - median run #, Page Speed score, etc.
+// This does NOT get the detailed information about the website - each request, etc.
 function parseXMLResult($doc, &$result) {
-	$runs = $doc->getElementsByTagName('run');
+	//CVSNO don't need this?! $runs = $doc->getElementsByTagName('run');
 	$result = array();
 	$median = $doc->getElementsByTagName('median')->item(0);
-	$result['medianRun'] = (int)$median->getElementsByTagName('run')->item(0)->nodeValue;
-	$result['result'] = (int)$median->getElementsByTagName('result')->item(0)->nodeValue;
-	$result['loadTime'] = (int)$median->getElementsByTagName('docTime')->item(0)->nodeValue;
-	$result['startRender'] = (int)$median->getElementsByTagName('render')->item(0)->nodeValue;
+	$pageview = $median->getElementsByTagName('firstView')->item(0); //CVSNO
+	if ( ! $pageview ) {
+		return;
+	}
+
+	$result['medianRun'] = (int)$pageview->getElementsByTagName('run')->item(0)->nodeValue;
+	$result['result'] = (int)$pageview->getElementsByTagName('result')->item(0)->nodeValue;
+	$result['loadTime'] = (int)$pageview->getElementsByTagName('docTime')->item(0)->nodeValue;
+	$result['startRender'] = (int)$pageview->getElementsByTagName('render')->item(0)->nodeValue;
 	// PageSpeed Score
-	if ( $median->getElementsByTagName('PageSpeedScore') && $median->getElementsByTagName('PageSpeedScore')->item(0) ) {
-		$result['pagespeedScore'] = (int)$median->getElementsByTagName('PageSpeedScore')->item(0)->nodeValue;
+	if ( $pageview->getElementsByTagName('PageSpeedScore') && $pageview->getElementsByTagName('PageSpeedScore')->item(0) ) {
+		$result['pagespeedScore'] = (int)$pageview->getElementsByTagName('PageSpeedScore')->item(0)->nodeValue;
 	}
 }
 
@@ -181,6 +188,8 @@ function obtainXMLResults($divisor=NULL, $modulo=NULL) {
 }
 
 
+// Get the "meta" information about a single URL's WPT results - median run #, Page Speed score, etc.
+// This does NOT get the detailed information about the website - each request, etc.
 function obtainXMLResult($statusid, $wptid) {
 	global $gStatusTable, $gErrBase;
 
@@ -201,13 +210,20 @@ function obtainXMLResult($statusid, $wptid) {
 				// Import a website
 				$result = array();
 				parseXMLResult($doc, $result);
-				// Record medianRun in status table
-				$medianRun = $result['medianRun'];
-				$startRender = $result['startRender'];
-				$pagespeedScore = ( array_key_exists('pagespeedScore', $result) ? "pagespeedScore=" . $result['pagespeedScore'] . "," : "" );
-				$cmd = "UPDATE $gStatusTable SET $pagespeedScore medianRun=$medianRun, startRender=$startRender WHERE statusid=$statusid;";
-				doSimpleCommand($cmd);
-				setStatus($statusid, META_DONE); 
+				if ( array_key_exists('medianRun', $result) ) {
+					// Record medianRun in status table
+					$medianRun = $result['medianRun'];
+					$startRender = $result['startRender'];
+					$pagespeedScore = ( array_key_exists('pagespeedScore', $result) ? "pagespeedScore=" . $result['pagespeedScore'] . "," : "" );
+					$cmd = "UPDATE $gStatusTable SET $pagespeedScore medianRun=$medianRun, startRender=$startRender WHERE statusid=$statusid;";
+					doSimpleCommand($cmd);
+					setStatus($statusid, META_DONE); 
+				}
+				else {
+					// There was an error parsing the meta XML result.
+					echo "ERROR: couldn't find median page view for wptid $wptid.\n";
+					setStatus($statusid, SUBMIT_DONE + $gErrBase);
+				}
 			} 
 			else {
 				setStatus($statusid, SUBMIT_DONE + $gErrBase);
