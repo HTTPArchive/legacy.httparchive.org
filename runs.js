@@ -19,8 +19,7 @@ require_once("ui.inc");
 require_once("utils.inc");
 
 echo "var gaUrls = [\n" . 
-	crawledUrlsJS( ( array_key_exists("pageid", $_GET) ? $_GET["pageid"] : null ), 
-				   ( array_key_exists("n", $_GET) ? $_GET["n"] : 50) ) . 
+	crawledUrlsJS( getParam("pageid", null), getParam("n", 20) ) .
 	"\n];\n\n" .
 	"addUrls(gaUrls);\n";
 ?>
