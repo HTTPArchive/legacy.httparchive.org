@@ -18,7 +18,7 @@ limitations under the License.
 require_once("settings.inc");
 
 // TODO - remove this - it's deprecated
-$gArchive = "All";
+$gArchive = getParam("ar", "All");
 
 // Soon we'll add a date range selector.
 // For now I just want to exclude the early runs with only ~1500 URLs vs today's 15K URLS.
@@ -87,13 +87,13 @@ $gDateRange = ( isPrivateInstance() ? "pageid >= 1" : ( $gbMobile ? "pageid >= 6
 // a list of labels to choose from - we don't want that list of labels to be limited. 
 // So in some places we use $gDateRangeDefault to get the WHOLE range of data.
 $gDateRangeDefault = $gDateRange;
-$gMinLabel = ( array_key_exists("minlabel", $_GET) ? $_GET['minlabel'] : "" );
-$gMaxLabel = ( array_key_exists("maxlabel", $_GET) ? $_GET['maxlabel'] : "" );
-if ( array_key_exists("minlabel", $_GET) ) {
-	$gDateRange .= " and pageid >= " . labelMinid($_GET["minlabel"]);
+$gMinLabel = getParam("minlabel", "");
+$gMaxLabel = getParam("maxlabel", "");
+if ( $gMinLabel ) {
+	$gDateRange .= " and pageid >= " . labelMinid($gMinLabel);
 }
-if ( array_key_exists("maxlabel", $_GET) ) {
-	$gDateRange .= " and pageid <= " . labelMaxid($_GET["maxlabel"]);
+if ( $gMaxLabel ) {
+	$gDateRange .= " and pageid <= " . labelMaxid($gMaxLabel);
 }
 
 
@@ -1454,10 +1454,14 @@ function selectSiteLabel($url, $curLabel="", $bChrono=false) {
 
 
 // Return an array of label names (in chrono order?) for a specific URL.
-function archiveLabelsForUrl($url, $bChrono=false, $archive = "All") {
+function archiveLabelsForUrl($url, $bChrono=false, $archive) {
 	global $gPagesTable, $gDateRange;
+	global $gArchive;
+	if ( ! $archive ) {
+		$archive = $gArchive;
+	}
 
-	$query = "select label from $gPagesTable where $gDateRange and url = '$url' group by label order by startedDateTime " . 
+	$query = "select label from $gPagesTable where $gDateRange and archive='$archive' and url = '$url' group by label order by startedDateTime " . 
 		( $bChrono ? "asc" : "desc" ) . ";";
 	$result = doQuery($query);
 	$aLabels = array();
@@ -1473,8 +1477,12 @@ function archiveLabelsForUrl($url, $bChrono=false, $archive = "All") {
 
 // Return an array of label names (in chrono order?) for an archive.
 // If $bEpoch is true return labels based on 
-function archiveLabels($archive = "All", $bEpoch = false, $format = "n/j/y", $bAll=false) {
+function archiveLabels($archive=null, $bEpoch = false, $format = "n/j/y", $bAll=false) {
 	global $gPagesTable, $gDateRange;
+	global $gArchive;
+	if ( ! $archive ) {
+		$archive = $gArchive;
+	}
 
 	$query = "select label, min(startedDateTime) as epoch from $gPagesTable where " .
 		( $bAll ? $gDateRangeDefault : $gDateRange ) . " and archive = '$archive' group by label order by epoch asc;";
@@ -1496,10 +1504,22 @@ function archiveLabels($archive = "All", $bEpoch = false, $format = "n/j/y", $bA
 }
 
 
+// return the archive for a given label
+function getArchive($label) {
+	global $gPagesTable;
+
+	return doSimpleQuery("select archive from $gPagesTable where label = '$label' limit 1;");
+}
+
+
 // Return the latest (most recent) label for an archive 
 // based on when the pages in that label were analyzed.
-function latestLabel($archive = "All") {
+function latestLabel($archive) {
 	global $gPagesTable;
+	global $gArchive;
+	if ( ! $archive ) {
+		$archive = $gArchive;
+	}
 
 	$query = "select label from $gPagesTable where archive = '$archive' group by label order by startedDateTime desc;";
 	return doSimpleQuery($query);
