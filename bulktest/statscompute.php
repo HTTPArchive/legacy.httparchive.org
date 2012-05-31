@@ -18,8 +18,6 @@ limitations under the License.
 require_once("../settings.inc");
 require_once("../utils.inc");
 
-$gArchive = "All";
-
 
 // Compute stats
 require_once("../stats.inc");
