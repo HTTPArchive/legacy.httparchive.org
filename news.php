@@ -40,6 +40,12 @@ DD { margin-left: 40px; font-size: 0.9em; }
 <h1><?php echo $gTitle ?></h1>
 
 <dl id=news>
+  <dt> May 24, 2012: <a href="http://www.webperformancetoday.com/2012/05/24/average-web-page-size-1-mb/">Bad news for site owners and mobile users: The average web page is now 1 MB</a>
+  <dd> Joshua Bixby from Strangeloop Networks sites statistics from HTTP Archive about growth of web content.
+
+  <dt> April 28, 2012: <a href="http://www.websiteoptimization.com/speed/tweak/blocking-javascript/">Blocking JavaScript with Web Page Test</a>
+  <dd> Cites growth of JavaScript from HTTP Archive.
+
   <dt> April 19, 2012: <a href="http://royal.pingdom.com/2012/04/19/another-reason-why-its-a-good-thing-flash-is-going-away/">Another reason why it’s a good thing Flash is going away</a>
   <dd> Pingdom blog post about the large size of Flash resources. "HTTP Archive, a project that analyzes thousands of web pages each month to get this statistic and more. It’s a great resource, so check it out if you like technical stats about web pages."
 
