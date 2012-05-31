@@ -18,7 +18,6 @@ limitations under the License.
 require_once("utils.inc");
 require_once("ui.inc");
 
-$gArchive = "All";
 $gLabel = getParam('l', latestLabel($gArchive));
 $gChar = getParam('c', 'A');
 $gLcChar = strtolower($gChar);
