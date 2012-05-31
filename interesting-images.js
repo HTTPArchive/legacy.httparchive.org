@@ -22,7 +22,6 @@ DESCRIPTION:
 Return a JavaScript array of image URLs for charts.
 */
 
-$gArchive = "All";
 $gLabel = getParam('l', latestLabel($gArchive));
 $gSlice = getParam('s', 'All');
 $gJsonP = getParam('jsonp', '');
