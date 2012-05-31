@@ -19,7 +19,7 @@ require_once("ui.inc");
 require_once("urls.inc");
 
 $gTitle = "Remove Your Site";
-$gRurl = ( array_key_exists('rurl', $_GET) ? $_GET['rurl'] : '' );
+$gRurl = getParam("rurl", "");
 ?>
 <!doctype html>
 <html>
