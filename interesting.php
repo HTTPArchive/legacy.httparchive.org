@@ -18,7 +18,6 @@ limitations under the License.
 require_once("ui.inc");
 require_once("utils.inc");
 
-$gArchive = "All";
 $gLabel = getParam('l', latestLabel($gArchive));
 $gSlice = getParam('s', 'All');
 $gTitle = "Interesting Stats";
