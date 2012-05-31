@@ -45,22 +45,18 @@ The URLs are sorted based on the ranking from the <a href="http://www.alexa.com/
 </p>
 
 <?php
-$gStart = ( array_key_exists("start", $_GET) ? $_GET["start"] : 1 );
+$gStart = getParam("start", 1);
 if ( $gStart < 1 ) {
    $gStart = 1;
 }
 
-$gEnd = ( array_key_exists("end", $_GET) ? $_GET["end"] : 10 );
+$gEnd = getParam("end", 10);
 $gMax = 10000;
 if ( $gEnd > $gMax ) {
    $gEnd = $gMax;
 }
 
-$gbNums = array_key_exists("nums", $_GET);
-if ( 0 === count($_GET) ) {
-   // If the user didn't submit the form then show numbers by default.
-   $gbNums = true;
-}
+$gbNums = getParam("nums", 0);
 ?>
 
 <style>
