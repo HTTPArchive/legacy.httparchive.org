@@ -18,11 +18,10 @@ limitations under the License.
 require_once("ui.inc");
 require_once("utils.inc");
 
-$gArchive = "All";
 $gSlice = getParam('s', 'All');
 $gTitle = "Trends";
-$gMinLabel = ( array_key_exists("minlabel", $_GET) ? $_GET['minlabel'] : "" );
-$gMaxLabel = ( array_key_exists("maxlabel", $_GET) ? $_GET['maxlabel'] : latestLabel() );
+$gMinLabel = getParam("minlabel", "");
+$gMaxLabel = getParam("maxlabel", latestLabel());
 ?>
 <!doctype html>
 <html>
