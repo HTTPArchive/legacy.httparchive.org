@@ -18,7 +18,6 @@ limitations under the License.
 require_once("../settings.inc");
 require_once("../utils.inc");
 
-$gArchive = "All";
 $gLabel = $argv[1];
 if ( !$gLabel ) {
 	echo "You must specify a label.\n";
