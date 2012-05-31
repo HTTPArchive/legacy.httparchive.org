@@ -19,17 +19,11 @@ require_once("ui.inc");
 require_once("utils.inc");
 
 $gTitle = "Compare Stats";
-$gArchive = "All";
 
-$run1 = $slice1 = $run2 = $slice2 = null;
-if ( array_key_exists("r1", $_GET) && array_key_exists("s1", $_GET) ) {
-	$run1 = $_GET["r1"];
-	$slice1 = $_GET["s1"];
-}
-if ( array_key_exists("r2", $_GET) && array_key_exists("s2", $_GET) ) {
-	$run2 = $_GET["r2"];
-	$slice2 = $_GET["s2"];
-}
+$run1 = getParam("r1", null);
+$slice1 = getParam("s1", null);
+$run2 = getParam("r2", null);
+$slice2 = getParam("s2", null);
 
 function genForm($curLabel="", $curSlice="") {
 	global $gArchive, $gbMobile;
