@@ -60,7 +60,7 @@ function statsTable($label, $slice, $device) {
 
 // return a where condition to select the appropriate URL slice based on pageid
 function sliceCond($label, $slice, $device, $url = "") {
-	global $gaTop100, $gaTop1000, $gDateRange;
+	global $gaTop100, $gaTop1000, $gDateRange, $gArchive;
 
 	$pagesTable = pagesTable($label, $slice, $device);
 	$row = doRowQuery("select min(pageid) as minid, max(pageid) as maxid from $pagesTable where label='$label';");
@@ -71,8 +71,9 @@ function sliceCond($label, $slice, $device, $url = "") {
 
 	if ( "intersection" === $slice ) {
 		// Find the set of URLs that are constant across all labels;
-		$numLabels = doSimpleQuery("select count(distinct(label)) from $pagesTable where $gDateRange;");
-		$query = "select url, count(label) as num from $pagesTable where $gDateRange group by url having num = $numLabels;";
+		$archive = getArchive($label);  // only look at intersection across the same *archive*.
+		$numLabels = doSimpleQuery("select count(distinct(label)) from $pagesTable where $gDateRange and archive='$archive';");
+		$query = "select url, count(label) as num from $pagesTable where $gDateRange and archive='$archive' group by url having num = $numLabels;";
 		$result = doQuery($query);
 		$aUrls = array();
 		while ( $row = mysql_fetch_assoc($result) ) {
@@ -344,6 +345,8 @@ function computeStatsData($label, $slice, $device) {
 
 
 function computeTrendStats($label, $slice, $device, $sliceCond) {
+	global $gArchive;
+
 	$aFields = trendStatsFields();
 	$pagesTable = pagesTable($label, $slice, $device);
 
@@ -353,7 +356,7 @@ function computeTrendStats($label, $slice, $device, $sliceCond) {
 					? ", TRUNCATE(AVG($field), 1) as $field"   // truncate requests to 1 decimal place
 					: ", ROUND(AVG($field)) as $field" );      // round bytes to nearest integer
 	}
-	$query .= " from $pagesTable where archive = 'All' and label='$label' and $sliceCond;";
+	$query .= " from $pagesTable where archive = '$gArchive' and label='$label' and $sliceCond;";
 	$row = doRowQuery($query);
 
 	return $row;
