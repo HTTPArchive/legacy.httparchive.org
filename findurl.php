@@ -9,7 +9,7 @@ if ( ! $term ) {
 }
 
 $sites = array();
-$query = "select urlShort, max(pageid) as pageid from $gPagesTable where urlShort like '%$term%' group by urlShort order by urlShort asc limit 101;";
+$query = "select urlShort, max(pageid) as pageid from $gPagesTable where archive='$gArchive' and urlShort like '%$term%' group by urlShort order by urlShort asc limit 101;";
 $result = doQuery($query);
 $numUrls = mysql_num_rows($result);
 if ($numUrls > MIN_RESULTS) {
