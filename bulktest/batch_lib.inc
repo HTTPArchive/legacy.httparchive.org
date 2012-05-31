@@ -158,10 +158,9 @@ function checkWPTStatus() {
 // Get the "meta" information about a single URL's WPT results - median run #, Page Speed score, etc.
 // This does NOT get the detailed information about the website - each request, etc.
 function parseXMLResult($doc, &$result) {
-	//CVSNO don't need this?! $runs = $doc->getElementsByTagName('run');
 	$result = array();
 	$median = $doc->getElementsByTagName('median')->item(0);
-	$pageview = $median->getElementsByTagName('firstView')->item(0); //CVSNO
+	$pageview = $median->getElementsByTagName('firstView')->item(0); // change this to 'repeatView' for primed cache
 	if ( ! $pageview ) {
 		return;
 	}
@@ -254,7 +253,7 @@ function importWptResults($statusInfo, $bDebug=false) {
 	$medianRun = $statusInfo['medianRun'];
 
 	$wptServer = wptServer();
-	$request = $wptServer . "export.php?test=$wptid&run=$medianRun&cached=0&php=1";
+	$request = $wptServer . "export.php?test=$wptid&run=$medianRun&cached=0&php=1"; // change this to cached=1 for repeatView
 	$response = fetchUrl($request);
 	if ( strlen($response) ) {
 		if ( ImportHarJson($response, $statusInfo) ) {
@@ -549,7 +548,7 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 	mysql_free_result($result);
 	$numDomains = count(array_keys($hDomains));
 
-	$url = $firstUrl;
+	$url = $statusInfo['url'];
 	$urlShort = substr($url, 0, 255);
 
 	$urlHtml = $firstHtmlUrl;
