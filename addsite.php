@@ -19,7 +19,7 @@ require_once("ui.inc");
 require_once("urls.inc");
 
 $gTitle = "Add a Site";
-$gRurl = ( array_key_exists('rurl', $_GET) ? $_GET['rurl'] : '' );
+$gRurl = getParam("rurl", "");
 $gRurl = strtolower($gRurl);
 $is_valid_url = false;
 if ( $gRurl ) {
