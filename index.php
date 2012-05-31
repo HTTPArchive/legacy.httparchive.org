@@ -80,7 +80,7 @@ var gaSnippets = new Array();
 <?php
 require_once("stats.inc");
 require_once("charts.inc");
-$hStats = getStats(latestLabel("All"), "All", ($gbMobile ? "iphone" : "IE8"));
+$hStats = getStats(latestLabel(), "All", ($gbMobile ? "iphone" : "IE8"));
 ?>
 gaSnippets.push("<?php echo bytesContentTypeChart($hStats) ?>");
 gaSnippets.push("<?php echo responseSizes($hStats) ?>");
