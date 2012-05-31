@@ -20,7 +20,6 @@ require_once("../utils.inc");
 
 set_time_limit(0);
 
-$gArchive = "All";
 $gMarks = array();
 $gAggTimes = array();
 $gAggCounts = array();
