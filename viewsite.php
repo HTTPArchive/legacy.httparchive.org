@@ -49,7 +49,7 @@ $onLoad = $row['onLoad'];
 $renderStart = $row['renderStart'];
 
 $wptServer = wptServer();
-$harfileWptUrl = "{$wptServer}export.php?test=$wptid&run=$wptrun&cached=0";
+$harfileWptUrl = wptHarFileUrl($wptid, $wptrun, 0);
 
 ?>
 <!doctype html>
@@ -210,7 +210,7 @@ require_once('trends.inc');
 
 
 <script src='schema.js'></script>
-<script src='harviewer.js?u=<?php echo urlencode($harfileWptUrl) ?>'></script>
+<script src='harviewer.js?wptid=<?php echo $wptid ?>&wptrun=<?php echo $wptrun ?>&cached=0'></script>
 
 <script>
 $("#content").bind("onPreviewInit", 
@@ -232,6 +232,7 @@ $("#content").bind("onPreviewInit",
 
 <?php
 if ( ! $gbMobile ) {
+	// NOT mobile
 	echo <<<OUTPUT
 <style>
 #pagespeedreport UL { max-width: 100%; }
@@ -242,6 +243,7 @@ if ( ! $gbMobile ) {
 OUTPUT;
 }
 else {
+	// mobile
 	$file = BuildFileName($url);
 	$fullpath = "./harfiles-delme/$gPageid.$file.har";
 	$bWritten = false;
