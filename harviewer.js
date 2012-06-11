@@ -1,14 +1,19 @@
 var HARjson = 
 <?php
-if ( array_key_exists('u', $_GET) ) {
-	$target = $_GET["u"];
+require_once("utils.inc");
+
+$wptid = getParam("wptid");
+$wptrun = getParam("wptrun");
+$bCached = getParam("cached", 0);
+if ( $wptid && $wptrun ) {
+	$target = wptHarFileUrl($wptid, $wptrun, $bCached);
 	echo file_get_contents($target) . ";\n";
 }
+else if ( array_key_exists('u', $_GET) ) {
+	dprint("ERROR: harviewer.js was accessed using the *deprecated* \"u\" querystring parameter.");
+}
 else if ( array_key_exists('f', $_GET) ) {
-	// TODO - remove this - not used since March 24, 2011
-	require_once("utils.inc");
-	$target = $_GET["f"];
-	echo getHarFileContents($target) . ";\n";
+	dprint("ERROR: harviewer.js was accessed using the *deprecated* \"f\" querystring parameter.");
 }
 ?>
 
