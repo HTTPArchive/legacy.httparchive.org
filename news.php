@@ -40,6 +40,9 @@ DD { margin-left: 40px; font-size: 0.9em; }
 <h1><?php echo $gTitle ?></h1>
 
 <dl id=news>
+  <dt> June 4, 2012: <a href="http://www.igvita.com/2012/06/04/chrome-networking-dns-prefetch-and-tcp-preconnect/">Chrome Networking: DNS Prefetch & TCP Preconnect</a>
+  <dd> Ilya Grigorik quotes JavaScripts stats from the HTTP Archive.
+
   <dt> May 24, 2012: <a href="http://www.webperformancetoday.com/2012/05/24/average-web-page-size-1-mb/">Bad news for site owners and mobile users: The average web page is now 1 MB</a>
   <dd> Joshua Bixby from Strangeloop Networks sites statistics from HTTP Archive about growth of web content.
 
