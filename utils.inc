@@ -1412,6 +1412,11 @@ function wptServer() {
 }
 
 
+function wptHarFileUrl($wptid, $wptrun, $bCached=0) {
+	$harfileWptUrl = wptServer() . "export.php?test=$wptid&run=$wptrun&cached=" . ( $bCached ? "1" : "0" );
+	return $harfileWptUrl;
+}
+
 // Return HTML to create a select list of archive labels (eg, "Oct 2010", "Nov 2010").
 function selectArchiveLabel($archive, $curLabel, $bReverse=true, $bOnchage = true, $id="") {
 	global $gPagesTable, $gDateRangeDefault;
