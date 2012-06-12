@@ -96,10 +96,10 @@ if ( file_exists("$dumpfile.gz") ) {
 else {
 	echo "Creating mysqldump file $dumpfile ...\n";
 	if ( $gbMobile ) {
-		$cmd = "mysqldump --where='pageid >= $minid and pageid <= $maxid' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gRequestsTableMobile $gPagesTableMobile > $dumpfile";
+		$cmd = "mysqldump --where='pageid >= $minid and pageid <= $maxid' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gRequestsTableMobile $gPagesTableMobile > $dumpfile";
 	}
 	else {
-		$cmd = "mysqldump --where='pageid >= $minid and pageid <= $maxid' --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gRequestsTableDesktop $gPagesTableDesktop > $dumpfile";
+		$cmd = "mysqldump --where='pageid >= $minid and pageid <= $maxid' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gRequestsTableDesktop $gPagesTableDesktop > $dumpfile";
 	}
 	exec($cmd);
 	exec("gzip $dumpfile");
@@ -121,7 +121,7 @@ else {
 // stats mysql dump
 $dumpfile = "../downloads/httparchive_stats";
 echo "Creating mysqldump file $dumpfile ...\n";
-$cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop > $dumpfile";
+$cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop > $dumpfile";
 exec($cmd);
 exec("gzip -f $dumpfile");
 exec("cp -p $dumpfile.gz $gDesktopDir/downloads/");
