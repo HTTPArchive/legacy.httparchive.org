@@ -61,12 +61,13 @@ _gaq.push(['_trackPageLoadTime']);
 	ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
-
+</script>
 
 OUTPUT;
 	}
 
 	$sHtml .= <<<OUTPUT
+<script type="text/javascript">
 function loadScript(url, callback) {
 	var sNew = document.createElement("script");
 	sNew.async = true;
