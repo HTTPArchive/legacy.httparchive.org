@@ -278,6 +278,7 @@ I've received patches from several individuals including
 <a href="http://www.ioncannon.net/">Carson McDonald</a>, 
 <a href="http://jbyers.com/">James Byers</a>,
 <a href="http://greenido.wordpress.com/">Ido Green</a>,
+<a href="http://www.clark-consulting.eu/">Charlie Clark</a>,
  and Mike Pfirrmann.
 Guy Leech helped early on with the design.
 More recently, <a href="https://twitter.com/#!/stephenhay">Stephen Hay</a> created the new logo.
