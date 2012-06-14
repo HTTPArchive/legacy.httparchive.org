@@ -114,7 +114,7 @@ To restore these mysqldumps:
 
 <ol class=indent>
   <li> Import the <a href="downloads/httparchive_schema.sql">schema</a> dump to create the tables.
-  <li> Import the mysqldump file using this command:<br><code>gunzip -d  MYSQLDUMP_FILE.gz | mysql -u MYSQL_USERNAME -pMYSQL_PASSWORD -h MYSQL_HOSTNAME MYSQL_DB</code>
+  <li> Import the mysqldump file using this command:<br><code>gunzip -c MYSQLDUMP_FILE.gz | mysql -u MYSQL_USERNAME -pMYSQL_PASSWORD -h MYSQL_HOSTNAME MYSQL_DB</code>
 </ol>
 
 <?php echo uiFooter() ?>
