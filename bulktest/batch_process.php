@@ -37,9 +37,8 @@ if ( 0 == totalNotDone() ) {
 // Each task has a unique file lock, so that a long task does NOT block a
 // shorter process from being restarted during the next cronjob.
 
-$aTasks = array("submit", "status", "obtain", "parse1", "parse2");
 $aChildPids = array();
-foreach ( $aTasks as $task ) {
+foreach ( $gaTasks as $task ) {
 	// lock file for this specific task.
 	$lockfile = lockFilename($locations[0], $task);
 	$fp = fopen($lockfile, "w+");
@@ -81,11 +80,19 @@ foreach ( $aTasks as $task ) {
 			} 
 			else if ( "parse1" === $task ) {
 				// Fill page table and request table
-				fillTables(2, 1);
+				fillTables(4, 1);
 			}
 			else if ( "parse2" === $task ) {
 				// Fill page table and request table
-				fillTables(2, 0);
+				fillTables(4, 2);
+			}
+			else if ( "parse3" === $task ) {
+				// Fill page table and request table
+				fillTables(4, 3);
+			}
+			else if ( "parse4" === $task ) {
+				// Fill page table and request table
+				fillTables(4, 0);
 			}
 			fclose($fp);
 			echo "...DONE with task \"$task\"!\n";
