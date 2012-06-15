@@ -28,7 +28,8 @@ require_once("bootstrap.inc");
 ////////////////////////////////////////////////////////////////////////////////
 
 $gNumUrls = 0;
-$gUrlFile = "";
+$gUrlsFile = null;
+$gbUrlsFileSpecified = 0;
 $gSublabel = "";
 $gbImportUrls = ( $gbMobile ? 0 : 1 );
 $gLocation = "";
@@ -52,7 +53,7 @@ removeAllStatusData();
 $date = getdate();
 $label = substr($date['month'], 0, 3) . " " . $date['mday'] . " " . $date['year'] . $gSublabel;
 
-if ( $gUrlsFile ) {
+if ( $gUrlsFile && $gbUrlsFileSpecified ) {  // we set $gUrlsFile in importurls.php, so need a boolean to indicate if it was specified
 	loadUrlsFromFile($label, $gUrlsFile);
 }
 else if ( $gNumUrls ) {
@@ -89,7 +90,6 @@ function loadUrlsFromFile($label, $file=NULL) {
 // Load the URLs in urls.txt file into status table.
 function loadUrlsFromDB($label, $numUrls, $bOther=false) {
 	global $gUrlsTable;
-
 	$query = "select urlOrig, urlFixed, rank from $gUrlsTable where (rank <= $numUrls" . ( $bOther ? " OR other=true" : "" ) . ")" .
 		" and optout=false order by rank asc;";
 	$result = doQuery($query);
@@ -146,6 +146,7 @@ function parseParams() {
 			// # of URLs or URL file
 			if ( file_exists($val) ) {
 				$gUrlsFile = $val;
+				$gbUrlsFileSpecified = 1;
 			}
 			else if ( 0 < intval($val) && $val === "" . intval($val) ) {
 				$gNumUrls = $val;
