@@ -44,6 +44,7 @@ if ( ! file_exists($gUrlsFile) ) {
 	die("ERROR: URLs file \"$gUrlsFile\" doesn't exist.\n");
 }
 
+echo "Importing URLS: file = $gUrlsFile, file type = $gFileType\n";
 
 // Clear out all the current rankings.
 // If a URL is no longer in the list, it'll stay in the table but not be referenced.
