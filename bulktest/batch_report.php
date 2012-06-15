@@ -23,9 +23,8 @@ reportSummary();
 
 $bHtml = array_key_exists("REMOTE_ADDR", $_SERVER);
 echo ($bHtml ? "<pre>" : "" ) . "running tasks:\n";
-$aTasks = array("submit", "status", "obtain", "parse1", "parse2");
 $device = ($gbMobile ? "iphone" : "IE8");
-foreach ( $aTasks as $task ) {
+foreach ( $gaTasks as $task ) {
 	// lock file for this specific task.
 	$lockfile = lockFilename($device, $task);
 	$fp = fopen($lockfile, "w+");
