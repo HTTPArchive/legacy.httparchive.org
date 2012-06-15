@@ -10,11 +10,13 @@ define("DONE", 4);
 
 // The status table saves $gErrBase + i to indicate that there is a permanent error happens when the test is in the status i.
 $gErrBase = 900;
+// The list of tasks for a batch run.
+$gaTasks = array("submit", "status", "obtain", "parse1", "parse2", "parse3", "parse4");
 
 
 // Obtain the tests with specified status code
 // $divisor and $modulo let us split the job across multiple processes, 
-// eg, you could have 3 processes where proc 1 is modulo 1, proc 2 is 2, and proc 3 is 0
+// eg, you could have 3 processes ($divisor=3) where proc 1 is modulo 1 ($modulo=1), proc 2 is 2 ($modulo=2), and proc 3 is 0 ($modulo=0)
 function obtainTestsWithCode($status, $divisor=NULL, $modulo=NULL) {
 	global $gStatusTable;
 
@@ -237,6 +239,7 @@ function fillTables($divisor=NULL, $modulo=NULL) {
 	global $gErrBase;
 
 	$tests = obtainTestsWithCode(META_DONE, $divisor, $modulo);
+
 	if ( !IsEmptyQuery($tests) ) {
 		while ($statusInfo = mysql_fetch_assoc($tests)) {
 			$status = importWptResults($statusInfo);
