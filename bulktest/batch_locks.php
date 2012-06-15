@@ -19,17 +19,16 @@ require_once("bootstrap.inc");
 require_once("../utils.inc");
 require_once("batch_lib.inc");
 
-$aTasks = array("submit", "status", "obtain", "parse1", "parse2");
-$aDevices = array("IE8", "iphone");
+$aDevices = array("IE8", "iphone"); // CVSNO
 
 foreach ( $aDevices as $device ) {
-	foreach ( $aTasks as $task ) {
+	foreach ( $gaTasks as $task ) {
 		// lock file for this specific task.
 		$lockfile = lockFilename($device, $task);
 		$fp = fopen($lockfile, "w+");
 		if ( ! flock($fp, LOCK_EX | LOCK_NB) ) {
 			// this task is still running
-			echo "Task \"$task\" locked: $lockfile\n";
+			echo "Task \"$task\" locked for device $device: $lockfile\n";
 		}
 	}
 }
