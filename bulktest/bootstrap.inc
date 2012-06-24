@@ -38,4 +38,4 @@ $wptApiKey = '';
 
 // list of locations to use
 $locations = array();
-$locations[] = ( $gbMobile ? 'iphone43' : 'IE8' );
+$locations[] = ( $gbMobile ? 'iphone4' : 'IE8' );
