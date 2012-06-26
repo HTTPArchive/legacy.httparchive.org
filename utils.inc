@@ -81,22 +81,22 @@ else if ( $gbMobile ) {
 }
 
 
-//TODO $gDateRange = ( isPrivateInstance() ? "pageid >= 1" : "createDate >= " . (time()-(365*24*60*60)) );
 $gDateRange = ( isPrivateInstance() ? "pageid >= 1" : ( $gbMobile ? "pageid >= 607" : "pageid >= 10281" ) );
-
 // Here's the scoop: We use $gDateRange as a nice global throughout most of our queries to limit
 // the scope of data. BUT...this is a problem when we want to, for example, present the user with 
 // a list of labels to choose from - we don't want that list of labels to be limited. 
 // So in some places we use $gDateRangeDefault to get the WHOLE range of data.
 $gDateRangeDefault = $gDateRange;
-$gMinLabel = getParam("minlabel", "");
-$gMaxLabel = getParam("maxlabel", "");
+$gMinLabel = getParam("minlabel", latestLabel(null, time()-(365*24*60*60)));
+$gMaxLabel = getParam("maxlabel", latestLabel());
+
 if ( $gMinLabel ) {
 	$gDateRange .= " and pageid >= " . labelMinid($gMinLabel);
 }
 if ( $gMaxLabel ) {
 	$gDateRange .= " and pageid <= " . labelMaxid($gMaxLabel);
 }
+
 
 
 // The different "slices" of URLs a user can view.
@@ -1520,14 +1520,16 @@ function getArchive($label) {
 
 // Return the latest (most recent) label for an archive 
 // based on when the pages in that label were analyzed.
-function latestLabel($archive) {
+function latestLabel($archive, $beforeEpoch=null) {
 	global $gPagesTable;
 	global $gArchive;
 	if ( ! $archive ) {
 		$archive = $gArchive;
 	}
 
-	$query = "select label from $gPagesTable where archive = '$archive' group by label order by startedDateTime desc;";
+	$query = "select label from $gPagesTable where archive = '$archive'" .
+		( $beforeEpoch ? " and startedDateTime <= $beforeEpoch" : "" ) .
+		" group by label order by startedDateTime desc;";
 	return doSimpleQuery($query);
 }
 
