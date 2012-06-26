@@ -81,7 +81,9 @@ else if ( $gbMobile ) {
 }
 
 
+//TODO $gDateRange = ( isPrivateInstance() ? "pageid >= 1" : "createDate >= " . (time()-(365*24*60*60)) );
 $gDateRange = ( isPrivateInstance() ? "pageid >= 1" : ( $gbMobile ? "pageid >= 607" : "pageid >= 10281" ) );
+
 // Here's the scoop: We use $gDateRange as a nice global throughout most of our queries to limit
 // the scope of data. BUT...this is a problem when we want to, for example, present the user with 
 // a list of labels to choose from - we don't want that list of labels to be limited. 
@@ -99,8 +101,7 @@ if ( $gMaxLabel ) {
 
 // The different "slices" of URLs a user can view.
 // Each element is an array of [dbname, UI name]
-$gaSlices = array( array("All", "All"),
-				   array("intersection", "intersection")
+$gaSlices = array( array("All", "All")
 				   );
 
 if ( ! isPrivateInstance() ) {
