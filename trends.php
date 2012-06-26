@@ -20,8 +20,6 @@ require_once("utils.inc");
 
 $gSlice = getParam('s', 'All');
 $gTitle = "Trends";
-$gMinLabel = getParam("minlabel", "");
-$gMaxLabel = getParam("maxlabel", latestLabel());
 ?>
 <!doctype html>
 <html>
