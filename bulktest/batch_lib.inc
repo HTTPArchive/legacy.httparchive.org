@@ -171,6 +171,7 @@ function parseXMLResult($doc, &$result) {
 	$result['result'] = (int)$pageview->getElementsByTagName('result')->item(0)->nodeValue;
 	$result['loadTime'] = (int)$pageview->getElementsByTagName('docTime')->item(0)->nodeValue;
 	$result['startRender'] = (int)$pageview->getElementsByTagName('render')->item(0)->nodeValue;
+	$result['domElements'] = (int)$pageview->getElementsByTagName('domElements')->item(0)->nodeValue;
 	// PageSpeed Score
 	if ( $pageview->getElementsByTagName('PageSpeedScore') && $pageview->getElementsByTagName('PageSpeedScore')->item(0) ) {
 		$result['pagespeedScore'] = (int)$pageview->getElementsByTagName('PageSpeedScore')->item(0)->nodeValue;
@@ -215,6 +216,7 @@ function obtainXMLResult($statusid, $wptid) {
 					// Record medianRun in status table
 					$medianRun = $result['medianRun'];
 					$startRender = $result['startRender'];
+					$domElements = $result['domElements'];  // TODO - save this to DB
 					$pagespeedScore = ( array_key_exists('pagespeedScore', $result) ? "pagespeedScore=" . $result['pagespeedScore'] . "," : "" );
 					$cmd = "UPDATE $gStatusTable SET $pagespeedScore medianRun=$medianRun, startRender=$startRender WHERE statusid=$statusid;";
 					doSimpleCommand($cmd);
@@ -638,7 +640,7 @@ function reportSummary() {
 	printf("\n");
 	printf("DONE:    %10d    %s\n", $successfulTests + $failedTests, date("H:i M j"));
 	printf("success: %10d\n", $successfulTests);
-	printf("failed:  %10d (%d%%)\n", $failedTests, 100*$failedTests/$successfulTests);
+	printf("failed:  %10d (%d%%)\n", $failedTests, 100*$failedTests/($successfulTests + $failedTests));
 	printf("         %10d - submission failed\n", $failedSubmission);
 	printf("         %10d - WPT test failed\n", $failedWPTTesting);
 	printf("         %10d - test result processing failed\n", $failedProcessResult);
