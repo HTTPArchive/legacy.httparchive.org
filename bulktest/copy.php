@@ -73,9 +73,6 @@ else {
 	// remove any incomplete cache data that might have been created during the crawl
 	removeStats($gLabel, NULL, $device);
 
-	// remove intersection files since the intersection might have changed
-	removeStats(NULL, "intersection", $device);
-
 	computeMissingStats($device, true);
 
 	if ( ! $gbMobile && ( $gStatsTableDesktop != $gStatsTableDev ) ) {
@@ -103,16 +100,7 @@ else {
 	}
 	exec($cmd);
 
-	if ( $gbMobile ) {
-		exec("cp -p $dumpfile.gz $gDesktopDir/downloads/");
-		exec("cp -p $dumpfile.gz $gDevDir/downloads/");
-	}
-	else {
-		exec("cp -p $dumpfile.gz $gDesktopDir/downloads/");
-		exec("cp -p $dumpfile.gz $gMobileDir/downloads/");
-	}
-
-	echo "...mysqldump file created and copied: $dumpfile\n";
+	echo "...mysqldump file created: $dumpfile\n";
 }
 
 
@@ -123,14 +111,7 @@ echo "Creating mysqldump file $dumpfile ...\n";
 $cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop > $dumpfile";
 exec($cmd);
 exec("gzip -f $dumpfile");
-exec("cp -p $dumpfile.gz $gDesktopDir/downloads/");
-if ( $gbMobile ) {
-	exec("cp -p $dumpfile.gz $gDevDir/downloads/");
-}
-else {
-	exec("cp -p $dumpfile.gz $gMobileDir/downloads/");
-}
-echo "...mysqldump file created and copied: $dumpfile\n";
+echo "...mysqldump file created: $dumpfile\n";
 
 
 
@@ -139,14 +120,7 @@ $dumpfile = "../downloads/httparchive_schema.sql";
 echo "Creating mysqldump file $dumpfile ...\n";
 $cmd = "mysqldump --no-data --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop $gRequestsTableDesktop $gPagesTableDesktop $gRequestsTableMobile $gPagesTableMobile > $dumpfile";
 exec($cmd);
-exec("cp -p $dumpfile $gDesktopDir/downloads/");
-if ( $gbMobile ) {
-	exec("cp -p $dumpfile $gDevDir/downloads/");
-}
-else {
-	exec("cp -p $dumpfile $gMobileDir/downloads/");
-}
-echo "...mysqldump file created and copied: $dumpfile\n";
+echo "...mysqldump file created: $dumpfile\n";
 
 
 
