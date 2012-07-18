@@ -3,6 +3,7 @@ gMobileDir := /var/www/httparchive.mobile
 gDevDir := /var/www/httparchive.dev
 
 # harviewer installation: http://code.google.com/p/harviewer/wiki/Installation
+# create "downloads" symlink back to /var/www/httparchive.dev/downloads
 
 push :
 	cp -p *.php *.inc *.js *.css favicon.ico robots.txt $(gDesktopDir)/.
@@ -11,8 +12,6 @@ push :
 	cp -p images/*.* $(gDesktopDir)/images/.
 	mkdir -p $(gDesktopDir)/lists
 	cp -p lists/*.txt $(gDesktopDir)/lists/.
-	mkdir -p $(gDesktopDir)/downloads
-	cp -pu downloads/*.gz $(gDesktopDir)/downloads/.
 	echo "push .htaccess!"
 	echo "CVSNO: ln -s $(gDevDir)/aaa/harviewer/webapp harviewer"
 
@@ -25,8 +24,6 @@ pushmobile :
 	cp -p images/*.* $(gMobileDir)/images/.
 	mkdir -p $(gMobileDir)/lists
 	cp -p lists/*.txt $(gMobileDir)/lists/.
-	mkdir -p $(gMobileDir)/downloads
-	cp -pu downloads/*.gz $(gMobileDir)/downloads/.
 	mkdir -p $(gMobileDir)/harfiles-delme
 	ls -l $(gMobileDir)/har_to_pagespeed
 	echo "push .htaccess!"
