@@ -1,31 +1,61 @@
 <?php
 require_once("utils.inc");
+header('Content-Type: text/javascript'); 
 
-define("MIN_RESULTS", 12); // TODO - move it to conf file
+$maxResults = 50;
 
 $term = getParam("term");
 if ( ! $term ) {
     return; // no need to run anything - May be, return 'warn' in dev mode
 }
 
-$sites = array();
-$query = "select urlShort, max(pageid) as pageid from $gPagesTable where archive='$gArchive' and urlShort like '%$term%' group by urlShort order by urlShort asc limit 101;";
+$query = "select urlShort, max(pageid) as pageid, rank from $gPagesTable where archive='$gArchive' and urlShort like '%$term%' group by urlShort order by rank asc limit 101;";
 $result = doQuery($query);
+
+// Only return $maxResults results.
+// If there are more results, return a message with the remaining number.
+// We want to return the HIGHEST RANKED results first. Unfortunately, "asc" returns NULL first, 
+// so we have to wade through those in one array, and store the other results in a different array.
+$aRankedSites = array();
+$aUnrankedSites = array();
 $numUrls = mysql_num_rows($result);
-if ($numUrls > MIN_RESULTS) {
-    array_push($sites, array("label" => ( $numUrls > 100 ? "100+ URLs" : "$numUrls URLs" ) . ", refine further", "value" => "0"));
-} else {
-    // less then min results - so we'll give the list of urls
-    while ( $row = mysql_fetch_assoc($result) ) {
-        $url = $row['urlShort'];
-		$pageid = $row['pageid'];
-        array_push($sites, array("label" => $url, "value" => $url, "data-pageid" => $pageid));
-    }
+while ( $row = mysql_fetch_assoc($result) ) {
+	$url = $row['urlShort'];
+	$pageid = $row['pageid'];
+	$rank = $row['rank'];
+
+	if ( null == $rank ) {
+		if ( count($aUnrankedSites) < $maxResults ) {
+			array_push($aUnrankedSites, array("label" => $url, "value" => $url, "data-pageid" => $pageid));
+		}
+	}
+	else if ( count($aRankedSites) < $maxResults ) {
+		array_push($aRankedSites, array("label" => $url, "value" => $url, "data-pageid" => $pageid));
+	}
+	else {
+		break;
+	}
 }
 
+if ( count($aRankedSites) < $maxResults ) {
+	// add some UNRANKED results to make up the difference
+	array_splice($aRankedSites, count($aRankedSites), $maxResults, $aUnrankedSites);
+}		
+
+if ( $numUrls > $maxResults ) {
+	$remaining = $numUrls - $maxResults;
+	array_push($aRankedSites, array("label" => ( $remaining > 100 ? "100+ more URLs" : "$remaining more URLs" ) . ", refine further", "value" => "0"));
+}
 mysql_free_result($result);
 
 //echo JSON to our jQueryUI auto-complete box
-$response = json_encode($sites);
-echo $response;
+$response = json_encode($aRankedSites);
+
+$jsonp = getParam("jsonp");
+if ( $jsonp ) {
+	echo "$jsonp($response);";
+}
+else {
+	echo $response;
+}
 ?>
