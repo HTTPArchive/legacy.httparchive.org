@@ -40,6 +40,9 @@ DD { margin-left: 40px; font-size: 0.9em; }
 <h1><?php echo $gTitle ?></h1>
 
 <dl id=news>
+  <dt> June 15, 2012: <a href="http://royal.pingdom.com/2012/06/15/loading-todays-sites-over-dialup/">Want pain? Try loading today’s websites over dial-up</a>
+  <dd> Pingdom quotes HTTP Archive page size stats.
+
   <dt> June 4, 2012: <a href="http://www.igvita.com/2012/06/04/chrome-networking-dns-prefetch-and-tcp-preconnect/">Chrome Networking: DNS Prefetch & TCP Preconnect</a>
   <dd> Ilya Grigorik quotes JavaScripts stats from the HTTP Archive.
 
