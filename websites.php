@@ -39,9 +39,9 @@ $gMaxUrls = 20000;
 
 <form onsubmit="doSubmit(); return false;">
 <div style="font-size: 1em;">
-  <label style="vertical-align: baseline;">URL: </label>
+  <label style="vertical-align: baseline;">Find URL: </label>
   <input id="url" style="vertical-align: baseline; margin-left: 1em;" size=40/>
-  <input type=submit value="Submit" style="vertical-align: baseline; margin-left: 1em;">
+  <input type=submit value="Search" style="vertical-align: baseline; margin-left: 1em;">
 </div>
 </form>
 
