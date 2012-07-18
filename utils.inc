@@ -88,7 +88,7 @@ $gDateRange = ( isPrivateInstance() ? "pageid >= 1" : ( $gbMobile ? "pageid >= 6
 // So in some places we use $gDateRangeDefault to get the WHOLE range of data.
 $gDateRangeDefault = $gDateRange;
 $gMinLabel = getParam("minlabel", latestLabel(null, time()-(365*24*60*60)));
-$gMaxLabel = getParam("maxlabel", latestLabel());
+$gMaxLabel = getParam("maxlabel", latestLabel($gArchive));
 
 if ( $gMinLabel ) {
 	$gDateRange .= " and pageid >= " . labelMinid($gMinLabel);
