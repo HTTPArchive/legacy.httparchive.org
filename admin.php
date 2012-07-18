@@ -69,6 +69,10 @@ while(true) {
 			rejectUrl($url);
 			echo "<p class=warning> URL \"$url\" was rejected.</p>";
 		}
+		else if ( "ignore" === $action) {
+			rejectUrl($url);
+			echo "<p class=warning> URL \"$url\" was ignored.</p>";
+		}
 		$giUrl++;
 		continue;
 	}
