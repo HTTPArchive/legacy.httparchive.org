@@ -1460,7 +1460,7 @@ function selectSiteLabel($url, $curLabel="", $bChrono=false) {
 
 
 // Return an array of label names (in chrono order?) for a specific URL.
-function archiveLabelsForUrl($url, $bChrono=false, $archive) {
+function archiveLabelsForUrl($url, $bChrono=false, $archive=null) {
 	global $gPagesTable, $gDateRange;
 	global $gArchive;
 	if ( ! $archive ) {
