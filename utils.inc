@@ -81,7 +81,9 @@ else if ( $gbMobile ) {
 }
 
 
+// The test results prior to pageid=10281 are malformed.
 $gDateRange = ( isPrivateInstance() ? "pageid >= 1" : ( $gbMobile ? "pageid >= 607" : "pageid >= 10281" ) );
+
 // Here's the scoop: We use $gDateRange as a nice global throughout most of our queries to limit
 // the scope of data. BUT...this is a problem when we want to, for example, present the user with 
 // a list of labels to choose from - we don't want that list of labels to be limited. 
@@ -1461,13 +1463,13 @@ function selectSiteLabel($url, $curLabel="", $bChrono=false) {
 
 // Return an array of label names (in chrono order?) for a specific URL.
 function archiveLabelsForUrl($url, $bChrono=false, $archive=null) {
-	global $gPagesTable, $gDateRange;
+	global $gPagesTable, $gDateRangeDefault;
 	global $gArchive;
 	if ( ! $archive ) {
 		$archive = $gArchive;
 	}
 
-	$query = "select label from $gPagesTable where $gDateRange and archive='$archive' and url = '$url' group by label order by startedDateTime " . 
+	$query = "select label from $gPagesTable where $gDateRangeDefault and archive='$archive' and url = '$url' group by label order by startedDateTime " . 
 		( $bChrono ? "asc" : "desc" ) . ";";
 	$result = doQuery($query);
 	$aLabels = array();
@@ -1520,7 +1522,7 @@ function getArchive($label) {
 
 // Return the latest (most recent) label for an archive 
 // based on when the pages in that label were analyzed.
-function latestLabel($archive, $beforeEpoch=null) {
+function latestLabel($archive=null, $beforeEpoch=null) {
 	global $gPagesTable;
 	global $gArchive;
 	if ( ! $archive ) {
