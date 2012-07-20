@@ -135,9 +135,11 @@ function checkWPTStatus() {
 					unset($doc);
 
 					if ( 200 == $code ) {
+						$nNoResult = 0; // reset
 						setStatus($row['statusid'], SUBMIT_DONE);
 					} 
 					elseif ( 400 <= $code ) {
+						$nNoResult = 0; // reset
 						setStatus($row['statusid'], SUBMITTED + $gErrBase);
 					}
 					else {
