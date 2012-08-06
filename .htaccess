@@ -6,6 +6,13 @@ order allow,deny
 deny from all
 </FilesMatch>
 
+<FilesMatch "admin.php">
+AuthType Basic
+AuthUserFile /var/www/.htpasswd
+AuthName "Restricted"
+require valid-user
+</FilesMatch>
+
 # Compress/gzip html, XML, css and js and fonts and CSV
 AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/x-javascript application/javascript font/ttf application/octet-stream
 
