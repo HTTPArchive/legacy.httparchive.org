@@ -72,9 +72,10 @@ function showResults(aResults) {
 		var pageid = hResult["data-pageid"];
 		sHtml += "<li> <a href='viewsite.php?pageid=" + pageid + "'>" + url + "\n";
 	}
-	if ( sHtml ) {
-		document.getElementById("urls").innerHTML = "<ul style='list-style-type: none;'>\n" + sHtml + "</ul>\n";
-	}
+
+	document.getElementById("urls").innerHTML = ( sHtml ? 
+												  "<ul style='list-style-type: none;'>\n" + sHtml + "</ul>\n" :
+												  "no results found" );
 }
 
 
