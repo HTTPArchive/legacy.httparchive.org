@@ -11,7 +11,7 @@ define("DONE", 4);
 // The status table saves $gErrBase + i to indicate that there is a permanent error happens when the test is in the status i.
 $gErrBase = 900;
 // The list of tasks for a batch run.
-$gaTasks = array("submit", "status", "obtain", "parse1", "parse2", "parse3", "parse4");
+$gaTasks = array("submit", "status", "obtain", "parse1", "parse2", "parse3", "parse4", "parse5", "parse6", "parse7", "parse8");
 
 
 // Obtain the tests with specified status code
@@ -144,7 +144,7 @@ function checkWPTStatus() {
 					}
 					else {
 						$nNoResult++;
-						if ( $nNoResult > 50 ) {
+						if ( $nNoResult > 200 ) {
 							// Quick bail:
 							// If we've exhausted all the completed results we do NOT want
 							// to continue checking EVERY remaining test. So instead we bail
