@@ -2154,6 +2154,7 @@ function createTables() {
 			", label varchar (32) not null" .
 			", rank int(10) unsigned" .
 			", status varchar (32) not null" .
+			", attempts int(2) not null" .  // how many times we've tried the URL so we can re-submit failures
 			", timeOfLastChange int(10) unsigned not null" .
 			", wptid varchar (64)" .
 			", wptRetCode varchar (8)" .
