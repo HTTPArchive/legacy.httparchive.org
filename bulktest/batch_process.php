@@ -27,7 +27,13 @@ if ( ! tableExists($gStatusTable) ) {
 
 // Now that we're running as a cronjob, we need to emit nothing to stdout when we're all done.
 if ( 0 == totalNotDone() ) {
-	exit(0);
+	resubmitFailures();
+	if ( 0 == totalNotDone() ) {
+		exit(0);
+	}
+	else {
+		echo "Resubmitted failures - going around once again...\n";
+	}
 }
 
 // TODO - Combine "obtain" and "parse"?
@@ -80,19 +86,28 @@ foreach ( $gaTasks as $task ) {
 			} 
 			else if ( "parse1" === $task ) {
 				// Fill page table and request table
-				fillTables(4, 1);
+				fillTables(8, 1);
 			}
 			else if ( "parse2" === $task ) {
-				// Fill page table and request table
-				fillTables(4, 2);
+				fillTables(8, 2);
 			}
 			else if ( "parse3" === $task ) {
-				// Fill page table and request table
-				fillTables(4, 3);
+				fillTables(8, 3);
 			}
 			else if ( "parse4" === $task ) {
-				// Fill page table and request table
-				fillTables(4, 0);
+				fillTables(8, 4);
+			}
+			else if ( "parse5" === $task ) {
+				fillTables(8, 5);
+			}
+			else if ( "parse6" === $task ) {
+				fillTables(8, 6);
+			}
+			else if ( "parse7" === $task ) {
+				fillTables(8, 7);
+			}
+			else if ( "parse8" === $task ) {
+				fillTables(8, 0);
 			}
 			fclose($fp);
 			echo "...DONE with task \"$task\"!\n";
@@ -100,7 +115,6 @@ foreach ( $gaTasks as $task ) {
 		}
 	}
 }
-
 
 // Loop through the processes until all of them are done and then exit.
 while ( count($aChildPids) > 0 ) {
