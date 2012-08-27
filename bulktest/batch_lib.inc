@@ -81,17 +81,18 @@ function submitTest(&$record, $status) {
 			$doc->loadXML($response);
 			$nodes = $doc->getElementsByTagName('statusCode');
 			$code = (int)trim($nodes->item(0)->nodeValue);
+			$cmd = "UPDATE $gStatusTable SET attempts = attempts + 1"; // increment the attempts counter
 			if ( $code == 200 ) {
 				// Update status col in status table
 				$nodes = $doc->getElementsByTagName('testId');
 				$id = trim($nodes->item(0)->nodeValue);
 				$statusid = $record['statusid'];
-				$cmd = "UPDATE $gStatusTable SET wptid = '$id', wptRetCode = $code WHERE statusid = $statusid;";
+				$cmd .= ", wptid = '$id', wptRetCode = $code WHERE statusid = $statusid;";
 				doSimpleCommand($cmd);
 				setStatus($statusid, SUBMITTED);
 			} 
 			else {
-				$cmd = "UPDATE $gStatusTable SET wptRetCode = $code WHERE statusid = $record[statusid];";
+				$cmd .= ", wptRetCode = $code WHERE statusid = $record[statusid];";
 				doSimpleCommand($cmd);
 				$err_status = $gErrBase + $status;
 				setStatus($record['statusid'], $err_status);
@@ -110,6 +111,16 @@ function submitBatch() {
 			submitTest($row, 0);
 		}
 	}
+}
+
+
+// Submit the batch test to WPT server.
+function resubmitFailures() {
+	global $gStatusTable;
+	$maxAttempts = 2;  // the maximum number of times we'll try a URL
+
+	$cmd = "update $gStatusTable set status=0, wptid='', wptRetCode='', medianRun=0, startRender=0, pagespeedScore = NULL where status >= $gErrBase and attempts < $maxAttempts;";
+	doSimpleCommand($cmd);
 }
 
 
