@@ -60,10 +60,10 @@ else if ( $gNumUrls ) {
 	loadUrlsFromDb($label, $gNumUrls, false);
 }
 else if ( $gbMobile ) {
-	loadUrlsFromDB($label, 2000, false);
+	loadUrlsFromDB($label, 5000, false);
 }
 else {
-	loadUrlsFromDB($label, 200000, true);
+	loadUrlsFromDB($label, 300000, true);
 }
 
 echo "DONE submitting batch run\n";
