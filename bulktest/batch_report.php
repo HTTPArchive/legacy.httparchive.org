@@ -37,6 +37,7 @@ echo ($bHtml ? "</pre>\n" : "\n");
 
 echo ($bHtml ? "<pre>" : "") . "recent batches:\n" . `grep "DONE:" batch.log | tac | head -4` . ($bHtml ? "</pre>\n" : "\n");
 
+echo ($bHtml ? "<p><a href='http://httparchive.webpagetest.org/getLocations.php'>view agents</a></p>\n" : "" );
 if ( $bHtml ) {
 	echo "<script>\nsetTimeout('document.location=\"batch_report.php\"', 1000*60*10);\n</script>\n";
 }
