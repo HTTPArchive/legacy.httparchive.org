@@ -100,28 +100,33 @@ else {
 	}
 	exec($cmd);
 
-	echo "...mysqldump file created: $dumpfile\n";
+	echo "...mysqldump file created: $dumpfile.gz\n";
 }
 
 
-
-// stats mysql dump
+// stats mysql dump - create this after all crawls both desktop & mobile
 $dumpfile = "../downloads/httparchive_stats";
 echo "Creating mysqldump file $dumpfile ...\n";
-$cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop > $dumpfile";
+$cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop | gzip > $dumpfile.gz";
 exec($cmd);
-exec("gzip -f $dumpfile");
-echo "...mysqldump file created: $dumpfile\n";
+echo "...mysqldump file created: $dumpfile.gz\n";
 
+// only create these for desktop
+if ( ! $gbMobile ) {
+	// schema mysql dump
+	$dumpfile = "../downloads/httparchive_schema.sql";
+	echo "Creating mysqldump file $dumpfile ...\n";
+	$cmd = "mysqldump --no-data --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop $gRequestsTableDesktop $gPagesTableDesktop $gRequestsTableMobile $gPagesTableMobile > $dumpfile";
+	exec($cmd);
+	echo "...mysqldump file created: $dumpfile\n";
 
-
-// schema mysql dump
-$dumpfile = "../downloads/httparchive_schema.sql";
-echo "Creating mysqldump file $dumpfile ...\n";
-$cmd = "mysqldump --no-data --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop $gRequestsTableDesktop $gPagesTableDesktop $gRequestsTableMobile $gPagesTableMobile > $dumpfile";
-exec($cmd);
-echo "...mysqldump file created: $dumpfile\n";
-
+	// urls mysql dump
+	$dumpfile = "../downloads/httparchive_urls";
+	echo "Creating mysqldump file $dumpfile ...\n";
+	$cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gUrlsTableDesktop | gzip > $dumpfile.gz";
+	exec($cmd);
+	echo "...mysqldump file created: $dumpfile.gz\n";
+}
 
 
 echo "DONE copying latest run to production.\n";
