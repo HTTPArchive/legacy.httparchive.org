@@ -103,7 +103,7 @@ There's a download containing the aggregated stats for <em>all</em> runs:
 There's a download containing the URLs used in <em>the most recent</em> run:
 </p>
 <ul class=indent>
-  <li> <a href="downloads/httparchive_urls.gz">stats</a>
+  <li> <a href="downloads/httparchive_urls.gz">urls</a>
 </ul>
 
 <p style="margin-bottom: 1em;">
