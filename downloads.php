@@ -100,6 +100,13 @@ There's a download containing the aggregated stats for <em>all</em> runs:
 </ul>
 
 <p style="margin-bottom: 1em;">
+There's a download containing the URLs used in <em>the most recent</em> run:
+</p>
+<ul class=indent>
+  <li> <a href="downloads/httparchive_urls.gz">stats</a>
+</ul>
+
+<p style="margin-bottom: 1em;">
 There's a download file for each run for desktop ("IE") and mobile ("iPhone"):
 </p>
 <ul class=indent>
