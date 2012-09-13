@@ -1486,7 +1486,7 @@ function archiveLabelsForUrl($url, $bChrono=false, $archive=null) {
 // Return an array of label names (in chrono order?) for an archive.
 // If $bEpoch is true return labels based on 
 function archiveLabels($archive=null, $bEpoch = false, $format = "n/j/y", $bAll=false) {
-	global $gPagesTable, $gDateRange;
+	global $gPagesTable, $gDateRange, $gDateRangeDefault;
 	global $gArchive;
 	if ( ! $archive ) {
 		$archive = $gArchive;
