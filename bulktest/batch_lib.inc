@@ -13,6 +13,7 @@ $gErrBase = 900;
 // The list of tasks for a batch run.
 $gaTasks = array("submit", "status", "obtain", "parse1", "parse2", "parse3", "parse4", "parse5", "parse6", "parse7", "parse8");
 
+$gbRepeatView = false; // Currently you have to MANUALLY change this to true if you want to look at "Repeat View".
 
 // Obtain the tests with specified status code
 // $divisor and $modulo let us split the job across multiple processes, 
@@ -62,7 +63,7 @@ function setStatus($statusid, $status) {
 // Submit the unfinished tests to WPT
 function submitTest(&$record, $status) {
 	global $gStatusTable, $gErrBase;
-	global $video, $private, $runs, $docComplete, $fvonly, $mv, $wptApiKey;
+	global $video, $private, $runs, $docComplete, $fvonly, $mv, $wptApiKey, $gbNoScript;
 
 	$wptServer = wptServer();
 	$request = $wptServer . 'runtest.php?f=xml&priority=6&url=' . urlencode($record['url']) . 
@@ -72,6 +73,7 @@ function submitTest(&$record, $status) {
 		( $docComplete ? "&web10=1" : "" ) .
 		( $fvonly ? "&fvonly=1" : "" ) .
 		( $mv ? "&mv=1" : "" ) .
+		( $gbNoScript ? "&noscript=1" : "" ) .
 		( $wptApiKey ? "&k=$wptApiKey" : "" );
 
 	$doc = new DOMDocument();
@@ -173,9 +175,14 @@ function checkWPTStatus() {
 // Get the "meta" information about a single URL's WPT results - median run #, Page Speed score, etc.
 // This does NOT get the detailed information about the website - each request, etc.
 function parseXMLResult($doc, &$result) {
+	global $gbRepeatView;
+
 	$result = array();
 	$median = $doc->getElementsByTagName('median')->item(0);
-	$pageview = $median->getElementsByTagName('firstView')->item(0); // change this to 'repeatView' for primed cache
+	if ( ! $median ) {
+		return;
+	}
+	$pageview = $median->getElementsByTagName( $gbRepeatView ? 'repeatView' : 'firstView' )->item(0); // change this to 'repeatView' for primed cache
 	if ( ! $pageview ) {
 		return;
 	}
@@ -265,13 +272,13 @@ function fillTables($divisor=NULL, $modulo=NULL) {
 
 
 function importWptResults($statusInfo, $bDebug=false) {
-	global $gErrBase;
+	global $gErrBase, $gbRepeatView;
 
 	$wptid = $statusInfo['wptid'];
 	$medianRun = $statusInfo['medianRun'];
 
 	$wptServer = wptServer();
-	$request = $wptServer . "export.php?test=$wptid&run=$medianRun&cached=0&php=1"; // change this to cached=1 for repeatView
+	$request = $wptServer . "export.php?test=$wptid&run=$medianRun&cached=" . ( $gbRepeatView ? "1" : "0" ) . "&php=1";
 	$response = fetchUrl($request);
 	if ( strlen($response) ) {
 		if ( ImportHarJson($response, $statusInfo) ) {
@@ -653,7 +660,7 @@ function reportSummary() {
 	printf("\n");
 	printf("DONE:    %10d    %s\n", $successfulTests + $failedTests, date("H:i M j"));
 	printf("success: %10d\n", $successfulTests);
-	printf("failed:  %10d (%d%%)\n", $failedTests, 100*$failedTests/($successfulTests + $failedTests));
+	printf("failed:  %10d (%d%%)\n", $failedTests, ($successfulTests + $failedTests) ? 100*$failedTests/($successfulTests + $failedTests) : 0 );
 	printf("         %10d - submission failed\n", $failedSubmission);
 	printf("         %10d - WPT test failed\n", $failedWPTTesting);
 	printf("         %10d - test result processing failed\n", $failedProcessResult);
