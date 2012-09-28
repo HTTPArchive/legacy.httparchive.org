@@ -70,8 +70,8 @@ function submitTest(&$record, $status) {
 		"&location={$record['location']}&runs=$runs" .
 		( $private ? "&private=1" : "" ) .
 		( $video ? "&video=1" : "" ) .
-		( $docComplete ? "&web10=1" : "" ) .
-		( $fvonly ? "&fvonly=1" : "" ) .
+		"&web10=" . ( $docComplete ? "1" : "0" ) .
+		"&fvonly=" . ( $fvonly ? "1" : "0" ) .
 		( $mv ? "&mv=1" : "" ) .
 		( $gbNoScript ? "&noscript=1" : "" ) .
 		( $wptApiKey ? "&k=$wptApiKey" : "" );
