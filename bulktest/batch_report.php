@@ -19,7 +19,7 @@ require_once("../utils.inc");
 require_once("batch_lib.inc");
 require_once("bootstrap.inc");
 
-reportSummary();
+cprint(reportSummary());
 
 $bHtml = array_key_exists("REMOTE_ADDR", $_SERVER);
 echo ($bHtml ? "<pre>" : "" ) . "running tasks:\n";
