@@ -66,7 +66,7 @@ else {
 	loadUrlsFromDB($label, 300000, true);
 }
 
-echo "DONE submitting batch run\n";
+cprint("DONE submitting batch run");
 
 
 
@@ -122,7 +122,7 @@ function checkForBatchRun() {
 	if ( !flock($fp, LOCK_EX | LOCK_NB) ) {
 		$pid = getPid("php batch_process.php");
 		if ( 0 < $pid ) {
-			echo "There's already a batch_process.php process running: $pid\nYou'll have to edit batch_start.php or kill that process yourself.\n";
+			cprint("There's already a batch_process.php process running: $pid\nYou'll have to edit batch_start.php or kill that process yourself.");
 			exit();
 			// TODO - I guess the previous logic was to kill batch_process if batch_start was ever called.
 			// That scares me. It's too easy to type the wrong thing.
@@ -152,7 +152,7 @@ function parseParams() {
 				$gNumUrls = $val;
 			}
 			else {
-				echo "ERROR: Unexpected value for 'numurls|urlfile' parameter: $val\n";
+				cprint("ERROR: Unexpected value for 'numurls|urlfile' parameter: $val");
 				exit();
 			}
 		}
@@ -167,7 +167,7 @@ function parseParams() {
 				$gbImportUrls = false;
 			}
 			else {
-				echo "ERROR: Unexpected value for importUrls: '" . $argv[3] . "'.\n";
+				cprint("ERROR: Unexpected value for importUrls: '" . $argv[3] . "'.");
 				exit();
 			}
 		}
