@@ -29,7 +29,7 @@ $ghRespOtherHeaders = array();
 // global options
 $video = true;
 $private = false;
-$docComplete = true;
+$docComplete = false; // &web10 WPT param
 $fvonly = true;
 $runs = 3;
 $mv = 1;  // only save video for Median run
