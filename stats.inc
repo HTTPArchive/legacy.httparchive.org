@@ -94,9 +94,9 @@ function computeMissingStats($device, $bVerbose) {
 			$label = $aLabels[$i];
 			foreach ( $aSlices as $slice ) {
 				if ( ! getStatsData($label, $slice, $device) ) {
-					if ( $bVerbose ) { echo "$label $slice $device..."; }
+					if ( $bVerbose ) { lprint("$label $slice $device..."); }
 					addStats($label, $slice, $device);
-					if ( $bVerbose ) { echo "DONE\n"; }
+					if ( $bVerbose ) { lprint("DONE"); }
 				}
 			}
 		}
