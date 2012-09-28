@@ -18,19 +18,19 @@ limitations under the License.
 require_once("../settings.inc");
 require_once("../utils.inc");
 
-$gLabel = $argv[1];
+// $gParamLabel is a hack to allow for require(copy.php)
+$gLabel = ( isset($gParamLabel) ? $gParamLabel : $argv[1] );
 if ( !$gLabel ) {
-	echo "You must specify a label.\n";
+	lprint("You must specify a label.");
 	exit();
 }
 
-
-
 // find min & max pageid of the specified run
-$row = doRowQuery("select min(pageid) as minid, max(pageid) as maxid from $gPagesTable where label='$gLabel';");
+$query = "select min(pageid) as minid, max(pageid) as maxid from $gPagesTable where label='$gLabel';";
+$row = doRowQuery($query);
 $minid = $row['minid'];
 $maxid = $row['maxid'];
-echo "Run \"$gLabel\": min pageid = $minid, max pageid = $maxid\n";
+lprint("Run \"$gLabel\": min pageid = $minid, max pageid = $maxid");
 
 
 
@@ -38,22 +38,22 @@ echo "Run \"$gLabel\": min pageid = $minid, max pageid = $maxid\n";
 if ( ! $gbMobile && ( $gPagesTableDesktop != $gPagesTableDev ) ) {
 	$count = doSimpleQuery("select count(*) from $gPagesTableDesktop where pageid >= $minid and pageid <= $maxid;");
 	if ( $count ) {
-		echo "Rows already copied.\n";
+		lprint("Rows already copied.");
 	}
 	else {
-		echo "Copy 'requests' rows to production...\n";
+		lprint("Copy 'requests' rows to production...");
 		doSimpleCommand("insert into $gRequestsTableDesktop select * from $gRequestsTableDev where pageid >= $minid and pageid <= $maxid;");
 
-		echo "Copy 'pages' rows to production...\n";
+		lprint("Copy 'pages' rows to production...");
 		doSimpleCommand("insert into $gPagesTableDesktop select * from $gPagesTableDev where pageid >= $minid and pageid <= $maxid;");
 
 		// TODO - should we do this for $gbMobile too???
-		echo "Copy 'urls' rows to production...\n";
+		lprint("Copy 'urls' rows to production...");
 		// This is scary but the issue is we need to clear out all the previous ranks, optouts, others, etc. and use what's in urlsdev.
 		doSimpleCommand("delete from $gUrlsTableDesktop;");
 		doSimpleCommand("insert into $gUrlsTableDesktop select * from $gUrlsTableDev;");
 
-		echo "...DONE.\n";
+		lprint("...DONE.");
 	}
 }
 
@@ -65,10 +65,10 @@ require_once("../dbapi.inc");
 $device = ( $gbMobile ? "iphone" : "IE8" );
 
 if ( getStats($gLabel, "All", $device) ) {
-	echo "Stats already computed.\n";
+	lprint("Stats already computed.");
 }
 else {
-	echo "Computing stats...\n";
+	lprint("Computing stats...");
 
 	// remove any incomplete cache data that might have been created during the crawl
 	removeStats($gLabel, NULL, $device);
@@ -76,22 +76,22 @@ else {
 	computeMissingStats($device, true);
 
 	if ( ! $gbMobile && ( $gStatsTableDesktop != $gStatsTableDev ) ) {
-		echo "Copy stats to production...\n";
+		lprint("Copy stats to production...");
 		$cmd = "replace into $gStatsTableDesktop select * from $gStatsTableDev where device='IE8';";
 		doSimpleCommand($cmd);
 	}
-	echo "...stats computed and copied.\n";
+	lprint("...stats computed and copied.");
 }
 
 
 
 // mysqldump file
-$dumpfile = "../downloads/httparchive_" . ( $gbMobile ? "mobile_" : "" ) . str_replace(" ", "_", $gLabel);
+$dumpfile = dumpfileName($gLabel);
 if ( file_exists("$dumpfile.gz") ) {
-	echo "Mysqldump file \"$dumpfile\" already exists.\n";
+	lprint("Mysqldump file \"$dumpfile\" already exists.");
 }
 else {
-	echo "Creating mysqldump file $dumpfile ...\n";
+	lprint("Creating mysqldump file $dumpfile ...");
 	if ( $gbMobile ) {
 		$cmd = "mysqldump --where='pageid >= $minid and pageid <= $maxid' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gRequestsTableMobile $gPagesTableMobile | gzip > $dumpfile.gz";
 	}
@@ -100,33 +100,33 @@ else {
 	}
 	exec($cmd);
 
-	echo "...mysqldump file created: $dumpfile.gz\n";
+	lprint("...mysqldump file created: $dumpfile.gz");
 }
 
 
 // stats mysql dump - create this after all crawls both desktop & mobile
 $dumpfile = "../downloads/httparchive_stats";
-echo "Creating mysqldump file $dumpfile ...\n";
+lprint("Creating mysqldump file $dumpfile ...");
 $cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop | gzip > $dumpfile.gz";
 exec($cmd);
-echo "...mysqldump file created: $dumpfile.gz\n";
+lprint("...mysqldump file created: $dumpfile.gz");
 
 // only create these for desktop
 if ( ! $gbMobile ) {
 	// schema mysql dump
 	$dumpfile = "../downloads/httparchive_schema.sql";
-	echo "Creating mysqldump file $dumpfile ...\n";
+	lprint("Creating mysqldump file $dumpfile ...");
 	$cmd = "mysqldump --no-data --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop $gRequestsTableDesktop $gPagesTableDesktop $gRequestsTableMobile $gPagesTableMobile > $dumpfile";
 	exec($cmd);
-	echo "...mysqldump file created: $dumpfile\n";
+	lprint("...mysqldump file created: $dumpfile");
 
 	// urls mysql dump
 	$dumpfile = "../downloads/httparchive_urls";
-	echo "Creating mysqldump file $dumpfile ...\n";
+	lprint("Creating mysqldump file $dumpfile ...");
 	$cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gUrlsTableDesktop | gzip > $dumpfile.gz";
 	exec($cmd);
-	echo "...mysqldump file created: $dumpfile.gz\n";
+	lprint("...mysqldump file created: $dumpfile.gz");
 }
 
 
-echo "DONE copying latest run to production.\n";
+cprint(date("G:i") . ": DONE copying latest run to production.");
