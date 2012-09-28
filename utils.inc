@@ -2329,14 +2329,19 @@ function mysqlEscape($text) {
 // I created cgi-bin.
 // I copied php.cgi from ~/stevesouders.com/cgi-bin/
 
-// Simple logging/debugging function.
+// DEBUG print - errors, etc.
 function dprint($msg) {
 	error_log( htmlspecialchars("DPRINT: $msg") );
 }
 
-// Simple logging/debugging function.
+// LOG print - status, etc.
 function lprint($msg) {
 	error_log( htmlspecialchars("$msg") );
+}
+
+// CONSOLE print - important stuff
+function cprint($msg) {
+	echo $msg . "\n";
 }
 
 
