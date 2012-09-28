@@ -20,19 +20,26 @@ require_once("../utils.inc");
 require_once("batch_lib.inc");
 
 if ( ! tableExists($gStatusTable) ) {
-	echo "Please run batch_start to kick off a new batch!\n";
+	cprint("Please run batch_start to kick off a new batch!");
 	exit();
 }
 
 
+
 // Now that we're running as a cronjob, we need to emit nothing to stdout when we're all done.
-if ( 0 == totalNotDone() ) {
+if ( 0 === totalNotDone() ) {
 	resubmitFailures();
-	if ( 0 == totalNotDone() ) {
+	if ( 0 === totalNotDone() ) {
+		$labelFromRun = doSimpleQuery("select distinct(label) from $gStatusTable;");  // there should only be one
+		if ( $labelFromRun && ! runCompleted($labelFromRun) ) {
+			cprint(date("G:i") . ": DONE with crawl. Copying...");
+			$gParamLabel = $labelFromRun; // hack!
+			require_once("copy.php");
+		}
 		exit(0);
 	}
 	else {
-		echo "Resubmitted failures - going around once again...\n";
+		cprint("Resubmitted failures - going around once again...");
 	}
 }
 
@@ -50,11 +57,11 @@ foreach ( $gaTasks as $task ) {
 	$fp = fopen($lockfile, "w+");
 	if ( !flock($fp, LOCK_EX | LOCK_NB) ) {
 		// this task is still running
-		echo "Task \"$task\" already running. Bail.\n";
+		lprint("Task \"$task\" already running. Bail.");
 	}
 	else {
 		// start this task
-		echo "Starting task \"$task\"...\n";
+		lprint("Starting task \"$task\"...");
 
 		// fork the child process
 		// return: 
@@ -110,7 +117,7 @@ foreach ( $gaTasks as $task ) {
 				fillTables(8, 0);
 			}
 			fclose($fp);
-			echo "...DONE with task \"$task\"!\n";
+			lprint("...DONE with task \"$task\"!");
 			exit();
 		}
 	}
@@ -135,6 +142,6 @@ while ( count($aChildPids) > 0 ) {
 	}
 }
 
-reportSummary();
+lprint(reportSummary());
 
 ?>
