@@ -130,3 +130,5 @@ if ( ! $gbMobile ) {
 
 
 cprint(date("G:i") . ": DONE copying latest run to production.");
+
+?>
