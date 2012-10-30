@@ -2037,7 +2037,11 @@ April 5, 2012 - add urlhash to urls table for faster lookup
   mysql> alter table urls add column urlhash int(8) unsigned first;
   mysql> update urls set urlhash = conv(substring(md5(urlOrig),1,4),16,10);
   mysql> create index urlhash on urls (urlhash);
-  
+
+Oct 26, 2012 - add new stats columns
+mysql> alter table statsdev add column renderStart int(10) unsigned after PageSpeed;
+mysql> alter table statsdev add column onLoad int(10) unsigned after renderStart;
+    
 *******************************************************************************/
 function createTables() {
 	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gUrlsChangeTable, $gSettingsTable;
@@ -2173,10 +2177,12 @@ function createTables() {
 			", slice varchar (32) not null" .         // "Top100", "Top1000", "intersection", or "All"
 			", device varchar (32) not null" .        // "iphone43", "isim", or "IE8"
 			", version int(6) unsigned not null" .    // the SVN version # so we can track what values to recompute
-			", numurls int unsigned" .       // even "Top100" might only be 98 URLs
+			", numurls int unsigned" .                // even "Top100" might only be 98 URLs
 
 			// averages across ALL SITES in the slice
 			", PageSpeed float unsigned" .
+			", renderStart int(10) unsigned" .
+			", onLoad int(10) unsigned" .
 			", numDomains float unsigned" .
 			", reqTotal float unsigned" .
 			", reqHtml float unsigned" .
@@ -2331,12 +2337,12 @@ function mysqlEscape($text) {
 
 // DEBUG print - errors, etc.
 function dprint($msg) {
-	error_log( htmlspecialchars("DPRINT: $msg") );
+	error_log("DPRINT: $msg");
 }
 
 // LOG print - status, etc.
 function lprint($msg) {
-	error_log( htmlspecialchars("$msg") );
+	error_log("$msg");
 }
 
 // CONSOLE print - important stuff
