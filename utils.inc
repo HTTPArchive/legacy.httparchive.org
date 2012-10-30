@@ -194,6 +194,7 @@ $ghColumnTitles = array (
 						 "maxageNull" => "Requests with Caching Headers",
 						 "perGlibs" => "Sites using Google Libraries API",
 						 "perHttps" => "HTTPS Requests",
+						 "perCompressed" => "Compressed Responses",
 						 "perErrors" => "Pages with Errors (4xx, 5xx)",
 						 "perRedirects" => "Pages with Redirects (3xx)"
 						 );
@@ -1738,6 +1739,7 @@ $ghFieldUnits = array("onLoad" => "ms",
 					  "perErrors" => "%",
 					  "perRedirects" => "%",
 					  "perHttps" => "%",
+					  "perCompressed" => "%",
 					  "maxageNull" => "%",
 					  "perGlibs" => "%"
 					  );
@@ -2041,6 +2043,8 @@ April 5, 2012 - add urlhash to urls table for faster lookup
 Oct 26, 2012 - add new stats columns
 mysql> alter table statsdev add column renderStart int(10) unsigned after PageSpeed;
 mysql> alter table statsdev add column onLoad int(10) unsigned after renderStart;
+mysql> alter table statsdev add column perCompressed int(4) unsigned after perHttps;
+mysql> alter table statsdev modify perHttps int(4) unsigned;
     
 *******************************************************************************/
 function createTables() {
@@ -2135,7 +2139,7 @@ function createTables() {
 			", respBodySize int(10) unsigned" .
 			", respSize int(10) unsigned" .
 			", respCookieLen int(10) unsigned not null".
-			", mimeType varchar(255)" .
+			", mimeType varchar(255)" .  // slightly normalized version of resp_content_type - ~1000 distinct values
 			", respOtherHeaders text" .
 
 			// headers
@@ -2226,8 +2230,9 @@ function createTables() {
 			", perTwitter float unsigned" .
 			", perShareThis float unsigned" .
 */
-			// % of requests that are https
-			", perHttps float unsigned" .
+			// % of requests
+			", perHttps int(4) unsigned" .
+			", perCompressed int(4) unsigned" . 
 
 			// % of sites with max-age in this range
 			// "maxage30" === maxage > 1 day AND maxage <= 30 days
