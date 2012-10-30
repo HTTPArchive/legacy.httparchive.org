@@ -146,8 +146,8 @@ function pageLabel($pageid) {
 ////////////////////////////////////////////////////////////////////////////////
 
 $gaTrendStats = array(
-					  //"onLoad",
-					  //"renderStart",
+					  "onLoad",
+					  "renderStart",
 					  "PageSpeed",
 					  "reqTotal",
 					  "reqHtml",
@@ -171,8 +171,12 @@ $gaTrendStats = array(
 
 // return a hash of values for a single stats record
 function addStatsData($label, $slice, $device, $hTuples) {
+	$hTuples["label"] = $label;
+	$hTuples["slice"] = $slice;
+	$hTuples["device"] = $device;
 	$statstable = statsTable($label, $slice, $device);
-	$cmd = "insert into $statstable set label='$label', slice='$slice', device='$device', " . hashImplode(", ", "=", $hTuples) . ";";
+	$cmd = "insert into $statstable set " . hashImplode(", ", "=", $hTuples) . ";";
+
 	doSimpleCommand($cmd);
 
 	return true;
@@ -259,12 +263,15 @@ function getStatsDataForUrl($label, $slice, $device, $url) {
 // The value for each key is another hash of all the trends data fields. 
 function getTrendsData($slice, $device) {
 	$statsTable = statsTable(NULL, $slice, $device);
+
 	$query = "select label, numurls" .
+		", onLoad, renderStart" .
 		", ROUND(reqTotal) as reqTotal, TRUNCATE(reqHtml, 1) as reqHtml, ROUND(reqJS) as reqJS, TRUNCATE(reqCSS, 1) as reqCSS, ROUND(reqImg) as reqImg" .
 		", TRUNCATE(reqFlash, 1) as reqFlash, ROUND(bytesTotal/1024) as bytesTotal, ROUND(bytesHtml/1024) as bytesHtml, ROUND(bytesJS/1024) as bytesJS" .
 		", ROUND(bytesCSS/1024) as bytesCSS, ROUND(bytesImg/1024) as bytesImg, ROUND(bytesFlash/1024) as bytesFlash" .
 		", ROUND(PageSpeed) as PageSpeed, ROUND(numDomains) as numDomains, perFlash, perFonts, perGlibs, maxageNull, perErrors, perHttps, perRedirects" .
 		" from $statsTable where slice='$slice' and device='$device';";
+
 	$result = doQuery($query);
 	$hTrends = array();
 	while ( $row = mysql_fetch_assoc($result) ) {
@@ -330,6 +337,33 @@ function removeStatsData($label, $slice=NULL, $device=NULL) {
 }
 
 
+// Fill in any missing stats - This is complex given the ease of computing SOME stats
+// while other stats are VERY time consuming to compute.
+// return a hash of stats
+function updateStatsData($label, $slice, $device) {
+	// Get any existing stats (potentially old with gaps, possibly missing altogether).
+	$hStats = getStatsData($label, $slice, $device);
+	
+	if ( ! $hStats ) {
+		// No stats! Re-compute EVERYTHING!
+		$hStats = computeStatsData($label, $slice, $device);
+	}
+	else {
+		$sliceCond = sliceCond($label, $slice, $device);  // this might be expensive - compute it once
+		$newStats = computeTrendStats($label, $slice, $device, $sliceCond);
+		// TODO - We don't try to update these for now.
+		//$hStats += computeCorrelations($label, $slice, $device, $sliceCond, "onLoad");
+		//$hStats += computeCorrelations($label, $slice, $device, $sliceCond, "renderStart");
+		//$hStats += computeOther($label, $slice, $device, $sliceCond);
+        $hStats = array_merge($hStats, $newStats); // $newStats will overwrite $hStats for duplicate keys
+	}
+
+	removeStatsData($label, $slice, $device);
+
+	return addStatsData($label, $slice, $device, $hStats);
+}
+
+
 // return a hash of stats
 // (FYI - we NEVER enter here with $slice = "url")
 function computeStatsData($label, $slice, $device) {
@@ -352,11 +386,13 @@ function computeTrendStats($label, $slice, $device, $sliceCond) {
 
 	$query = "select count(*) as numurls";
 	foreach ($aFields as $field) {
+		// HACK - we massage the resulting number based on the field's label - yuck!
 		$query .= ( false === strpos($field, "bytes")
 					? ", TRUNCATE(AVG($field), 1) as $field"   // truncate requests to 1 decimal place
 					: ", ROUND(AVG($field)) as $field" );      // round bytes to nearest integer
 	}
 	$query .= " from $pagesTable where archive = '$gArchive' and label='$label' and $sliceCond;";
+
 	$row = doRowQuery($query);
 
 	return $row;
