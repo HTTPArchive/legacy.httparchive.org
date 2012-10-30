@@ -43,6 +43,13 @@ function replaceStats($label, $slice, $device, $hStats=null) {
 }
 
 
+// When we had a new stat we want to retroactively fill it in for all previous runs.
+// This command attempts to do that.
+function updateStats($label, $slice, $device) {
+	return updateStatsData($label, $slice, $device);
+}
+
+
 function getStats($label, $slice, $device, $url=NULL) {
 	if ( $url ) {
 		return getStatsDataForUrl($label, $slice, $device, $url);
@@ -84,7 +91,8 @@ function computeStats($label, $slice, $device) {
 }
 
 
-function computeMissingStats($device, $bVerbose) {
+// Only compute stats if there are NO stats for the run (ie, the entire row is missing).
+function computeMissingStats($device, $bVerbose = false, $bUpdate = false) {
 	$aDevices = ( $device ? array($device) : array("IE8", "iphone") );
 	$aLabels = archiveLabels();
 	$aSlices = sliceNames();
@@ -93,8 +101,13 @@ function computeMissingStats($device, $bVerbose) {
 			// do labels in reverse chrono order so newest are ready first
 			$label = $aLabels[$i];
 			foreach ( $aSlices as $slice ) {
-				if ( ! getStatsData($label, $slice, $device) ) {
-					if ( $bVerbose ) { lprint("$label $slice $device..."); }
+				if ( $bUpdate ) {
+					if ( $bVerbose ) { lprint("updating $label $slice $device..."); }
+					updateStats($label, $slice, $device);
+					if ( $bVerbose ) { lprint("DONE"); }
+				}
+				else if ( ! getStatsData($label, $slice, $device) ) {
+					if ( $bVerbose ) { lprint("adding $label $slice $device..."); }
 					addStats($label, $slice, $device);
 					if ( $bVerbose ) { lprint("DONE"); }
 				}
