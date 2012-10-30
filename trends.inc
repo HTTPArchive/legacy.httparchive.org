@@ -61,7 +61,7 @@ foreach(array('PageSpeed', 'numDomains') as $field) {
 }
 
 if ( "url" != $gSlice ) {
-	foreach(array('perGlibs', 'perFlash', 'perFonts', 'maxageNull', 'perHttps', 'perErrors', 'perRedirects') as $field) {
+	foreach(array('perGlibs', 'perFlash', 'perFonts', 'maxageNull', 'perCompressed', 'perHttps', 'perErrors', 'perRedirects') as $field) {
 		echo formatChart($field, $hTrends, $aRunNames, $labels);
 	}
 }
@@ -113,7 +113,7 @@ function formatChart($field, $hTrends, $aRunNames, $labels) {
 	$skip = getSkip(count($aRunNames));
 	$fieldVals = fieldValues($field, $hTrends, $aRunNames, $min, $max);
 
-	if ( strpos("x|perFlash|perFonts|PageSpeed|perGlibs|maxageNull|perErrors|perRedirects|perHttps|", "|$field|") ) {
+	if ( strpos("x|perFlash|perFonts|PageSpeed|perGlibs|maxageNull|perErrors|perRedirects|perHttps|perCompressed|", "|$field|") ) {
 		$max = 100;
 	}
 
