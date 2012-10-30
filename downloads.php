@@ -26,18 +26,18 @@ function listFiles($hFiles) {
 	sort($aKeys, SORT_NUMERIC);
 	foreach( array_reverse($aKeys) as $epoch ) {
 		$sHtml .= "  <li> " . date("M j, Y", $epoch) . ": ";
-		$hFilenames = $hFiles[$epoch];
-		if ( array_key_exists('desktop', $hFilenames) ) {
-			$filename = $hFilenames['desktop'];
-			$filesize = filesize($filename);
+		$hFileInfo = $hFiles[$epoch];
+		if ( array_key_exists('desktop', $hFileInfo) ) {
+			$filename = $hFileInfo['desktop']['filename'];
+			$filesize = $hFileInfo['desktop']['size'];
 			$size = ( $filesize > 1024*1024 ? round($filesize/(1024*1024)) . " MB" : round($filesize/(1024)) . " kB" );
-			$sHtml .= "<a href='$filename'>IE</a> ($size)";
+			$sHtml .= "<a href='{$hFileInfo['desktop']['url']}'>IE</a> ($size)";
 		}
-		if ( array_key_exists('mobile', $hFilenames) ) {
-			$filename = $hFilenames['mobile'];
-			$filesize = filesize($filename);
+		if ( array_key_exists('mobile', $hFileInfo) ) {
+			$filename = $hFileInfo['mobile']['filename'];
+			$filesize = $hFileInfo['mobile']['size'];
 			$size = ( $filesize > 1024*1024 ? round($filesize/(1024*1024)) . " MB" : round($filesize/(1024)) . " kB" );
-			$sHtml .= ( array_key_exists('desktop', $hFilenames) ? ", " : "" ) . "<a href='$filename'>iPhone</a> ($size)";
+			$sHtml .= ( array_key_exists('desktop', $hFileInfo) ? ", " : "" ) . "<a href='{$hFileInfo['mobile']['url']}'>iPhone</a> ($size)";
 		}
 		$sHtml .= "\n";
 	}
@@ -65,13 +65,32 @@ function listFiles($hFiles) {
 //   - the key is epoch time from the filename (eg "Oct 15 2011")
 //   - the value is a hash with desktop: and mobile: keys
 $hFiles = array();
+if (is_file("downloads/archived.json")) {
+    $archived = json_decode(file_get_contents("downloads/archived.json"), true);
+    foreach ($archived as $filename => $fileData) {
+        if (array_key_exists('verified', $fileData) && $fileData['verified']) {
+            $epoch = dumpfileEpochTime($filename);
+            if ( $epoch ) {
+                if ( ! array_key_exists($epoch, $hFiles) ) {
+                    $hFiles[$epoch] = array();
+                }
+                $browser = ( FALSE === strpos($filename, "httparchive_mobile_") ? 'desktop' : 'mobile' );
+                $hFiles[$epoch][$browser] = array('filename' => $filename, 'url' => $fileData['url'], 'size' => $fileData['size']);
+            }
+        }
+    }
+}
 foreach ( glob("downloads/httparchive_*.gz") as $filename ) {
 	$epoch = dumpfileEpochTime($filename);
 	if ( $epoch ) {
 		if ( ! array_key_exists($epoch, $hFiles) ) {
 			$hFiles[$epoch] = array();
 		}
-		$hFiles[$epoch][ FALSE === strpos($filename, "httparchive_mobile_") ? 'desktop' : 'mobile'] = $filename;
+        $browser = ( FALSE === strpos($filename, "httparchive_mobile_") ? 'desktop' : 'mobile' );
+        if (!array_key_exists($browser, $hFiles[$epoch])) {
+			// Give preference to entries from archived.json - don't overwrite those.
+		    $hFiles[$epoch][$browser] = array('filename' => $filename, 'url' => $filename, 'size' => filesize($filename));
+        }
 	}
 }
 ?>
