@@ -48,6 +48,7 @@ if ( "url" != $gSlice ) {
 	echo formatChart('numurls', $hTrends, $aRunNames, $labels);
 }
 
+echo format2LineChart('renderStart', 'onLoad', $hTrends, $aRunNames, $labels, true, "<div style='margin-left: 2em; font-size:0.9em;'>* Based on limited, synthetic data. See <a href='http://dev.httparchive.org/about.php#accuracy'>FAQ</a> for known biases.</div>");
 echo format2LineChart('reqTotal', 'bytesTotal', $hTrends, $aRunNames, $labels);
 echo format2LineChart('reqHtml', 'bytesHtml', $hTrends, $aRunNames, $labels);
 echo format2LineChart('reqJS', 'bytesJS', $hTrends, $aRunNames, $labels);
@@ -65,17 +66,22 @@ if ( "url" != $gSlice ) {
 	}
 }
 
-function format2LineChart($field, $field2, $hTrends, $aRunNames, $labels) {
+function format2LineChart($field, $field2, $hTrends, $aRunNames, $labels, $bSame = false, $footnote = "") {
 	$color = fieldColor($field);
 	$suffix = fieldUnits($field);
 	$color2 = fieldColor($field2);
 	$suffix2 = fieldUnits($field2);
 
 	$fieldVals = fieldValues($field, $hTrends, $aRunNames, $min, $max, false);
-	$max = intval(intval($max)*1.5);
-	$step = ( $max > 1500 ? 500 : ( $max > 200 ? 100 : ( $max > 100 ? 20 : 10 ) ) );
+	$max = intval(intval($max)*1.5);  // this is a hack specific to the bytes & requests charts
 	$fieldVals2 = fieldValues($field2, $hTrends, $aRunNames, $min2, $max2, false);
-	$step2 = ( $max2 > 1500 ? 500 : ( $max2 > 200 ? 100 : ( $max2 > 100 ? 20 : 10 ) ) );
+	if ( $bSame ) {
+		// make both scales the same
+		$max = $max2 = max($max, $max2);
+		$min = $min2 = min($min, $min2);
+	}
+	$step = ( $max > 10000 ? 2000 : ( $max > 1500 ? 500 : ( $max > 200 ? 100 : ( $max > 100 ? 20 : 10 ) ) ) );
+	$step2 = ( $max2 > 10000 ? 2000 : ( $max2 > 1500 ? 500 : ( $max2 > 200 ? 100 : ( $max2 > 100 ? 20 : 10 ) ) ) );
 	$skip = getSkip(count($aRunNames));
 	$url = "http://chart.apis.google.com/chart" .
 		"?chd=t:-1|$fieldVals|-1|$fieldVals2" .
@@ -96,7 +102,8 @@ function format2LineChart($field, $field2, $hTrends, $aRunNames, $labels) {
 		"&chxp=0&chdl=" . urlencode(fieldTitle($field)) . "|" . urlencode(fieldTitle($field2)) . "+(kB)&chdlp=bv|r" .
 		"";
 
-	return "<div id='$field2&$field' style='margin: 40px 0 60px 0;'><a class=image-link href='#$field2&$field'><img src=$url width=600 height=300></a></div>\n";
+	return "<div id='$field2&$field' style='margin: 40px 0 60px 0;'><a class=image-link href='#$field2&$field'><img src=$url width=600 height=300></a>" .
+		( $footnote ? "<div>$footnote<div>" : "" ) . "</div>\n";
 }
 
 
