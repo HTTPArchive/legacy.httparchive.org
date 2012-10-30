@@ -636,9 +636,12 @@ function totalNotDone() {
 
 // Is the run (crawl) with the specified label done?
 function runCompleted($label) {
-	// we determine that a run is completed if its mysql dump file exists
-	$dumpfile = dumpfileName($label);
-	return ( file_exists("$dumpfile.gz") );
+	global $gbMobile;
+
+	// We determine that a run is completed if its stats exist.
+	$device = ( $gbMobile ? "iphone" : "IE8" );
+
+	return ( getStats($label, "All", $device) );
 }
 
 
@@ -724,6 +727,8 @@ function t_echoagg() {
 }
 
 // Parse out the pithy mime type from the long HTTP response header.
+// This is surprisingly accurate. I spent an hour grepping through the distinct resp_content_types
+// from a single run (Oct 15 2012) and the mistakes were very small - < 0.00001% off.
 function prettyMimetype($mimeType) {
 	$mimeType = strtolower($mimeType);
 
