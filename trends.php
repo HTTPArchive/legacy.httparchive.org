@@ -46,10 +46,10 @@ echo selectSlice($gSlice, "", "s");
 ?>
 
 <label style="margin-left: 1em;">Start:</label>
-	<?php echo selectArchiveLabel($gArchive, $gMinLabel, false, false, "minlabel"); ?>
+	<?php echo selectArchiveLabel($gArchive, minLabel(), false, false, "minlabel"); ?>
 
 <label style="margin-left: 1em;">End:</label>
-	<?php echo selectArchiveLabel($gArchive, $gMaxLabel, false, false, "maxlabel"); ?>
+	<?php echo selectArchiveLabel($gArchive, maxLabel(), false, false, "maxlabel"); ?>
 <input style="margin-left: 1em;" class=button type=submit value="Submit">
 </div>
 </form>
