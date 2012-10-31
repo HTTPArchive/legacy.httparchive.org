@@ -16,45 +16,102 @@ limitations under the License.
 */
 
 require_once("utils.inc");
+require_once("settings.inc");
 
+// default table names
+$gPagesTable = "pages";
+$gRequestsTable = "requests";
+$gStatusTable = "status";
+$gUrlsTable = "urls";
+$gUrlsChangeTable = "urlschange";
+$gStatsTable = "stats";
+$gSettingsTable = "settings"; // for storing misc settings persistently
 
+// Desktop tables
+$gPagesTableDesktop = $gPagesTable;
+$gRequestsTableDesktop = $gRequestsTable;
+$gStatusTableDesktop = $gStatusTable;
+$gUrlsTableDesktop = "urls";
+$gStatsTableDesktop = $gStatsTable;
+$gUrlsChangeTableDesktop = $gUrlsChangeTable;
 
-function pagesTable($label, $slice, $device) {
-	$pagestable = "pages";
-	if ( "iphone" === $device ) {
-		$pagestable .= "mobile";
-	}
-	else if ( isDev() ) {
-		$pagestable .= "dev";
-	}
+// Mobile tables
+$gPagesTableMobile = $gPagesTable . "mobile";
+$gRequestsTableMobile = $gRequestsTable . "mobile";
+$gUrlsTableMobile = "urls";
+$gStatusTableMobile = $gStatusTable . "mobile";
+$gStatsTableMobile = $gStatsTable;  // share the data table - a first step toward a single DB
 
-	return $pagestable;
+// Dev tables
+$gPagesTableDev = $gPagesTable . "dev";
+$gRequestsTableDev = $gRequestsTable . "dev";
+$gStatusTableDev = $gStatusTable . "dev";
+$gStatsTableDev = $gStatsTable . "dev";
+$gUrlsTableDev = $gUrlsTable . "dev";
+$gUrlsChangeTableDev = $gUrlsChangeTable; // . "dev";
+
+// 
+// HERE'S WHERE WE CHANGE THE DEFAULT TABLE NAMES 
+// DEPENDING ON WHETHER WE'RE DEV OR MOBILE
+// 
+if ( $gbDev ) {
+	// Use a dev version of the database tables if "dev/" is in the path.
+	$gPagesTable = $gPagesTableDev;
+	$gRequestsTable = $gRequestsTableDev;
+	$gStatusTable = $gStatusTableDev;
+	$gStatsTable = $gStatsTableDev;
+	$gUrlsTable = $gUrlsTableDev;
+	$gUrlsChangeTable = $gUrlsChangeTableDev;
+}
+else if ( $gbMobile ) {
+	// Use a mobile version of the database tables if "mobile" is in the path.
+	$gPagesTable = $gPagesTableMobile;
+	$gRequestsTable = $gRequestsTableMobile;
+	$gStatusTable = $gStatusTableMobile;
+	$gStatsTable = $gStatsTableMobile;
 }
 
+
+// The test results prior to pageid=10281 are malformed.
+$gDateRange = ( isPrivateInstance() ? "pageid >= 1" : ( $gbMobile ? "pageid >= 607" : "pageid >= 10281" ) );
+
+// Here's the scoop: We use $gDateRange as a nice global throughout most of our queries to limit
+// the scope of data. BUT...this is a problem when we want to, for example, present the user with 
+// a list of labels to choose from - we don't want that list of labels to be limited. 
+// So in some places we use $gDateRangeDefault to get the WHOLE range of data.
+$gDateRangeDefault = $gDateRange;
+
+if ( minLabel() ) {
+	$gDateRange .= " and pageid >= " . labelMinid(minLabel());
+}
+if ( maxLabel() ) {
+	$gDateRange .= " and pageid <= " . labelMaxid(maxLabel());
+}
+
+
+
+function dbtable($table, $device="", $label="", $slice="") {
+	if ( "iphone" === $device ) {
+		$table .= "mobile";
+	}
+	else if ( isDev() ) {
+		$table .= "dev";
+	}
+
+	return $table;
+}
+
+// These are interim helper functions for the massive mess of db table global vars
+function pagesTable($label="", $slice="", $device="") {
+	return dbtable("pages", $device, $label, $slice);
+}
 
 function requestsTable($label, $slice, $device) {
-	$requeststable = "requests";
-	if ( "iphone" === $device ) {
-		$requeststable .= "mobile";
-	}
-	else if ( isDev() ) {
-		$requeststable .= "dev";
-	}
-
-	return $requeststable;
+	return dbtable("requests", $device, $label, $slice);
 }
 
-
 function statsTable($label, $slice, $device) {
-	$statstable = "stats";
-	if ( "iphone" === $device ) {
-		// iphone & IE8 share the same stats table
-	}
-	else if ( isDev() ) {
-		$statstable .= "dev";
-	}
-
-	return $statstable;
+	return dbtable("stats", $device, $label, $slice);
 }
 
 
@@ -652,4 +709,381 @@ function getData($label="", $slice="", $device="") {
 
 	return $hData;
 }
+
+
+
+
+//
+//
+// MYSQL
+//
+//
+function doSimpleCommand($cmd) {
+	global $gMysqlServer, $gMysqlDb, $gMysqlUsername, $gMysqlPassword;
+
+	$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
+	if ( mysql_select_db($gMysqlDb) ) {
+		//error_log("doSimpleCommand: $cmd");
+		$result = mysql_query($cmd, $link);
+		//mysql_close($link); // the findCorrelation code relies on the link not being closed
+		if ( ! $result ) {
+			dprint("ERROR in doSimpleCommand: '" . mysql_error() . "' for command: " . $cmd);
+		}
+	}
+}
+
+
+function doQuery($query) {
+	global $gMysqlServer, $gMysqlDb, $gMysqlUsername, $gMysqlPassword;
+
+	$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
+	if ( mysql_select_db($gMysqlDb) ) {
+		//error_log("doQuery: $query");
+		$result = mysql_query($query, $link);
+		//mysql_close($link); // the findCorrelation code relies on the link not being closed
+		if ( FALSE === $result ) {
+			dprint("ERROR in doQuery: '" . mysql_error() . "' for query: " . $query);
+		}
+		return $result;
+	}
+
+	return null;
+}
+
+
+// return the first row
+function doRowQuery($query) {
+	$row = NULL;
+	$result = doQuery($query);
+	if ( $result ) {
+		$row = mysql_fetch_assoc($result);
+		mysql_free_result($result);
+	}
+
+	return $row;
+}
+
+
+// return the first value from the first row
+function doSimpleQuery($query) {
+	$value = NULL;
+	$result = doQuery($query);
+
+	if ( $result ) {
+		$row = mysql_fetch_assoc($result);
+		if ( $row ) {
+			$aKeys = array_keys($row);
+			$value = $row[$aKeys[0]];
+		}
+		mysql_free_result($result);
+	}
+
+	return $value;
+}
+
+
+function tableExists($tablename) {
+	return ( $tablename == doSimpleQuery("show tables like '$tablename';") );
+}
+
+
+/*******************************************************************************
+SCHEMA CHANGES:
+  This is a record of changes to the schema and how the tables were updated 
+  in place.
+
+12/1/10 - Added the "pageid" index to requestsdev. 
+  This made the aggregateStats function 10x faster during import.
+  mysql> create index pageid on requestsdev (pageid);
+
+7/21/2011 - Added the "rank" column to pages table:
+  mysql> alter table pagesdev add column rank int(10) unsigned after PageSpeed;
+
+Oct 27, 2011 - Remove "harfile" column and reset unique index. Shorten columns.
+  mysql> alter table pagesdev modify column archive varchar (16) not null;
+  mysql> alter table pagesdev modify column label varchar (32) not null;
+  mysql> drop index startedDateTime on pagesdev;
+  mysql> alter table pagesdev add unique key (label, urlShort);
+  mysql> alter table pagesdev drop column harfile;
+
+Nov 3, 2011 - add "rank" column to status table
+  mysql> drop table statusdev; drop table statusmobile;
+
+Nov 16, 2011 - add perFonts column to stats table
+  mysql> alter table statsdev add column perFonts int(4) unsigned after perFlash;
+
+April 5, 2012 - add urlhash to urls table for faster lookup
+  mysql> alter table urls add column urlhash int(8) unsigned first;
+  mysql> update urls set urlhash = conv(substring(md5(urlOrig),1,4),16,10);
+  mysql> create index urlhash on urls (urlhash);
+
+Oct 26, 2012 - add new stats columns
+mysql> alter table statsdev add column renderStart int(10) unsigned after PageSpeed;
+mysql> alter table statsdev add column onLoad int(10) unsigned after renderStart;
+mysql> alter table statsdev add column perCompressed int(4) unsigned after perHttps;
+mysql> alter table statsdev modify perHttps int(4) unsigned;
+
+*******************************************************************************/
+function createTables() {
+	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gUrlsChangeTable, $gSettingsTable;
+	global $ghReqHeaders, $ghRespHeaders;
+
+	if ( ! tableExists($gPagesTable) ) {
+		$command = "create table $gPagesTable (" .
+			"pageid int unsigned not null auto_increment" .
+			", createDate int(10) unsigned not null" .
+			", archive varchar (16) not null" .
+			", label varchar (32) not null" .
+			", wptid varchar (64) not null" .        // webpagetest.org id
+			", wptrun int(2) unsigned not null" .    // webpagetest.org median #
+			", title varchar (255) not null" .
+			", url text" .
+			", urlShort varchar (255)" .
+			", urlHtml text" .
+			", urlHtmlShort varchar (255)" .
+			", startedDateTime int(10) unsigned" .
+			", renderStart int(10) unsigned" .
+			", onContentLoaded int(10) unsigned" .
+			", onLoad int(10) unsigned" .
+			", PageSpeed int(4) unsigned" .
+			", rank int(10) unsigned" .
+
+			", reqTotal int(4) unsigned not null" .
+			", reqHtml int(4) unsigned not null" .
+			", reqJS int(4) unsigned not null" .
+			", reqCSS int(4) unsigned not null" .
+			", reqImg int(4) unsigned not null" .
+			", reqFlash int(4) unsigned not null" .
+			", reqJson int(4) unsigned not null" .
+			", reqOther int(4) unsigned not null" .
+
+			", bytesTotal int(10) unsigned not null" .
+			", bytesHtml int(10) unsigned not null" .
+			", bytesJS int(10) unsigned not null" .
+			", bytesCSS int(10) unsigned not null" .
+			", bytesImg int(10) unsigned not null" .
+			", bytesFlash int(10) unsigned not null" .
+			", bytesJson int(10) unsigned not null" .
+			", bytesOther int(10) unsigned not null" .
+
+			", numDomains int(4) unsigned not null" .
+			", primary key (pageid)" .
+			", unique key (label, urlShort)" .
+			");";
+		doSimpleCommand($command);
+	}
+
+	if ( ! tableExists($gRequestsTable) ) {
+		$sColumns = "";
+		$aColumns = array_values($ghReqHeaders);
+		sort($aColumns);
+		for ( $i = 0; $i < count($aColumns); $i++ ) {
+			$column = $aColumns[$i];
+			$sColumns .= ", $column varchar (255)";
+		}
+		$aColumns = array_values($ghRespHeaders);
+		sort($aColumns);
+		for ( $i = 0; $i < count($aColumns); $i++ ) {
+			$column = $aColumns[$i];
+			$sColumns .= ", $column varchar (255)";
+		}
+
+		$command = "create table $gRequestsTable (" .
+			"requestid int unsigned not null auto_increment" .
+			", pageid int unsigned not null" .
+
+			", startedDateTime int(10) unsigned" .
+			", time int(10) unsigned" .
+			", method varchar (32)" .
+			", url text" .
+			", urlShort varchar (255)" .
+			", redirectUrl text" .
+			", redirectUrlShort varchar (255)" .
+			", firstReq tinyint(1) not null" .
+			", firstHtml tinyint(1) not null" .
+
+			// req
+			", reqHttpVersion varchar (32)" .
+			", reqHeadersSize int(10) unsigned" .
+			", reqBodySize int(10) unsigned" .
+			", reqCookieLen int(10) unsigned not null".
+			", reqOtherHeaders text" .
+
+			// response
+			", status int(10) unsigned" .
+			", respHttpVersion varchar (32)" .
+			", respHeadersSize int(10) unsigned" .
+			", respBodySize int(10) unsigned" .
+			", respSize int(10) unsigned" .
+			", respCookieLen int(10) unsigned not null".
+			", mimeType varchar(255)" .  // slightly normalized version of resp_content_type - ~1000 distinct values
+			", respOtherHeaders text" .
+
+			// headers
+			$sColumns .
+
+			", primary key (requestid)" .
+			", index(pageid)" .
+			", unique key (startedDateTime, pageid, urlShort)" .
+			");";
+		doSimpleCommand($command);
+	}
+
+	// Create Status Table
+	if ( ! tableExists($gStatusTable) ) {
+		$command = "create table $gStatusTable (" .
+			"statusid int unsigned not null auto_increment" .
+			", url text" .
+			", location varchar (32) not null" .
+			", archive varchar (32) not null" .
+			", label varchar (32) not null" .
+			", rank int(10) unsigned" .
+			", status varchar (32) not null" .
+			", attempts int(2) not null" .  // how many times we've tried the URL so we can re-submit failures
+			", timeOfLastChange int(10) unsigned not null" .
+			", wptid varchar (64)" .
+			", wptRetCode varchar (8)" .
+			", medianRun int(4) unsigned" .
+			", startRender int(10) unsigned" .
+			", pagespeedScore int(4) unsigned" .
+			", primary key (statusid)" .
+			", index(statusid)" .
+			");";
+		doSimpleCommand($command);
+	}
+
+	if ( ! tableExists($gStatsTable) ) {
+		$command = "create table $gStatsTable (" .
+			"label varchar (32) not null" .           // "Oct 1 2011"
+			", slice varchar (32) not null" .         // "Top100", "Top1000", "intersection", or "All"
+			", device varchar (32) not null" .        // "iphone43", "isim", or "IE8"
+			", version int(6) unsigned not null" .    // the SVN version # so we can track what values to recompute
+			", numurls int unsigned" .                // even "Top100" might only be 98 URLs
+
+			// averages across ALL SITES in the slice
+			", PageSpeed float unsigned" .
+			", renderStart int(10) unsigned" .
+			", onLoad int(10) unsigned" .
+			", numDomains float unsigned" .
+			", reqTotal float unsigned" .
+			", reqHtml float unsigned" .
+			", reqJS float unsigned" .
+			", reqCSS float unsigned" .
+			", reqImg float unsigned" .
+			", reqGif float unsigned" .
+			", reqJpg float unsigned" .
+			", reqPng float unsigned" .
+			", reqFlash float unsigned" .
+			", reqJson float unsigned" .
+			", reqOther float unsigned" .
+			", bytesTotal int(10) unsigned" .
+			", bytesHtml int(10) unsigned" .
+			", bytesJS int(10) unsigned" .     // eg, average total bytes of JS downloaded per page
+			", bytesCSS int(10) unsigned" .
+			", bytesImg int(10) unsigned" .
+			", bytesGif int(10) unsigned" .
+			", bytesJpg int(10) unsigned" .
+			", bytesPng int(10) unsigned" .
+			", bytesFlash int(10) unsigned" .
+			", bytesJson int(10) unsigned" .
+			", bytesOther int(10) unsigned" .
+
+			// % of sites with at least one of these conditions
+			", perRedirects int(4) unsigned" .
+			", perErrors int(4) unsigned" .
+			", perFlash int(4) unsigned" .
+			", perFonts int(4) unsigned" .
+			", perGlibs int(4) unsigned" .
+/*
+			// % of sites that use this JS library
+			", perjQuery float unsigned" .
+			", perYUI float unsigned" .
+			", perDojo float unsigned" .
+			", perGA float unsigned" .
+			", perQuantcast float unsigned" .
+			", perAddThis float unsigned" .
+			", perFacebook float unsigned" .
+			", perGPlusOne float unsigned" .
+			", perTwitter float unsigned" .
+			", perShareThis float unsigned" .
+*/
+			// % of requests
+			", perHttps int(4) unsigned" .
+			", perCompressed int(4) unsigned" . 
+
+			// % of sites with max-age in this range
+			// "maxage30" === maxage > 1 day AND maxage <= 30 days
+			", maxageNull int(4) unsigned" .
+			", maxage0 int(4) unsigned" .
+			", maxage1 int(4) unsigned" .
+			", maxage30 int(4) unsigned" .
+			", maxage365 int(4) unsigned" .
+			", maxageMore int(4) unsigned" .
+
+			// correlation coefficients: top 5 correlations for onload and render
+			", onLoadccf1 varchar (32)" .
+			", onLoadccv1 float unsigned" .
+			", onLoadccf2 varchar (32)" .
+			", onLoadccv2 float unsigned" .
+			", onLoadccf3 varchar (32)" .
+			", onLoadccv3 float unsigned" .
+			", onLoadccf4 varchar (32)" .
+			", onLoadccv4 float unsigned" .
+			", onLoadccf5 varchar (32)" .
+			", onLoadccv5 float unsigned" .
+			", renderStartccf1 varchar (32)" .
+			", renderStartccv1 float unsigned" .
+			", renderStartccf2 varchar (32)" .
+			", renderStartccv2 float unsigned" .
+			", renderStartccf3 varchar (32)" .
+			", renderStartccv3 float unsigned" .
+			", renderStartccf4 varchar (32)" .
+			", renderStartccv4 float unsigned" .
+			", renderStartccf5 varchar (32)" .
+			", renderStartccv5 float unsigned" .
+
+			", primary key (label, slice, device)" .
+			");";
+		doSimpleCommand($command);
+	}
+
+	// Create Urls Table
+	if ( ! tableExists($gUrlsTable) ) {
+		$command = "create table $gUrlsTable (" .
+			"urlhash int(8) unsigned" .
+			", urlOrig text character set binary" . // use "binary" so it's case *sensitive*
+			", urlFixed text" .
+			", rank int(10) unsigned" .
+			", ranktmp int(10) unsigned" . // use this while we're updating the rank every night
+			", other boolean not null" .   // is this URL from some other source and we should crawl it EVERY time
+			", optout boolean not null" .  // did the website owner ask us NOT to crawl their site
+			", primary key (urlOrig(255))" .
+			", index(urlhash)" .
+			");";
+		doSimpleCommand($command);
+	}
+
+	// Create Urls Change Table
+	// If someone chooses to have their site removed, we queue the request here.
+	if ( ! tableExists($gUrlsChangeTable) ) {
+		$command = "create table $gUrlsChangeTable (" .
+			"url text character set binary" . // use "binary" so it's case *sensitive*
+			", action varchar(16)" .  // "add", "remove" for now
+			", createDate int(10) unsigned not null" .
+			", primary key (url(255), action)" .
+			");";
+		doSimpleCommand($command);
+	}
+
+	// Create Settings Table
+	if ( ! tableExists($gSettingsTable) ) {
+		$command = "create table $gSettingsTable (" .
+			"setting varchar (64)" .
+			", val varchar (255)" .
+			", primary key (setting)" .
+			");";
+		doSimpleCommand($command);
+	}
+}
+
 ?>
