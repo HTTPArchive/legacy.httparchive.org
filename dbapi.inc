@@ -175,7 +175,7 @@ function addStatsData($label, $slice, $device, $hTuples) {
 	$hTuples["slice"] = $slice;
 	$hTuples["device"] = $device;
 	$statstable = statsTable($label, $slice, $device);
-	$cmd = "insert into $statstable set " . hashImplode(", ", "=", $hTuples) . ";";
+	$cmd = "replace into $statstable set " . hashImplode(", ", "=", $hTuples) . ";";
 
 	doSimpleCommand($cmd);
 
@@ -269,7 +269,7 @@ function getTrendsData($slice, $device) {
 		", ROUND(reqTotal) as reqTotal, TRUNCATE(reqHtml, 1) as reqHtml, ROUND(reqJS) as reqJS, TRUNCATE(reqCSS, 1) as reqCSS, ROUND(reqImg) as reqImg" .
 		", TRUNCATE(reqFlash, 1) as reqFlash, ROUND(bytesTotal/1024) as bytesTotal, ROUND(bytesHtml/1024) as bytesHtml, ROUND(bytesJS/1024) as bytesJS" .
 		", ROUND(bytesCSS/1024) as bytesCSS, ROUND(bytesImg/1024) as bytesImg, ROUND(bytesFlash/1024) as bytesFlash" .
-		", ROUND(PageSpeed) as PageSpeed, ROUND(numDomains) as numDomains, perFlash, perFonts, perGlibs, maxageNull, perErrors, perHttps, perRedirects" .
+		", ROUND(PageSpeed) as PageSpeed, ROUND(numDomains) as numDomains, perFlash, perFonts, perGlibs, maxageNull, perErrors, perHttps, perCompressed, perRedirects" .
 		" from $statsTable where slice='$slice' and device='$device';";
 
 	$result = doQuery($query);
@@ -354,11 +354,9 @@ function updateStatsData($label, $slice, $device) {
 		// TODO - We don't try to update these for now.
 		//$hStats += computeCorrelations($label, $slice, $device, $sliceCond, "onLoad");
 		//$hStats += computeCorrelations($label, $slice, $device, $sliceCond, "renderStart");
-		//$hStats += computeOther($label, $slice, $device, $sliceCond);
+		computeOther($label, $slice, $device, $sliceCond, $hStats);
         $hStats = array_merge($hStats, $newStats); // $newStats will overwrite $hStats for duplicate keys
 	}
-
-	removeStatsData($label, $slice, $device);
 
 	return addStatsData($label, $slice, $device, $hStats);
 }
@@ -458,7 +456,8 @@ function computeCorrelations($label, $slice, $device, $sliceCond, $var1) {
 }
 
 
-function computeOther($label, $slice, $device, $sliceCond) {
+// "Special" stats that often require a more complex query against the requests table.
+function computeOther($label, $slice, $device, $sliceCond, &$hTuples = array()) {
 	$pagesTable = pagesTable($label, $slice, $device);
 	$requestsTable = requestsTable($label, $slice, $device);
 
@@ -466,80 +465,112 @@ function computeOther($label, $slice, $device, $sliceCond) {
 	$totalPages = doSimpleQuery("select count(*) from $pagesTable where $sliceCond;");
 	$totalRequests = doSimpleQuery("select count(*) from $requestsTable where $sliceCond;");
 
-	$hTuples = array();
-
 	// redirects
-	$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and status>=300 and status<400 and status!=304;");
-	$hTuples['perRedirects'] = round(100*$num/$totalPages);
+	if ( null === $hTuples['perRedirects'] ) {
+		$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and status>=300 and status<400 and status!=304;");
+		$hTuples['perRedirects'] = round(100*$num/$totalPages);
+	}
 
 	// errors
-	$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and status>=400 and status<600;");
-	$hTuples['perErrors'] = round(100*$num/$totalPages);
+	if ( null === $hTuples['perErrors'] ) {
+		$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and status>=400 and status<600;");
+		$hTuples['perErrors'] = round(100*$num/$totalPages);
+	}
 
 	// flash usage
-	$num = doSimpleQuery("select count(*) from $pagesTable where $sliceCond and reqFlash > 0;");
-	$hTuples['perFlash'] = round(100*$num/$totalPages);
+	if ( null === $hTuples['perFlash'] ) {
+		$num = doSimpleQuery("select count(*) from $pagesTable where $sliceCond and reqFlash > 0;");
+		$hTuples['perFlash'] = round(100*$num/$totalPages);
+	}
 
 	// custom fonts
-	$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and ( " .
-						 "(resp_content_type like '%font%') or " .   // content-type contains "font"
-						 "(urlShort like 'http://use.typekit.%' and resp_content_type = 'text/css') or " . // TypeKit CSS with data: URIs
-						 "(url like '%.eot' or url like '%.eot?%' or url like '%.ttf' or url like '%.ttf?%' or url like '%.ttc' or url like '%.ttc?%' or url like '%.woff' or url like '%.woff?%' or url like '%.otf' or url like '%.otf?%')" . // file extension
-						 ");");
-	$hTuples['perFonts'] = round(100*$num/$totalPages);
+	if ( null === $hTuples['perFonts'] ) {
+		$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and ( " .
+							 "(resp_content_type like '%font%') or " .   // content-type contains "font"
+							 "(urlShort like 'http://use.typekit.%' and resp_content_type = 'text/css') or " . // TypeKit CSS with data: URIs
+							 "(url like '%.eot' or url like '%.eot?%' or url like '%.ttf' or url like '%.ttf?%' or url like '%.ttc' or url like '%.ttc?%' or url like '%.woff' or url like '%.woff?%' or url like '%.otf' or url like '%.otf?%')" . // file extension
+							 ");");
+		$hTuples['perFonts'] = round(100*$num/$totalPages);
+	}
 
 	// Google Ajax Libraries	
-	$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and url like '%googleapis.com%';");
-	$hTuples['perGlibs'] = round(100*$num/$totalPages);
+	if ( null === $hTuples['perGlibs'] ) {
+		$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and url like '%googleapis.com%';");
+		$hTuples['perGlibs'] = round(100*$num/$totalPages);
+	}
 
 	// https
-	$num = doSimpleQuery("select count(*) from $requestsTable where $sliceCond and url like 'https://%'");
-	$hTuples['perHttps'] = round(100*$num/$totalRequests);
+	if ( null === $hTuples['perHttps'] ) {
+		$num = doSimpleQuery("select count(*) from $requestsTable where $sliceCond and url like 'https://%'");
+		$hTuples['perHttps'] = round(100*$num/$totalRequests);
+	}
 
 
 	// max-age caching
-	$query = "select ceil( convert( substring( resp_cache_control, (length(resp_cache_control) + 2 - locate('=ega-xam', reverse(resp_cache_control))) ), SIGNED ) / 86400) as maxagedays, count(*) as num from $requestsTable where $sliceCond and resp_cache_control like '%max-age=%' group by maxagedays order by maxagedays asc;";
-	$result = doQuery($query);
-	$zeroOrNeg = $day = $month = $year = $yearplus = 0;
-	while ($row = mysql_fetch_assoc($result)) {
-		$maxagedays = $row['maxagedays'];
-		$num = $row['num'];
+	if ( null === $hTuples['maxageNull'] ) {
+		$query = "select ceil( convert( substring( resp_cache_control, (length(resp_cache_control) + 2 - locate('=ega-xam', reverse(resp_cache_control))) ), SIGNED ) / 86400) as maxagedays, count(*) as num from $requestsTable where $sliceCond and resp_cache_control like '%max-age=%' group by maxagedays order by maxagedays asc;";
+		$result = doQuery($query);
+		$zeroOrNeg = $day = $month = $year = $yearplus = 0;
+		while ($row = mysql_fetch_assoc($result)) {
+			$maxagedays = $row['maxagedays'];
+			$num = $row['num'];
 
-		if ( $maxagedays < 1 ) {
-			$zeroOrNeg += $num;
+			if ( $maxagedays < 1 ) {
+				$zeroOrNeg += $num;
+			}
+			else if ( 1 == $maxagedays ) {
+				$day = $num;
+			}
+			else if ( 1 < $maxagedays && $maxagedays <= 30 ) {
+				$month += $num;
+			}
+			else if ( 30 < $maxagedays && $maxagedays <= 365 ) {
+				$year += $num;
+			}
+			else if ( 365 < $maxagedays ) {
+				$yearplus += $num;
+			}
 		}
-		else if ( 1 == $maxagedays ) {
-			$day = $num;
-		}
-		else if ( 1 < $maxagedays && $maxagedays <= 30 ) {
-			$month += $num;
-		}
-		else if ( 30 < $maxagedays && $maxagedays <= 365 ) {
-			$year += $num;
-		}
-		else if ( 365 < $maxagedays ) {
-			$yearplus += $num;
-		}
+		mysql_free_result($result);
+		$hTuples['maxageNull'] = round(100 * ($totalRequests - ($zeroOrNeg + $day + $month + $year + $yearplus))/$totalRequests);
+		$hTuples['maxage0'] = round(100 * $zeroOrNeg / $totalRequests);
+		$hTuples['maxage1'] = round(100 * $day / $totalRequests);
+		$hTuples['maxage30'] = round(100 * $month / $totalRequests);
+		$hTuples['maxage365'] = round(100 * $year / $totalRequests);
+		$hTuples['maxageMore'] = round(100 * $yearplus / $totalRequests);
 	}
-	mysql_free_result($result);
-	$hTuples['maxageNull'] = round(100 * ($totalRequests - ($zeroOrNeg + $day + $month + $year + $yearplus))/$totalRequests);
-	$hTuples['maxage0'] = round(100 * $zeroOrNeg / $totalRequests);
-	$hTuples['maxage1'] = round(100 * $day / $totalRequests);
-	$hTuples['maxage30'] = round(100 * $month / $totalRequests);
-	$hTuples['maxage365'] = round(100 * $year / $totalRequests);
-	$hTuples['maxageMore'] = round(100 * $yearplus / $totalRequests);
 
-	$row = doRowQuery("select count(*) as req, TRUNCATE(AVG(respSize), 1) as bytes from $requestsTable where $sliceCond and resp_content_type like '%image/gif%';");
-	$hTuples['reqGif'] = $row['req'] / $totalPages;
-	$hTuples['bytesGif'] = ($row['req'] / $totalPages) * $row['bytes'];
+	// requests and bytes for GIF, JPG, and PNG
+	if ( null === $hTuples['reqGif'] ) {
+		$row = doRowQuery("select count(*) as req, TRUNCATE(AVG(respSize), 1) as bytes from $requestsTable where $sliceCond and resp_content_type like '%image/gif%';");
+		$hTuples['reqGif'] = $row['req'] / $totalPages;
+		$hTuples['bytesGif'] = ($row['req'] / $totalPages) * $row['bytes'];
 
-	$row = doRowQuery("select count(*) as req, TRUNCATE(AVG(respSize), 1) as bytes from $requestsTable where $sliceCond and (resp_content_type like '%image/jpg%' or resp_content_type like '%image/jpeg%');");
-	$hTuples['reqJpg'] = $row['req'] / $totalPages;
-	$hTuples['bytesJpg'] = ($row['req'] / $totalPages) * $row['bytes'];
+		$row = doRowQuery("select count(*) as req, TRUNCATE(AVG(respSize), 1) as bytes from $requestsTable where $sliceCond and (resp_content_type like '%image/jpg%' or resp_content_type like '%image/jpeg%');");
+		$hTuples['reqJpg'] = $row['req'] / $totalPages;
+		$hTuples['bytesJpg'] = ($row['req'] / $totalPages) * $row['bytes'];
 
-	$row = doRowQuery("select count(*) as req, TRUNCATE(AVG(respSize), 1) as bytes from $requestsTable where $sliceCond and resp_content_type like '%image/png%';");
-	$hTuples['reqPng'] = $row['req'] / $totalPages;
-	$hTuples['bytesPng'] = ($row['req'] / $totalPages) * $row['bytes'];
+		$row = doRowQuery("select count(*) as req, TRUNCATE(AVG(respSize), 1) as bytes from $requestsTable where $sliceCond and resp_content_type like '%image/png%';");
+		$hTuples['reqPng'] = $row['req'] / $totalPages;
+		$hTuples['bytesPng'] = ($row['req'] / $totalPages) * $row['bytes'];
+	}
+
+	// gzip
+	if ( null === $hTuples['perCompressed'] ) {
+		$query = "select resp_content_encoding, count(*) as num from $requestsTable where $sliceCond and mimeType in ('text/html', 'application/x-javascript', 'text/javascript', 'text/css', 'application/javascript', 'text/plain', 'text/xml', 'font/eot', 'application/xml', 'application/json', 'text/json', 'text/js') group by resp_content_encoding order by num desc;";
+		$result = doQuery($query);
+		$total = $compressed = 0;
+		while ($row = mysql_fetch_assoc($result)) {
+			$encoding = $row['resp_content_encoding'];
+			$num = $row['num'];
+			$total += $num;
+			if ( "gzip" === $encoding || "deflate" === $encoding ) {
+				// There are other possible values (like ", gzip") but they're tiny, < 0.00001%.
+				$compressed += $num;
+			}
+		}
+		$hTuples['perCompressed'] = round(100*$compressed/$total);
+	}
 
 	return $hTuples;
 }
