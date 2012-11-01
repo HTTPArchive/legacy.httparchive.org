@@ -119,9 +119,7 @@ function submitBatch() {
 // Submit the batch test to WPT server.
 function resubmitFailures() {
 	global $gStatusTable, $gErrBase;
-	$maxAttempts = 2;  // the maximum number of times we'll try a URL
-
-	$cmd = "update $gStatusTable set status=0, wptid='', wptRetCode='', medianRun=0, startRender=0, pagespeedScore = NULL where status >= $gErrBase and attempts < $maxAttempts;";
+	$cmd = "update $gStatusTable set status=0, wptid='', wptRetCode='', medianRun=0, startRender=0, pagespeedScore = NULL where status >= $gErrBase;";
 	doSimpleCommand($cmd);
 }
 
