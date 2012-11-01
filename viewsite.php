@@ -17,16 +17,18 @@ limitations under the License.
 
 require_once("ui.inc");
 require_once("utils.inc");
+require_once("dbapi.inc");
 require_once("urls.inc");
 
+$row = null;
 if ( getParam('pageid') ) {
 	$gPageid = getParam('pageid');
-	$query = "select * from $gPagesTable where pageid='$gPageid';";
+	$row = pageData($gPageid);
 }
 else if ( ! isset($gPageid) && getParam('u') && getParam('l') ) {
 	$url = getParam('u');
 	$gLabel = getParam('l');
-	$query = "select * from $gPagesTable where url='$url' and label='$gLabel';";
+	$row = pageData(null, $url, $gLabel);
 }
 else {
 	// should never reach here
@@ -36,7 +38,9 @@ else {
 
 // TODO - better error handling starting here!
 // Changed to select * to allow summary paragraph
-$row = doRowQuery($query);
+if ( ! $row ) {
+	return;
+}
 
 $gPageid = $row['pageid'];
 $gLabel = $row['label'];
