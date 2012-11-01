@@ -24,8 +24,9 @@ $gArchive = getParam("ar", "All");
 // For now I just want to exclude the early runs with only ~1500 URLs vs today's 15K URLS.
 // Later I hope it'll make it easier to identify where we need to incorporate a date
 // range by searching for this variable.
-$gbDev = ( FALSE !== strpos(getcwd(), $gDevDir) || strpos(getcwd(), "/trunk.httparchive.org") );
-$gbMobile = ( FALSE !== strpos(getcwd(), $gMobileDir) || strpos(getcwd(), "/mobile.httparchive.org") );
+$curdir = getcwd(); // for efficiency
+$gbDev = ( FALSE !== strpos($curdir, $gDevDir) || strpos($curdir, "/trunk.httparchive.org") );
+$gbMobile = ( FALSE !== strpos($curdir, $gMobileDir) || strpos($curdir, "/mobile.httparchive.org") );
 
 // put this BELOW $gbDev - circular global dependencies :-(
 require_once("dbapi.inc");
@@ -47,6 +48,7 @@ $gaDevices = array( "IE8", "iphone" );
 // These are PRIVATE variables. They should be accessed by the corresponding function.
 $p_MinLabel = $p_MaxLabel = null;
 
+// Return a label from 1 year ago or from querystring.
 function minLabel() {
 	global $p_MinLabel;
 	if ( null === $p_MinLabel ) {
@@ -56,6 +58,7 @@ function minLabel() {
 }
 
 
+// Return the most recent label or from querystring.
 function maxLabel() {
 	global $p_MaxLabel, $gArchive;
 	if ( null === $p_MaxLabel ) {
@@ -1375,19 +1378,19 @@ function wptHarFileUrl($wptid, $wptrun, $bCached=0) {
 
 // Return HTML to create a select list of archive labels (eg, "Oct 2010", "Nov 2010").
 function selectArchiveLabel($archive, $curLabel, $bReverse=true, $bOnchage = true, $id="") {
-	global $gPagesTable, $gDateRangeDefault;
+	global $gPagesTable;
+	$dateRange = dateRange(true);
 
 	$sSelect = "<select" .
 		( $id ? " id='$id' name='$id'" : "" ) .
 		( $bOnchage ? " onchange='document.location=\"?a=$archive&l=\"+escape(this.options[this.selectedIndex].value)'" : "" ) .
 		">\n";
 
-	$query = "select label, startedDateTime from $gPagesTable where $gDateRangeDefault and archive = '$archive' group by label order by startedDateTime " . 
+	$query = "select label from $gPagesTable where $dateRange and archive = '$archive' group by label order by startedDateTime " . 
 		( $bReverse ? "desc" : "asc" ) . ";";
 	$result = doQuery($query);
 	while ($row = mysql_fetch_assoc($result)) {
 		$label = $row['label'];
-		$epoch = $row['startedDateTime'];
 		$sSelect .= "  <option value='$label'" . ( $curLabel == $label ? " selected" : "" ) . "> $label\n";
 	}
 	mysql_free_result($result);
@@ -1400,7 +1403,7 @@ function selectArchiveLabel($archive, $curLabel, $bReverse=true, $bOnchage = tru
 
 // Return HTML to create a select list of archive labels (eg, "Oct 2010", "Nov 2010").
 function selectSiteLabel($url, $curLabel="", $bChrono=false) {
-	global $gPagesTable, $gDateRange;
+	global $gPagesTable;
 
 	$aLabels = archiveLabelsForUrl($url, $bChrono);
 	$sSelect = "<select class=selectSite onchange='document.location=\"?u=" . urlencode($url) .
@@ -1416,13 +1419,14 @@ function selectSiteLabel($url, $curLabel="", $bChrono=false) {
 
 // Return an array of label names (in chrono order?) for a specific URL.
 function archiveLabelsForUrl($url, $bChrono=false, $archive=null) {
-	global $gPagesTable, $gDateRangeDefault;
+	global $gPagesTable;
 	global $gArchive;
 	if ( ! $archive ) {
 		$archive = $gArchive;
 	}
+	$dateRange = dateRange(true);
 
-	$query = "select label from $gPagesTable where $gDateRangeDefault and archive='$archive' and url = '$url' group by label order by startedDateTime " . 
+	$query = "select label from $gPagesTable where $dateRange and archive='$archive' and url = '$url' group by label order by startedDateTime " . 
 		( $bChrono ? "asc" : "desc" ) . ";";
 	$result = doQuery($query);
 	$aLabels = array();
@@ -1439,14 +1443,13 @@ function archiveLabelsForUrl($url, $bChrono=false, $archive=null) {
 // Return an array of label names (in chrono order?) for an archive.
 // If $bEpoch is true return labels based on 
 function archiveLabels($archive=null, $bEpoch = false, $format = "n/j/y", $bAll=false) {
-	global $gPagesTable, $gDateRange, $gDateRangeDefault;
-	global $gArchive;
+	global $gPagesTable, $gArchive;
 	if ( ! $archive ) {
 		$archive = $gArchive;
 	}
+	$dateRange = dateRange($bAll);
 
-	$query = "select label, min(startedDateTime) as epoch from $gPagesTable where " .
-		( $bAll ? $gDateRangeDefault : $gDateRange ) . " and archive = '$archive' group by label order by epoch asc;";
+	$query = "select label, min(startedDateTime) as epoch from $gPagesTable where $dateRange and archive = '$archive' group by label order by epoch asc;";
 	$result = doQuery($query);
 	$aLabels = array();
 	while ($row = mysql_fetch_assoc($result)) {
@@ -1481,11 +1484,13 @@ function latestLabel($archive=null, $beforeEpoch=null) {
 	if ( ! $archive ) {
 		$archive = $gArchive;
 	}
+	$dateRange = dateRange(true);
 
-	$query = "select label from $gPagesTable where archive = '$archive'" .
+	$query = "select label from $gPagesTable where $dateRange and archive = '$archive'" .
 		( $beforeEpoch ? " and startedDateTime <= $beforeEpoch" : "" ) .
-		" group by label order by startedDateTime desc;";
-	return doSimpleQuery($query);
+		" group by label order by startedDateTime desc limit 1;";
+	$label = doSimpleQuery($query);
+	return $label;
 }
 
 
