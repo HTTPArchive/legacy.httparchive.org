@@ -33,6 +33,7 @@ $gbUrlsFileSpecified = 0;
 $gSublabel = "";
 $gbImportUrls = ( $gbMobile ? 0 : 1 );
 $gLocation = "";
+$startedDateTime = time();
 
 parseParams();
 checkForBatchRun();    // exit if there's already a batch run going
@@ -65,6 +66,20 @@ else if ( $gbMobile ) {
 else {
 	loadUrlsFromDB($label, 300000, true);
 }
+
+$numUrls = doSimpleQuery("select count(*) from $gStatusTable;");
+createCrawl(array(
+				  "label" => $label,
+				  "archive" => $gArchive,
+				  "location" => $locations[0],
+				  "video" => $video,
+				  "docComplete" => $docComplete,
+				  "fvonly" => $fvonly,
+				  "runs" => $runs,
+				  "startedDateTime" => $startedDateTime,
+				  "numUrls" => $numUrls,
+				  "passes" => 0
+				  ));
 
 cprint("DONE submitting batch run");
 
