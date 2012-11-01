@@ -128,7 +128,12 @@ function requestsTable($label="", $slice="", $device="") {
 }
 
 function statsTable($label="", $slice="", $device="") {
-	return dbtable("stats", $device, $label, $slice);
+	$table = "stats";
+	if ( isDev() ) {
+		$table .= "dev";
+	}
+
+	return $table;
 }
 
 function crawlsTable() {
