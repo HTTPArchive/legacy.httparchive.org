@@ -26,22 +26,43 @@ if ( ! tableExists($gStatusTable) ) {
 
 
 
-// Now that we're running as a cronjob, we need to emit nothing to stdout when we're all done.
+$maxPasses = 2; // We'll submit failed URLs no more than this number of times.
+$labelFromRun = statusLabel();
+$curPasses = crawlPasses($labelFromRun, $gArchive, $locations[0]);
+if ( $curPasses >= $maxPasses ) {
+	// Now that we're running as a cronjob, we need to emit nothing to stdout when we're all done.
+	exit();
+}
+
 if ( 0 === totalNotDone() ) {
-	resubmitFailures();
-	if ( 0 === totalNotDone() ) {
-		$labelFromRun = doSimpleQuery("select distinct(label) from $gStatusTable;");  // there should only be one
-		if ( $labelFromRun && ! runCompleted($labelFromRun) ) {
-			cprint(date("G:i") . ": DONE with crawl. Copying...");
-			$gParamLabel = $labelFromRun; // hack!
-			require_once("copy.php");
-		}
-		exit(0);
-	}
-	else {
+	$curPasses++;
+	updateCrawl($labelFromRun, $gArchive, $locations[0], array( "passes" => $curPasses ));
+
+	if ( $curPasses < $maxPasses ) {
+		resubmitFailures();
 		cprint("Resubmitted failures - going around once again...");
 	}
+	else {
+		// We just finished the last pass. Wrap it up...
+		cprint(date("G:i") . ": DONE with tests. Copying...");
+		$gParamLabel = $labelFromRun; // hack!
+		require_once("copy.php");
+		$numPages = doSimpleCommand("select count(*) from $gPagesTable where pageid >= $minid and pageid <= $maxid;");
+		$numRequests = doSimpleCommand("select count(*) from $gRequestsTable where pageid >= $minid and pageid <= $maxid;");
+		updateCrawl($labelFromRun, $gArchive, $locations[0], 
+					array(
+						  "finishedDateTime" => time(),
+						  "minPageid" => $minid, // set inside copy.php
+						  "maxPageid" => $maxid, // set inside copy.php
+						  "numErrors" => statusErrors(),
+						  "numPages" => $numPages,
+						  "numRequests" => $numRequests
+						  ));
+		cprint(date("G:i") . ": DONE with crawl!");
+		exit(0);
+	}
 }
+
 
 // TODO - Combine "obtain" and "parse"?
 // The "crawl" process has multiple distinct tasks. This is because the URLs are
