@@ -72,22 +72,39 @@ else if ( $gbMobile ) {
 }
 
 
-// The test results prior to pageid=10281 are malformed.
-$gDateRange = ( isPrivateInstance() ? "pageid >= 1" : ( $gbMobile ? "pageid >= 607" : "pageid >= 10281" ) );
 
-// Here's the scoop: We use $gDateRange as a nice global throughout most of our queries to limit
-// the scope of data. BUT...this is a problem when we want to, for example, present the user with 
-// a list of labels to choose from - we don't want that list of labels to be limited. 
-// So in some places we use $gDateRangeDefault to get the WHOLE range of data.
-$gDateRangeDefault = $gDateRange;
+// We restrict the range of queries by adding a date range.
+// Sometimes the date range is affected by querystring params.
+// We also avoid old, undesired data with this.
+$pDateRange = $pDateRangeDefault = null; // for efficiency
+function dateRange($bDefault = false) {
+	global $pDateRange, $pDateRangeDefault, $gbMobile;
 
-if ( minLabel() ) {
-	$gDateRange .= " and pageid >= " . labelMinid(minLabel());
+	// Here's the scoop: We use $pDateRange as a nice global throughout most of our queries to limit
+	// the scope of data. BUT...this is a problem when we want to, for example, present the user with 
+	// a list of labels to choose from - we don't want that list of labels to be limited. 
+	// So in some places we use $pDateRangeDefault to get the WHOLE range of data.
+	if ( $bDefault ) {
+		if ( null === $pDateRangeDefault ) {
+			// Query ALL the date ranges but avoid some undesired data (old, small runs).
+			$pDateRangeDefault = ( isPrivateInstance() ? "pageid >= 1" : ( $gbMobile ? "pageid >= 607" : "pageid >= 10281" ) );
+		}
+		return $pDateRangeDefault;
+	}
+	else {
+		if ( null === $pDateRange ) {
+			// Query ALL the date ranges but avoid some undesired data (old, small runs).
+			$pDateRange = ( isPrivateInstance() ? "pageid >= 1" : ( $gbMobile ? "pageid >= 607" : "pageid >= 10281" ) );
+			if ( minLabel() ) {
+				$pDateRange .= " and pageid >= " . labelMinid(minLabel());
+			}
+			if ( maxLabel() ) {
+				$pDateRange .= " and pageid <= " . labelMaxid(maxLabel());
+			}
+		}
+		return $pDateRange;
+	}
 }
-if ( maxLabel() ) {
-	$gDateRange .= " and pageid <= " . labelMaxid(maxLabel());
-}
-
 
 
 function dbtable($table, $device="", $label="", $slice="") {
@@ -106,20 +123,25 @@ function pagesTable($label="", $slice="", $device="") {
 	return dbtable("pages", $device, $label, $slice);
 }
 
-function requestsTable($label, $slice, $device) {
+function requestsTable($label="", $slice="", $device="") {
 	return dbtable("requests", $device, $label, $slice);
 }
 
-function statsTable($label, $slice, $device) {
+function statsTable($label="", $slice="", $device="") {
 	return dbtable("stats", $device, $label, $slice);
+}
+
+function crawlsTable() {
+	return "crawls";
 }
 
 
 // return a where condition to select the appropriate URL slice based on pageid
 function sliceCond($label, $slice, $device, $url = "") {
-	global $gaTop100, $gaTop1000, $gDateRange, $gArchive;
+	global $gaTop100, $gaTop1000, $gArchive;
 
 	$pagesTable = pagesTable($label, $slice, $device);
+	$dateRange = dateRange();
 	$row = doRowQuery("select min(pageid) as minid, max(pageid) as maxid from $pagesTable where label='$label';");
 	$minid = $row['minid'];
 	$maxid = $row['maxid'];
@@ -129,8 +151,8 @@ function sliceCond($label, $slice, $device, $url = "") {
 	if ( "intersection" === $slice ) {
 		// Find the set of URLs that are constant across all labels;
 		$archive = getArchive($label);  // only look at intersection across the same *archive*.
-		$numLabels = doSimpleQuery("select count(distinct(label)) from $pagesTable where $gDateRange and archive='$archive';");
-		$query = "select url, count(label) as num from $pagesTable where $gDateRange and archive='$archive' group by url having num = $numLabels;";
+		$numLabels = doSimpleQuery("select count(distinct(label)) from $pagesTable where $dateRange and archive='$archive';");
+		$query = "select url, count(label) as num from $pagesTable where $dateRange and archive='$archive' group by url having num = $numLabels;";
 		$result = doQuery($query);
 		$aUrls = array();
 		while ( $row = mysql_fetch_assoc($result) ) {
@@ -174,8 +196,24 @@ function sliceCond($label, $slice, $device, $url = "") {
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+// Return a hash of ALL the data for a given page.
+// Bad API: You need EITHER the pageid OR the url & label.
+function pageData($pageid, $url = null, $label = null) {
+	global $gPagesTable;
+
+	if ( $pageid ) {
+		$query = "select * from $gPagesTable where pageid='$pageid';";
+	}
+	else {
+		$query = "select * from $gPagesTable where url='$url' and label='$label';";
+	}
+
+	return doRowQuery($query);
+}
+
+
 function urlHasData($url) {
-	global $gPagesTable, $gDateRange;
+	global $gPagesTable;
 
 	$query = "select count(*) from $gPagesTable where url = '$url';";
 	$bHasData = doSimpleQuery($query);
@@ -676,6 +714,51 @@ function removeAllStatusData() {
 }
 
 
+// return the label for the current crawl in the status table (there should be only one)
+function statusLabel() {
+	global $gStatusTable;
+	return doSimpleQuery("select distinct(label) from $gStatusTable;");  // there should only be one
+}
+
+
+// return the number of errors
+function statusErrors() {
+	global $gStatusTable, $gErrBase;
+	return doSimpleQuery("select count(*) from $gStatusTable where status >= $gErrBase;");
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// CRAWLS - meta-information about each crawl (AKA "run")
+//
+////////////////////////////////////////////////////////////////////////////////
+function createCrawl($hTuples) {
+	$crawlsTable = crawlsTable();
+	$now = time();
+	$cmd = "insert into $crawlsTable set " . hashImplode(", ", "=", $hTuples) . ", timeOfLastChange = $now;";
+	doSimpleCommand($cmd);
+	return true;
+}
+
+
+function updateCrawl($label, $archive, $location, $hTuples) {
+	$crawlsTable = crawlsTable();
+	$now = time();
+	$cmd = "update $crawlsTable set " . hashImplode(", ", "=", $hTuples) . ", timeOfLastChange = $now where label='$label' and archive='$archive' and location='$location';";
+	doSimpleCommand($cmd);
+	return true;
+}
+
+
+// increment the number of passes for this crawl
+// return the resulting number of passes
+function crawlPasses($label, $archive, $location) {
+	$crawlsTable = crawlsTable();
+	return doSimpleQuery("select passes from $crawlsTable where label='$label' and archive='$archive' and location='$location';");
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -823,6 +906,7 @@ mysql> alter table statsdev add column onLoad int(10) unsigned after renderStart
 mysql> alter table statsdev add column perCompressed int(4) unsigned after perHttps;
 mysql> alter table statsdev modify perHttps int(4) unsigned;
 
+
 *******************************************************************************/
 function createTables() {
 	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gUrlsChangeTable, $gSettingsTable;
@@ -948,6 +1032,38 @@ function createTables() {
 			", pagespeedScore int(4) unsigned" .
 			", primary key (statusid)" .
 			", index(statusid)" .
+			");";
+		doSimpleCommand($command);
+	}
+
+	// Create Status Table
+	$crawlsTable = crawlsTable();
+	if ( ! tableExists( $crawlsTable ) ) {
+		$command = "create table $crawlsTable (" .
+			"crawlid int unsigned not null auto_increment" .
+			", label varchar (32) not null" .
+			", archive varchar (32) not null" .
+			", location varchar (32) not null" . // AKA "device" - the WPT location value
+			", video boolean not null" .         // true = video was recorded
+			", docComplete boolean not null" .   // true = stopped at onload; false = ran later
+			", fvonly boolean not null" .        // true = first view only
+			", runs int(4) unsigned" .           // the number of runs for each URL (we use the median)
+
+			", startedDateTime int(10) unsigned" .
+			", finishedDateTime int(10) unsigned" .
+			", timeOfLastChange int(10) unsigned not null" .
+			", passes int(2) unsigned" .         // the number of passes thru the URLs - we typically do 2 (retry errors)
+
+
+			", minPageid int unsigned not null" .
+			", maxPageid int unsigned not null" .
+			", numUrls int unsigned" .     // # of URLs submitted
+			", numErrors int unsigned" .   // # of URLs that failed
+			", numPages int unsigned" .    // # of URLs that resulted in valid pages
+			", numRequests int unsigned" . // # of requests for all the pages
+
+			", primary key (crawlid)" .
+			", index(label, archive, location)" .
 			");";
 		doSimpleCommand($command);
 	}
