@@ -657,7 +657,7 @@ function computeOther($label, $slice, $device, $sliceCond, &$hTuples = array()) 
 
 	// gzip
 	if ( null === $hTuples['perCompressed'] ) {
-		$query = "select resp_content_encoding, count(*) as num from $requestsTable where $sliceCond and mimeType in ('text/html', 'application/x-javascript', 'text/javascript', 'text/css', 'application/javascript', 'text/plain', 'text/xml', 'font/eot', 'application/xml', 'application/json', 'text/json', 'text/js') group by resp_content_encoding order by num desc;";
+		$query = "select resp_content_encoding, count(*) as num from $requestsTable where $sliceCond and respSize > 1024 and mimeType in ('text/html', 'application/x-javascript', 'text/javascript', 'text/css', 'application/javascript', 'text/plain', 'text/xml', 'font/eot', 'application/xml', 'application/json', 'text/json', 'text/js') group by resp_content_encoding order by num desc;";
 		$result = doQuery($query);
 		$total = $compressed = 0;
 		while ($row = mysql_fetch_assoc($result)) {
