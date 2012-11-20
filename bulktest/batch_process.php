@@ -47,8 +47,8 @@ if ( 0 === totalNotDone() ) {
 		cprint(date("G:i") . ": DONE with tests. Copying...");
 		$gParamLabel = $labelFromRun; // hack!
 		require_once("copy.php");
-		$numPages = doSimpleCommand("select count(*) from $gPagesTable where pageid >= $minid and pageid <= $maxid;");
-		$numRequests = doSimpleCommand("select count(*) from $gRequestsTable where pageid >= $minid and pageid <= $maxid;");
+		$numPages = doSimpleQuery("select count(*) from $gPagesTable where pageid >= $minid and pageid <= $maxid;");
+		$numRequests = doSimpleQuery("select count(*) from $gRequestsTable where pageid >= $minid and pageid <= $maxid;");
 		updateCrawl($labelFromRun, $gArchive, $locations[0], 
 					array(
 						  "finishedDateTime" => time(),
