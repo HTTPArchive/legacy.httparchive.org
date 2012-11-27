@@ -566,25 +566,25 @@ function computeOther($label, $slice, $device, $sliceCond, &$hTuples = array()) 
 	$totalRequests = doSimpleQuery("select count(*) from $requestsTable where $sliceCond;");
 
 	// redirects
-	if ( null === $hTuples['perRedirects'] ) {
+	if ( !array_key_exists('perRedirects', $hTuples) || null === $hTuples['perRedirects'] ) {
 		$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and status>=300 and status<400 and status!=304;");
 		$hTuples['perRedirects'] = round(100*$num/$totalPages);
 	}
 
 	// errors
-	if ( null === $hTuples['perErrors'] ) {
+	if ( !array_key_exists('perErrors', $hTuples) || null === $hTuples['perErrors'] ) {
 		$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and status>=400 and status<600;");
 		$hTuples['perErrors'] = round(100*$num/$totalPages);
 	}
 
 	// flash usage
-	if ( null === $hTuples['perFlash'] ) {
+	if ( !array_key_exists('perFlash', $hTuples) || null === $hTuples['perFlash'] ) {
 		$num = doSimpleQuery("select count(*) from $pagesTable where $sliceCond and reqFlash > 0;");
 		$hTuples['perFlash'] = round(100*$num/$totalPages);
 	}
 
 	// custom fonts
-	if ( null === $hTuples['perFonts'] ) {
+	if ( !array_key_exists('perFonts', $hTuples) || null === $hTuples['perFonts'] ) {
 		$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and ( " .
 							 "(resp_content_type like '%font%') or " .   // content-type contains "font"
 							 "(urlShort like 'http://use.typekit.%' and resp_content_type = 'text/css') or " . // TypeKit CSS with data: URIs
@@ -594,20 +594,20 @@ function computeOther($label, $slice, $device, $sliceCond, &$hTuples = array()) 
 	}
 
 	// Google Ajax Libraries	
-	if ( null === $hTuples['perGlibs'] ) {
+	if ( !array_key_exists('perGlibs', $hTuples) || null === $hTuples['perGlibs'] ) {
 		$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and url like '%googleapis.com%';");
 		$hTuples['perGlibs'] = round(100*$num/$totalPages);
 	}
 
 	// https
-	if ( null === $hTuples['perHttps'] ) {
+	if ( !array_key_exists('perHttps', $hTuples) || null === $hTuples['perHttps'] ) {
 		$num = doSimpleQuery("select count(*) from $requestsTable where $sliceCond and url like 'https://%'");
 		$hTuples['perHttps'] = round(100*$num/$totalRequests);
 	}
 
 
 	// max-age caching
-	if ( null === $hTuples['maxageNull'] ) {
+	if ( !array_key_exists('maxageNull', $hTuples) || null === $hTuples['maxageNull'] ) {
 		$query = "select ceil( convert( substring( resp_cache_control, (length(resp_cache_control) + 2 - locate('=ega-xam', reverse(resp_cache_control))) ), SIGNED ) / 86400) as maxagedays, count(*) as num from $requestsTable where $sliceCond and resp_cache_control like '%max-age=%' group by maxagedays order by maxagedays asc;";
 		$result = doQuery($query);
 		$zeroOrNeg = $day = $month = $year = $yearplus = 0;
@@ -641,7 +641,7 @@ function computeOther($label, $slice, $device, $sliceCond, &$hTuples = array()) 
 	}
 
 	// requests and bytes for GIF, JPG, and PNG
-	if ( null === $hTuples['reqGif'] ) {
+	if ( !array_key_exists('reqGif', $hTuples) || null === $hTuples['reqGif'] ) {
 		$row = doRowQuery("select count(*) as req, TRUNCATE(AVG(respSize), 1) as bytes from $requestsTable where $sliceCond and resp_content_type like '%image/gif%';");
 		$hTuples['reqGif'] = $row['req'] / $totalPages;
 		$hTuples['bytesGif'] = ($row['req'] / $totalPages) * $row['bytes'];
@@ -656,7 +656,7 @@ function computeOther($label, $slice, $device, $sliceCond, &$hTuples = array()) 
 	}
 
 	// gzip
-	if ( null === $hTuples['perCompressed'] ) {
+	if ( !array_key_exists('perCompressed', $hTuples) || null === $hTuples['perCompressed'] ) {
 		$query = "select resp_content_encoding, count(*) as num from $requestsTable where $sliceCond and respSize > 1024 and mimeType in ('text/html', 'application/x-javascript', 'text/javascript', 'text/css', 'application/javascript', 'text/plain', 'text/xml', 'font/eot', 'application/xml', 'application/json', 'text/json', 'text/js') group by resp_content_encoding order by num desc;";
 		$result = doQuery($query);
 		$total = $compressed = 0;
