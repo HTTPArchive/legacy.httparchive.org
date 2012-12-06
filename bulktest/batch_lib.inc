@@ -11,7 +11,11 @@ define("DONE", 4);
 // The status table saves $gErrBase + i to indicate that there is a permanent error happens when the test is in the status i.
 $gErrBase = 900;
 // The list of tasks for a batch run.
-$gaTasks = array("submit", "status", "obtain", "parse1", "parse2", "parse3", "parse4", "parse5", "parse6", "parse7", "parse8");
+$gNumParse = 7; // the number of parse tasks to fork
+$gaTasks = array("submit", "status", "obtain");
+for ( $i = 1; $i <= $gNumParse; $i++ ) {
+	array_push($gaTasks, "parse" . $i); // dynamically create the desired number of parse tasks
+}
 
 $gbRepeatView = false; // Currently you have to MANUALLY change this to true if you want to look at "Repeat View".
 
