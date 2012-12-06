@@ -112,30 +112,10 @@ foreach ( $gaTasks as $task ) {
 				// Obtain XML result
 				obtainXMLResults();
 			} 
-			else if ( "parse1" === $task ) {
+			else if ( 0 === strpos($task, "parse") ) {
+				$n = intval(substr($task, strlen("parse")));
 				// Fill page table and request table
-				fillTables(8, 1);
-			}
-			else if ( "parse2" === $task ) {
-				fillTables(8, 2);
-			}
-			else if ( "parse3" === $task ) {
-				fillTables(8, 3);
-			}
-			else if ( "parse4" === $task ) {
-				fillTables(8, 4);
-			}
-			else if ( "parse5" === $task ) {
-				fillTables(8, 5);
-			}
-			else if ( "parse6" === $task ) {
-				fillTables(8, 6);
-			}
-			else if ( "parse7" === $task ) {
-				fillTables(8, 7);
-			}
-			else if ( "parse8" === $task ) {
-				fillTables(8, 0);
+				fillTables($gNumParse, $n);
 			}
 			fclose($fp);
 			lprint("...DONE with task \"$task\"!");
