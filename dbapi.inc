@@ -811,7 +811,7 @@ function doSimpleCommand($cmd) {
 
 	$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
 	if ( mysql_select_db($gMysqlDb) ) {
-		//error_log("doSimpleCommand: $cmd");
+		//dprint("doSimpleCommand: $cmd");
 		$result = mysql_query($cmd, $link);
 		//mysql_close($link); // the findCorrelation code relies on the link not being closed
 		if ( ! $result ) {
@@ -826,7 +826,7 @@ function doQuery($query) {
 
 	$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
 	if ( mysql_select_db($gMysqlDb) ) {
-		//error_log("doQuery: $query");
+		//dprint("doQuery: $query");
 		$result = mysql_query($query, $link);
 		//mysql_close($link); // the findCorrelation code relies on the link not being closed
 		if ( FALSE === $result ) {
@@ -911,6 +911,11 @@ mysql> alter table statsdev add column onLoad int(10) unsigned after renderStart
 mysql> alter table statsdev add column perCompressed int(4) unsigned after perHttps;
 mysql> alter table statsdev modify perHttps int(4) unsigned;
 
+Dec 2012:
+alter table pages drop column title;
+alter table pagesdev drop column title;
+alter table pagesmobile drop column title;
+
 
 *******************************************************************************/
 function createTables() {
@@ -925,7 +930,6 @@ function createTables() {
 			", label varchar (32) not null" .
 			", wptid varchar (64) not null" .        // webpagetest.org id
 			", wptrun int(2) unsigned not null" .    // webpagetest.org median #
-			", title varchar (255) not null" .
 			", url text" .
 			", urlShort varchar (255)" .
 			", urlHtml text" .
