@@ -1269,6 +1269,7 @@ $gaTop1000 = array(
 // Don't link to some websites.
 // This is a list of domains - any URL with this domain will be considered "on the blacklist".
 $ghBlackList = array(
+					 "beeg.com" => 1, "www.beeg.com" => 1,
 					 "xhamsterhq.com" => 1, "www.xhamsterhq.com" => 1,
 					 "xxxbunker.com" => 1, "www.xxxbunker.com" => 1,
 					 "grannybet.com" => 1, "www.grannybet.com" => 1,
