@@ -46,15 +46,15 @@ if ( "url" != $gSlice ) {
 	// show URLs first so people can see if they're doing intersection or not
 	// but don't show it if we're only looking at a single URL
 	echo formatChart('numurls', $hTrends, $aRunNames, $labels);
-	echo format2LineChart('renderStart', 'onLoad', $hTrends, $aRunNames, $labels, true, "<div style='margin-left: 2em; font-size:0.9em;'>* Based on limited, synthetic data. See <a href='http://dev.httparchive.org/about.php#accuracy'>FAQ</a> for known biases.</div>");
+	echo format2LineChart('renderStart', 'onLoad', $hTrends, $aRunNames, $labels, "", true, "<div style='margin-left: 2em; font-size:0.9em;'>* Based on limited, synthetic data. See <a href='http://dev.httparchive.org/about.php#accuracy'>FAQ</a> for known biases.</div>");
 }
 
-echo format2LineChart('reqTotal', 'bytesTotal', $hTrends, $aRunNames, $labels);
-echo format2LineChart('reqHtml', 'bytesHtml', $hTrends, $aRunNames, $labels);
-echo format2LineChart('reqJS', 'bytesJS', $hTrends, $aRunNames, $labels);
-echo format2LineChart('reqCSS', 'bytesCSS', $hTrends, $aRunNames, $labels);
-echo format2LineChart('reqImg', 'bytesImg', $hTrends, $aRunNames, $labels);
-echo format2LineChart('reqFlash', 'bytesFlash', $hTrends, $aRunNames, $labels);
+echo format2LineChart('reqTotal', 'bytesTotal', $hTrends, $aRunNames, $labels, "(kB)");
+echo format2LineChart('reqHtml', 'bytesHtml', $hTrends, $aRunNames, $labels, "(kB)");
+echo format2LineChart('reqJS', 'bytesJS', $hTrends, $aRunNames, $labels, "(kB)");
+echo format2LineChart('reqCSS', 'bytesCSS', $hTrends, $aRunNames, $labels, "(kB)");
+echo format2LineChart('reqImg', 'bytesImg', $hTrends, $aRunNames, $labels, "(kB)");
+echo format2LineChart('reqFlash', 'bytesFlash', $hTrends, $aRunNames, $labels, "(kB)");
 
 foreach(array('PageSpeed', 'numDomains') as $field) {
 	echo formatChart($field, $hTrends, $aRunNames, $labels);
@@ -66,7 +66,7 @@ if ( "url" != $gSlice ) {
 	}
 }
 
-function format2LineChart($field, $field2, $hTrends, $aRunNames, $labels, $bSame = false, $footnote = "") {
+function format2LineChart($field, $field2, $hTrends, $aRunNames, $labels, $sUnits2="", $bSame = false, $footnote = "") {
 	$color = fieldColor($field);
 	$suffix = fieldUnits($field);
 	$color2 = fieldColor($field2);
@@ -99,7 +99,7 @@ function format2LineChart($field, $field2, $hTrends, $aRunNames, $labels, $bSame
 		"&chxr=1,$min2,$max2,$step2|2,$min,$max,$step" .
 		"&chxs=1,$color2,11.5,-0.5,lt,$color2,$color2|2,$color,11.5,-0.5,lt,$color,$color" .
 		"&chxtc=0,4|1,4" .
-		"&chxp=0&chdl=" . urlencode(fieldTitle($field)) . "|" . urlencode(fieldTitle($field2)) . "+(kB)&chdlp=bv|r" .
+		"&chxp=0&chdl=" . urlencode(fieldTitle($field)) . "|" . urlencode(fieldTitle($field2)) . ( $sUnits2 ? "+$sUnits2" : "" ) . "&chdlp=bv|r" .
 		"";
 
 	return "<div id='$field2&$field' style='margin: 40px 0 60px 0;'><a class=image-link href='#$field2&$field'><img src=$url width=600 height=300></a>" .
