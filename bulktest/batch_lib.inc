@@ -11,7 +11,7 @@ define("DONE", 4);
 // The status table saves $gErrBase + i to indicate that there is a permanent error happens when the test is in the status i.
 $gErrBase = 900;
 // The list of tasks for a batch run.
-$gNumParse = 7; // the number of parse tasks to fork
+$gNumParse = 10; // the number of parse tasks to fork
 $gaTasks = array("submit", "status", "obtain");
 for ( $i = 1; $i <= $gNumParse; $i++ ) {
 	array_push($gaTasks, "parse" . $i); // dynamically create the desired number of parse tasks
@@ -332,9 +332,9 @@ function importHarJson($json_text, $statusInfo) {
 		} else {
 			// STEP 3: Go back and fill out the rest of the "page" record based on all the resources.
 			t_mark('AggregateStats');
-			$url = aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo);
+			$bAgg = aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo);
 			t_aggregate('AggregateStats');
-			if ( false === $url ) {
+			if ( false === $bAgg ) {
 				dprint("ERROR($gStatusTable statusid: $statusInfo[statusid]): AggregateStats failed. Purging pageid $pageid");
 				purgePage($pageid);
 			}
@@ -353,6 +353,8 @@ function importPage($page, $statusInfo) {
 	global $gPagesTable, $gRequestsTable;
 	$archive = $statusInfo['archive'];
 	$label = $statusInfo['label'];
+	$url = $statusInfo['url'];
+	$urlShort = substr($url, 0, 255);
 
 	$now = time();
 	$aTuples = array();
@@ -366,8 +368,8 @@ function importPage($page, $statusInfo) {
 	if ( $label ) {
 		array_push($aTuples, "label = '" . mysql_real_escape_string($label) . "'");
 	}
-	$title = mysql_real_escape_string($page->{ 'title' });
-	array_push($aTuples, "title = '$title'");
+	array_push($aTuples, "url = '" . mysql_real_escape_string($url) . "'");
+	array_push($aTuples, "urlShort = '" . mysql_real_escape_string($urlShort) . "'");
 
 	$pageTimings = $page->{ 'pageTimings' };
 
@@ -383,9 +385,9 @@ function importPage($page, $statusInfo) {
 	$cmd = "REPLACE INTO $gPagesTable SET " . implode(", ", $aTuples) . ";";
 	doSimpleCommand($cmd);
 
-	// get the pageid
-	$cmd = "SELECT pageid FROM $gPagesTable WHERE startedDateTime=$startedDateTime AND createDate='$now' AND title='" . 
-		mysql_real_escape_string($title) . "';";
+	// get the pageid based on some fairly unique values that we just saved (hacky)
+	$cmd = "SELECT pageid FROM $gPagesTable WHERE startedDateTime=$startedDateTime AND createDate='$now'" .
+		" AND url='" . mysql_real_escape_string($url) . "';";
 	$pageid = doSimpleQuery($cmd);
 
 	return $pageid;
@@ -575,15 +577,10 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 	mysql_free_result($result);
 	$numDomains = count(array_keys($hDomains));
 
-	$url = $statusInfo['url'];
-	$urlShort = substr($url, 0, 255);
-
 	$urlHtml = $firstHtmlUrl;
 	$urlHtmlShort = substr($urlHtml, 0, 255);
 
-	$cmd = "UPDATE $gPagesTable SET url = " . "'" . mysql_real_escape_string($url) . "'" .
-		", urlShort = " . "'" . mysql_real_escape_string($urlShort) . "'" .
-		", urlHtml = " . "'" . mysql_real_escape_string($urlHtml) . "'" .
+	$cmd = "UPDATE $gPagesTable SET urlHtml = " . "'" . mysql_real_escape_string($urlHtml) . "'" .
 		", urlHtmlShort = " . "'" . mysql_real_escape_string($urlHtmlShort) . "'" .
 		", reqTotal = $reqTotal, bytesTotal = $bytesTotal" .
 		", reqHtml = " . $hCount['html'] . ", bytesHtml = " . $hSize['html'] .
@@ -601,7 +598,7 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 		" where pageid = $pageid;";
 	doSimpleCommand($cmd);
 
-	return $url;
+	return true;
 }
 
 function countTestsWithCode($status) {
