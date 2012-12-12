@@ -913,9 +913,18 @@ mysql> alter table statsdev modify perHttps int(4) unsigned;
 
 Dec 2012:
 alter table pages drop column title;
-alter table pagesdev drop column title;
-alter table pagesmobile drop column title;
+  [pagesdev, pagesmobile]
+alter table pages drop column urlHtmlShort;
+  [pagesdev, pagesmobile]
+alter table requests drop column redirectUrlShort;
+  [requestsdev, requestsmobile]
 
+alter table pages add column (reqGif int(4) unsigned, reqJpg int(4) unsigned, reqPng int(4) unsigned, reqFont int(4) unsigned) AFTER reqImg;
+  [pagesdev, pagesmobile]
+alter table pages add column (bytesGif int(10) unsigned, bytesJpg int(10) unsigned, bytesPng int(10) unsigned, bytesFont int(10) unsigned) AFTER bytesImg;
+  [pagesdev, pagesmobile]
+alter table pages add column (numRedirects int(4) unsigned, numErrors int(4) unsigned, numGlibs int(4) unsigned, numHttps int(4) unsigned, numCompressed int(4) unsigned, maxageNull int(4) unsigned, maxage0 int(4) unsigned, maxage1 int(4) unsigned, maxage30 int(4) unsigned, maxage365 int(4) unsigned, maxageMore int(4) unsigned) AFTER numDomains;
+  [pagesdev, pagesmobile]
 
 *******************************************************************************/
 function createTables() {
@@ -933,7 +942,6 @@ function createTables() {
 			", url text" .
 			", urlShort varchar (255)" .
 			", urlHtml text" .
-			", urlHtmlShort varchar (255)" .
 			", startedDateTime int(10) unsigned" .
 			", renderStart int(10) unsigned" .
 			", onContentLoaded int(10) unsigned" .
@@ -991,7 +999,6 @@ function createTables() {
 			", url text" .
 			", urlShort varchar (255)" .
 			", redirectUrl text" .
-			", redirectUrlShort varchar (255)" .
 			", firstReq tinyint(1) not null" .
 			", firstHtml tinyint(1) not null" .
 
