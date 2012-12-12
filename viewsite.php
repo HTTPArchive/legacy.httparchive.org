@@ -20,15 +20,16 @@ require_once("utils.inc");
 require_once("dbapi.inc");
 require_once("urls.inc");
 
-$row = null;
+$gTitle = "View Site";
+$pageData = null;
 if ( getParam('pageid') ) {
 	$gPageid = getParam('pageid');
-	$row = pageData($gPageid);
+	$pageData = pageData($gPageid);
 }
 else if ( ! isset($gPageid) && getParam('u') && getParam('l') ) {
 	$url = getParam('u');
 	$gLabel = getParam('l');
-	$row = pageData(null, $url, $gLabel);
+	$pageData = pageData(null, $url, $gLabel);
 }
 else {
 	// should never reach here
@@ -38,22 +39,20 @@ else {
 
 // TODO - better error handling starting here!
 // Changed to select * to allow summary paragraph
-if ( ! $row ) {
+if ( ! $pageData ) {
 	return;
 }
 
-$gPageid = $row['pageid'];
-$gLabel = $row['label'];
-$gTitle = "View Site";
-$url = $row['url'];
-$wptid = $row['wptid'];
-$wptrun = $row['wptrun'];
-$onLoad = $row['onLoad'];
-$renderStart = $row['renderStart'];
+$gPageid = $pageData['pageid'];
+$gLabel = $pageData['label'];
+$url = $pageData['url'];
+$wptid = $pageData['wptid'];
+$wptrun = $pageData['wptrun'];
+$onLoad = $pageData['onLoad'];
+$renderStart = $pageData['renderStart'];
 
 $wptServer = wptServer();
 $harfileWptUrl = wptHarFileUrl($wptid, $wptrun, 0);
-
 ?>
 <!doctype html>
 <html>
@@ -71,9 +70,12 @@ $harfileWptUrl = wptHarFileUrl($wptid, $wptrun, 0);
 
 	<h1><?php echo str_replace('>http://', '><span class=protocol>http://</span>', siteLink($url)) ?></h1>
 	
-	<p class=summary style="margin-bottom: 4px;">took <?php echo round(($onLoad / 1000), 1) ?> seconds to load <?php echo round(($row['bytesTotal']/1024)) ?>kB of data over <?php echo $row['reqTotal'] ?> requests.</p>
+	<p class=summary style="margin-bottom: 4px;">took <?php echo round(($onLoad / 1000), 1) ?> seconds to load <?php echo round(($pageData['bytesTotal']/1024)) ?>kB of data over <?php echo $pageData['reqTotal'] ?> requests.</p>
 <div><a href="<?php echo rankUrl($url) ?>">Alexa rank: <?php echo commaize( rank($url, $gPageid) ) ?></a></div>
-<div><?php echo diffRuns($url, $gLabel) ?></div>
+<div>
+<?php 
+echo diffRuns($url, $gLabel) ?>
+</div>
 
 	<ul class=quicklinks>
 		<li><a href="#top">Top of page</a></li>
@@ -520,21 +522,21 @@ $gFirstStart = 0;
 $query = "select * from $gRequestsTable where pageid = '$gPageid';";
 $result = doQuery($query);
 if ( $result ) {
-	while ( $row = mysql_fetch_assoc($result) ) {
+	while ( $req = mysql_fetch_assoc($result) ) {
 		if ( !$gFirstStart ) {
-            $gFirstStart = intval($row['startedDateTime']);
+            $gFirstStart = intval($req['startedDateTime']);
 		}
 		$iRow++;
 		$sRow = "<tr" . ( $iRow % 2 == 0 ? " class=odd" : "" ) . ">";
 		$sRow .= "<td class='tdnum '>$iRow</td> ";
-		$sRow .= "<td class='nobr ' style='font-size: 0.9em;'><a href='" . $row['url'] . "'>" . shortenUrl($row['url']) . "</a></td> ";
+		$sRow .= "<td class='nobr ' style='font-size: 0.9em;'><a href='" . $req['url'] . "'>" . shortenUrl($req['url']) . "</a></td> ";
 		for ( $i = 0; $i < $len; $i++ ) {
 			$column = $columns[$i];
 			if ( ('Req#' != $column['name']) && ('URL' != $column['name'])){
 				$class = ( array_key_exists('class', $column) ? $column['class'] : "tdnum" );
 				$suffix = ( array_key_exists('suffix', $column) ? $column['suffix'] : "" );
 				$hidden = ( array_key_exists('hidden', $column) ? $column['hidden'] : "" );
-				$sRow .= tdStat($row, $column['dbName'], $suffix, $class, $hidden);
+				$sRow .= tdStat($req, $column['dbName'], $suffix, $class, $hidden);
 			}
 		}
 		$sRows .= $sRow;
@@ -605,10 +607,10 @@ function toggleCustomColDiag() {
 </html>
 
 <?php
-function tdStat($row, $field, $suffix = "", $class = "tdnum", $bHidden = false) {
+function tdStat($req, $field, $suffix = "", $class = "tdnum", $bHidden = false) {
 	global $gFirstStart;
 
-	$value = $row[$field];
+	$value = $req[$field];
 	$snipmax = 12;
 
 	if ( "kB" === $suffix ) {
