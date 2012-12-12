@@ -41,8 +41,6 @@ if ( ! isPrivateInstance() ) {
 	$gaSlices[] = array("Top1000", "Top 1000");
 }
 
-$gaDevices = array( "IE8", "iphone" );
-
 
 // DO NOT USE THESE GLOBAL  VARIABLES!
 // These are PRIVATE variables. They should be accessed by the corresponding function.
@@ -1360,6 +1358,12 @@ function isDev() {
 }
 
 
+function isMobile() {
+	global $gbMobile;
+	return $gbMobile;
+}
+
+
 function isPrivateInstance() {
 	global $gbPrivateInstance;
 	return $gbPrivateInstance;
@@ -1452,6 +1456,7 @@ function archiveLabels($archive=null, $bEpoch = false, $format = "n/j/y", $bAll=
 
 	$query = "select label, min(startedDateTime) as epoch from $gPagesTable where $dateRange and archive = '$archive' group by label order by epoch asc;";
 	$result = doQuery($query);
+
 	$aLabels = array();
 	while ($row = mysql_fetch_assoc($result)) {
 		$label = $row['label'];
@@ -1480,17 +1485,17 @@ function getArchive($label) {
 // Return the latest (most recent) label for an archive 
 // based on when the pages in that label were analyzed.
 function latestLabel($archive=null, $beforeEpoch=null) {
-	global $gPagesTable;
 	global $gArchive;
 	if ( ! $archive ) {
 		$archive = $gArchive;
 	}
 	$dateRange = dateRange(true);
 
-	$query = "select label from $gPagesTable where $dateRange and archive = '$archive'" .
+	$query = "select label from " . crawlsTable() . " where archive = '$archive' and location='" . curDevice() . "'" .
 		( $beforeEpoch ? " and startedDateTime <= $beforeEpoch" : "" ) .
 		" group by label order by startedDateTime desc limit 1;";
 	$label = doSimpleQuery($query);
+
 	return $label;
 }
 
@@ -1588,9 +1593,8 @@ function crawledUrls($pageid=null, $n=20) {
 }
 
 
-function deviceNames() {
-	global $gaDevices;
-	return $gaDevices;
+function curDevice() {
+	return ( isMobile() ? "iphone" : "IE8" );
 }
 
 
