@@ -23,8 +23,6 @@ set_time_limit(0);
 $gMarks = array();
 $gAggTimes = array();
 $gAggCounts = array();
-$ghReqOtherHeaders = array();
-$ghRespOtherHeaders = array();
 
 // global options
 $video = true;
