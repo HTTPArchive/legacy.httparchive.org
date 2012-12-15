@@ -397,7 +397,6 @@ function importPage($page, $statusInfo) {
 function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 	global $gPagesTable, $gRequestsTable;
 	global $ghReqHeaders, $ghRespHeaders;
-	global $ghReqOtherHeaders, $ghRespOtherHeaders;
 	for ( $i = 0; $i < count($entries); $i++ ) {
 		$entry = $entries[$i];
 		$aTuples = array();
@@ -431,16 +430,19 @@ function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 			$name = $header->{ 'name' };
 			$lcname = strtolower($name);
 			$value = substr($header->{ 'value' }, 0, 255);
+			$origValue = $header->{ 'value' };
 			if ( array_key_exists($lcname, $ghReqHeaders) ) {
+				// This is one of the standard headers we want to save.
 				$column = $ghReqHeaders[$lcname];
 				$hHeaders[$column] = ( array_key_exists($column, $hHeaders) ? $hHeaders[$column] . " $value" : $value );
 			}
 			else if ( "cookie" == $lcname ) {
-				$cookielen += strlen($value);
+				// We don't save the Cookie header, just the size.
+				$cookielen += strlen($origValue);
 			}
 			else {
-				$other .= ( $other ? ", " : "" ) . "$name = $value";
-				$ghReqOtherHeaders[$name] = ( array_key_exists($name, $ghReqOtherHeaders) ? $ghReqOtherHeaders[$name]+1 : 1 );
+				// All other headers are lumped together.
+				$other .= ( $other ? ", " : "" ) . "$name = $origValue";
 			}
 		}
 		if ( $other ) {
@@ -457,7 +459,6 @@ function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 		array_push($aTuples, "respHttpVersion = '" . $response->{ 'httpVersion' } . "'");
 		if ( property_exists($response, 'url') ) {
 			array_push($aTuples, "redirectUrl = '" . mysql_real_escape_string($response->{ 'url' }) . "'");
-			array_push($aTuples, "redirectUrlShort = '" . mysql_real_escape_string(substr($response->{ 'url' }, 0, 255)) . "'");
 		}
 		$respHeaderSize = $response->{ 'headersSize' };
 		if ( $respHeaderSize && 0 < $respHeaderSize ) {
@@ -479,16 +480,19 @@ function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 			$name = $header->{ 'name' };
 			$lcname = strtolower($name);
 			$value = substr($header->{ 'value' }, 0, 255);
+			$origValue = $header->{ 'value' };
 			if ( array_key_exists($lcname, $ghRespHeaders) ) {
+				// This is one of the standard headers we want to save.
 				$column = $ghRespHeaders[$lcname];
 				$hHeaders[$column] = ( array_key_exists($column, $hHeaders) ? $hHeaders[$column] . " $value" : $value );
 			}
 			else if ( "set-cookie" == $lcname ) {
-				$cookielen += strlen($value);
+				// We don't save the Set-Cookie header, just the size.
+				$cookielen += strlen($origValue);
 			}
 			else {
-				$other .= ( $other ? ", " : "" ) . "$name = $value";
-				$ghRespOtherHeaders[$name] = ( array_key_exists($name, $ghRespOtherHeaders) ? $ghRespOtherHeaders[$name]+1 : 1 );
+				// All other headers are lumped together.
+				$other .= ( $other ? ", " : "" ) . "$name = $origValue";
 			}
 		}
 		if ( $other ) {
@@ -578,10 +582,8 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 	$numDomains = count(array_keys($hDomains));
 
 	$urlHtml = $firstHtmlUrl;
-	$urlHtmlShort = substr($urlHtml, 0, 255);
 
 	$cmd = "UPDATE $gPagesTable SET urlHtml = " . "'" . mysql_real_escape_string($urlHtml) . "'" .
-		", urlHtmlShort = " . "'" . mysql_real_escape_string($urlHtmlShort) . "'" .
 		", reqTotal = $reqTotal, bytesTotal = $bytesTotal" .
 		", reqHtml = " . $hCount['html'] . ", bytesHtml = " . $hSize['html'] .
 		", reqJS = " . $hCount['script'] . ", bytesJS = " . $hSize['script'] .
