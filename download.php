@@ -25,6 +25,7 @@ $gFormat = getParam('format');
 
 
 if ( $gPageid && "csv" == $gFormat ) {
+	// request to download a CSV of an individual website's requests data
 	header('Content-Type: application/octet-stream; name="httparchive.csv"'); 
 	header('Content-Disposition: inline; filename="httparchive_page' . $gPageid . '.csv"');
 
@@ -83,67 +84,11 @@ if ( $gPageid && "csv" == $gFormat ) {
 	}
 	echo $sRows;
 }
-else if ( $gArchive && $gLabel && "csv" == $gFormat ) {
-	header('Content-Type: application/octetstream; name="httparchive.csv"'); 
-	header('Content-Disposition: inline; filename="' . str_replace(" ", "_", "$gArchive $gLabel.csv") . '"');
 
-	$sRows = "";
-	$iRow = 0;
-	$sRows .= "Website,load time(ms),Page Speed score,total reqs,total size(kB),html reqs,html size(kB),JS reqs,JS size(kB),CSS reqs,CSS size(kB),image reqs,image size(kB),num domains\n";
-
-	// overall averages for the entire archive
-	$query = "select ROUND(AVG(onLoad)) as onLoad, ROUND(AVG(PageSpeed)) as PageSpeed, ROUND(AVG(reqTotal)) as reqTotal, ROUND(AVG(reqHtml)) as reqHtml, ROUND(AVG(reqJS)) as reqJS, ROUND(AVG(reqCSS)) as reqCSS, ROUND(AVG(reqImg)) as reqImg, ROUND(AVG(bytesTotal)) as bytesTotal, ROUND(AVG(bytesHtml)) as bytesHtml, ROUND(AVG(bytesJS)) as bytesJS, ROUND(AVG(bytesCSS)) as bytesCSS, ROUND(AVG(bytesImg)) as bytesImg, ROUND(AVG(numDomains)) as numDomains from $gPagesTable where archive = '$gArchive' and label = '$gLabel' order by urlShort asc;";
-	$result = doQuery($query);
-	$row = mysql_fetch_assoc($result);
-	$sRow = "average overall";
-	$sRow .= "," . tdStat($row, "onLoad", "ms");
-	$sRow .= "," . tdStat($row, "PageSpeed");
-	$sRow .= "," . tdStat($row, "reqTotal");
-	$sRow .= "," . tdStat($row, "bytesTotal", "kB");
-	$sRow .= "," . tdStat($row, "reqHtml");
-	$sRow .= "," . tdStat($row, "bytesHtml", "kB");
-	$sRow .= "," . tdStat($row, "reqJS");
-	$sRow .= "," . tdStat($row, "bytesJS", "kB");
-	$sRow .= "," . tdStat($row, "reqCSS");
-	$sRow .= "," . tdStat($row, "bytesCSS", "kB");
-	$sRow .= "," . tdStat($row, "reqImg");
-	$sRow .= "," . tdStat($row, "bytesImg", "kB");
-	$sRows .= $sRow . "\n";
-	mysql_free_result($result);
-
-	$query = "select pageid, url, urlShort, onLoad, PageSpeed, reqTotal, reqHtml, reqJS, reqCSS, reqImg, bytesTotal, bytesHtml, bytesJS, bytesCSS, bytesImg, numDomains from $gPagesTable where archive = '$gArchive' and label = '$gLabel' order by urlShort asc;";
-	$result = doQuery($query);
-	if ( $result ) {
-		while ($row = mysql_fetch_assoc($result)) {
-			$iRow++;
-			$sRow = $row['urlShort'];
-			$sRow .= "," . tdStat($row, "onLoad", "ms");
-			$sRow .= "," . tdStat($row, "PageSpeed");
-			$sRow .= "," . tdStat($row, "reqTotal");
-			$sRow .= "," . tdStat($row, "bytesTotal", "kB");
-			$sRow .= "," . tdStat($row, "reqHtml");
-			$sRow .= "," . tdStat($row, "bytesHtml", "kB");
-			$sRow .= "," . tdStat($row, "reqJS");
-			$sRow .= "," . tdStat($row, "bytesJS", "kB");
-			$sRow .= "," . tdStat($row, "reqCSS");
-			$sRow .= "," . tdStat($row, "bytesCSS", "kB");
-			$sRow .= "," . tdStat($row, "reqImg");
-			$sRow .= "," . tdStat($row, "bytesImg", "kB");
-			$sRow .= "," . tdStat($row, "numDomains");
-			$sRows .= $sRow . "\n";
-		}
-		mysql_free_result($result);
-	}
-}
 echo $sRows;
 
 
 function tdStat($row, $field, $suffix = "", $class = "tdnum") {
-	$value = $row[$field];
-	if ( "kB" === $suffix ) {
-		$value = formatSize($value);
-	}
-
-	return ( $suffix ? "$value" : "$value" );
+	return ( array_key_exists($field, $row) ? $row[$field] : "" );
 }
 ?>
