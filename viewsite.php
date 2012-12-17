@@ -521,22 +521,22 @@ $sRows = "";
 $iRow = 0;
 $gFirstStart = 0;
 $page = pageFromWPT($wptid, $wptrun);
-$aReqs = $page['resources'];
-foreach($aReqs as $req) {
+$aResources = $page['resources'];
+foreach($aResources as $resource) {
 	if ( !$gFirstStart ) {
-		$gFirstStart = intval($req['startedDateTime']);
+		$gFirstStart = intval($resource['startedDateTime']);
 	}
 	$iRow++;
 	$sRow = "<tr" . ( $iRow % 2 == 0 ? " class=odd" : "" ) . ">";
 	$sRow .= "<td class='tdnum '>$iRow</td> ";
-	$sRow .= "<td class='nobr ' style='font-size: 0.9em;'><a href='" . $req['url'] . "'>" . shortenUrl($req['url']) . "</a></td> ";
+	$sRow .= "<td class='nobr ' style='font-size: 0.9em;'><a href='" . $resource['url'] . "'>" . shortenUrl($resource['url']) . "</a></td> ";
 	for ( $i = 0; $i < $len; $i++ ) {
 		$column = $columns[$i];
 		if ( ('Req#' != $column['name']) && ('URL' != $column['name'])){
 			$class = ( array_key_exists('class', $column) ? $column['class'] : "tdnum" );
 			$suffix = ( array_key_exists('suffix', $column) ? $column['suffix'] : "" );
 			$hidden = ( array_key_exists('hidden', $column) ? $column['hidden'] : "" );
-			$sRow .= tdStat($req, $column['dbName'], $suffix, $class, $hidden);
+			$sRow .= tdStat($resource, $column['dbName'], $suffix, $class, $hidden);
 		}
 	}
 	$sRows .= $sRow;
@@ -606,10 +606,10 @@ function toggleCustomColDiag() {
 </html>
 
 <?php
-function tdStat($req, $field, $suffix = "", $class = "tdnum", $bHidden = false) {
+function tdStat($resource, $field, $suffix = "", $class = "tdnum", $bHidden = false) {
 	global $gFirstStart;
 
-	$value = ( array_key_exists($field, $req) ? $req[$field] : "" );
+	$value = ( array_key_exists($field, $resource) ? $resource[$field] : "" );
 	$snipmax = 12;
 
 	if ( "kB" === $suffix ) {
