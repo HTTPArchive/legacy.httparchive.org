@@ -19,6 +19,7 @@ require_once("ui.inc");
 require_once("utils.inc");
 require_once("dbapi.inc");
 require_once("urls.inc");
+require_once("pages.inc");
 
 $gTitle = "View Site";
 $pageData = null;
@@ -74,7 +75,8 @@ $harfileWptUrl = wptHarFileUrl($wptid, $wptrun, 0);
 <div><a href="<?php echo rankUrl($url) ?>">Alexa rank: <?php echo commaize( rank($url, $gPageid) ) ?></a></div>
 <div>
 <?php 
-echo diffRuns($url, $gLabel) ?>
+echo diffRuns($url, $gLabel) 
+?>
 </div>
 
 	<ul class=quicklinks>
@@ -518,32 +520,29 @@ echo "</tr>\n";
 $sRows = "";
 $iRow = 0;
 $gFirstStart = 0;
-
-$query = "select * from $gRequestsTable where pageid = '$gPageid';";
-$result = doQuery($query);
-if ( $result ) {
-	while ( $req = mysql_fetch_assoc($result) ) {
-		if ( !$gFirstStart ) {
-            $gFirstStart = intval($req['startedDateTime']);
-		}
-		$iRow++;
-		$sRow = "<tr" . ( $iRow % 2 == 0 ? " class=odd" : "" ) . ">";
-		$sRow .= "<td class='tdnum '>$iRow</td> ";
-		$sRow .= "<td class='nobr ' style='font-size: 0.9em;'><a href='" . $req['url'] . "'>" . shortenUrl($req['url']) . "</a></td> ";
-		for ( $i = 0; $i < $len; $i++ ) {
-			$column = $columns[$i];
-			if ( ('Req#' != $column['name']) && ('URL' != $column['name'])){
-				$class = ( array_key_exists('class', $column) ? $column['class'] : "tdnum" );
-				$suffix = ( array_key_exists('suffix', $column) ? $column['suffix'] : "" );
-				$hidden = ( array_key_exists('hidden', $column) ? $column['hidden'] : "" );
-				$sRow .= tdStat($req, $column['dbName'], $suffix, $class, $hidden);
-			}
-		}
-		$sRows .= $sRow;
+$page = pageFromWPT($wptid, $wptrun);
+$aReqs = $page['resources'];
+foreach($aReqs as $req) {
+	if ( !$gFirstStart ) {
+		$gFirstStart = intval($req['startedDateTime']);
 	}
-	mysql_free_result($result);
-	echo $sRows;
+	$iRow++;
+	$sRow = "<tr" . ( $iRow % 2 == 0 ? " class=odd" : "" ) . ">";
+	$sRow .= "<td class='tdnum '>$iRow</td> ";
+	$sRow .= "<td class='nobr ' style='font-size: 0.9em;'><a href='" . $req['url'] . "'>" . shortenUrl($req['url']) . "</a></td> ";
+	for ( $i = 0; $i < $len; $i++ ) {
+		$column = $columns[$i];
+		if ( ('Req#' != $column['name']) && ('URL' != $column['name'])){
+			$class = ( array_key_exists('class', $column) ? $column['class'] : "tdnum" );
+			$suffix = ( array_key_exists('suffix', $column) ? $column['suffix'] : "" );
+			$hidden = ( array_key_exists('hidden', $column) ? $column['hidden'] : "" );
+			$sRow .= tdStat($req, $column['dbName'], $suffix, $class, $hidden);
+		}
+	}
+	$sRows .= $sRow;
 }
+echo $sRows;
+
 ?>
 </table>
 
@@ -610,11 +609,11 @@ function toggleCustomColDiag() {
 function tdStat($req, $field, $suffix = "", $class = "tdnum", $bHidden = false) {
 	global $gFirstStart;
 
-	$value = $req[$field];
+	$value = ( array_key_exists($field, $req) ? $req[$field] : "" );
 	$snipmax = 12;
 
 	if ( "kB" === $suffix ) {
-		if ( 0 == $value ) {
+		if ( 0 == $value || ! $value ) {
 			$value = "&nbsp;";
 			$suffix = "";
 		}
@@ -626,7 +625,7 @@ function tdStat($req, $field, $suffix = "", $class = "tdnum", $bHidden = false) 
 		}
 	}
 	else if ( "b" === $suffix ) {
-		if ( 0 == $value ) {
+		if ( 0 == $value || ! $value ) {
 			$value = "&nbsp;";
 			$suffix = "";
 		}
