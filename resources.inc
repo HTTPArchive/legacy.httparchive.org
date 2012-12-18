@@ -78,7 +78,8 @@ function flattenHeaders(&$resource, $aHeaders, $prefix, $mapping) {
 }
 
 
-function getRequestsFromTable($pageid) {
+
+function getRequestsFromTableDEPRECATED($pageid) {
 	global $gRequestsTable;
 
 	$query = "select * from $gRequestsTable where pageid = '$pageid';";
