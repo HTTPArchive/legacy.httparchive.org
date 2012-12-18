@@ -1491,7 +1491,7 @@ function latestLabel($archive=null, $beforeEpoch=null) {
 	}
 	$dateRange = dateRange(true);
 
-	$query = "select label from " . crawlsTable() . " where archive = '$archive' and location='" . curDevice() . "'" .
+	$query = "select label from " . crawlsTable() . " where finishedDateTime is not null and archive = '$archive' and location='" . curDevice() . "'" .
 		( $beforeEpoch ? " and startedDateTime <= $beforeEpoch" : "" ) .
 		" group by label order by startedDateTime desc limit 1;";
 	$label = doSimpleQuery($query);
