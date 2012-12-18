@@ -17,6 +17,8 @@ limitations under the License.
 
 require_once("utils.inc");
 require_once("ui.inc");
+require_once("pages.inc");
+
 
 $gArchive = getParam('a');
 $gLabel = getParam('l');
@@ -29,66 +31,21 @@ if ( $gPageid && "csv" == $gFormat ) {
 	header('Content-Type: application/octet-stream; name="httparchive.csv"'); 
 	header('Content-Disposition: inline; filename="httparchive_page' . $gPageid . '.csv"');
 
-	$sRows = "";
+	$aColumns = array("url", "mimeType", "method", "status", "time", "respSize", "reqCookieLen", "respCookieLen", "reqHttpVersion", "respHttpVersion", "req_accept", "req_accept_charset", "req_accept_encoding", "req_accept_language", "req_connection", "req_host", "req_referer", "resp_accept_ranges", "resp_age", "resp_cache_control", "resp_connection", "resp_content_encoding", "resp_content_language", "resp_content_length", "resp_content_location", "resp_content_type", "resp_date", "resp_etag", "resp_expires", "resp_keep_alive", "resp_last_modified", "resp_location", "resp_pragma", "resp_server", "resp_transfer_encoding", "resp_vary", "resp_via", "resp_x_powered_by");
+	$sRows = implode(",", $aColumns);
+	$sRows .= "\n";;
 
-	$sRows .= "URL,mime_type,method,status,time(ms),resp_Size(kB),req_Cookie_Len(bytes),resp_Cookie_Len(bytes),req_Http_Ver,resp_Http_Ver,req_Accept,req_Accept-Charset,req_Accept-Encoding,req_Accept-Language,req_Connection,req_Host,req_Referer,resp_Accept-Ranges,resp_Age,resp_Cache-Control,resp_Connection,resp_Content-Encoding,resp_Content-Language,resp_Content-Length,resp_Content-Location,resp_Content-Type,resp_Date,resp_Etag,resp_Expires,resp_Keep-Alive,resp_Last-Modified,resp_Location,resp_Pragma,resp_Server,resp_Transfer-Encoding,resp_Vary,resp_Via,resp_X-Powered-By\n";
-
-	$query = "select * from $gRequestsTable where pageid = '$gPageid';";
-	$result = doQuery($query);
-	if ( $result ) {
-		$iRow = 0;
-		while ($row = mysql_fetch_assoc($result)) {
-			$iRow++;
-			$sRow = $row['url'];
-			$sRow .= "," . tdStat($row, "mimeType", "", "nobr");
-			$sRow .= "," . tdStat($row, "method", "", "");
-			$sRow .= "," . tdStat($row, "status");
-			$sRow .= "," . tdStat($row, "time");
-			$sRow .= "," . tdStat($row, "respSize", "kB");
-			$sRow .= "," . tdStat($row, "reqCookieLen", "b");
-			$sRow .= "," . tdStat($row, "respCookieLen", "b");
-			$sRow .= "," . tdStat($row, "reqHttpVersion", "", "");
-			$sRow .= "," . tdStat($row, "respHttpVersion", "", "");
-			$sRow .= "," . tdStat($row, "req_accept", "snip", "nobr");
-			$sRow .= "," . tdStat($row, "req_accept_charset", "", "");
-			$sRow .= "," . tdStat($row, "req_accept_encoding", "", "nobr");
-			$sRow .= "," . tdStat($row, "req_accept_language", "", "");
-			$sRow .= "," . tdStat($row, "req_connection", "", "");
-			$sRow .= "," . tdStat($row, "req_host", "", "");
-			$sRow .= "," . tdStat($row, "req_referer", "url", "");
-			$sRow .= "," . tdStat($row, "resp_accept_ranges", "", "");
-			$sRow .= "," . tdStat($row, "resp_age", "", "");
-			$sRow .= "," . tdStat($row, "resp_cache_control", "", "");
-			$sRow .= "," . tdStat($row, "resp_connection", "", "");
-			$sRow .= "," . tdStat($row, "resp_content_encoding", "", "");
-			$sRow .= "," . tdStat($row, "resp_content_language", "", "");
-			$sRow .= "," . tdStat($row, "resp_content_length", "", "");
-			$sRow .= "," . tdStat($row, "resp_content_location", "url", "");
-			$sRow .= "," . tdStat($row, "resp_content_type", "", "");
-			$sRow .= "," . tdStat($row, "resp_date", "", "nobr");
-			$sRow .= "," . tdStat($row, "resp_etag", "", "");
-			$sRow .= "," . tdStat($row, "resp_expires", "", "nobr");
-			$sRow .= "," . tdStat($row, "resp_keep_alive", "", "");
-			$sRow .= "," . tdStat($row, "resp_last_modified", "", "nobr");
-			$sRow .= "," . tdStat($row, "resp_location", "url", "");
-			$sRow .= "," . tdStat($row, "resp_pragma", "", "");
-			$sRow .= "," . tdStat($row, "resp_server", "", "");
-			$sRow .= "," . tdStat($row, "resp_transfer_encoding", "", "");
-			$sRow .= "," . tdStat($row, "resp_vary", "", "");
-			$sRow .= "," . tdStat($row, "resp_via", "", "");
-			$sRow .= "," . tdStat($row, "resp_x_powered_by", "", "");
-
-			$sRows .= $sRow . "\n";
+	$row = doRowQuery("select wptid, wptrun from $gPagesTable where pageid = $gPageid;");
+	$page = pageFromWPT($row['wptid'], $row['wptrun']);
+	$aResources = $page['resources'];
+	foreach($aResources as $resource) {
+		foreach ($aColumns as $column) {
+			$sRows .= ( array_key_exists($column, $resource) ? '"' . $resource[$column] . '"' : "" ) . ","; // wrap in double quotes in case of commas
 		}
-		mysql_free_result($result);
+		rtrim($sRows, ","); // remove trailing comma
+		$sRows .= "\n";;
 	}
 	echo $sRows;
 }
 
-echo $sRows;
-
-
-function tdStat($row, $field, $suffix = "", $class = "tdnum") {
-	return ( array_key_exists($field, $row) ? $row[$field] : "" );
-}
 ?>
