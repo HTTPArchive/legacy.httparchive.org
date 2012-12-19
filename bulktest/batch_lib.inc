@@ -581,10 +581,7 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 	mysql_free_result($result);
 	$numDomains = count(array_keys($hDomains));
 
-	$urlHtml = $firstHtmlUrl;
-
-	$cmd = "UPDATE $gPagesTable SET urlHtml = " . "'" . mysql_real_escape_string($urlHtml) . "'" .
-		", reqTotal = $reqTotal, bytesTotal = $bytesTotal" .
+	$cmd = "UPDATE $gPagesTable SET reqTotal = $reqTotal, bytesTotal = $bytesTotal" .
 		", reqHtml = " . $hCount['html'] . ", bytesHtml = " . $hSize['html'] .
 		", reqJS = " . $hCount['script'] . ", bytesJS = " . $hSize['script'] .
 		", reqCSS = " . $hCount['css'] . ", bytesCSS = " . $hSize['css'] .
@@ -681,7 +678,7 @@ function reportSummary() {
 	$sSummary .= sprintf("\n");
 	$sSummary .= sprintf("DONE:    %10d    %s\n", $successfulTests + $failedTests, date("H:i M j"));
 	$sSummary .= sprintf("success: %10d\n", $successfulTests);
-	$sSummary .= sprintf("failed:  %10d (%d%%)\n", $failedTests, ($successfulTests + $failedTests) ? 100*$failedTests/($successfulTests + $failedTests) : 0 );
+	$sSummary .= sprintf("failed:  %10d (%d%%)\n", $failedTests, ($successfulTests + $failedTests) ? round(100*$failedTests/($successfulTests + $failedTests)) : 0 );
 	$sSummary .= sprintf("         %10d - submission failed\n", $failedSubmission);
 	$sSummary .= sprintf("         %10d - WPT test failed\n", $failedWPTTesting);
 	$sSummary .= sprintf("         %10d - test result processing failed\n", $failedProcessResult);
