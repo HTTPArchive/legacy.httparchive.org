@@ -101,7 +101,7 @@ Starting in November 2011, the list of URLs is based solely on the <a href="http
 
 <p>The WebPagetest settings are:</p>
 <ul class=indent>
-  <li> <strong>Internet Explorer 8</strong>
+	<li> <strong>Internet Explorer 9</strong> (was IE8 until October 15, 2012)
   <li> Dulles, VA
   <li> DSL
   <li> empty cache
@@ -111,19 +111,19 @@ Starting in November 2011, the list of URLs is based solely on the <a href="http
 The HTTP Archive collects these HAR files, parses them, and populates our database with the relevant information.</p>
 
 <p>
-For the <a href="http://mobile.httparchive.org/">HTTP Archive Mobile</a> the data is gathered using Blaze.io's mobile web performance tool 
-<a href="http://www.blaze.io/mobile/">Mobitest</a> using iPhone 4.3.
-Please see their <a href="http://origwww.blaze.io/mobile/methodology/">methodology page</a> for more information.
+For the <a href="http://mobile.httparchive.org/">HTTP Archive Mobile</a> the data is gathered using
+<a href="http://code.google.com/p/mobitest-agent/">Mobitest</a> from <a href="https://blogs.akamai.com/2012/03/open-sourcing-mobitest.html">Blaze.io &amp; Akamai</a>.
+The test agent is iPhone 4.3.
 </p>
 
 <h2 id=accuracy>How accurate is the data, in particular the time measurements?</h2>
 
-<p>The "static" measurements (# of bytes, HTTP headers, etc. - everything but time) are accurate at the time the test was performed. It's entirely possible that the web page has changed since it was tested. The tests were performed using Internet Explorer 8. If the page's content varies by browser this could be a source of differences.</p>
+<p>The "static" measurements (# of bytes, HTTP headers, etc. - everything but time) are accurate at the time the test was performed. It's entirely possible that the web page has changed since it was tested. The tests were performed using a single browser. If the page's content varies by browser this could be a source of differences.</p>
 
 <p>
 The time measurements are gathered in a test environment, and thus have all the potential biases that come with that:</p>
 <ul class=indent> 
-<li>browser - All tests are performed using Internet Explorer 8. 
+<li>browser - All tests are performed using a single browser. 
 Page load times can vary depending on browser.
 <li>location - The HAR files are generated from WebPagetest.org's location in Redwood City, CA.
 The distance to the site's servers can affect time measurements.
@@ -284,8 +284,9 @@ Guy Leech helped early on with the design.
 More recently, <a href="https://twitter.com/#!/stephenhay">Stephen Hay</a> created the new logo.
 </p>
 
-<p>The <a href="http://mobile.httparchive.org/">HTTP Archive Mobile</a> test framework is provided by 
-<a href="http://www.blazeio.com/">Blaze.io</a> with much help from Guy (Guypo) Podjarny.
+<p>The <a href="http://mobile.httparchive.org/">HTTP Archive Mobile</a> test framework uses
+<a href="http://code.google.com/p/mobitest-agent/">Mobitest</a> from <a href="https://blogs.akamai.com/2012/03/open-sourcing-mobitest.html">Blaze.io &amp; Akamai</a>
+with much help from <a href="https://twitter.com/guypod">Guy (Guypo) Podjarny</a>.
 </p>
 
 
