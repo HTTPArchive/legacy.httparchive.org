@@ -943,21 +943,21 @@ function createTables() {
 			"pageid int unsigned not null auto_increment" .
 			", createDate int(10) unsigned not null" .
 			", archive varchar (16) not null" .
-			", label varchar (32) not null" .
+			", label varchar (32) not null" .        // name of the crawl, eg, "Sep 15 2012"
 			", wptid varchar (64) not null" .        // webpagetest.org id
 			", wptrun int(2) unsigned not null" .    // webpagetest.org median #
-			", url text" .
-			", urlShort varchar (255)" .
-			", startedDateTime int(10) unsigned" .
-			", TTFB smallint unsigned" .
-			", renderStart int(10) unsigned" .
-			", onContentLoaded int(10) unsigned" .
-			", onLoad int(10) unsigned" .
-			", PageSpeed int(4) unsigned" .
-			", SpeedIndex mediumint unsigned" .
-			", rank int(10) unsigned" .
+			", url text" .                           // main URL fetched
+			", urlShort varchar (255)" .             // shortened URL to use in index
+			", startedDateTime int(10) unsigned" .   // epoch time when page was crawled 
+			", TTFB smallint unsigned" .             // time to first byte of HTML doc response
+			", renderStart int(10) unsigned" .       // when rendering started
+			", onContentLoaded int(10) unsigned" .   // when content loaded (not available in IE)
+			", onLoad int(10) unsigned" .            // window.onload
+			", PageSpeed int(4) unsigned" .          // PageSpeed score (0-100)
+			", SpeedIndex mediumint unsigned" .      // WPT Speed Index score
+			", rank int(10) unsigned" .              // worldwide rank for this URL (according to Alexa.com)
 
-			", reqTotal int(4) unsigned not null" .
+			", reqTotal int(4) unsigned not null" .  // # of resource requests, etc.
 			", reqHtml int(4) unsigned not null" .
 			", reqJS int(4) unsigned not null" .
 			", reqCSS int(4) unsigned not null" .
@@ -970,7 +970,7 @@ function createTables() {
 			", reqJson int(4) unsigned not null" .
 			", reqOther int(4) unsigned not null" .
 
-			", bytesTotal int(10) unsigned not null" .
+			", bytesTotal int(10) unsigned not null" . // # of bytes TRANSFERRED (so may be bigger when uncompressed)
 			", bytesHtml int(10) unsigned not null" .
 			", bytesJS int(10) unsigned not null" .
 			", bytesCSS int(10) unsigned not null" .
@@ -983,20 +983,20 @@ function createTables() {
 			", bytesJson int(10) unsigned not null" .
 			", bytesOther int(10) unsigned not null" .
 
-			", numDomains smallint unsigned not null" .
+			", numDomains smallint unsigned not null" .    // # of unique domains across all requests
 			", maxDomainReqs smallint unsigned not null" . // # of requests on the most-used domain
 			", numRedirects smallint unsigned not null" .
 			", numErrors smallint unsigned not null" .
-			", numGlibs smallint unsigned not null" .
+			", numGlibs smallint unsigned not null" .      // # of requests to Google Libraries API
 			", numHttps smallint unsigned not null" .
 			", numCompressed smallint unsigned not null" .
 			", numDomElements mediumint unsigned not null" .
-			", maxageNull smallint unsigned not null" .
-			", maxage0 smallint unsigned not null" .
-			", maxage1 smallint unsigned not null" .
-			", maxage30 smallint unsigned not null" .
-			", maxage365 smallint unsigned not null" .
-			", maxageMore smallint unsigned not null" .
+			", maxageNull smallint unsigned not null" .    // # of responses without a max-age value in Cache-Control
+			", maxage0 smallint unsigned not null" .       // # of responses with max-age=0
+			", maxage1 smallint unsigned not null" .       // # of responses with 0 < max-age <= 1 day
+			", maxage30 smallint unsigned not null" .      // # of responses with 1 < max-age <= 30 days
+			", maxage365 smallint unsigned not null" .     // # of responses with 30 < max-age <= 365 days
+			", maxageMore smallint unsigned not null" .    // # of responses with 365 < max-age
 
 			", primary key (pageid)" .
 			", unique key (label, urlShort)" .
