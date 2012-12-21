@@ -918,12 +918,19 @@ alter table pages drop column urlHtmlShort;
   [pagesdev, pagesmobile]
 alter table requests drop column redirectUrlShort;
   [requestsdev, requestsmobile]
-
-alter table pages add column (reqGif int(4) unsigned, reqJpg int(4) unsigned, reqPng int(4) unsigned, reqFont int(4) unsigned) AFTER reqImg;
+alter table pages drop column urlHtml;
   [pagesdev, pagesmobile]
-alter table pages add column (bytesGif int(10) unsigned, bytesJpg int(10) unsigned, bytesPng int(10) unsigned, bytesFont int(10) unsigned) AFTER bytesImg;
+alter table pages add column TTFB smallint unsigned AFTER startedDateTime;
   [pagesdev, pagesmobile]
-alter table pages add column (numRedirects int(4) unsigned, numErrors int(4) unsigned, numGlibs int(4) unsigned, numHttps int(4) unsigned, numCompressed int(4) unsigned, maxageNull int(4) unsigned, maxage0 int(4) unsigned, maxage1 int(4) unsigned, maxage30 int(4) unsigned, maxage365 int(4) unsigned, maxageMore int(4) unsigned) AFTER numDomains;
+alter table pages add column reqGif smallint unsigned not null after reqImg, ADD COLUMN reqJpg smallint unsigned not null after reqGif, ADD COLUMN reqPng smallint unsigned not null after reqJpg, ADD COLUMN reqFont smallint unsigned not null after reqPng;
+  [pagesdev, pagesmobile]
+alter table pages add column bytesGif int(10) unsigned not null after bytesImg, ADD COLUMN bytesJpg int(10) unsigned not null after bytesGif, ADD COLUMN bytesPng int(10) unsigned not null after bytesJpg, ADD COLUMN bytesFont int(10) unsigned not null after bytesPng;
+  [pagesdev, pagesmobile]
+alter table pages add column maxageMore smallint unsigned not null after numDomains, add column maxage365 smallint unsigned not null after numDomains, add column maxage30 smallint unsigned not null after numDomains, add column maxage1 smallint unsigned not null after numDomains, add column maxage0 smallint unsigned not null after numDomains, add column maxageNull smallint unsigned not null after numDomains, add column numDomElements mediumint unsigned not null after numDomains, add column numCompressed smallint unsigned not null after numDomains, add column numHttps smallint unsigned not null after numDomains, add column numGlibs smallint unsigned not null after numDomains, add column numErrors smallint unsigned not null after numDomains, add column numRedirects smallint unsigned not null after numDomains, add column maxDomainReqs smallint unsigned not null after numDomains;
+  [pagesdev, pagesmobile]
+alter table pages add column bytesHtmlDoc mediumint unsigned not null AFTER bytesOther;
+  [pagesdev, pagesmobile]
+alter table pages add column SpeedIndex mediumint unsigned AFTER PageSpeed;
   [pagesdev, pagesmobile]
 
 *******************************************************************************/
@@ -941,12 +948,13 @@ function createTables() {
 			", wptrun int(2) unsigned not null" .    // webpagetest.org median #
 			", url text" .
 			", urlShort varchar (255)" .
-			", urlHtml text" .
 			", startedDateTime int(10) unsigned" .
+			", TTFB smallint unsigned" .
 			", renderStart int(10) unsigned" .
 			", onContentLoaded int(10) unsigned" .
 			", onLoad int(10) unsigned" .
 			", PageSpeed int(4) unsigned" .
+			", SpeedIndex mediumint unsigned" .
 			", rank int(10) unsigned" .
 
 			", reqTotal int(4) unsigned not null" .
@@ -954,6 +962,10 @@ function createTables() {
 			", reqJS int(4) unsigned not null" .
 			", reqCSS int(4) unsigned not null" .
 			", reqImg int(4) unsigned not null" .
+			", reqGif smallint unsigned not null" .
+			", reqJpg smallint unsigned not null" .
+			", reqPng smallint unsigned not null" .
+			", reqFont smallint unsigned not null" .
 			", reqFlash int(4) unsigned not null" .
 			", reqJson int(4) unsigned not null" .
 			", reqOther int(4) unsigned not null" .
@@ -963,11 +975,29 @@ function createTables() {
 			", bytesJS int(10) unsigned not null" .
 			", bytesCSS int(10) unsigned not null" .
 			", bytesImg int(10) unsigned not null" .
+			", bytesGif int(10) unsigned not null" .
+			", bytesJpg int(10) unsigned not null" .
+			", bytesPng int(10) unsigned not null" .
+			", bytesFont int(10) unsigned not null" .
 			", bytesFlash int(10) unsigned not null" .
 			", bytesJson int(10) unsigned not null" .
 			", bytesOther int(10) unsigned not null" .
 
-			", numDomains int(4) unsigned not null" .
+			", numDomains smallint unsigned not null" .
+			", maxDomainReqs smallint unsigned not null" . // # of requests on the most-used domain
+			", numRedirects smallint unsigned not null" .
+			", numErrors smallint unsigned not null" .
+			", numGlibs smallint unsigned not null" .
+			", numHttps smallint unsigned not null" .
+			", numCompressed smallint unsigned not null" .
+			", numDomElements mediumint unsigned not null" .
+			", maxageNull smallint unsigned not null" .
+			", maxage0 smallint unsigned not null" .
+			", maxage1 smallint unsigned not null" .
+			", maxage30 smallint unsigned not null" .
+			", maxage365 smallint unsigned not null" .
+			", maxageMore smallint unsigned not null" .
+
 			", primary key (pageid)" .
 			", unique key (label, urlShort)" .
 			");";
@@ -1119,6 +1149,7 @@ function createTables() {
 			", bytesFlash int(10) unsigned" .
 			", bytesJson int(10) unsigned" .
 			", bytesOther int(10) unsigned" .
+			", bytesHtmlDoc mediumint unsigned" . // size of the main HTML document
 
 			// % of sites with at least one of these conditions
 			", perRedirects int(4) unsigned" .
