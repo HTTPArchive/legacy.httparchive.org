@@ -762,7 +762,7 @@ function updateCrawl($label, $archive, $location, $hTuples) {
 // return the resulting number of passes
 function crawlPasses($label, $archive, $location) {
 	$crawlsTable = crawlsTable();
-	return doSimpleQuery("select passes from $crawlsTable where label='$label' and archive='$archive' and location='$location';");
+	return doSimpleQuery("select passes from $crawlsTable where label='$label' and location='$location';");
 }
 
 
@@ -930,7 +930,16 @@ alter table pages add column maxageMore smallint unsigned not null after numDoma
   [pagesdev, pagesmobile]
 alter table pages add column bytesHtmlDoc mediumint unsigned not null AFTER bytesOther;
   [pagesdev, pagesmobile]
+alter table pages add column fullyLoaded int(10) unsigned AFTER onLoad;
+  [pagesdev, pagesmobile]
+
+alter table pages add column cdn varchar (64) AFTER urlShort;
+  [pagesdev, pagesmobile]
 alter table pages add column SpeedIndex mediumint unsigned AFTER PageSpeed;
+  [pagesdev, pagesmobile]
+alter table pages add column visualComplete int(10) unsigned AFTER fullyLoaded;
+  [pagesdev, pagesmobile]
+alter table pages add column gzipTotal int unsigned not null AFTER maxageMore, add column gzipSavings int unsigned not null after gzipTotal;
   [pagesdev, pagesmobile]
 
 *******************************************************************************/
@@ -948,11 +957,15 @@ function createTables() {
 			", wptrun int(2) unsigned not null" .    // webpagetest.org median #
 			", url text" .                           // main URL fetched
 			", urlShort varchar (255)" .             // shortened URL to use in index
+			", cdn varchar (64)" .                   // if the base page is served by a CDN
+
 			", startedDateTime int(10) unsigned" .   // epoch time when page was crawled 
 			", TTFB smallint unsigned" .             // time to first byte of HTML doc response
 			", renderStart int(10) unsigned" .       // when rendering started
 			", onContentLoaded int(10) unsigned" .   // when content loaded (not available in IE)
 			", onLoad int(10) unsigned" .            // window.onload
+			", fullyLoaded int(10) unsigned" .       // the page is fully done (according to WPT)
+			", visualComplete int(10) unsigned" .    //
 			", PageSpeed int(4) unsigned" .          // PageSpeed score (0-100)
 			", SpeedIndex mediumint unsigned" .      // WPT Speed Index score
 			", rank int(10) unsigned" .              // worldwide rank for this URL (according to Alexa.com)
@@ -983,7 +996,7 @@ function createTables() {
 			", bytesJson int(10) unsigned not null" .
 			", bytesOther int(10) unsigned not null" .
 
-			", numDomains smallint unsigned not null" .    // # of unique domains across all requests
+			", numDomains int(4) unsigned" .               // # of unique domains across all requests
 			", maxDomainReqs smallint unsigned not null" . // # of requests on the most-used domain
 			", numRedirects smallint unsigned not null" .
 			", numErrors smallint unsigned not null" .
@@ -997,6 +1010,8 @@ function createTables() {
 			", maxage30 smallint unsigned not null" .      // # of responses with 1 < max-age <= 30 days
 			", maxage365 smallint unsigned not null" .     // # of responses with 30 < max-age <= 365 days
 			", maxageMore smallint unsigned not null" .    // # of responses with 365 < max-age
+			", gzipTotal int unsigned not null" .          // # of bytes xferred for resources that COULD have been gzipped
+			", gzipSavings int unsigned not null" .        // # of bytes that could have been saved if ALL gzippable resources were gzipped
 
 			", primary key (pageid)" .
 			", unique key (label, urlShort)" .
