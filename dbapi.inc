@@ -942,6 +942,9 @@ alter table pages add column visualComplete int(10) unsigned AFTER fullyLoaded;
 alter table pages add column gzipTotal int unsigned not null AFTER maxageMore, add column gzipSavings int unsigned not null after gzipTotal;
   [pagesdev, pagesmobile]
 
+alter table requests add column expAge int unsigned AFTER respCookieLen;
+  [requestsdev, requestsmobile]
+
 *******************************************************************************/
 function createTables() {
 	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gUrlsChangeTable, $gSettingsTable;
@@ -1061,6 +1064,7 @@ function createTables() {
 			", respBodySize int(10) unsigned" .
 			", respSize int(10) unsigned" .
 			", respCookieLen int(10) unsigned not null".
+			", expAge int unsigned" .             // number of seconds until response expires - can be null
 			", mimeType varchar(255)" .  // slightly normalized version of resp_content_type - ~1000 distinct values
 			", respOtherHeaders text" .
 
