@@ -406,6 +406,7 @@ function importPage($page, $statusInfo) {
 function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 	global $gPagesTable, $gRequestsTable;
 	global $ghReqHeaders, $ghRespHeaders;
+	$now = time(); // avoid calling time() multiple times for expAge calculation
 	for ( $i = 0; $i < count($entries); $i++ ) {
 		$entry = $entries[$i];
 		$aTuples = array();
@@ -509,6 +510,15 @@ function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 		}
 		if ( $cookielen ) {
 			array_push($aTuples, "respCookieLen = $cookielen");
+		}
+		// calculate expAge - number of seconds before resource expires
+		if ( array_key_exists('cache-control', $hHeaders) && FALSE !== ($posMaxage = stripos($hHeaders['cache-control'], "max-age=")) ) {
+			$expAge = intval(substr($hHeaders['cache-control'], $posMaxage+8));
+			array_push($aTuples, "expAge = " . ($expAge < 0 ? 0 : $expAge)); // non-negative
+		}
+		else if ( array_key_exists('expires', $hHeaders) ) {
+			$expAge = strtotime($hHeaders['expires']) - $now;
+			array_push($aTuples, "expAge = " . ($expAge < 0 ? 0 : $expAge)); // non-negative
 		}
 
 		// NOW add all the headers from both the request and response.
