@@ -512,13 +512,18 @@ function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 			array_push($aTuples, "respCookieLen = $cookielen");
 		}
 		// calculate expAge - number of seconds before resource expires
+		$expAge = NULL;
 		if ( array_key_exists('cache-control', $hHeaders) && FALSE !== ($posMaxage = stripos($hHeaders['cache-control'], "max-age=")) ) {
 			$expAge = intval(substr($hHeaders['cache-control'], $posMaxage+8));
-			array_push($aTuples, "expAge = " . ($expAge < 0 ? 0 : $expAge)); // non-negative
 		}
 		else if ( array_key_exists('expires', $hHeaders) ) {
 			$expAge = strtotime($hHeaders['expires']) - $now;
-			array_push($aTuples, "expAge = " . ($expAge < 0 ? 0 : $expAge)); // non-negative
+		}
+		if ( NULL !== $expAge ) {
+			if ( $expAge < 0 ) {
+				$expAge = 0;
+			}
+			array_push($aTuples, "expAge = $expAge");
 		}
 
 		// NOW add all the headers from both the request and response.
@@ -566,6 +571,7 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 		return false;
 	}
 
+	// initialize variables for counting the page's stats
 	$bytesTotal = 0;
 	$reqTotal = 0;
 	$hSize = array();
@@ -576,8 +582,9 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 		$hCount[$type] = 0;
 	}
 	$hDomains = array();
+	$maxageNull = $maxage0 = $maxage1 = $maxage30 = $maxage365 = $maxageMore = 0;
 
-	$result = doQuery("select mimeType, urlShort, resp_content_type, respSize from $gRequestsTable where pageid = $pageid;");
+	$result = doQuery("select mimeType, urlShort, resp_content_type, respSize, expAge from $gRequestsTable where pageid = $pageid;");
 	while ($row = mysql_fetch_assoc($result)) {
 		$mimeType = prettyMimetype($row['mimeType']);
 		$respSize = intval($row['respSize']);
@@ -607,6 +614,28 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 		else {
 			dprint("ERROR($gPagesTable pageid: $pageid): No hostname found in URL: $url");
 		}
+
+		// count expiration windows
+		$expAge = $row['expAge'];
+		$daySecs = 24*60*60;
+		if ( NULL === $expAge ) {
+			$maxageNull++;
+		}
+		else if ( 0 === $expAge ) {
+			$maxage0++;
+		}
+		else if ( $expAge <= (1 * $daySecs) ) {
+			$maxage1++;
+		}
+		else if ( $expAge <= (30 * $daySecs) ) {
+			$maxage30++;
+		}
+		else if ( $expAge <= (365 * $daySecs) ) {
+			$maxage365++;
+		}
+		else {
+			$maxageMore++;
+		}
 	}
 	mysql_free_result($result);
 	$numDomains = count(array_keys($hDomains));
@@ -623,6 +652,12 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 		", reqfont = " . $hCount['font'] . ", bytesFont = " . $hSize['font'] .
 		", reqOther = " . $hCount['other'] . ", bytesOther = " . $hSize['other'] .
 		", numDomains = $numDomains" .
+		", maxageNull = $maxageNull" .
+		", maxage0 = $maxage0" .
+		", maxage1 = $maxage1" .
+		", maxage30 = $maxage30" .
+		", maxage365 = $maxage365" .
+		", maxageMore = $maxageMore" .
 		", wptid = " . "'" . mysql_real_escape_string($statusInfo['wptid']) . "'" . 
 		", wptrun = " . $statusInfo['medianRun'] . 
 		( $statusInfo['rank'] ? ", rank = " . $statusInfo['rank'] : "" ) .
