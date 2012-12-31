@@ -123,7 +123,7 @@ function submitBatch() {
 // Submit the batch test to WPT server.
 function resubmitFailures() {
 	global $gStatusTable, $gErrBase;
-	$cmd = "update $gStatusTable set status=0, wptid='', wptRetCode='', medianRun=0, startRender=0, pagespeedScore = NULL where status >= $gErrBase;";
+	$cmd = "update $gStatusTable set status=0, wptid='', wptRetCode='', medianRun=0  where status >= $gErrBase;";
 	doSimpleCommand($cmd);
 }
 
@@ -180,7 +180,7 @@ function parseXMLResult($doc, &$result) {
 	global $gbRepeatView;
 
 	$result = array();
-	$median = $doc->getElementsByTagName('median')->item(0);
+	$median = $doc->getElementsByTagName('median')->item(0); // This is the block of info representing ALL the data of the "median" run.
 	if ( ! $median ) {
 		return;
 	}
@@ -190,14 +190,6 @@ function parseXMLResult($doc, &$result) {
 	}
 
 	$result['medianRun'] = (int)$pageview->getElementsByTagName('run')->item(0)->nodeValue;
-	$result['result'] = (int)$pageview->getElementsByTagName('result')->item(0)->nodeValue;
-	$result['loadTime'] = (int)$pageview->getElementsByTagName('docTime')->item(0)->nodeValue;
-	$result['startRender'] = (int)$pageview->getElementsByTagName('render')->item(0)->nodeValue;
-	$result['domElements'] = (int)$pageview->getElementsByTagName('domElements')->item(0)->nodeValue;
-	// PageSpeed Score
-	if ( $pageview->getElementsByTagName('PageSpeedScore') && $pageview->getElementsByTagName('PageSpeedScore')->item(0) ) {
-		$result['pagespeedScore'] = (int)$pageview->getElementsByTagName('PageSpeedScore')->item(0)->nodeValue;
-	}
 }
 
 
@@ -221,7 +213,7 @@ function obtainXMLResult($statusid, $wptid) {
 	$wptServer = wptServer();
 	$doc = new DOMDocument();
 	if ( $doc ) {
-		$request = $wptServer . "xmlResult.php?test=$wptid&pagespeed=1";
+		$request = $wptServer . "xmlResult.php?test=$wptid";
 		$response = fetchUrl($request);
 
 		if ( strlen($response) ) {
@@ -237,10 +229,9 @@ function obtainXMLResult($statusid, $wptid) {
 				if ( array_key_exists('medianRun', $result) ) {
 					// Record medianRun in status table
 					$medianRun = $result['medianRun'];
-					$startRender = $result['startRender'];
-					$domElements = $result['domElements'];  // TODO - save this to DB
-					$pagespeedScore = ( array_key_exists('pagespeedScore', $result) ? "pagespeedScore=" . $result['pagespeedScore'] . "," : "" );
-					$cmd = "UPDATE $gStatusTable SET $pagespeedScore medianRun=$medianRun, startRender=$startRender WHERE statusid=$statusid;";
+					// CVSNO - remove this "obtain" step and skip straight to parse? can we get the medianRun somewhere else?
+					// CVSNO - remove pagespeed, etc. columns from status table
+					$cmd = "UPDATE $gStatusTable SET medianRun = $medianRun WHERE statusid=$statusid;";
 					doSimpleCommand($cmd);
 					setStatus($statusid, META_DONE); 
 				}
@@ -370,16 +361,33 @@ function importPage($page, $statusInfo) {
 	}
 	array_push($aTuples, "url = '" . mysql_real_escape_string($url) . "'");
 	array_push($aTuples, "urlShort = '" . mysql_real_escape_string($urlShort) . "'");
-
-	$pageTimings = $page->{ 'pageTimings' };
-
-	$onContentLoaded = $pageTimings->{ 'onContentLoad' };
-	if ( $onContentLoaded && 0 < $onContentLoaded ) {
-		array_push($aTuples, "onContentLoaded = $onContentLoaded");
+	array_push($aTuples, "onLoad = " . $page->{'_docTime'});
+	if ( $page->{'_TTFB'} ) {
+		array_push($aTuples, "TTFB = " . $page->{'_TTFB'});
 	}
-	$onLoad = $pageTimings->{ 'onLoad' };
-	if ( $onLoad && 0 < $onLoad ) {
-		array_push($aTuples, "onLoad = $onLoad");
+	array_push($aTuples, "renderStart = " . $page->{'_render'});
+	array_push($aTuples, "fullyLoaded = " . $page->{'_fullyLoaded'});
+	array_push($aTuples, "visualComplete = " . $page->{'_visualComplete'});
+	if ( $page->{'_gzip_total'} ) {
+		array_push($aTuples, "gzipTotal = " . $page->{'_gzip_total'});
+		array_push($aTuples, "gzipSavings = " . $page->{'_gzip_savings'});
+	}
+	// CVSNO - add a wrapper function for this monkey business, use json_decode_assoc_array (or whatever it is)
+	if ( $page->{'_domElements'} ) {
+		array_push($aTuples, "numDomElements = " . $page->{'_domElements'});
+	}
+	if ( $page->{'_domContentLoadedEventStart'} ) {
+		array_push($aTuples, "onContentLoaded = " . $page->{'_domContentLoadedEventStart'});
+	}
+	if ( $page->{'_base_page_cdn'} ) {
+		array_push($aTuples, "cdn = '" . mysql_real_escape_string($page->{'_base_page_cdn'}) . "'");
+	}
+	if ( $page->{'_SpeedIndex'} ) {
+		array_push($aTuples, "SpeedIndex = " . $page->{'_SpeedIndex'});
+	}
+	$pageSpeedObj = $page->{'_pageSpeed'};
+	if ( $pageSpeedObj ) {
+		array_push($aTuples, "PageSpeed = " . $pageSpeedObj->{'score'});
 	}
 
 	$cmd = "REPLACE INTO $gPagesTable SET " . implode(", ", $aTuples) . ";";
@@ -392,6 +400,7 @@ function importPage($page, $statusInfo) {
 
 	return $pageid;
 }
+
 
 // Import the requests within a website.
 function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
@@ -551,14 +560,14 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 	$reqTotal = 0;
 	$hSize = array();
 	$hCount = array();
-	foreach(array("flash", "css", "image", "script", "html", "other") as $type) {
+	foreach(array("flash", "css", "image", "script", "html", "font", "other", "gif", "jpg", "png") as $type) {
 		// initialize the hashes
 		$hSize[$type] = 0;
 		$hCount[$type] = 0;
 	}
 	$hDomains = array();
 
-	$result = doQuery("select mimeType, urlShort, respSize from $gRequestsTable where pageid = $pageid;");
+	$result = doQuery("select mimeType, urlShort, resp_content_type, respSize from $gRequestsTable where pageid = $pageid;");
 	while ($row = mysql_fetch_assoc($result)) {
 		$mimeType = prettyMimetype($row['mimeType']);
 		$respSize = intval($row['respSize']);
@@ -566,6 +575,17 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 		$bytesTotal += $respSize;
 		$hCount[$mimeType]++;
 		$hSize[$mimeType] += $respSize;
+
+		if ( "image" === $mimeType ) {
+			$content_type = $row['resp_content_type'];
+			$imgformat = ( false !== stripos($content_type, "image/gif") ? "gif" : 
+						   ( false !== stripos($content_type, "image/jpg") || false !== stripos($content_type, "image/jpeg") ? "jpg" : 
+							 ( false !== stripos($content_type, "image/png") ? "png" : "" ) ) );
+			if ( $imgformat ) {
+				$hCount[$imgformat]++;
+				$hSize[$imgformat] += $respSize;
+			}
+		}
 
 		// count unique domains (really hostnames)
 		$url = $row['urlShort'];
@@ -586,13 +606,15 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 		", reqJS = " . $hCount['script'] . ", bytesJS = " . $hSize['script'] .
 		", reqCSS = " . $hCount['css'] . ", bytesCSS = " . $hSize['css'] .
 		", reqImg = " . $hCount['image'] . ", bytesImg = " . $hSize['image'] .
+		", reqGif = " . $hCount['gif'] . ", bytesGif = " . $hSize['gif'] .
+		", reqJpg = " . $hCount['jpg'] . ", bytesJpg = " . $hSize['jpg'] .
+		", reqPng = " . $hCount['png'] . ", bytesPng = " . $hSize['png'] .
 		", reqFlash = " . $hCount['flash'] . ", bytesFlash = " . $hSize['flash'] .
+		", reqfont = " . $hCount['font'] . ", bytesFont = " . $hSize['font'] .
 		", reqOther = " . $hCount['other'] . ", bytesOther = " . $hSize['other'] .
 		", numDomains = $numDomains" .
 		", wptid = " . "'" . mysql_real_escape_string($statusInfo['wptid']) . "'" . 
 		", wptrun = " . $statusInfo['medianRun'] . 
-		", renderStart = " . $statusInfo['startRender'] . 
-		( array_key_exists('pagespeedScore', $statusInfo) && NULL !== $statusInfo['pagespeedScore'] ? ", PageSpeed = " . $statusInfo['pagespeedScore'] : "" )  .
 		( $statusInfo['rank'] ? ", rank = " . $statusInfo['rank'] : "" ) .
 		" where pageid = $pageid;";
 	doSimpleCommand($cmd);
@@ -727,14 +749,22 @@ function t_echoagg() {
 // Parse out the pithy mime type from the long HTTP response header.
 // This is surprisingly accurate. I spent an hour grepping through the distinct resp_content_types
 // from a single run (Oct 15 2012) and the mistakes were very small - < 0.00001% off.
-function prettyMimetype($mimeType) {
+function prettyMimetype($mimeType, $url) {
 	$mimeType = strtolower($mimeType);
 
 	// do most unique first
-	foreach(array("flash", "css", "image", "script", "html") as $type) {
+	foreach(array("flash", "font", "css", "image", "script", "html") as $type) {
 		if ( false !== strpos($mimeType, $type) ) {
 			return $type;
 		}
+	}
+
+	// some fonts don't have "font" in their mimeType (25% as of 12/2012)
+	if ( preg_match('.*\.eot', $url) || preg_match('.*\.eot\?', $url) ||
+		 preg_match('.*\.ttf', $url) || preg_match('.*\.ttf\?', $url) ||
+		 preg_match('.*\.woff', $url) || preg_match('.*\.woff\?', $url) ||
+		 preg_match('.*\.otf', $url) || preg_match('.*\.otf\?', $url) ) {
+		return "font";
 	}
 
 	return "other";
