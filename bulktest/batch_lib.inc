@@ -513,11 +513,11 @@ function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 		}
 		// calculate expAge - number of seconds before resource expires
 		$expAge = NULL;
-		if ( array_key_exists('cache-control', $hHeaders) && FALSE !== ($posMaxage = stripos($hHeaders['cache-control'], "max-age=")) ) {
-			$expAge = intval(substr($hHeaders['cache-control'], $posMaxage+8));
+		if ( array_key_exists('resp_cache_control', $hHeaders) && FALSE !== ($posMaxage = stripos($hHeaders['resp_cache_control'], "max-age=")) ) {
+			$expAge = intval(substr($hHeaders['resp_cache_control'], $posMaxage+8));
 		}
-		else if ( array_key_exists('expires', $hHeaders) ) {
-			$expAge = strtotime($hHeaders['expires']) - $now;
+		else if ( array_key_exists('resp_expires', $hHeaders) ) {
+			$expAge = strtotime($hHeaders['resp_expires']) - $now;
 		}
 		if ( NULL !== $expAge ) {
 			if ( $expAge < 0 ) {
@@ -583,10 +583,12 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 	}
 	$hDomains = array();
 	$maxageNull = $maxage0 = $maxage1 = $maxage30 = $maxage365 = $maxageMore = 0;
+	$bytesHtmlDoc = $numRedirects = $numErrors = $numGlibs = $numHttps = $numCompressed = $maxDomainReqs = 0;
 
-	$result = doQuery("select mimeType, urlShort, resp_content_type, respSize, expAge from $gRequestsTable where pageid = $pageid;");
+	$result = doQuery("select mimeType, urlShort, resp_content_type, respSize, expAge, firstHtml, status, resp_content_encoding, req_host from $gRequestsTable where pageid = $pageid;");
 	while ($row = mysql_fetch_assoc($result)) {
-		$mimeType = prettyMimetype($row['mimeType']);
+		$url = $row['urlShort'];
+		$mimeType = prettyMimetype($row['mimeType'], $url);
 		$respSize = intval($row['respSize']);
 		$reqTotal++;
 		$bytesTotal += $respSize;
@@ -605,11 +607,13 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 		}
 
 		// count unique domains (really hostnames)
-		$url = $row['urlShort'];
 		$aMatches = array();
 		if ( $url && preg_match('/http[s]*:\/\/([^\/]*)/', $url, $aMatches) ) {
 			$hostname = $aMatches[1];
-			$hDomains[$hostname] = 1; // don't need to count, just find unique domains
+			if ( ! array_key_exists($hostname, $hDomains) ) {
+				$hDomains[$hostname] = 0;
+			}
+			$hDomains[$hostname]++; // count hostnames
 		}
 		else {
 			dprint("ERROR($gPagesTable pageid: $pageid): No hostname found in URL: $url");
@@ -621,7 +625,7 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 		if ( NULL === $expAge ) {
 			$maxageNull++;
 		}
-		else if ( 0 === $expAge ) {
+		else if ( 0 === intval($expAge) ) {
 			$maxage0++;
 		}
 		else if ( $expAge <= (1 * $daySecs) ) {
@@ -636,9 +640,36 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 		else {
 			$maxageMore++;
 		}
+
+		if ( $row['firstHtml'] ) {
+			$bytesHtmlDoc = $respSize;  // CVSNO - can we get this UNgzipped?!
+		}
+
+		$status = $row['status'];
+		if ( 300 <= $status && $status < 400 && 304 != $status ) {
+			$numRedirects++;
+		}
+		else if ( 400 <= $status && $status < 600 ) {
+			$numErrors++;
+		}
+
+		if ( 0 === stripos($url, "https://") ) {
+			$numHttps++;
+		}
+
+		if ( FALSE !== stripos($row['req_host'], "googleapis.com") ) {
+			$numGlibs++;
+		}
+
+		if ( "gzip" == $row['resp_content_encoding'] || "deflate" == $row['resp_content_encoding'] ) {
+			$numCompressed++;
+		}
 	}
 	mysql_free_result($result);
 	$numDomains = count(array_keys($hDomains));
+	foreach (array_keys($hDomains) as $domain) {
+		$maxDomainReqs = max($maxDomainReqs, $hDomains[$domain]);
+	}
 
 	$cmd = "UPDATE $gPagesTable SET reqTotal = $reqTotal, bytesTotal = $bytesTotal" .
 		", reqHtml = " . $hCount['html'] . ", bytesHtml = " . $hSize['html'] .
@@ -649,7 +680,7 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 		", reqJpg = " . $hCount['jpg'] . ", bytesJpg = " . $hSize['jpg'] .
 		", reqPng = " . $hCount['png'] . ", bytesPng = " . $hSize['png'] .
 		", reqFlash = " . $hCount['flash'] . ", bytesFlash = " . $hSize['flash'] .
-		", reqfont = " . $hCount['font'] . ", bytesFont = " . $hSize['font'] .
+		", reqFont = " . $hCount['font'] . ", bytesFont = " . $hSize['font'] .
 		", reqOther = " . $hCount['other'] . ", bytesOther = " . $hSize['other'] .
 		", numDomains = $numDomains" .
 		", maxageNull = $maxageNull" .
@@ -658,6 +689,13 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 		", maxage30 = $maxage30" .
 		", maxage365 = $maxage365" .
 		", maxageMore = $maxageMore" .
+		( $bytesHtmlDoc ? ", bytesHtmlDoc = $bytesHtmlDoc" : "" ) .
+		", numRedirects = $numRedirects" .
+		", numErrors = $numErrors" .
+		", numGlibs = $numGlibs" .
+		", numHttps = $numHttps" .
+		", numCompressed = $numCompressed" .
+		", maxDomainReqs = $maxDomainReqs" .
 		", wptid = " . "'" . mysql_real_escape_string($statusInfo['wptid']) . "'" . 
 		", wptrun = " . $statusInfo['medianRun'] . 
 		( $statusInfo['rank'] ? ", rank = " . $statusInfo['rank'] : "" ) .
@@ -805,10 +843,10 @@ function prettyMimetype($mimeType, $url) {
 	}
 
 	// some fonts don't have "font" in their mimeType (25% as of 12/2012)
-	if ( preg_match('.*\.eot', $url) || preg_match('.*\.eot\?', $url) ||
-		 preg_match('.*\.ttf', $url) || preg_match('.*\.ttf\?', $url) ||
-		 preg_match('.*\.woff', $url) || preg_match('.*\.woff\?', $url) ||
-		 preg_match('.*\.otf', $url) || preg_match('.*\.otf\?', $url) ) {
+	if ( preg_match('/.*\.eot/', $url) || preg_match('/.*\.eot\?/', $url) ||
+		 preg_match('/.*\.ttf/', $url) || preg_match('/.*\.ttf\?/', $url) ||
+		 preg_match('/.*\.woff/', $url) || preg_match('/.*\.woff\?/', $url) ||
+		 preg_match('/.*\.otf/', $url) || preg_match('/.*\.otf\?/', $url) ) {
 		return "font";
 	}
 
