@@ -28,6 +28,10 @@ if ( ! tableExists($gStatusTable) ) {
 
 $maxPasses = 2; // We'll submit failed URLs no more than this number of times.
 $labelFromRun = statusLabel();
+if ( ! $labelFromRun ) {
+	// there's no run to finish
+	exit();
+}
 $curPasses = crawlPasses($labelFromRun, $gArchive, $locations[0]);
 if ( $curPasses >= $maxPasses ) {
 	// Now that we're running as a cronjob, we need to emit nothing to stdout when we're all done.
