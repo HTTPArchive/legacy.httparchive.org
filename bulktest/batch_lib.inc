@@ -11,7 +11,7 @@ define("DONE", 4);
 // The status table saves $gErrBase + i to indicate that there is a permanent error happens when the test is in the status i.
 $gErrBase = 900;
 // The list of tasks for a batch run.
-$gNumParse = 10; // the number of parse tasks to fork
+$gNumParse = 5; // the number of parse tasks to fork
 $gaTasks = array("submit", "status", "obtain");
 for ( $i = 1; $i <= $gNumParse; $i++ ) {
 	array_push($gaTasks, "parse" . $i); // dynamically create the desired number of parse tasks
@@ -21,15 +21,26 @@ $gbRepeatView = false; // Currently you have to MANUALLY change this to true if 
 
 // Obtain the tests with specified status code
 // $divisor and $modulo let us split the job across multiple processes, 
-// eg, you could have 3 processes ($divisor=3) where proc 1 is modulo 1 ($modulo=1), proc 2 is 2 ($modulo=2), and proc 3 is 0 ($modulo=0)
+// eg, you could have 3 processes ($divisor=3) where proc 1 is modulo 0 ($modulo=0), proc 2 is 1 ($modulo=1), and proc 3 is 2 ($modulo=2)
 function obtainTestsWithCode($status, $divisor=NULL, $modulo=NULL) {
 	global $gStatusTable;
 
-	if ( $divisor && ($divisor > $modulo) ) {
+	if ( NULL === $divisor && NULL === $modulo ) {
+		// no splitting
+		$query = "SELECT * FROM $gStatusTable WHERE status = $status;";
+	}
+	else if ( NULL === $divisor || NULL === $modulo ) {
+		// error - not sure what the caller wanted
+		dprint("ERROR: obtainTestsWithCode must be called with BOTH divisor and modulo non-NULL.");
+		return NULL;
+	}
+	else if ( $divisor && ($divisor > $modulo) ) {
 		$query = "SELECT * FROM $gStatusTable WHERE status = $status and $modulo = (statusid % $divisor);";
 	}
 	else {
-		$query = "SELECT * FROM $gStatusTable WHERE status = $status;";
+		// some other error - modulo too high? need to zero-base
+		dprint("ERROR: obtainTestsWithCode unknown error.");
+		return NULL;
 	}
 
 	return doQuery($query);
@@ -256,9 +267,15 @@ function fillTables($divisor=NULL, $modulo=NULL) {
 	$tests = obtainTestsWithCode(META_DONE, $divisor, $modulo);
 
 	if ( !IsEmptyQuery($tests) ) {
+		$totalParsed = 0;
 		while ($statusInfo = mysql_fetch_assoc($tests)) {
+			t_mark('importWptResults');
 			$status = importWptResults($statusInfo);
+			t_aggregate('importWptResults');
 			setStatus($statusInfo['statusid'], $status);
+			$totalParsed++;
+			//dprint("parse proc # " . (1+$modulo) . ", statusid = " . $statusInfo['statusid'] . ", total = $totalParsed");
+			//t_echoagg();
 		}
 	}
 }
@@ -310,6 +327,7 @@ function importHarJson($json_text, $statusInfo) {
 	// STEP 1: Create a partial "page" record so we get a pageid.
 	t_mark('ImportPage');
 	$pageid = importPage($pages[0], $statusInfo);
+	t_aggregate('ImportPage');
 	if ( $pageid ) {
 		$entries = $log->{ 'entries' };
 		// STEP 2: Create all the resources & associate them with the pageid.
@@ -317,6 +335,7 @@ function importHarJson($json_text, $statusInfo) {
 		$firstHtmlUrl = "";
 		t_mark('ImportEntries');
 		$bEntries = importEntries($entries, $pageid, $firstUrl, $firstHtmlUrl);
+		t_aggregate('Importentries');
 		if ( false === $bEntries ) {
 			dprint("ERROR($gStatusTable statusid: $statusInfo[statusid]): ImportEntries failed. Purging pageid $pageid");
 			purgePage($pageid);
@@ -344,6 +363,10 @@ function importPage($page, $statusInfo) {
 	global $gPagesTable, $gRequestsTable;
 	$archive = $statusInfo['archive'];
 	$label = $statusInfo['label'];
+	if ( ! $label ) {
+		dprint("ERROR: 'label' was null in importPage");
+		return null;
+	}
 	$url = $statusInfo['url'];
 	$urlShort = substr($url, 0, 255);
 
@@ -356,9 +379,7 @@ function importPage($page, $statusInfo) {
 	$startedDateTime = strtotime($page->{ 'startedDateTime' });
 	array_push($aTuples, "startedDateTime = $startedDateTime");
 	array_push($aTuples, "archive = '" . mysql_real_escape_string($archive) . "'");
-	if ( $label ) {
-		array_push($aTuples, "label = '" . mysql_real_escape_string($label) . "'");
-	}
+	array_push($aTuples, "label = '" . mysql_real_escape_string($label) . "'");
 	array_push($aTuples, "url = '" . mysql_real_escape_string($url) . "'");
 	array_push($aTuples, "urlShort = '" . mysql_real_escape_string($urlShort) . "'");
 	array_push($aTuples, "onLoad = " . $page->{'_docTime'});
@@ -390,13 +411,26 @@ function importPage($page, $statusInfo) {
 		array_push($aTuples, "PageSpeed = " . $pageSpeedObj->{'score'});
 	}
 
-	$cmd = "REPLACE INTO $gPagesTable SET " . implode(", ", $aTuples) . ";";
-	doSimpleCommand($cmd);
+	$cmd = "INSERT INTO $gPagesTable SET " . implode(", ", $aTuples) . ";";
+	t_mark('importPage: insert into pages');
+	$pageid = doLastInsertId($cmd);
+	t_aggregate('importPage: insert into pages');
 
-	// get the pageid based on some fairly unique values that we just saved (hacky)
-	$cmd = "SELECT pageid FROM $gPagesTable WHERE startedDateTime=$startedDateTime AND createDate='$now'" .
-		" AND url='" . mysql_real_escape_string($url) . "';";
-	$pageid = doSimpleQuery($cmd);
+	if ( ! $pageid ) {
+		// There was no inserted row. This is likely a duplicate entry error. Let's REPLACE.
+		$cmd = "REPLACE INTO $gPagesTable SET " . implode(", ", $aTuples) . ";";
+		dprint("Replacing page - dupe record? $cmd");
+		t_mark('importPage: replace into pages');
+		doSimpleCommand($cmd);
+		t_aggregate('importPage: replace into pages');
+
+		// get the pageid based on some fairly unique values that we just saved (hacky)
+		$cmd = "SELECT pageid FROM $gPagesTable WHERE startedDateTime=$startedDateTime AND createDate='$now'" .
+			" AND url='" . mysql_real_escape_string($url) . "';";
+		t_mark('importPage: select pageid');
+		$pageid = doSimpleQuery($cmd);
+		t_aggregate('importPage: select pageid');
+	}
 
 	return $pageid;
 }
@@ -818,14 +852,14 @@ function t_aggregate($name) {
 }
 
 function t_echo($name) {
-	echo "$name: " . t_measure($name) . "\n";
+	dprint("$name: " . t_measure($name));
 }
 
 function t_echoagg() {
 	global $gAggTimes, $gAggCounts;
 
 	foreach(array_keys($gAggTimes) as $key) {
-		echo "$key: total=" . $gAggTimes[$key] . ", avg=" . round($gAggTimes[$key]/$gAggCounts[$key]) . "\n";
+		dprint("$key: total=" . $gAggTimes[$key] . ", avg=" . round($gAggTimes[$key]/$gAggCounts[$key]));
 	}
 }
 
