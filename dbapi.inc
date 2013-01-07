@@ -25,6 +25,7 @@ $gStatusTable = "status";
 $gUrlsTable = "urls";
 $gUrlsChangeTable = "urlschange";
 $gStatsTable = "stats";
+$gCrawlsTable = "crawls";
 $gSettingsTable = "settings"; // for storing misc settings persistently
 
 // Desktop tables
@@ -867,6 +868,32 @@ function doSimpleQuery($query) {
 	}
 
 	return $value;
+}
+
+
+// This takes an INSERT command and returns the result of last_insert_id().
+// This is only useful if the INSERT command causes an AUTO_INCREMENT column to be updated.
+// We have to do this because last_insert_id only works with the same connection.
+// TODO - investigate only using one connection
+function doLastInsertId($cmd) {
+	global $gMysqlServer, $gMysqlDb, $gMysqlUsername, $gMysqlPassword;
+
+	$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
+	$last_insert_id = null;
+	if ( mysql_select_db($gMysqlDb) ) {
+		//dprint("doSimpleCommand: $cmd");
+		$result = mysql_query($cmd, $link);
+		//mysql_close($link); // the findCorrelation code relies on the link not being closed
+		if ( ! $result ) {
+			dprint("ERROR in doSimpleCommand: '" . mysql_error() . "' for command: " . $cmd);
+		}
+		else {
+			$last_result = mysql_query("select last_insert_id()", $link);
+			$row = mysql_fetch_array($last_result);
+			$last_insert_id = $row[0];
+		}
+	}
+	return $last_insert_id;
 }
 
 
