@@ -6,7 +6,7 @@ gDevDir := /var/www/httparchive.dev
 # create "downloads" symlink back to /var/www/httparchive.dev/downloads
 
 push :
-	cp -p *.php *.inc *.js *.css favicon.ico robots.txt $(gDesktopDir)/.
+	cp -p *.php *.inc *.js *.css favicon.ico apple-*.png robots.txt $(gDesktopDir)/.
 	/bin/rm $(gDesktopDir)/admin.php
 	mkdir -p $(gDesktopDir)/images
 	cp -p images/*.* $(gDesktopDir)/images/.
@@ -16,7 +16,7 @@ push :
 	echo "CVSNO: ln -s $(gDevDir)/aaa/harviewer/webapp harviewer"
 
 pushmobile :
-	cp -p *.php *.inc *.js *.css favicon.ico robots.txt $(gMobileDir)/.
+	cp -p *.php *.inc *.js *.css favicon.ico apple-*.png robots.txt $(gMobileDir)/.
 	/bin/rm $(gMobileDir)/admin.php
 	/bin/rm $(gMobileDir)/addsite.php
 	/bin/rm $(gMobileDir)/removesite.php
