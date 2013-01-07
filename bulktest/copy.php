@@ -111,12 +111,19 @@ $cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table --comple
 exec($cmd);
 lprint("...mysqldump file created: $dumpfile.gz");
 
-// only create these for desktop
+// crawls mysql dump
+$dumpfile = "../downloads/httparchive_crawls";
+lprint("Creating mysqldump file $dumpfile ...");
+$cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gCrawlsTable | gzip > $dumpfile.gz";
+exec($cmd);
+lprint("...mysqldump file created: $dumpfile.gz");
+
+// schema & urls dumps - only create these for desktop
 if ( ! $gbMobile ) {
 	// schema mysql dump
 	$dumpfile = "../downloads/httparchive_schema.sql";
 	lprint("Creating mysqldump file $dumpfile ...");
-	$cmd = "mysqldump --no-data --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop $gRequestsTableDesktop $gPagesTableDesktop $gRequestsTableMobile $gPagesTableMobile > $dumpfile";
+	$cmd = "mysqldump --no-data --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop $gRequestsTableDesktop $gPagesTableDesktop $gRequestsTableMobile $gPagesTableMobile $gCrawlsTable > $dumpfile";
 	exec($cmd);
 	lprint("...mysqldump file created: $dumpfile");
 
