@@ -75,7 +75,7 @@ $harfileWptUrl = wptHarFileUrl($wptid, $wptrun, 0);
 <div><a href="<?php echo rankUrl($url) ?>">Alexa rank: <?php echo commaize( rank($url, $gPageid) ) ?></a></div>
 <div>
 <?php 
-echo diffRuns($url, $gLabel) 
+echo diffRuns($url, $gLabel);
 ?>
 </div>
 
@@ -90,7 +90,7 @@ echo diffRuns($url, $gLabel)
 		<li><a href="#downloads">Downloads</a></li>
 	</ul>
 	
-	<?php echo selectSiteLabel($url, $gLabel) ?>
+	<?php echo selectSiteLabel($url, $gLabel); ?>
 
 
 <h2 id=filmstrip>Filmstrip, Video</h2>
