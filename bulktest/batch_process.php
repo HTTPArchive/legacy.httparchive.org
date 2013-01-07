@@ -117,9 +117,9 @@ foreach ( $gaTasks as $task ) {
 				obtainXMLResults();
 			} 
 			else if ( 0 === strpos($task, "parse") ) {
-				$n = intval(substr($task, strlen("parse")));
+				$n = intval(substr($task, strlen("parse")));  // extract the process # from the parse task
 				// Fill page table and request table
-				fillTables($gNumParse, $n);
+				fillTables($gNumParse, $n-1);  // use the process # as a way to divvy up the jobs, use n-1 since it has to be zero-based
 			}
 			fclose($fp);
 			lprint("...DONE with task \"$task\"!");
