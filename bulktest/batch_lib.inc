@@ -417,19 +417,12 @@ function importPage($page, $statusInfo) {
 	t_aggregate('importPage: insert into pages');
 
 	if ( ! $pageid ) {
-		// There was no inserted row. This is likely a duplicate entry error. Let's REPLACE.
-		$cmd = "REPLACE INTO $gPagesTable SET " . implode(", ", $aTuples) . ";";
-		dprint("Replacing page - dupe record? $cmd");
-		t_mark('importPage: replace into pages');
-		doSimpleCommand($cmd);
-		t_aggregate('importPage: replace into pages');
-
-		// get the pageid based on some fairly unique values that we just saved (hacky)
-		$cmd = "SELECT pageid FROM $gPagesTable WHERE startedDateTime=$startedDateTime AND createDate='$now'" .
-			" AND url='" . mysql_real_escape_string($url) . "';";
-		t_mark('importPage: select pageid');
-		$pageid = doSimpleQuery($cmd);
-		t_aggregate('importPage: select pageid');
+		// There was no inserted row. This is likely a duplicate entry error. 
+		// We used to REPLACE these records but that is less desirable because
+		// it takes longer, creates orphaned rows in the requests table, and 
+		// requires more code. There's no conclusion which is better - the initial 
+		// one or the one we're doing now. So let's just keep the initial one.
+		return null;
 	}
 
 	return $pageid;
