@@ -22,13 +22,11 @@ $requestsTable = $gRequestsTable;
 
 $device = ( $gbMobile ? "iphone" : "IE8" );
 
-$label = $dumpfile = null;
+$label = null;
 if ( array_key_exists(1, $argv) ) {
 	$label = $argv[1];
 }
-if ( array_key_exists(2, $argv) ) {
-	$dumpfile = $argv[2];
-}
+
 if ( ! $label ) {
 	tprint("ERROR: you must specify the label, eg, \"Nov 15 2012\".");
 	exit();
@@ -42,23 +40,38 @@ if ( FALSE === $crawl ) {
 $minPageid = $crawl['minPageid'];
 $maxPageid = $crawl['maxPageid'];
 $pageidCond = "pageid >= $minPageid and pageid <= $maxPageid";
-
+tprint("$label: pageids $minPageid - $maxPageid");
 
 // 1. RESTORE DUMP FILE?
 tprint("\n1. Checking if dumpfile needs to be restored...");
 if ( ! resourcesAvailableFromTable($minPageid) || ! resourcesAvailableFromTable($maxPageid) ) {
-	if ( ! $dumpfile ) {
-		tprint("ERROR: Need to specify dump file to restore requests.");
+	$dumpfile = "httparchive_" . str_replace(" ", "_", $label) . ".gz";
+	tprint("Ugh! We need to restore dumpfile $dumpfile.");
+	if ( ! file_exists( $dumpfile ) ) {
+		$dumpUrl = "http://www.archive.org/download/httparchive_downloads/$dumpfile";
+		tprint("Downloading dump file $dumpUrl...");
+		exec("wget $dumpUrl");
+		tprint("...done downloading.");
+	}
+	if ( ! file_exists( $dumpfile ) ) {
+		tprint("ERROR: download failed.");
 		exit();
 	}
-	else {
-		tprint("Restoring dump file \"$dumpfile\"...");
-		tprint("CVSNO - ADD THIS CODE!!!");
-		// restore redirectUrlShort column!
+	tprint("Restoring dump file \"$dumpfile\"...");
+	$cmd = "gunzip -c $dumpfile | mysql -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb";
+	exec($cmd);
+	tprint("...done restoring dump file.");
+	if ( ! resourcesAvailableFromTable($minPageid) || ! resourcesAvailableFromTable($maxPageid) ) {
+		tprint("ERROR: after dump requests are STILL missing.");
 		exit();
 	}
+	tprint("Requests were restored successfully.");
+	exec("unlink $dumpfile");
+	tprint("Deleted $dumpfile.");
 }
-tprint("...don't need to restore dumpfile - requests exist in $requestsTable table.");
+else {
+	tprint("...don't need to restore dumpfile - requests exist in $requestsTable table.");
+}
 
 
 
@@ -78,9 +91,10 @@ tprint("...no orphaned records.");
 
 
 // 3. Calculate requests' expAge
+/* CVSNO
 tprint("\n3. Checking if expAge needs calculating...");
 $numExpage = doSimpleQuery("select count(*) from $requestsTable where $pageidCond and expAge != 0;");
-if ( $numExpage < round( ($maxPageid - $minPageid) * 0.2 ) ) {
+if ( $numExpage < ($maxPageid - $minPageid) * 20 ) {
 	tprint("Only $numExpage record(s) have expAge calculated so we're going to recalculate for all of them.");
 	$query = "select requestid, resp_cache_control, resp_expires, startedDateTime from $requestsTable where $pageidCond and (resp_cache_control like '%max-age=%' or resp_expires is not null);";
 	tprint("  doing query: $query");
@@ -132,97 +146,80 @@ if ( $numExpage < round( ($maxPageid - $minPageid) * 0.2 ) ) {
 	mysql_free_result($result);
 }
 tprint("...done checking expAge.");
-
+CVSNO */
 
 
 // 4. Update new fields in pages (based on requests & WPT HAR).
 tprint("\n4. Update new pages fields...");
-$query = "select pageid from $pagesTable where $pageidCond and maxDomainReqs = 0;";
-//$query = "select pageid from $pagesTable where $pageidCond and maxDomainReqs = 0 limit 10;"; // CVSNO
+$query = "select pageid, wptid, wptrun from $pagesTable where $pageidCond and maxDomainReqs = 0;";
 $result = doQuery($query);
 $iPages = 0;
+// use one link to make it faster?
+$gLink = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
 while ($row = mysql_fetch_assoc($result)) {
-	$pageid = $row['pageid'];
-	importPageMod($pageid);
+	importPageMod($row['pageid'], $row['wptid'], $row['wptrun']);
 	$iPages++;
-	if ( 0 === ( $iPages % 10000 ) ) {
+	if ( 0 === ( $iPages % 1000 ) ) {
 		tprint("    finished " . ($iPages/1000) . "K");
 	}
 }
 tprint("...done updating new pages fields.");
-/*
- importPage: TTFB
- importPage: numDomElements
- importPage: fullyLoaded
- importPage: cdn
- importPage: SpeedIndex
- importPage: visualComplete
- importPage: gzipTotal
- importPage: gzipSavings
 
- aggStats: reqGif
- aggStats: reqJpg
- aggStats: reqPng
- aggStats: reqFont
- aggStats: bytesGif
- aggStats: bytesJpg
- aggStats: bytesPng
- aggStats: bytesFont
- aggStats: maxageNull
- aggStats: maxage0
- aggStats: maxage1
- aggStats: maxage30
- aggStats: maxage365
- aggStats: maxageMore
- aggStats: numCompressed
- aggStats: numHttps
- aggStats: numGlibs
- aggStats: numErrors
- aggStats: numRedirects
- aggStats: maxDomainReqs
- aggStats: bytesHtmlDoc
-*/
+
+
+// 5. Recalculate stats
+tprint("\n5. Recalculate stats...");
+// CVSNO - There's no way to skip this step if it's already been done.
+// CVSNO - could test for bytesFont or perFonts
+removeStats($label, NULL, $device);
+computeMissingStats($device, true);
+tprint("...done recalculating stats.");
+
+
+
+// 6. Mysqldump
+$labelUnderscore = str_replace(" ", "_", $label);
+tprint("You have to do the mysqldumps yourself.\n" .
+	   "  1. You have to remove the redirectUrlShort column:\n" .
+	   "      alter table requests drop column redirectUrlShort;\n" .
+	   "  2. dump pages table:\n" .
+	   "      mysqldump --where='pageid >= $minPageid and pageid <= $maxPageid' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $pagesTable | gzip > httparchive_" . $labelUnderscore . "_pages.gz\n" .
+	   "  3. dump requests table:\n" .
+	   "      mysqldump --where='pageid >= $minPageid and pageid <= $maxPageid' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $requestsTable | gzip > httparchive_" . $labelUnderscore . "_requests.gz\n" .
+	   "  4. Delete requests rows:\n" .
+	   "      delete from $requestsTable where $pageidCond;\n");
+
 tprint("DONE!");
-
 
 exit();
 
-/*
-new fields in pages
-recalc stats
-REMOVE redirectUrlShort!!!
-mysqldump
-*/
 
-function tprint($msg) {
-	echo date("H:i:s") . " $msg\n";
+
+
+
+function tprint($msg, $tstart = null) {
+	echo date("H:i:s") . ( $tstart ? " " . (time() - $tstart) . " seconds:" : "" ) . " $msg\n";
 }
 
 
 // shortened version from batch_lib.inc
 // $page
-function importPageMod($pageid) {
-	global $pagesTable, $requestsTable;
+function importPageMod($pageid, $wptid, $medianRun) {
+	global $pagesTable, $requestsTable, $gLink;
+	$t_CVSNO = time();
 
-	$query = "select wptid, wptrun from $pagesTable where pageid = $pageid;";
-	$row = doRowQuery($query);
-	if ( ! $row ) {
-		tprint("ERROR: importPageMod($pageid): failed to find row: $query");
-		return;
-	}
-
-	// lifted from importWptResults
-	$wptid = $row['wptid'];
-	$medianRun = $row['wptrun'];
 	if ( ! $wptid || ! $medianRun ) {
 		tprint("ERROR: importPageMod($pageid): failed to find wptid and wptrun: $wptid, $medianRun");
 		return;
 	}
+
+	// lifted from importWptResults
 	$wptServer = wptServer();
 	$request = $wptServer . "export.php?test=$wptid&run=$medianRun&cached=0&php=1";
 	$response = fetchUrl($request);
+	tprint("after fetchUrl", $t_CVSNO);
 	if ( ! strlen($response) ) {
-		tpring("ERROR: importPageMod($pageid): URL failed: $request");
+		tprint("ERROR: importPageMod($pageid): URL failed: $request");
 		return;
 	}
 
@@ -246,28 +243,29 @@ function importPageMod($pageid) {
 	$aTuples = array();
 
 	// Add all the insert tuples to an array.
-	if ( $page->{'_TTFB'} ) {
+	if ( array_key_exists('_TTFB', $page) ) {
 		array_push($aTuples, "TTFB = " . $page->{'_TTFB'});
 	}
 	array_push($aTuples, "fullyLoaded = " . $page->{'_fullyLoaded'});
-	array_push($aTuples, "visualComplete = " . $page->{'_visualComplete'});
-	if ( $page->{'_gzip_total'} ) {
+	if ( array_key_exists('_visualComplete', $page) ) {
+		array_push($aTuples, "visualComplete = " . $page->{'_visualComplete'});
+	}
+	if ( array_key_exists('_gzip_total', $page) ) {
 		array_push($aTuples, "gzipTotal = " . $page->{'_gzip_total'});
 		array_push($aTuples, "gzipSavings = " . $page->{'_gzip_savings'});
 	}
-	if ( $page->{'_domElements'} ) {
+	if ( array_key_exists('_domElements', $page) ) {
 		array_push($aTuples, "numDomElements = " . $page->{'_domElements'});
 	}
-	if ( $page->{'_domContentLoadedEventStart'} ) {
+	if ( array_key_exists('_domContentLoadedEventStart', $page) ) {
 		array_push($aTuples, "onContentLoaded = " . $page->{'_domContentLoadedEventStart'});
 	}
-	if ( $page->{'_base_page_cdn'} ) {
+	if ( array_key_exists('_base_page_cdn', $page) ) {
 		array_push($aTuples, "cdn = '" . mysql_real_escape_string($page->{'_base_page_cdn'}) . "'");
 	}
-	if ( $page->{'_SpeedIndex'} ) {
+	if ( array_key_exists('_SpeedIndex', $page) ) {
 		array_push($aTuples, "SpeedIndex = " . $page->{'_SpeedIndex'});
 	}
-
 
 	// lifted from aggregateStats
 	// initialize variables for counting the page's stats
@@ -284,7 +282,8 @@ function importPageMod($pageid) {
 	$maxageNull = $maxage0 = $maxage1 = $maxage30 = $maxage365 = $maxageMore = 0;
 	$bytesHtmlDoc = $numRedirects = $numErrors = $numGlibs = $numHttps = $numCompressed = $maxDomainReqs = 0;
 
-	$result = doQuery("select mimeType, urlShort, resp_content_type, respSize, expAge, firstHtml, status, resp_content_encoding, req_host from $requestsTable where pageid = $pageid;");
+	$result = doQuery("select mimeType, urlShort, resp_content_type, respSize, expAge, firstHtml, status, resp_content_encoding, req_host from $requestsTable where pageid = $pageid;", $gLink);
+	tprint("after query", $t_CVSNO);
 	while ($row = mysql_fetch_assoc($result)) {
 		$url = $row['urlShort'];
 		$mimeType = prettyMimetype($row['mimeType'], $url);
@@ -397,7 +396,9 @@ function importPageMod($pageid) {
 		", maxDomainReqs = $maxDomainReqs" .
 		" where pageid = $pageid;";
 	//tprint("$cmd");
-	doSimpleCommand($cmd);
+	tprint("before update", $t_CVSNO);
+	doSimpleCommand($cmd, $gLink);
+	tprint("after update\n", $t_CVSNO);
 }
 
 
