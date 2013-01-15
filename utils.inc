@@ -1630,7 +1630,8 @@ function onBlacklist($url) {
 function dumpfileEpochTime($filename) {
 	global $ghMonths;
 
-	if ( preg_match('/.*_([A-Z][a-z][a-z])_([0-9]+)_(2[0-9][0-9][0-9])\.gz/', $filename, $aMatches) ) {
+	// try to match the date part of the dump names, eg, "httparchive_Nov_15_2010_pages.gz"
+	if ( preg_match('/httparchive.*_([JFMASOND][a-z][a-z])_([0-9]+)_(2[0-9][0-9][0-9]).*\.gz/', $filename, $aMatches) ) {
 		$month = $ghMonths[$aMatches[1]];
 		$day = $aMatches[2];
 		$year = $aMatches[3];
