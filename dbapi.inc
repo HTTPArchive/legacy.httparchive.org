@@ -176,6 +176,7 @@ function sliceCond($label, $slice, $device, $url = "") {
 		$sliceCond = "pageid in ('" . implode("','", $aPageids) . "')";
 	}
 	else if ( "Top100" === $slice || "Top1000" === $slice ) {
+		// CVSNO - replace this (expensive!) with using rank. Need to fallback to this before rank was available. And if "requests" table is accessed. (Which it shouldn't be.)
 		$urls = ( "Top100" === $slice ? $gaTop100 : $gaTop1000 );
 		$query = "select pageid from $pagesTable where $sliceCond and url in ('" . implode("','", $urls) . "');";
 		$result = doQuery($query);
@@ -258,6 +259,10 @@ $gaTrendStats = array(
 					  "reqFlash",
 					  "reqJson",
 					  "reqOther",
+					  "reqFont",
+					  "reqGif",
+					  "reqJpg",
+					  "reqPng",
 					  "bytesTotal",
 					  "bytesHtml",
 					  "bytesJS",
@@ -266,6 +271,10 @@ $gaTrendStats = array(
 					  "bytesFlash",
 					  "bytesJson",
 					  "bytesOther",
+					  "bytesFont",
+					  "bytesGif",
+					  "bytesJpg",
+					  "bytesPng",
 					  "numDomains"
 					  );
 
@@ -560,7 +569,7 @@ function computeCorrelations($label, $slice, $device, $sliceCond, $var1) {
 // "Special" stats that often require a more complex query against the requests table.
 function computeOther($label, $slice, $device, $sliceCond, &$hTuples = array()) {
 	$pagesTable = pagesTable($label, $slice, $device);
-	$requestsTable = requestsTable($label, $slice, $device);
+	$requestsTable = requestsTable($label, $slice, $device); // CVSNO - shouldn't need this any more
 
 	// total page & request count so we can do percentages
 	$totalPages = doSimpleQuery("select count(*) from $pagesTable where $sliceCond;");
@@ -568,13 +577,13 @@ function computeOther($label, $slice, $device, $sliceCond, &$hTuples = array()) 
 
 	// redirects
 	if ( !array_key_exists('perRedirects', $hTuples) || null === $hTuples['perRedirects'] ) {
-		$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and status>=300 and status<400 and status!=304;");
+		$num = doSimpleQuery("select count(*) from $pagesTable where $sliceCond and numRedirects > 0;");
 		$hTuples['perRedirects'] = round(100*$num/$totalPages);
 	}
 
 	// errors
 	if ( !array_key_exists('perErrors', $hTuples) || null === $hTuples['perErrors'] ) {
-		$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and status>=400 and status<600;");
+		$num = doSimpleQuery("select count(*) from $pagesTable where $sliceCond and numErrors > 0;");
 		$hTuples['perErrors'] = round(100*$num/$totalPages);
 	}
 
@@ -586,91 +595,39 @@ function computeOther($label, $slice, $device, $sliceCond, &$hTuples = array()) 
 
 	// custom fonts
 	if ( !array_key_exists('perFonts', $hTuples) || null === $hTuples['perFonts'] ) {
-		$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and ( " .
-							 "(resp_content_type like '%font%') or " .   // content-type contains "font"
-							 "(urlShort like 'http://use.typekit.%' and resp_content_type = 'text/css') or " . // TypeKit CSS with data: URIs
-							 "(url like '%.eot' or url like '%.eot?%' or url like '%.ttf' or url like '%.ttf?%' or url like '%.ttc' or url like '%.ttc?%' or url like '%.woff' or url like '%.woff?%' or url like '%.otf' or url like '%.otf?%')" . // file extension
-							 ");");
+		$num = doSimpleQuery("select count(*) from $pagesTable where $sliceCond and reqFont > 0;");
 		$hTuples['perFonts'] = round(100*$num/$totalPages);
 	}
 
 	// Google Ajax Libraries	
 	if ( !array_key_exists('perGlibs', $hTuples) || null === $hTuples['perGlibs'] ) {
-		$num = doSimpleQuery("select count(distinct pageid) from $requestsTable where $sliceCond and url like '%googleapis.com%';");
+		$num = doSimpleQuery("select count(*) from $pagesTable where $sliceCond and numGlibs > 0;");
 		$hTuples['perGlibs'] = round(100*$num/$totalPages);
 	}
 
 	// https
 	if ( !array_key_exists('perHttps', $hTuples) || null === $hTuples['perHttps'] ) {
-		$num = doSimpleQuery("select count(*) from $requestsTable where $sliceCond and url like 'https://%'");
+		$num = doSimpleQuery("select sum(numHttps) from $pagesTable where $sliceCond;");
 		$hTuples['perHttps'] = round(100*$num/$totalRequests);
 	}
 
-
-	// max-age caching
+	// max-age caching - percent of requests in each histogram bin
 	if ( !array_key_exists('maxageNull', $hTuples) || null === $hTuples['maxageNull'] ) {
-		$query = "select ceil( convert( substring( resp_cache_control, (length(resp_cache_control) + 2 - locate('=ega-xam', reverse(resp_cache_control))) ), SIGNED ) / 86400) as maxagedays, count(*) as num from $requestsTable where $sliceCond and resp_cache_control like '%max-age=%' group by maxagedays order by maxagedays asc;";
-		$result = doQuery($query);
-		$zeroOrNeg = $day = $month = $year = $yearplus = 0;
-		while ($row = mysql_fetch_assoc($result)) {
-			$maxagedays = $row['maxagedays'];
-			$num = $row['num'];
-
-			if ( $maxagedays < 1 ) {
-				$zeroOrNeg += $num;
-			}
-			else if ( 1 == $maxagedays ) {
-				$day = $num;
-			}
-			else if ( 1 < $maxagedays && $maxagedays <= 30 ) {
-				$month += $num;
-			}
-			else if ( 30 < $maxagedays && $maxagedays <= 365 ) {
-				$year += $num;
-			}
-			else if ( 365 < $maxagedays ) {
-				$yearplus += $num;
-			}
-		}
-		mysql_free_result($result);
-		$hTuples['maxageNull'] = round(100 * ($totalRequests - ($zeroOrNeg + $day + $month + $year + $yearplus))/$totalRequests);
-		$hTuples['maxage0'] = round(100 * $zeroOrNeg / $totalRequests);
-		$hTuples['maxage1'] = round(100 * $day / $totalRequests);
-		$hTuples['maxage30'] = round(100 * $month / $totalRequests);
-		$hTuples['maxage365'] = round(100 * $year / $totalRequests);
-		$hTuples['maxageMore'] = round(100 * $yearplus / $totalRequests);
-	}
-
-	// requests and bytes for GIF, JPG, and PNG
-	if ( !array_key_exists('reqGif', $hTuples) || null === $hTuples['reqGif'] ) {
-		$row = doRowQuery("select count(*) as req, TRUNCATE(AVG(respSize), 1) as bytes from $requestsTable where $sliceCond and resp_content_type like '%image/gif%';");
-		$hTuples['reqGif'] = $row['req'] / $totalPages;
-		$hTuples['bytesGif'] = ($row['req'] / $totalPages) * $row['bytes'];
-
-		$row = doRowQuery("select count(*) as req, TRUNCATE(AVG(respSize), 1) as bytes from $requestsTable where $sliceCond and (resp_content_type like '%image/jpg%' or resp_content_type like '%image/jpeg%');");
-		$hTuples['reqJpg'] = $row['req'] / $totalPages;
-		$hTuples['bytesJpg'] = ($row['req'] / $totalPages) * $row['bytes'];
-
-		$row = doRowQuery("select count(*) as req, TRUNCATE(AVG(respSize), 1) as bytes from $requestsTable where $sliceCond and resp_content_type like '%image/png%';");
-		$hTuples['reqPng'] = $row['req'] / $totalPages;
-		$hTuples['bytesPng'] = ($row['req'] / $totalPages) * $row['bytes'];
+		$row = doRowQuery("select sum(maxageNull) as maxageNull, sum(maxage0) as maxage0, sum(maxage1) as maxage1, sum(maxage30) as maxage30, sum(maxage365) as maxage365, sum(maxageMore) as maxageMore from $pagesTable where $sliceCond;");
+		$hTuples['maxageNull'] = round(100 * $row['maxageNull'] /$totalRequests);
+		$hTuples['maxage0'] = round(100 * $row['maxage0'] / $totalRequests);
+		$hTuples['maxage1'] = round(100 * $row['maxage1'] / $totalRequests);
+		$hTuples['maxage30'] = round(100 * $row['maxage30'] / $totalRequests);
+		$hTuples['maxage365'] = round(100 * $row['maxage365'] / $totalRequests);
+		$hTuples['maxageMore'] = round(100 * $row['maxageMore'] / $totalRequests);
 	}
 
 	// gzip
 	if ( !array_key_exists('perCompressed', $hTuples) || null === $hTuples['perCompressed'] ) {
-		$query = "select resp_content_encoding, count(*) as num from $requestsTable where $sliceCond and respSize > 1024 and mimeType in ('text/html', 'application/x-javascript', 'text/javascript', 'text/css', 'application/javascript', 'text/plain', 'text/xml', 'font/eot', 'application/xml', 'application/json', 'text/json', 'text/js') group by resp_content_encoding order by num desc;";
-		$result = doQuery($query);
-		$total = $compressed = 0;
-		while ($row = mysql_fetch_assoc($result)) {
-			$encoding = $row['resp_content_encoding'];
-			$num = $row['num'];
-			$total += $num;
-			if ( "gzip" === $encoding || "deflate" === $encoding ) {
-				// There are other possible values (like ", gzip") but they're tiny, < 0.00001%.
-				$compressed += $num;
-			}
-		}
-		$hTuples['perCompressed'] = round(100*$compressed/$total);
+		// This could be improved by including compressed fonts, excluding compressed binaries (eg images), and excluding files under 1K.
+		$query = "select sum(numCompressed) as compressed, sum(reqHtml) + sum(reqJS) + sum(reqCSS) + sum(reqJson) as candidates from $pagesTable where $sliceCond;";
+		$row = doRowQuery($query);
+		$hTuples['perCompressed'] = round(100 * $row['compressed'] / $row['candidates']);
 	}
 
 	return $hTuples;
@@ -741,6 +698,15 @@ function statusErrors() {
 // CRAWLS - meta-information about each crawl (AKA "run")
 //
 ////////////////////////////////////////////////////////////////////////////////
+
+// Return a hash corresponding to the specified crawl. Return FALSE if not found.
+function getCrawl($label, $archive, $location) {
+	$crawlsTable = crawlsTable();
+	$query = "select * from $crawlsTable where label = '$label' and archive = '$archive' and location = '$location';";
+	return doRowQuery($query);
+}
+
+
 function createCrawl($hTuples) {
 	$crawlsTable = crawlsTable();
 	$now = time();
@@ -807,10 +773,12 @@ function getData($label="", $slice="", $device="") {
 // MYSQL
 //
 //
-function doSimpleCommand($cmd) {
+function doSimpleCommand($cmd, $link = null) {
 	global $gMysqlServer, $gMysqlDb, $gMysqlUsername, $gMysqlPassword;
 
-	$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
+	if ( ! $link ) {
+		$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
+	}
 	if ( mysql_select_db($gMysqlDb) ) {
 		//dprint("doSimpleCommand: $cmd");
 		$result = mysql_query($cmd, $link);
@@ -822,10 +790,12 @@ function doSimpleCommand($cmd) {
 }
 
 
-function doQuery($query) {
+function doQuery($query, $link = null) {
 	global $gMysqlServer, $gMysqlDb, $gMysqlUsername, $gMysqlPassword;
 
-	$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
+	if ( ! $link ) {
+		$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
+	}
 	if ( mysql_select_db($gMysqlDb) ) {
 		//dprint("doQuery: $query");
 		$result = mysql_query($query, $link);
@@ -841,9 +811,9 @@ function doQuery($query) {
 
 
 // return the first row
-function doRowQuery($query) {
+function doRowQuery($query, $link = null) {
 	$row = NULL;
-	$result = doQuery($query);
+	$result = doQuery($query, $link);
 	if ( $result ) {
 		$row = mysql_fetch_assoc($result);
 		mysql_free_result($result);
@@ -854,9 +824,9 @@ function doRowQuery($query) {
 
 
 // return the first value from the first row
-function doSimpleQuery($query) {
+function doSimpleQuery($query, $link = null) {
 	$value = NULL;
-	$result = doQuery($query);
+	$result = doQuery($query, $link);
 
 	if ( $result ) {
 		$row = mysql_fetch_assoc($result);
@@ -875,10 +845,12 @@ function doSimpleQuery($query) {
 // This is only useful if the INSERT command causes an AUTO_INCREMENT column to be updated.
 // We have to do this because last_insert_id only works with the same connection.
 // TODO - investigate only using one connection
-function doLastInsertId($cmd) {
+function doLastInsertId($cmd, $link = null) {
 	global $gMysqlServer, $gMysqlDb, $gMysqlUsername, $gMysqlPassword;
 
-	$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
+	if ( ! $link ) {
+		$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
+	}
 	$last_insert_id = null;
 	if ( mysql_select_db($gMysqlDb) ) {
 		//dprint("doSimpleCommand: $cmd");
@@ -972,6 +944,13 @@ alter table pages add column gzipTotal int unsigned not null AFTER maxageMore, a
 alter table requests add column expAge int unsigned AFTER respCookieLen;
   [requestsdev, requestsmobile]
 
+Jan 7, 2013 - add reqFont, bytesFont columns to stats table
+alter table statsdev add column reqFont float unsigned after reqFlash;
+alter table statsdev add column bytesFont int(10) unsigned after bytesFlash;
+
+Jan 9 2013 - make expAge not null
+alter table requests modify expAge int unsigned not null;
+
 *******************************************************************************/
 function createTables() {
 	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gUrlsChangeTable, $gSettingsTable;
@@ -1025,6 +1004,7 @@ function createTables() {
 			", bytesFlash int(10) unsigned not null" .
 			", bytesJson int(10) unsigned not null" .
 			", bytesOther int(10) unsigned not null" .
+			", bytesHtmlDoc mediumint unsigned not null" . // size of the main HTML document
 
 			", numDomains int(4) unsigned" .               // # of unique domains across all requests
 			", maxDomainReqs smallint unsigned not null" . // # of requests on the most-used domain
@@ -1091,7 +1071,7 @@ function createTables() {
 			", respBodySize int(10) unsigned" .
 			", respSize int(10) unsigned" .
 			", respCookieLen int(10) unsigned not null".
-			", expAge int unsigned" .             // number of seconds until response expires - can be null
+			", expAge int unsigned not null" .             // number of seconds until response expires
 			", mimeType varchar(255)" .  // slightly normalized version of resp_content_type - ~1000 distinct values
 			", respOtherHeaders text" .
 
@@ -1182,6 +1162,7 @@ function createTables() {
 			", reqJpg float unsigned" .
 			", reqPng float unsigned" .
 			", reqFlash float unsigned" .
+			", reqFont float unsigned" .
 			", reqJson float unsigned" .
 			", reqOther float unsigned" .
 			", bytesTotal int(10) unsigned" .
@@ -1193,6 +1174,7 @@ function createTables() {
 			", bytesJpg int(10) unsigned" .
 			", bytesPng int(10) unsigned" .
 			", bytesFlash int(10) unsigned" .
+			", bytesFont int(10) unsigned" .
 			", bytesJson int(10) unsigned" .
 			", bytesOther int(10) unsigned" .
 			", bytesHtmlDoc mediumint unsigned" . // size of the main HTML document
