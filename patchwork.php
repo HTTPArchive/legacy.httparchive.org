@@ -22,28 +22,30 @@ if ( $gN <= 0 || 1000 < $gN ) {
 <?php echo headfirst() ?>
 <link type="text/css" rel="stylesheet" href="style.css" />
 <style>
-BODY { background: #000; padding: 0; margin: 0; width: 100%; }
+BODY { padding: 0; margin: 0; width: 100%; }
 .square { float: left; }
 #time { margin: 0 1em; }
 </style>
 <script>
 var gTime = <?php echo $gTime ?>;
+var gN = <?php echo $gN ?>;
+var gStep = <?php echo ( $gbMobile ? 1000 : 100 ) ?>;
 function forward() {
 	hideMessage();
-	adjustTime(100);
+	adjustTime(gStep);
 	adjustImages();
 }
 
 
 function back() {
 	hideMessage();
-	adjustTime(-100);
+	adjustTime(-gStep);
 	adjustImages();
 }
 
 
 function hideMessage() {
-	document.getElementById('msg').style.display = "none";
+	//document.getElementById('msg').style.display = "none";
 }
 
 function adjustImages() {
@@ -70,35 +72,55 @@ function adjustImage(image) {
 
 function adjustTime(delta) {
 	gTime += delta;
-	document.getElementById('time').innerHTML = gTime;
+	document.getElementById('time').value = gTime;
+}
+
+function doSubmitTime() {
+	var time = document.getElementById('time').value;
+	document.location = "patchwork.php?t=" + time + "&n=" + gN;
 }
 </script>
 </head>
 
 <body>
-<div style="font-size: 3em;">
+
+<?php echo uiHeader($gTitle); ?>
+
+<div style="font-size: 2em; margin-top: 140px;">
 &nbsp;&nbsp;
-<a style="border-bottom: 0; color: #FFF" href="javascript:back()">-</a>
+<a style="border-bottom: 0; font-size: 1.5em;" href="javascript:back()">-</a>
 &nbsp;&nbsp;
-<a style="border-bottom: 0; color: #FFF" href="javascript:forward()">+</a>
-<span id=time><?php echo $gTime ?></span>
-<span id=msg style="font-size: 0.7em; margin-left: 1em; color: gold">click "+" to see the screens render</span>
+<a style="border-bottom: 0; font-size: 1.5em;" href="javascript:forward()">+</a>
+<form style="display:inline;" onsubmit="doSubmitTime();return false;">
+<input id=time type=text size=5 value=<?php echo $gTime ?> style="text-align: right; border-color: #CCC; margin: 0 0 0.2em 0;"> ms
+</form>
+<!--
+<span id=msg style="font-size: 0.7em; margin-left: 1em; color: #C30; font-style: italic;">click "+" to see the screens render</span>
+-->
 </div>
 
 <div id=allthumbs>
 <?php
 // Display a thumbnail of the Top N websites at a certain time in the loading process.
-$query = "select pageid, url, wptid, wptrun from $gPagesTable where label='" . latestLabel() . "' and rank <= $gN order by rank asc";
+$query = "select rank, pageid, url, wptid, wptrun from $gPagesTable where label='" . latestLabel() . "' and rank > 0 and rank <= " . (2*$gN) . " order by rank asc;";
 $result = doQuery($query);
 $wptServer = wptServer();
+$i = 0;
 while ($row = mysql_fetch_assoc($result)) {
-	$pageid = $row['pageid'];
-	$wptid = $row['wptid'];
-	$wptrun = $row['wptrun'];
 	$url = $row['url'];
-	echo "<div class=square><a href='viewsite.php?pageid=$pageid' title='$url' style='border-bottom: 0;'>" .
-		"<img border=0 width=" . ( $gbMobile ? "93" : "200" ) . " height=140 src='frame.php?t=$gTime&wptid=$wptid&wptrun=$wptrun'>" .
-		"</a></div>\n";
+	if ( ! onBlackList($url) ) {
+		$pageid = $row['pageid'];
+		$wptid = $row['wptid'];
+		$wptrun = $row['wptrun'];
+		$rank = $row['rank'];
+		echo "<div class=square><a href='viewsite.php?pageid=$pageid' title='$url' style='border-bottom: 0;'>" .
+			"<img border=0 height=140 src='frame.php?t=$gTime&wptid=$wptid&wptrun=$wptrun'>" .
+			"</a></div>\n";
+		$i++;
+		if ( $i >= $gN ) {
+			break;
+		}
+	}
 }
 mysql_free_result($result);
 ?>
