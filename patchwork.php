@@ -1,10 +1,7 @@
 <?php 
-
 require_once("ui.inc");
 require_once("utils.inc");
 require_once("dbapi.inc");
-require_once("urls.inc");
-require_once("pages.inc");
 
 $gTitle = "Render Patchwork";
 $gTime = getParam('t', '0'); // milliseconds
@@ -22,7 +19,7 @@ if ( $gN <= 0 || 1000 < $gN ) {
 <?php echo headfirst() ?>
 <link type="text/css" rel="stylesheet" href="style.css" />
 <style>
-BODY { padding: 0; margin: 0; width: 100%; }
+BODY { padding: 0; margin: 0; width: 100%; background: #000; }
 .square { float: left; }
 #time { margin: 0 1em; }
 </style>
@@ -30,23 +27,45 @@ BODY { padding: 0; margin: 0; width: 100%; }
 var gTime = <?php echo $gTime ?>;
 var gN = <?php echo $gN ?>;
 var gStep = <?php echo ( $gbMobile ? 1000 : 100 ) ?>;
+var gbPlay = false;
+
 function forward() {
-	hideMessage();
 	adjustTime(gStep);
 	adjustImages();
 }
 
 
 function back() {
-	hideMessage();
 	adjustTime(-gStep);
 	adjustImages();
 }
 
 
-function hideMessage() {
-	//document.getElementById('msg').style.display = "none";
+function play() {
+	gbPlay = true;
+	document.getElementById('playbtn').style.display = "none";
+	document.getElementById('pausebtn').style.display = "inline";
+	loop();
 }
+
+
+function loop() {
+	if ( gbPlay ) {
+		if ( document.getElementById('time').value > 15000 ) {
+			return;
+		}
+		forward();
+		setTimeout(loop, 1000); // it takes about 1 second
+	}
+}
+
+
+function pause() {
+	gbPlay = false;
+	document.getElementById('pausebtn').style.display = "none";
+	document.getElementById('playbtn').style.display = "inline";
+}
+
 
 function adjustImages() {
 	var allthumbs = document.getElementById('allthumbs');
@@ -84,15 +103,17 @@ function doSubmitTime() {
 
 <body>
 
+<!--
 <?php echo uiHeader($gTitle); ?>
+-->
 
-<div style="font-size: 2em; margin-top: 140px;">
-&nbsp;&nbsp;
-<a style="border-bottom: 0; font-size: 1.5em;" href="javascript:back()">-</a>
-&nbsp;&nbsp;
-<a style="border-bottom: 0; font-size: 1.5em;" href="javascript:forward()">+</a>
-<form style="display:inline;" onsubmit="doSubmitTime();return false;">
-<input id=time type=text size=5 value=<?php echo $gTime ?> style="text-align: right; border-color: #CCC; margin: 0 0 0.2em 0;"> ms
+<div style="font-size: 2em;">
+<a style="margin-left: 0.6em; border-bottom: 0; font-size: 1.5em; color: #FFF;" href="javascript:back()" title="Back">-</a>
+<a style="margin-left: 0.6em; border-bottom: 0; font-size: 1.5em; color: #FFF;" href="javascript:play()" title="Play" id=playbtn><img src="images/playButton.png" style="vertical-align: middle;"></a>
+<a style="margin-left: 0.6em; border-bottom: 0; font-size: 1.5em; color: #FFF; display: none;" href="javascript:pause()" title="Pause" id=pausebtn><img src="images/pauseButton.png" style="vertical-align: middle;" width=41></a>
+<a style="margin-left: 0.6em; border-bottom: 0; font-size: 1.5em; color: #FFF;" href="javascript:forward()" title="Forward">+</a>
+<form style="margin-left: 0.6em; display:inline;" onsubmit="doSubmitTime();return false;">
+<input id=time type=text size=5 value=<?php echo $gTime ?> style="text-align: right; border-color: #333; margin: 0 0 0.2em 0; background: #000;"> ms
 </form>
 <!--
 <span id=msg style="font-size: 0.7em; margin-left: 1em; color: #C30; font-style: italic;">click "+" to see the screens render</span>
@@ -126,6 +147,7 @@ mysql_free_result($result);
 ?>
 </div>
 
+<script src="patchwork.js" async></script>
 </body>
 </html>
 
