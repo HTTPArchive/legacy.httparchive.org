@@ -9,6 +9,7 @@ $gN = getParam('n', 100); // number of top sites to look at
 if ( $gN <= 0 || 1000 < $gN ) {
 	$gN = 100;
 }
+$wptServer = wptServer();
 ?>
 <!doctype html>
 <html>
@@ -30,22 +31,30 @@ var gStep = <?php echo ( $gbMobile ? 1000 : 100 ) ?>;
 var gbPlay = false;
 
 function forward() {
-	adjustTime(gStep);
-	adjustImages();
+	if ( checkReady() ) {
+		if ( ! checkDone() ) {
+			adjustTime(gStep);
+			adjustImages();
+			checkDone();
+		}
+	}
 }
 
 
 function back() {
-	adjustTime(-gStep);
-	adjustImages();
+	if ( checkReady() ) {
+		adjustTime(-gStep);
+		adjustImages();
+	}
 }
 
 
 function play() {
-	gbPlay = true;
-	document.getElementById('playbtn').style.display = "none";
-	document.getElementById('pausebtn').style.display = "inline";
-	loop();
+	if ( checkReady() ) {
+		gbPlay = true;
+		toggle(false);
+		loop();
+	}
 }
 
 
@@ -55,15 +64,14 @@ function loop() {
 			return;
 		}
 		forward();
-		setTimeout(loop, 1000); // it takes about 1 second
+		setTimeout(loop, 200); // it takes about 1 second
 	}
 }
 
 
 function pause() {
 	gbPlay = false;
-	document.getElementById('pausebtn').style.display = "none";
-	document.getElementById('playbtn').style.display = "inline";
+	toggle(true);
 }
 
 
@@ -79,12 +87,14 @@ function adjustImages() {
 
 
 function adjustImage(image) {
-	// Unfortunately, we can NOT get the actual img src that we redirected to.
-	// So we'll just do the redirect EVERY time.
-    var src = image.src; // eg http://httparchive.org/frame.php?t=5000&wptid=130105_0_330&wptrun=3
-	var iW = src.indexOf("&wptid=");
-	if ( -1 != iW ) {
-		image.src = "frame.php?t=" + gTime + src.substring(iW);
+	var pageid = image.id;
+	var hFrames = hPages[pageid];
+	if ( hFrames[gTime] ) {
+		// this site has a screen update for the current time
+		var f = "0000" + parseInt(gTime/100);
+		f = f.substring(f.length-4); // eg, "0025" is 2500 ms
+		image.src = "<?php echo $wptServer ?>thumbnail.php?test=" + image.getAttribute("data-wptid") + 
+			"&width=200&file=video_" + image.getAttribute("data-wptrun") + "/frame_" + f + ".jpg";
 	}
 }
 
@@ -94,10 +104,47 @@ function adjustTime(delta) {
 	document.getElementById('time').value = gTime;
 }
 
+
+// We request the image frames info asynchronously, so must confirm it's available.
+function ready() {
+	return ( "undefined" != typeof(msMax) );
+}
+
+
+function checkReady() {
+	if ( ! ready() ) {
+		alert("Sorry - we're still downloading the rendering information. Try again in a second or two.");
+		return false;
+	}
+
+	return true;
+}
+
+
+function checkDone() {
+	if ( gTime > msMax ) {
+		gbPlay = false; // turn off play (if it's on)
+		toggle(true);   // restore play button (if it's not there)
+		alert("Done");
+		return true;
+	}
+
+	return false;
+}
+
+
+function toggle(bShowPlay) {
+	document.getElementById('playbtn').style.display = (bShowPlay ? "inline" : "none");
+	document.getElementById('pausebtn').style.display = (bShowPlay ? "none" : "inline");
+}
+
+
 function doSubmitTime() {
 	var time = document.getElementById('time').value;
 	document.location = "patchwork.php?t=" + time + "&n=" + gN;
 }
+
+var hPages = {}; // this gets added to by patchwork.js
 </script>
 </head>
 
@@ -123,9 +170,9 @@ function doSubmitTime() {
 <div id=allthumbs>
 <?php
 // Display a thumbnail of the Top N websites at a certain time in the loading process.
-$query = "select rank, pageid, url, wptid, wptrun from $gPagesTable where label='" . latestLabel() . "' and rank > 0 and rank <= " . (2*$gN) . " order by rank asc;";
+$crawl = latestLabel();
+$query = "select rank, pageid, url, wptid, wptrun from $gPagesTable where label='$crawl' and rank > 0 and rank <= " . (2*$gN) . " order by rank asc;";
 $result = doQuery($query);
-$wptServer = wptServer();
 $i = 0;
 while ($row = mysql_fetch_assoc($result)) {
 	$url = $row['url'];
@@ -135,7 +182,7 @@ while ($row = mysql_fetch_assoc($result)) {
 		$wptrun = $row['wptrun'];
 		$rank = $row['rank'];
 		echo "<div class=square><a href='viewsite.php?pageid=$pageid' title='$url' style='border-bottom: 0;'>" .
-			"<img border=0 height=140 src='frame.php?t=$gTime&wptid=$wptid&wptrun=$wptrun'>" .
+			"<img id=$pageid data-wptid='$wptid' data-wptrun=$wptrun border=0 height=140 src='frame.php?t=$gTime&wptid=$wptid&wptrun=$wptrun'>" .
 			"</a></div>\n";
 		$i++;
 		if ( $i >= $gN ) {
@@ -147,7 +194,7 @@ mysql_free_result($result);
 ?>
 </div>
 
-<script src="patchwork.js" async></script>
+<script src="patchwork.js?n=<?php echo $gN ?>&crawl=<?php echo $crawl ?>" async></script>
 </body>
 </html>
 
