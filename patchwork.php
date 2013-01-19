@@ -217,6 +217,7 @@ $query = "select rank, pageid, url, wptid, wptrun from $gPagesTable where label=
 $result = doQuery($query);
 if ( 0 == mysql_num_rows($result) ) {
 	mysql_free_result($result);
+	// Older crawls do NOT have values for "rank". Use today's rank.
 	$query = "select u.rank, pageid, url, wptid, wptrun from $gPagesTable, $gUrlsTable as u where label='$gL' and u.rank > 0 and u.rank <= " . (2*$gN) . " and urlOrig=url order by u.rank asc;";
 	$result = doQuery($query);
 }
