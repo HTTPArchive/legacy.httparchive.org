@@ -31,6 +31,6 @@ if ( $frames->frame ) {
 }
 $f = "0000" . ($tbefore/100);
 $f = substr($f, strlen($f)-4);
-$imgUrl = "{$wptServer}thumbnail.php?test=$wptid&width=200&file=video_$wptrun/frame_$f.jpg&tafter=$tafter";
+$imgUrl = "{$wptServer}thumbnail.php?test=$wptid&width=200&file=video_$wptrun/frame_$f.jpg";
 header("Location: $imgUrl");
 ?>
