@@ -1267,6 +1267,8 @@ $gaTop1000 = array(
 // Don't link to some websites.
 // This is a list of domains - any URL with this domain will be considered "on the blacklist".
 $ghBlackList = array(
+					 "mavideoporno.fr" => 1, "www.mavideoporno.fr" => 1,
+					 "livejasmin.com" => 1, "www.livejasmin.com" => 1,
 					 "beeg.com" => 1, "www.beeg.com" => 1,
 					 "xhamsterhq.com" => 1, "www.xhamsterhq.com" => 1,
 					 "xxxbunker.com" => 1, "www.xxxbunker.com" => 1,
@@ -1922,26 +1924,24 @@ function mysqlEscape($text) {
 }
 
 
-// These were a little hard to setup on Dreamhost.
-// In order to override the default php.ini I added this to .htaccess:
-//    AddHandler php-cgi .php
-//    Action php-cgi /cgi-bin/php.cgi
-// I created cgi-bin.
-// I copied php.cgi from ~/stevesouders.com/cgi-bin/
-
 // DEBUG print - errors, etc.
-function dprint($msg) {
-	error_log("DPRINT: $msg");
+function dprint($msg, $tstart = null) {
+	error_log(date("H:i:s") . ( $tstart ? " " . (time() - $tstart) . " seconds:" : "" ) . " DPRINT: $msg");
+}
+
+// DEBUG print with timing info
+function tprint($msg, $tstart = null) {
+	dprint($msg, $tstart);
 }
 
 // LOG print - status, etc.
-function lprint($msg) {
-	error_log("$msg");
+function lprint($msg, $tstart = null) {
+	error_log(date("H:i:s") . ( $tstart ? " " . (time() - $tstart) . " seconds:" : "" ) . " $msg");
 }
 
 // CONSOLE print - important stuff
-function cprint($msg) {
-	echo $msg . "\n";
+function cprint($msg, $tstart = null) {
+	echo date("H:i:s") . ( $tstart ? " " . (time() - $tstart) . " seconds:" : "" ) . " $msg\n";
 }
 
 
