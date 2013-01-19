@@ -6,15 +6,21 @@ require_once("dbapi.inc");
 
 // Return an array of frame times for each page.
 $gN = getParam('n');
-$crawl = getParam('crawl');
-if ( ! $gN || ! $crawl ) {
+$gL = getParam('l');
+if ( ! $gN || ! $gL ) {
 	exit();
 }
 
 
 // Ask for twice as many as needed so we can filter out adult sites.
-$query = "select pageid, url, wptid, wptrun from $gPagesTable where label='$crawl' and rank > 0 and rank <= " . (2*$gN) . " order by rank asc;";
+$query = "select pageid, url, wptid, wptrun from $gPagesTable where label='$gL' and rank > 0 and rank <= " . (2*$gN) . " order by rank asc;";
 $result = doQuery($query);
+if ( 0 == mysql_num_rows($result) ) {
+	mysql_free_result($result);
+	// Older crawls do NOT have values for "rank". Use today's rank.
+	$query = "select u.rank, pageid, url, wptid, wptrun from $gPagesTable, $gUrlsTable as u where label='$gL' and u.rank > 0 and u.rank <= " . (2*$gN) . " and urlOrig=url order by u.rank asc;";
+	$result = doQuery($query);
+}
 
 $wptServer = wptServer();
 $i = 0;
