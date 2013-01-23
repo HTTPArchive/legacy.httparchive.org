@@ -25,21 +25,10 @@ function listFiles($hFiles) {
 	$aKeys = array_keys($hFiles);
 	sort($aKeys, SORT_NUMERIC);
 	foreach( array_reverse($aKeys) as $epoch ) {
-		$sHtml .= "  <li> " . date("M j, Y", $epoch) . ": ";
-		$hFileInfo = $hFiles[$epoch];
-		if ( array_key_exists('desktop', $hFileInfo) ) {
-			$filename = $hFileInfo['desktop']['filename'];
-			$filesize = $hFileInfo['desktop']['size'];
-			$size = ( $filesize > 1024*1024 ? round($filesize/(1024*1024)) . " MB" : round($filesize/(1024)) . " kB" );
-			$sHtml .= "<a href='{$hFileInfo['desktop']['url']}'>IE</a> ($size)";
-		}
-		if ( array_key_exists('mobile', $hFileInfo) ) {
-			$filename = $hFileInfo['mobile']['filename'];
-			$filesize = $hFileInfo['mobile']['size'];
-			$size = ( $filesize > 1024*1024 ? round($filesize/(1024*1024)) . " MB" : round($filesize/(1024)) . " kB" );
-			$sHtml .= ( array_key_exists('desktop', $hFileInfo) ? ", " : "" ) . "<a href='{$hFileInfo['mobile']['url']}'>iPhone</a> ($size)";
-		}
-		$sHtml .= "\n";
+		$sHtml .= "  <li> " . date("M j, Y", $epoch) . ": " .
+			( array_key_exists('desktop', $hFiles[$epoch]) ? $hFiles[$epoch]['desktop'] : "" ) .
+			( array_key_exists('mobile', $hFiles[$epoch]) ? ( array_key_exists('desktop', $hFiles[$epoch]) ? ", " : "" ) . $hFiles[$epoch]['mobile'] : "" ) .
+			"\n";
 	}
 
 	return $sHtml;
@@ -61,37 +50,61 @@ function listFiles($hFiles) {
 <h1>Downloads</h1>
 
 <?php
-// hash of files
+// hash of files where we can sort them by time:
 //   - the key is epoch time from the filename (eg "Oct 15 2011")
-//   - the value is a hash with desktop: and mobile: keys
-$hFiles = array();
+//   - the value is the actual HTML to put into a list (hacky)
+$ghFiles = array();
+
+// Add files that are on the Internet Archive storage.
 if (is_file("downloads/archived.json")) {
     $archived = json_decode(file_get_contents("downloads/archived.json"), true);
     foreach ($archived as $filename => $fileData) {
         if (array_key_exists('verified', $fileData) && $fileData['verified']) {
-            $epoch = dumpfileEpochTime($filename);
-            if ( $epoch ) {
-                if ( ! array_key_exists($epoch, $hFiles) ) {
-                    $hFiles[$epoch] = array();
-                }
-                $browser = ( FALSE === strpos($filename, "httparchive_mobile_") ? 'desktop' : 'mobile' );
-                $hFiles[$epoch][$browser] = array('filename' => $filename, 'url' => $fileData['url'], 'size' => $fileData['size']);
-            }
-        }
-    }
+			addFile($ghFiles, $filename, $fileData['url'], $fileData['size']);
+		}
+	}
 }
+
+// Add files from the local directory (if any).
 foreach ( glob("downloads/httparchive_*.gz") as $filename ) {
+	addFile($ghFiles, $filename, $filename, filesize($filename));
+}
+
+
+// Given a dump file's info, create the HTML to be put in a list.
+// Add it to hash of files passed in.
+function addFile(&$hFiles, $filename, $url, $size) {
 	$epoch = dumpfileEpochTime($filename);
 	if ( $epoch ) {
 		if ( ! array_key_exists($epoch, $hFiles) ) {
 			$hFiles[$epoch] = array();
 		}
-        $browser = ( FALSE === strpos($filename, "httparchive_mobile_") ? 'desktop' : 'mobile' );
-        if (!array_key_exists($browser, $hFiles[$epoch])) {
-			// Give preference to entries from archived.json - don't overwrite those.
-		    $hFiles[$epoch][$browser] = array('filename' => $filename, 'url' => $filename, 'size' => filesize($filename));
-        }
+
+        $browser = ( strpos($filename, "_mobile_") ? 'mobile' : 'desktop' );
+		if ( strpos($filename, "_requests.csv") ) {
+			// There should be 4 files: _pages.gz, _pages.csv.gz, _requests.gz, _requests.csv.gz
+			// If we see _requests.csv we assume the other 3 exist and format accordingly and
+			// we'll overwrite any previously saved results.
+			$hFiles[$epoch][$browser] = formatDumpfileItem($epoch, $browser, str_replace("_requests.csv", "_pages", $url), $size, "pages") . ", " .
+				formatDumpfileItem($epoch, $browser, str_replace("_requests.csv", "_pages.csv", $url), $size, "pages", "CSV") . ", " .
+				formatDumpfileItem($epoch, $browser, str_replace("_requests.csv", "_requests", $url), $size, "requests") . ", " .
+				formatDumpfileItem($epoch, $browser, $url, $size, "requests", "CSV");
+		}
+        else if ( ! array_key_exists($browser, $hFiles[$epoch]) ) {
+			// You can only have 1 set of files for a given epoch & browser.
+			// If we've already saved one, don't save another.
+			// This logic allows us to add unexpected dump files perhaps stored locally.
+			$hFiles[$epoch][$browser] = formatDumpfileItem($epoch, $browser, $url, $size);
+		}
 	}
+}
+
+
+// Format the actual HTML to be added to a list (but we do NOT include the "<li>" tag!).
+function formatDumpfileItem($epoch, $browser, $url, $filesize, $table=null, $format=null) {
+	$browser = ( "mobile" === $browser ? "iPhone" : "IE" );
+	$size = ( $filesize > 1024*1024 ? round($filesize/(1024*1024)) . " MB" : round($filesize/(1024)) . " kB" );
+	return "<a href='$url'>$browser" . ( $table ? " $table" : "" ) . ( $format ? " ($format)" : "" ) . "</a>";
 }
 ?>
 
@@ -134,7 +147,7 @@ These files define the schema and the meta-level tables:
 There's a download file for each crawl for desktop ("IE") and mobile ("iPhone"):
 </p>
 <ul class=indent>
-<?php echo listFiles($hFiles) ?>
+<?php echo listFiles($ghFiles) ?>
 </ul>
 
 <?php echo uiFooter() ?>
