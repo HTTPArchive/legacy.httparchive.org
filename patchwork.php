@@ -15,6 +15,7 @@ if ( ! $gL ) {
 	$gL = latestLabel(); // only do this if we have to
 }
 if ( $gN <= 0 || 100 < $gN ) {
+	// constrain the # of images
 	$gN = 100;
 }
 $wptServer = wptServer();
@@ -96,7 +97,10 @@ function adjustImages() {
 function adjustImage(image) {
 	var pageid = image.id;
 	var hFrames = hPages[pageid];
-	if ( hFrames[gTime] ) {
+	if ( ! hFrames ) {
+		dprint("ERROR: Pageid " + pageid + " wasn't found in hFrames.");
+	}
+	else if ( hFrames[gTime] ) {
 		// this site has a screen update for the current time
 		var f = "0000" + parseInt(gTime/100);
 		f = f.substring(f.length-4); // eg, "0025" is 2500 ms
@@ -179,6 +183,14 @@ function doSize(w) {
 	}
 }
 
+
+function dprint(msg) {
+	if ( console && console.log ) {
+		console.log(msg);
+	}
+}
+
+
 var hPages = {}; // this gets added to by patchwork.js
 </script>
 </head>
@@ -213,14 +225,18 @@ var hPages = {}; // this gets added to by patchwork.js
 <div id=allthumbs>
 <?php
 // Display a thumbnail of the Top N websites at a certain time in the loading process.
-$query = "select rank, pageid, url, wptid, wptrun from $gPagesTable where label='$gL' and rank > 0 and rank <= " . (2*$gN) . " order by rank asc;";
+//CVSNO $query = "select pageid, url, wptid, wptrun from $gPagesTable where label='$gL' and rank > 0 and rank <= " . (2*$gN) . " order by rank asc;";
+require_once("delme.inc");
+$query = "select pageid, url, wptid, wptrun from $gPagesTable as p, $gUrlsTable as u where label='$gL' and url in $sUrls and url=urlOrig order by u.rank asc limit " . (2*$gN) . ";";
 $result = doQuery($query);
+/* CVSNO
 if ( 0 == mysql_num_rows($result) ) {
 	mysql_free_result($result);
 	// Older crawls do NOT have values for "rank". Use today's rank.
-	$query = "select u.rank, pageid, url, wptid, wptrun from $gPagesTable, $gUrlsTable as u where label='$gL' and u.rank > 0 and u.rank <= " . (2*$gN) . " and urlOrig=url order by u.rank asc;";
+	$query = "select pageid, url, wptid, wptrun from $gPagesTable, $gUrlsTable as u where label='$gL' and u.rank > 0 and u.rank <= " . (2*$gN) . " and urlOrig=url order by u.rank asc;";
 	$result = doQuery($query);
 }
+CVSNO */
 $i = 0;
 while ($row = mysql_fetch_assoc($result)) {
 	$url = $row['url'];
@@ -228,7 +244,6 @@ while ($row = mysql_fetch_assoc($result)) {
 		$pageid = $row['pageid'];
 		$wptid = $row['wptid'];
 		$wptrun = $row['wptrun'];
-		$rank = $row['rank'];
 		echo "<div style='height: {$gH}px; width: {$gW}px; float: left; background: #FFF;'>" . // show white in case of missing images
 			"<a href='viewsite.php?pageid=$pageid' title='$url' style='broder-bottom: 0;'>" .
 			"<img id=$pageid data-wptid='$wptid' data-wptrun=$wptrun style='border-width: 0; height: {$gH}px; width: {$gW}px;' src='frame.php?t=$gTime&wptid=$wptid&wptrun=$wptrun'>" .
