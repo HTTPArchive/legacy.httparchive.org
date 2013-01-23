@@ -1456,6 +1456,7 @@ function archiveLabels($archive=null, $bEpoch = false, $format = "n/j/y", $bAll=
 	}
 	$dateRange = dateRange($bAll);
 
+	// CVSNO - use the crawls table
 	$query = "select label, min(startedDateTime) as epoch from $gPagesTable where $dateRange and archive = '$archive' group by label order by epoch asc;";
 	$result = doQuery($query);
 
@@ -1926,7 +1927,7 @@ function mysqlEscape($text) {
 
 // DEBUG print - errors, etc.
 function dprint($msg, $tstart = null) {
-	error_log(date("H:i:s") . ( $tstart ? " " . (time() - $tstart) . " seconds:" : "" ) . " DPRINT: $msg");
+	error_log(date("H:i:s") . ( $tstart ? " " . (time() - $tstart) . " seconds:" : "" ) . " $msg");
 }
 
 // DEBUG print with timing info
