@@ -321,6 +321,7 @@ function getStatsDataForUrl($label, $slice, $device, $url) {
 	$hStats['perHttps'] = round(100*$num/$totalRequests);
 
 	// max-age caching
+	//CVSNO - update this
 	$query = "select ceil( convert( substring( resp_cache_control, (length(resp_cache_control) + 2 - locate('=ega-xam', reverse(resp_cache_control))) ), SIGNED ) / 86400) as maxagedays, count(*) as num from $requestsTable where $pageidCond and resp_cache_control like '%max-age=%' group by maxagedays order by maxagedays asc;";
 	$result = doQuery($query);
 	$zeroOrNeg = $day = $month = $year = $yearplus = 0;
