@@ -40,8 +40,16 @@ if ( FALSE === $crawl ) {
 $minPageid = $crawl['minPageid'];
 $maxPageid = $crawl['maxPageid'];
 $pageidCond = "pageid >= $minPageid and pageid <= $maxPageid";
-tprint("$label: pageid >= $minPageid and pageid <= $maxPageid");
+tprint("$label: $pageidCond");
 
+// CVSNO
+echo doSimpleQuery("select count(*) from pages where $pageidCond;") . " = count(*) in pages: " . "\n";
+echo doSimpleQuery("select count(*) from pages where $pageidCond and maxDomainReqs != 0;") . " = count(*) in pages with maxDomainReqs != 0: " . "\n";
+echo doSimpleQuery("select count(*) from pagestmp where $pageidCond;") . " = count(*) in pagestmp: " . "\n";
+echo doSimpleQuery("select count(*) from pagestmp where $pageidCond and maxDomainReqs != 0;") . " = count(*) in pagestmp with maxDomainReqs != 0: " . "\n";
+echo doSimpleQuery("select count(*) from pagesdev where $pageidCond;") . " = count(*) in pagesdev: " . "\n";
+echo doSimpleQuery("select count(*) from pagesdev where $pageidCond and maxDomainReqs != 0;") . " = count(*) in pagesdev with maxDomainReqs != 0: " . "\n";
+//exit(); //CVSNO
 
 
 // 1. RESTORE DUMP FILE?
@@ -84,7 +92,7 @@ else {
 
 
 // 2. REMOVE ORPHANED REQUESTS
-tprint("\n2.Checking for orphaned records...");
+tprint("\n2. Checking for orphaned records...");
 $ppages = doSimpleQuery("select count(distinct(pageid)) from $pagesTable where $pageidCond;");
 $rpages = doSimpleQuery("select count(distinct(pageid)) from $requestsTable where $pageidCond;");
 if ( $ppages < $rpages ) {
@@ -147,10 +155,11 @@ tprint("...done checking expAge.");
 
 
 // 4. Update new fields in pages (based on requests & WPT HAR).
-tprint("\n4. Update new pages fields...");
 $tmpPageid = doSimpleQuery("select max(pageid) from pagestmp where $pageidCond;"); // find pages we've already migrated to pagestmp
-$query = "select * from $pagesTable where $pageidCond" .
-	( $tmpPageid ? " and pageid > $tmpPageid" : "" ) . " and maxDomainReqs = 0;";
+$query = "select count(*) from $pagesTable where $pageidCond" . ( $tmpPageid ? " and pageid > $tmpPageid" : "" ) . " and maxDomainReqs = 0;";
+$numPages = doSimpleQuery($query);
+tprint("\n4. Update $numPages pages...");
+$query = "select * from $pagesTable where $pageidCond" . ( $tmpPageid ? " and pageid > $tmpPageid" : "" ) . " and maxDomainReqs = 0;";
 $result = doQuery($query);
 $iPages = 0;
 // use one link to make it faster?
@@ -165,7 +174,7 @@ while ($row = mysql_fetch_assoc($result)) {
 mysql_close($gLink);
 tprint("...done updating new pages fields.");
 
-if ( $iPages > 0 ) {
+if ( $iPages > 0 && ! $gbMobile ) { // no pagestmp table for mobile
 	tprint("Copy rows from pagestmp to pages.");
 	$row = doRowQuery("select min(pageid) as minid, max(pageid) as maxid from pagestmp where $pageidCond and maxDomainReqs != 0;");
 	$minid = $row['minid'];
@@ -179,8 +188,8 @@ if ( $iPages > 0 ) {
 		tprint("The rows have already been copied.");
 	}
 	else {
-		tprint("Replacing " . ( $maxid - $minid ) . " rows from pagestmp to $pagesTable:\n  $cmd");
 		$cmd = "replace into $pagesTable select * from pagestmp where pageid >= $minid and pageid <= $maxid and maxDomainReqs != 0;";
+		tprint("Replacing " . ( $maxid - $minid ) . " rows from pagestmp to $pagesTable:\n  $cmd");
 		doSimpleCommand($cmd);
 		tprint("...done copying rows.");
 	}
@@ -217,38 +226,36 @@ else {
 	$labelUnderscore = str_replace(" ", "_", $label);
 	$tmpdir = "/tmp/$labelUnderscore." . time();  // Unique dir for this dump cuz mysqldump writes files that aren't writable by this process, and mysqldump -T can NOT overwrite existing files.
 	// pages
-	$cmd = "mysqldump --where='pageid >= $minPageid and pageid <= $maxPageid' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $pagesTable | gzip > ../downloads/httparchive_" . $labelUnderscore . "_pages.gz";
+	$cmd = "mysqldump --where='pageid >= $minPageid and pageid <= $maxPageid' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $pagesTable | gzip > ../downloads/httparchive_" . ( $gbMobile ? "mobile_" : "" ) . $labelUnderscore . "_pages.gz";
 	tprint("Dump pages table:");
 	exec($cmd);
 	// pages csv
 	$cmd = "mkdir $tmpdir; chmod 777 $tmpdir; " .
 		"mysqldump --where='pageid >= $minPageid and pageid <= $maxPageid' -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer -T $tmpdir --fields-enclosed-by=\\\" --fields-terminated-by=, $gMysqlDb $pagesTable; " .
-		"gzip -f -c $tmpdir/$pagesTable.txt > ../downloads/httparchive_" . $labelUnderscore . "_pages.csv.gz";
+		"gzip -f -c $tmpdir/$pagesTable.txt > ../downloads/httparchive_" . ( $gbMobile ? "mobile_" : "" ) . $labelUnderscore . "_pages.csv.gz";
 	tprint("Dump pages table CSV:");
 	exec($cmd);
 	// requests
-	$cmd = "mysqldump --where='pageid >= $minPageid and pageid <= $maxPageid' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $requestsTable | gzip > ../downloads/httparchive_" . $labelUnderscore . "_requests.gz";
+	$cmd = "mysqldump --where='pageid >= $minPageid and pageid <= $maxPageid' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $requestsTable | gzip > ../downloads/httparchive_" . ( $gbMobile ? "mobile_" : "" ) . $labelUnderscore . "_requests.gz";
 	tprint("Dump requests table:");
 	exec($cmd);
 	// requests csv
 	$cmd = "mysqldump --where='pageid >= $minPageid and pageid <= $maxPageid' -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer -T $tmpdir --fields-enclosed-by=\\\" --fields-terminated-by=, $gMysqlDb $requestsTable; " .
-		"gzip -f -c $tmpdir/$requestsTable.txt > ../downloads/httparchive_" . $labelUnderscore . "_requests.csv.gz";
+		"gzip -f -c $tmpdir/$requestsTable.txt > ../downloads/httparchive_" . ( $gbMobile ? "mobile_" : "" ) . $labelUnderscore . "_requests.csv.gz";
 	tprint("Dump requests table CSV:");
 	exec($cmd);
 	tprint("Dumps are done.");
 
-	// Only save the requests records for recent crawls.
-	//tprint("Insert records from requests to requestsdev:");
-	//$insertcmd = "replace into requestsdev select * from $requestsTable where $pageidCond;";
-	//doSimpleCommand($insertcmd);
-	tprint("Delete records from requests:");
-	$delcmd = "delete from $requestsTable where $pageidCond;";
-	doSimpleCommand($delcmd);
-	/*
-	tprint("You might want to move or delete the requests rows:\n" .
-		   "    $delcmd\n" .
-		   "    $insertcmd");
-	*/
+	if ( ! $gbMobile ) {
+		// Only save the requests records for recent crawls.
+		//tprint("Insert records from requests to requestsdev:");
+		//$insertcmd = "replace into requestsdev select * from $requestsTable where $pageidCond;";
+		//doSimpleCommand($insertcmd);
+		$delcmd = "delete from $requestsTable where $pageidCond;";
+		//tprint("Delete records from requests:");
+		//doSimpleCommand($delcmd);
+		tprint("You might want to move or delete the requests rows:\n    $delcmd");
+	}
 	tprint("DONE!");
 }
 
@@ -258,16 +265,11 @@ exit();
 
 
 
-function tprint($msg, $tstart = null) {
-	echo date("H:i:s") . ( $tstart ? " " . (time() - $tstart) . " seconds:" : "" ) . " $msg\n";
-}
-
-
 // shortened version from batch_lib.inc
 // $hPage is the $row from mysql for this page - IT HAS ALL THE CURRENT FIELD VALUES! We're just adding to those here.
 function importPageMod($hPage) {
 	global $pagesTable, $requestsTable, $gLink;
-	//$t_CVSNO = time();
+	$t_CVSNO = time();
 
 	$pageid = $hPage['pageid'];
 	$wptid = $hPage['wptid'];
@@ -399,9 +401,9 @@ function importPageMod($hPage) {
 	$cmd = "insert into pagestmp SET " . 
 		hashImplode(", ", "=", $hPage) .
 		";";
-	//tprint("before update", $t_CVSNO);
+	//tprint("before insert", $t_CVSNO);
 	doSimpleCommand($cmd, $gLink);
-	//tprint("after update\n", $t_CVSNO);
+	//tprint("after insert\n", $t_CVSNO);
 }
 
 
