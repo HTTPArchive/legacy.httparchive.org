@@ -124,6 +124,7 @@ function pagesTable($label="", $slice="", $device="") {
 	return dbtable("pages", $device, $label, $slice);
 }
 
+// Nothing on the production website should need access to the requests table!!
 function requestsTable($label="", $slice="", $device="") {
 	return dbtable("requests", $device, $label, $slice);
 }
@@ -532,11 +533,10 @@ function computeCorrelations($label, $slice, $device, $sliceCond, $var1) {
 // "Special" stats that often require a more complex query against the requests table.
 function computeOther($label, $slice, $device, $sliceCond, &$hTuples = array()) {
 	$pagesTable = pagesTable($label, $slice, $device);
-	$requestsTable = requestsTable($label, $slice, $device); // CVSNO - shouldn't need this any more
 
 	// total page & request count so we can do percentages
 	$totalPages = doSimpleQuery("select count(*) from $pagesTable where $sliceCond;");
-	$totalRequests = doSimpleQuery("select count(*) from $requestsTable where $sliceCond;");
+	$totalRequests = doSimpleQuery("select sum(reqTotal) from $pagesTable where $sliceCond;");
 
 	// redirects
 	if ( !array_key_exists('perRedirects', $hTuples) || null === $hTuples['perRedirects'] ) {
