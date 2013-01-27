@@ -696,6 +696,13 @@ function crawlPasses($label, $archive, $location) {
 }
 
 
+// return the label PRIOR to the current label
+function getPrevLabel($label, $archive, $location) {
+	$crawlsTable = crawlsTable();
+	return doSimpleQuery("select label from $crawlsTable where startedDateTime < (select startedDateTime from $crawlsTable where label='$label' and archive='$archive' and location='$location') order by startedDateTime desc limit 1;");
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // DATA
@@ -863,6 +870,7 @@ Nov 16, 2011 - add perFonts column to stats table
   mysql> alter table statsdev add column perFonts int(4) unsigned after perFlash;
 
 April 5, 2012 - add urlhash to urls table for faster lookup
+  ("urlhash" is a substring of the URL's MD5 hash converted to base-10)
   mysql> alter table urls add column urlhash int(8) unsigned first;
   mysql> update urls set urlhash = conv(substring(md5(urlOrig),1,4),16,10);
   mysql> create index urlhash on urls (urlhash);
