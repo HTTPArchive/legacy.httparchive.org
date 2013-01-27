@@ -44,6 +44,14 @@ if ( file_exists("batch.log") ) unlink("batch.log");   // remove log file
 if ( $gbImportUrls ) {
 	// TODO - Should we do this for $gbMobile too?????
 	require_once("importurls.php");
+
+	if ( ! $gbMobile && ( $gPagesTableDesktop != $gPagesTableDev ) ) {
+		lprint("Copy 'urls' rows to production...");
+		// We have to do this immediately BEFORE the mobile crawl kicks off.
+		// This is scary but the issue is we need to clear out all the previous ranks, optouts, others, etc. and use what's in urlsdev.
+		doSimpleCommand("delete from $gUrlsTableDesktop;");
+		doSimpleCommand("insert into $gUrlsTableDesktop select * from $gUrlsTableDev;");
+	}
 }
 
 // Empty the status table
