@@ -359,6 +359,7 @@ function importHarJson($json_text, $statusInfo) {
 // Import a website.
 // MAJOR ASSUMPTION: THERE'S ONLY ONE PAGE PER HAR FILE!
 // (otherwise, harviewer and har_to_pagespeed won't work)
+// $page is the JSON from a HAR file for a single page under log->pages[0]
 function importPage($page, $statusInfo) {
 	global $gPagesTable, $gRequestsTable;
 	$archive = $statusInfo['archive'];
@@ -383,27 +384,27 @@ function importPage($page, $statusInfo) {
 	array_push($aTuples, "url = '" . mysql_real_escape_string($url) . "'");
 	array_push($aTuples, "urlShort = '" . mysql_real_escape_string($urlShort) . "'");
 	array_push($aTuples, "onLoad = " . $page->{'_docTime'});
-	if ( $page->{'_TTFB'} ) {
+	if ( array_key_exists('_TTFB', $page) && $page['_TTFB'] ) {
 		array_push($aTuples, "TTFB = " . $page->{'_TTFB'});
 	}
 	array_push($aTuples, "renderStart = " . $page->{'_render'});
 	array_push($aTuples, "fullyLoaded = " . $page->{'_fullyLoaded'});
 	array_push($aTuples, "visualComplete = " . $page->{'_visualComplete'});
-	if ( $page->{'_gzip_total'} ) {
+	if ( array_key_exists('_gzip_total', $page) ) {
 		array_push($aTuples, "gzipTotal = " . $page->{'_gzip_total'});
 		array_push($aTuples, "gzipSavings = " . $page->{'_gzip_savings'});
 	}
 	// CVSNO - add a wrapper function for this monkey business, use json_decode_assoc_array (or whatever it is)
-	if ( $page->{'_domElements'} ) {
+	if ( array_key_exists('_domElements', $page) && $page['_domElements'] ) {
 		array_push($aTuples, "numDomElements = " . $page->{'_domElements'});
 	}
-	if ( $page->{'_domContentLoadedEventStart'} ) {
+	if ( array_key_exists('_domContentLoadedEventStart', $page) && $page['_domContentLoadedEventStart'] ) {
 		array_push($aTuples, "onContentLoaded = " . $page->{'_domContentLoadedEventStart'});
 	}
-	if ( $page->{'_base_page_cdn'} ) {
+	if ( array_key_exists('_base_page_cdn', $page) && $page['_base_page_cdn'] ) {
 		array_push($aTuples, "cdn = '" . mysql_real_escape_string($page->{'_base_page_cdn'}) . "'");
 	}
-	if ( $page->{'_SpeedIndex'} ) {
+	if ( array_key_exists('_SpeedIndex', $page) && $page['_SpeedIndex'] ) {
 		array_push($aTuples, "SpeedIndex = " . $page->{'_SpeedIndex'});
 	}
 	$pageSpeedObj = $page->{'_pageSpeed'};
@@ -433,12 +434,12 @@ function importPage($page, $statusInfo) {
 function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 	global $gPagesTable, $gRequestsTable;
 	global $ghReqHeaders, $ghRespHeaders;
-	$now = time(); // avoid calling time() multiple times for expAge calculation
 	for ( $i = 0; $i < count($entries); $i++ ) {
 		$entry = $entries[$i];
 		$aTuples = array();
 		array_push($aTuples, "pageid = $pageid");
-		array_push($aTuples, "startedDateTime = " . strtotime($entry->{ 'startedDateTime' }));
+		$startedDateTime = strtotime($entry->{ 'startedDateTime' }); // we use this below for expAge calculation
+		array_push($aTuples, "startedDateTime = $startedDateTime");
 		array_push($aTuples, "time = " . $entry->{ 'time' });
 
 		// REQUEST
@@ -539,19 +540,19 @@ function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 			array_push($aTuples, "respCookieLen = $cookielen");
 		}
 		// calculate expAge - number of seconds before resource expires
-		$expAge = NULL;
-		if ( array_key_exists('resp_cache_control', $hHeaders) && FALSE !== ($posMaxage = stripos($hHeaders['resp_cache_control'], "max-age=")) ) {
+		$expAge = 0;
+		$cc = ( array_key_exists('resp_cache_control', $hHeaders) ? $hHeaders['resp_cache_control'] : null );
+		if ( $cc  && FALSE !== stripos($cc, "must-revalidate") && FALSE !== stripos($cc, "no-cache") && FALSE !== stripos($cc, "no-store") ) {
+			// These directives dictate the response can NOT be cached.
+			$expAge = 0;
+		}
+		else if ( $cc  && FALSE !== ($posMaxage = stripos($cc, "max-age=")) ) {
 			$expAge = intval(substr($hHeaders['resp_cache_control'], $posMaxage+8));
 		}
 		else if ( array_key_exists('resp_expires', $hHeaders) ) {
-			$expAge = strtotime($hHeaders['resp_expires']) - $now;
+			$expAge = strtotime($hHeaders['resp_expires']) - $startedDateTime;
 		}
-		if ( NULL !== $expAge ) {
-			if ( $expAge < 0 ) {
-				$expAge = 0;
-			}
-			array_push($aTuples, "expAge = $expAge");
-		}
+		array_push($aTuples, "expAge = " . ( $expAge < 0 ? 0 : $expAge ));
 
 		// NOW add all the headers from both the request and response.
 		$aHeaders = array_keys($hHeaders);
