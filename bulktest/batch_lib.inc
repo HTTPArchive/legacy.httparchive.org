@@ -777,9 +777,12 @@ function runCompleted($label) {
 
 
 // mysqldump filename for a crawl
-function dumpfileName($label) {
+// $table is either "pages" or "requests"
+// $format is "" or "csv"
+function dumpfileName($label, $table="", $format="") {
 	global $gbMobile;
-	$dumpfile = "../downloads/httparchive_" . ( $gbMobile ? "mobile_" : "" ) . str_replace(" ", "_", $label);
+	$dumpfile = "../downloads/httparchive_" . ( $gbMobile ? "mobile_" : "" ) . str_replace(" ", "_", $label) . 
+		( $table ? "_$table" : "" ) . ( $format ? ".$format" : "" );
 	return $dumpfile;
 }
 
