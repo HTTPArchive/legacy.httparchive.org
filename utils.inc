@@ -1425,7 +1425,32 @@ function selectSiteLabel($url, $curLabel="", $bChrono=false) {
 
 
 // Return an array of label names (in chrono order?) for a specific URL.
+// This does NOT take into account the URL!!!!
+// See archiveLabelsForUrlSLOW and bug #359.
 function archiveLabelsForUrl($url, $bChrono=false, $archive=null) {
+	global $gCrawlsTable, $gArchive;
+	if ( ! $archive ) {
+		$archive = $gArchive;
+	}
+
+	$device = curDevice();
+	$query = "select label from $gCrawlsTable where archive='$archive' and location='$device' order by startedDateTime " . 
+		( $bChrono ? "asc" : "desc" ) . ";";
+	$result = doQuery($query);
+	$aLabels = array();
+	while ($row = mysql_fetch_assoc($result)) {
+		$label = $row['label'];
+		array_push($aLabels, $label);
+	}
+	mysql_free_result($result);
+
+	return $aLabels;
+}
+
+
+// Return an array of label names (in chrono order?) for a specific URL.
+// We used to do it this way but it's too slow. 
+function archiveLabelsForUrlSLOW($url, $bChrono=false, $archive=null) {
 	global $gPagesTable;
 	global $gArchive;
 	if ( ! $archive ) {
@@ -1767,11 +1792,13 @@ function secondLevelDomain($url) {
 
 // Compare the results of two runs for given URLs.
 function diffRuns($url1, $label1="", $url2="", $label2="", $bPreamble = true) {
-	global $gPagesTable;
+	global $gPagesTable, $gArchive;
 
+    $latestLabel; // we'll cache this if we have to call it
 	if ( ! $label1 ) {
 		// use the most recent label
-		$label1 = latestLabel();
+		$latestLabel = latestLabel(); // cache it for below
+		$label1 = $latestLabel;
 	}
 
 	if ( ! $url2 ) {
@@ -1781,23 +1808,14 @@ function diffRuns($url1, $label1="", $url2="", $label2="", $bPreamble = true) {
 	if ( ! $label2 ) {
 		if ( $url1 === $url2 ) {
 			// If the URLs are the same then compare to the label older than $label1
-			$aLabels = archiveLabelsForUrl($url1, false);
-			for ( $i = 0; $i < count($aLabels); $i++ ) {
-				if ( $aLabels[$i] === $label1 ) {
-					if ( $i+1 < count($aLabels) ) {
-						$label2 = $aLabels[$i+1];
-					}
-					else {
-						// no earlier label to compare to
-						return "";
-					}
-					break;
-				}
+			$label2 = getPrevLabel($label1, $gArchive, curDevice());
+			if ( ! $label2 ) {
+				return "";
 			}
 		}
 		else {
 			// If the 2nd URL is different then also use the most recent label.
-			$label2 = latestLabel();
+			$label2 = ( $latestLabel ? $latestLabel : latestLabel() );
 		}
 	}
 
