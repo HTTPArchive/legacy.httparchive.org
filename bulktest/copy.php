@@ -35,20 +35,40 @@ lprint("Run \"$gLabel\": min pageid = $minid, max pageid = $maxid");
 
 
 // copy the rows to production
+$pageidCond = "pageid >= $minid and pageid <= $maxid";
 if ( ! $gbMobile && ( $gPagesTableDesktop != $gPagesTableDev ) ) {
-	$count = doSimpleQuery("select count(*) from $gPagesTableDesktop where pageid >= $minid and pageid <= $maxid;");
+	$count = doSimpleQuery("select count(*) from $gPagesTableDesktop where $pageidCond;");
 	if ( $count ) {
 		lprint("Rows already copied.");
 	}
 	else {
 		lprint("Copy 'requests' rows to production...");
-		doSimpleCommand("insert into $gRequestsTableDesktop select * from $gRequestsTableDev where pageid >= $minid and pageid <= $maxid;");
+		doSimpleCommand("insert into $gRequestsTableDesktop select * from $gRequestsTableDev where $pageidCond;");
 
 		lprint("Copy 'pages' rows to production...");
-		doSimpleCommand("insert into $gPagesTableDesktop select * from $gPagesTableDev where pageid >= $minid and pageid <= $maxid;");
+		doSimpleCommand("insert into $gPagesTableDesktop select * from $gPagesTableDev where $pageidCond;");
 
 		lprint("...DONE.");
 	}
+}
+
+
+// orphaned records
+lprint("Checking for orphaned records...");
+$numOrphans = doSimpleQuery("select count(*) from $gRequestsTable where $pageidCond and pageid not in (select pageid from $gPagesTable where $pageidCond);");
+if ( $numOrphans ) {
+	lprint("There are $numOrphans orphaned records in the \"$gRequestsTable\" table.");
+	$cmd = "delete from $gRequestsTable where $pageidCond and pageid not in (select pageid from $gPagesTable where $pageidCond);";
+	if ( $numOrphans < 5000 ) {
+		lprint("Deleting orphans now...");
+		doSimpleCommand($cmd);
+	}
+	else {
+		lprint("You should delete them, recalculate the stats, and regenerate the mysql dump files.\n    $cmd");
+	}
+}
+else {
+	lprint("No orphaned records.");
 }
 
 
@@ -80,22 +100,39 @@ else {
 
 
 // mysqldump file
-$dumpfile = dumpfileName($gLabel);
-if ( file_exists("$dumpfile.gz") ) {
-	lprint("Mysqldump file \"$dumpfile\" already exists.");
-}
-else {
-	lprint("Creating mysqldump file $dumpfile ...");
-	if ( $gbMobile ) {
-		$cmd = "mysqldump --where='pageid >= $minid and pageid <= $maxid' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gRequestsTableMobile $gPagesTableMobile | gzip > $dumpfile.gz";
-	}
-	else {
-		$cmd = "mysqldump --where='pageid >= $minid and pageid <= $maxid' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gRequestsTableDesktop $gPagesTableDesktop | gzip > $dumpfile.gz";
-	}
-	exec($cmd);
+// pages
+$pagesTable = ( $gbMobile ? $gPagesTableMobile : $gPagesTableDesktop );
+$dumpfile = dumpfileName($gLabel, "pages");
+$cmd = "mysqldump --where='$pageidCond' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $pagesTable | gzip > $dumpfile.gz";
+exec($cmd);
+lprint("...mysqldump file created: $dumpfile.gz");
 
-	lprint("...mysqldump file created: $dumpfile.gz");
-}
+// pages csv
+// Unique dir for this dump cuz mysqldump writes files that aren't writable by this process, and mysqldump -T can NOT overwrite existing files.
+$labelUnderscore = str_replace(" ", "_", $label);
+$tmpdir = "/tmp/$labelUnderscore." . time();
+$cmd = "mkdir $tmpdir; chmod 777 $tmpdir;";
+exec($cmd);
+$dumpfile = dumpfileName($gLabel, "pages", "csv");
+$cmd = "mysqldump --where='$pageidCond' -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer -T $tmpdir --fields-enclosed-by=\\\" --fields-terminated-by=, $gMysqlDb $pagesTable; " .
+	"gzip -f -c $tmpdir/$pagesTable.txt > $dumpfile.gz";
+exec($cmd);
+lprint("...mysqldump file created: $dumpfile.gz");
+
+// requests
+$requestsTable = ( $gbMobile ? $gPagesTableMobile : $gPagesTableDesktop );
+$dumpfile = dumpfileName($gLabel, "requests");
+$cmd = "mysqldump --where='$pageidCond' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $requestsTable | gzip > $dumpfile.gz";
+exec($cmd);
+lprint("...mysqldump file created: $dumpfile.gz");
+
+// requests csv
+$dumpfile = dumpfileName($gLabel, "requests", "csv");
+$cmd = "mysqldump --where='$pageidCond' -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer -T $tmpdir --fields-enclosed-by=\\\" --fields-terminated-by=, $gMysqlDb $requestsTable; " .
+	"gzip -f -c $tmpdir/$requestsTable.txt > $dumpfile.gz";
+exec($cmd);
+lprint("...mysqldump file created: $dumpfile.gz");
+exec("/bin/rm -rf $tmpdir"); // remove the temporary directory - it's BIG!
 
 
 // stats mysql dump - create this after all crawls both desktop & mobile
