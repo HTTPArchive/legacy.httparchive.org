@@ -42,14 +42,12 @@ $maxPageid = $crawl['maxPageid'];
 $pageidCond = "pageid >= $minPageid and pageid <= $maxPageid";
 tprint("$label: $pageidCond");
 
-// CVSNO
 echo doSimpleQuery("select count(*) from pages where $pageidCond;") . " = count(*) in pages: " . "\n";
 echo doSimpleQuery("select count(*) from pages where $pageidCond and maxDomainReqs != 0;") . " = count(*) in pages with maxDomainReqs != 0: " . "\n";
 echo doSimpleQuery("select count(*) from pagestmp where $pageidCond;") . " = count(*) in pagestmp: " . "\n";
 echo doSimpleQuery("select count(*) from pagestmp where $pageidCond and maxDomainReqs != 0;") . " = count(*) in pagestmp with maxDomainReqs != 0: " . "\n";
 echo doSimpleQuery("select count(*) from pagesdev where $pageidCond;") . " = count(*) in pagesdev: " . "\n";
 echo doSimpleQuery("select count(*) from pagesdev where $pageidCond and maxDomainReqs != 0;") . " = count(*) in pagesdev with maxDomainReqs != 0: " . "\n";
-//exit(); //CVSNO
 
 
 // 1. RESTORE DUMP FILE?
