@@ -26,8 +26,8 @@ function listFiles($hFiles) {
 	sort($aKeys, SORT_NUMERIC);
 	foreach( array_reverse($aKeys) as $epoch ) {
 		$sHtml .= "  <li> " . date("M j, Y", $epoch) . ": " .
-			( array_key_exists('desktop', $hFiles[$epoch]) ? $hFiles[$epoch]['desktop'] : "" ) .
-			( array_key_exists('mobile', $hFiles[$epoch]) ? ( array_key_exists('desktop', $hFiles[$epoch]) ? ", " : "" ) . $hFiles[$epoch]['mobile'] : "" ) .
+			( array_key_exists('IE', $hFiles[$epoch]) ? "<br>&nbsp;&nbsp;" . $hFiles[$epoch]['IE'] : "" ) .
+			( array_key_exists('iPhone', $hFiles[$epoch]) ? "<br>&nbsp;&nbsp;" . $hFiles[$epoch]['iPhone'] : "" ) .
 			"\n";
 	}
 
@@ -80,15 +80,16 @@ function addFile(&$hFiles, $filename, $url, $size) {
 			$hFiles[$epoch] = array();
 		}
 
-        $browser = ( strpos($filename, "_mobile_") ? 'mobile' : 'desktop' );
+        $browser = ( strpos($filename, "_mobile_") ? 'iPhone' : 'IE' );
 		if ( strpos($filename, "_requests.csv") ) {
 			// There should be 4 files: _pages.gz, _pages.csv.gz, _requests.gz, _requests.csv.gz
 			// If we see _requests.csv we assume the other 3 exist and format accordingly and
 			// we'll overwrite any previously saved results.
-			$hFiles[$epoch][$browser] = formatDumpfileItem($epoch, $browser, str_replace("_requests.csv", "_pages", $url), $size, "pages") . ", " .
-				formatDumpfileItem($epoch, $browser, str_replace("_requests.csv", "_pages.csv", $url), $size, "pages", "CSV") . ", " .
-				formatDumpfileItem($epoch, $browser, str_replace("_requests.csv", "_requests", $url), $size, "requests") . ", " .
-				formatDumpfileItem($epoch, $browser, $url, $size, "requests", "CSV");
+			$hFiles[$epoch][$browser] = "$browser: pages (" .
+				formatDumpfileItem($epoch, $browser, str_replace("_requests.csv", "_pages", $url), $size, "pages", "mysql") . ", " .
+				formatDumpfileItem($epoch, $browser, str_replace("_requests.csv", "_pages.csv", $url), $size, "pages", "CSV") . "), requests (" .
+				formatDumpfileItem($epoch, $browser, str_replace("_requests.csv", "_requests", $url), $size, "requests", "mysql") . ", " .
+				formatDumpfileItem($epoch, $browser, $url, $size, "requests", "CSV") . ")";
 		}
         else if ( ! array_key_exists($browser, $hFiles[$epoch]) ) {
 			// You can only have 1 set of files for a given epoch & browser.
@@ -102,9 +103,12 @@ function addFile(&$hFiles, $filename, $url, $size) {
 
 // Format the actual HTML to be added to a list (but we do NOT include the "<li>" tag!).
 function formatDumpfileItem($epoch, $browser, $url, $filesize, $table=null, $format=null) {
-	$browser = ( "mobile" === $browser ? "iPhone" : "IE" );
-	$size = ( $filesize > 1024*1024 ? round($filesize/(1024*1024)) . " MB" : round($filesize/(1024)) . " kB" );
-	return "<a href='$url'>$browser" . ( $table ? " $table" : "" ) . ( $format ? " ($format)" : "" ) . "</a>";
+	if ( $format ) {
+		return "<a href='$url'>$format</a>";
+	}
+	else {
+		return "<a href='$url'>$browser" . ( $table ? " $table" : "" ) . "</a>";
+	}
 }
 ?>
 
