@@ -47,12 +47,6 @@ if ( ! $gbMobile && ( $gPagesTableDesktop != $gPagesTableDev ) ) {
 		lprint("Copy 'pages' rows to production...");
 		doSimpleCommand("insert into $gPagesTableDesktop select * from $gPagesTableDev where pageid >= $minid and pageid <= $maxid;");
 
-		// TODO - should we do this for $gbMobile too???
-		lprint("Copy 'urls' rows to production...");
-		// This is scary but the issue is we need to clear out all the previous ranks, optouts, others, etc. and use what's in urlsdev.
-		doSimpleCommand("delete from $gUrlsTableDesktop;");
-		doSimpleCommand("insert into $gUrlsTableDesktop select * from $gUrlsTableDev;");
-
 		lprint("...DONE.");
 	}
 }
