@@ -121,6 +121,7 @@ if ( "alexa" === $gFileType ) {
 
 // update the urlhash column if null
 // WARNING: URLs added through the admin.php page do NOT have urlhash set immediately - but they should be caught here.
+// "urlhash" is a substring of the URL's MD5 hash converted to base-10.
 doSimpleCommand("update $gUrlsTable set urlhash=conv(substring(md5(urlOrig), 1, 4), 16, 10) where urlhash is null;");
 echo "The urlhash have been updated.\n";
 
