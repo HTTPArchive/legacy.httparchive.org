@@ -45,7 +45,7 @@ function rankUrl($url) {
 function rank($url, $pageid=null) {
 	global $gUrlsTable;
 
-	$query = "select rank from $gUrlsTable where urlhash=conv(substring(md5('$url'),1,4),16,10) and (urlOrig='$url')order by rank asc;";
+	$query = "select rank from $gUrlsTable where urlhash=conv(substring(md5('$url'),1,4),16,10) and (urlOrig='$url') order by rank asc;";
 	$rank = doSimpleQuery($query);
 
 	return ( $rank ? $rank : "n/a" );
