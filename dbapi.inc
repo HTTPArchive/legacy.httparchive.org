@@ -148,44 +148,46 @@ function sliceCond($label, $slice, $device, $url = "") {
 
 	$pagesTable = pagesTable($label, $slice, $device);
 	$dateRange = dateRange();
-	$row = doRowQuery("select min(pageid) as minid, max(pageid) as maxid from $pagesTable where label='$label';");
-	$minid = $row['minid'];
-	$maxid = $row['maxid'];
+	$crawl = getCrawl($label, $gArchive, $device);
+	$minid = $crawl['minPageid'];
+	$maxid = $crawl['maxPageid'];
 
 	$sliceCond = "pageid>=$minid and pageid<=$maxid"; // "All"
 
-	if ( "intersection" === $slice ) {
-		// Find the set of URLs that are constant across all labels;
-		$archive = getArchive($label);  // only look at intersection across the same *archive*.
-		$numLabels = doSimpleQuery("select count(distinct(label)) from $pagesTable where $dateRange and archive='$archive';");
-		$query = "select url, count(label) as num from $pagesTable where $dateRange and archive='$archive' group by url having num = $numLabels;";
-		$result = doQuery($query);
-		$aUrls = array();
-		while ( $row = mysql_fetch_assoc($result) ) {
-			$aUrls[] = $row['url'];
+	if ( 0 === strpos($slice, "Top") ) {
+		// eg, "Top100" or "Top1000"
+		if ( 1322727953 <= $crawl['startedDateTime'] ) {
+			// The first crawl with rank available is "Dec 1 2011" (startedDateTime = 1322727953)
+			$sliceCond .= " and rank > 0 and rank <= " . substr($slice, 3);
 		}
-		mysql_free_result($result);
-
-		$query = "select pageid from $pagesTable where $sliceCond and url in ('" . implode("','", $aUrls) . "');";
-		$result = doQuery($query);
-		$aPageids = array();
-		while ( $row = mysql_fetch_assoc($result) ) {
-			$aPageids[] = $row['pageid'];
+		else {
+			// Crawls that occurred BEFORE we started saving rank.
+			if ( "Top100" === $slice || "Top1000" === $slice ) {
+				// We'll use some old global variables for Top100 and Top1000.
+				$urls = ( "Top100" === $slice ? $gaTop100 : $gaTop1000 );
+				$query = "select pageid from $pagesTable where $sliceCond and url in ('" . implode("','", $urls) . "');";
+				$result = doQuery($query);
+				$aPageids = array();
+				while ( $row = mysql_fetch_assoc($result) ) {
+					$aPageids[] = $row['pageid'];
+				}
+				mysql_free_result($result);
+				$sliceCond = "pageid in (" . implode(",", $aPageids) . ")";
+			}
+			else {
+				// If you've reached this block it means we added something higher 
+				// than "Top1000" (like Top10000 or Top100000) AND we're dealing 
+				// with a crawl that does NOT have ranks. Choices include:
+				//   1. Include all the pages. These crawls have 50K pages or less,
+				//      so it might not be too far off.
+				//   2. Only include the top 1000 using the global variable. This 
+				//      would mean we'd compare 1000 to 10,000 or 100,000 - bad.
+				//   3. Use the current rankings from the "urls" table. This would
+				//      mean that the set of top URLs would constantly change.
+				// I'm going with #1 - include all the pages - which means we don't 
+				// have to add anything more to sliceCond.
+			}
 		}
-		mysql_free_result($result);
-		$sliceCond = "pageid in ('" . implode("','", $aPageids) . "')";
-	}
-	else if ( "Top100" === $slice || "Top1000" === $slice ) {
-		// CVSNO - replace this (expensive!) with using rank. Need to fallback to this before rank was available. And if "requests" table is accessed. (Which it shouldn't be.)
-		$urls = ( "Top100" === $slice ? $gaTop100 : $gaTop1000 );
-		$query = "select pageid from $pagesTable where $sliceCond and url in ('" . implode("','", $urls) . "');";
-		$result = doQuery($query);
-		$aPageids = array();
-		while ( $row = mysql_fetch_assoc($result) ) {
-			$aPageids[] = $row['pageid'];
-		}
-		mysql_free_result($result);
-		$sliceCond = "pageid in (" . implode(",", $aPageids) . ")";
 	}
 	else if ( "url" === $slice && isset($url) ) {
 		$sliceCond .= " and url = '$url'";
@@ -306,7 +308,6 @@ function getStatsData($label, $slice, $device) {
 // return a hash of values for a single stats record
 function getStatsDataForUrl($label, $slice, $device, $url) {
 	$pagesTable = pagesTable($label, $slice, $device);
-	$requestsTable = requestsTable($label, $slice, $device);
 
 	// Get the info from the pages table.
 	$query = "select * from $pagesTable where label='$label' and url='$url';";
@@ -317,54 +318,15 @@ function getStatsDataForUrl($label, $slice, $device, $url) {
 	$totalRequests = $hStats['reqTotal'];
 
 	// https
-	$num = doSimpleQuery("select count(*) from $requestsTable where $pageidCond and url like 'https://%'");
-	$hStats['perHttps'] = round(100*$num/$totalRequests);
+	$hStats['perHttps'] = round(100*$hStats['numHttps']/$totalRequests);
 
-	// max-age caching
-	//CVSNO - update this
-	$query = "select ceil( convert( substring( resp_cache_control, (length(resp_cache_control) + 2 - locate('=ega-xam', reverse(resp_cache_control))) ), SIGNED ) / 86400) as maxagedays, count(*) as num from $requestsTable where $pageidCond and resp_cache_control like '%max-age=%' group by maxagedays order by maxagedays asc;";
-	$result = doQuery($query);
-	$zeroOrNeg = $day = $month = $year = $yearplus = 0;
-	while ($row = mysql_fetch_assoc($result)) {
-		$maxagedays = $row['maxagedays'];
-		$num = $row['num'];
-
-		if ( $maxagedays < 1 ) {
-			$zeroOrNeg += $num;
-		}
-		else if ( 1 == $maxagedays ) {
-			$day = $num;
-		}
-		else if ( 1 < $maxagedays && $maxagedays <= 30 ) {
-			$month += $num;
-		}
-		else if ( 30 < $maxagedays && $maxagedays <= 365 ) {
-			$year += $num;
-		}
-		else if ( 365 < $maxagedays ) {
-			$yearplus += $num;
-		}
-	}
-	mysql_free_result($result);
-	$hStats['maxageNull'] = round(100 * ($totalRequests - ($zeroOrNeg + $day + $month + $year + $yearplus))/$totalRequests);
-	$hStats['maxage0'] = round(100 * $zeroOrNeg / $totalRequests);
-	$hStats['maxage1'] = round(100 * $day / $totalRequests);
-	$hStats['maxage30'] = round(100 * $month / $totalRequests);
-	$hStats['maxage365'] = round(100 * $year / $totalRequests);
-	$hStats['maxageMore'] = round(100 * $yearplus / $totalRequests);
-
-
-	$row = doRowQuery("select count(*) as req, SUM(respSize) as bytes from $requestsTable where $pageidCond and resp_content_type like '%image/gif%';");
-	$hStats['reqGif'] = $row['req'];
-	$hStats['bytesGif'] = $row['bytes'];
-
-	$row = doRowQuery("select count(*) as req, SUM(respSize) as bytes from $requestsTable where $pageidCond and (resp_content_type like '%image/jpg%' or resp_content_type like '%image/jpeg%');");
-	$hStats['reqJpg'] = $row['req'];
-	$hStats['bytesJpg'] = $row['bytes'];
-
-	$row = doRowQuery("select count(*) as req, SUM(respSize) as bytes from $requestsTable where $pageidCond and resp_content_type like '%image/png%';");
-	$hStats['reqPng'] = $row['req'];
-	$hStats['bytesPng'] = $row['bytes'];
+	// max-age caching - convert absolute count to percentage
+	$hStats['maxageNull'] = round(100 * $hStats['maxageNull']/$totalRequests);
+	$hStats['maxage0'] = round(100 * $hStats['maxage0'] / $totalRequests);
+	$hStats['maxage1'] = round(100 * $hStats['maxage1'] / $totalRequests);
+	$hStats['maxage30'] = round(100 * $hStats['maxage30'] / $totalRequests);
+	$hStats['maxage365'] = round(100 * $hStats['maxage365'] / $totalRequests);
+	$hStats['maxageMore'] = round(100 * $hStats['maxageMore'] / $totalRequests);
 
 	return $hStats;
 }
