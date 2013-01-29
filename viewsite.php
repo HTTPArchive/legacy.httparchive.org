@@ -41,8 +41,15 @@ else {
 // TODO - better error handling starting here!
 // Changed to select * to allow summary paragraph
 if ( ! $pageData ) {
+	header('Location: websites.php');
 	return;
 }
+
+// Flush any currently open buffers.
+while (ob_get_level() > 0) {
+	ob_end_flush();
+}
+ob_start();
 
 $gPageid = $pageData['pageid'];
 $gLabel = $pageData['label'];
@@ -206,6 +213,11 @@ echo percentByProtocol($hStats);
 <h2 id=trends>Trends</h2>
 
 <?php
+// trends.inc is REALLY SLOW so we flush the buffer first.
+ob_flush();
+if ( getParam("flush", 1) ) { //CVSNO - remove this after blog post is old
+	flush();
+}
 require_once('trends.inc');
 ?>
 
