@@ -996,7 +996,7 @@ function createTables() {
 
 			", primary key (pageid)" .
 			", unique key (label, urlShort)" .
-			");";
+			") ENGINE MyISAM;";
 		doSimpleCommand($command);
 	}
 
@@ -1052,7 +1052,7 @@ function createTables() {
 			", primary key (requestid)" .
 			", index(pageid)" .
 			", unique key (startedDateTime, pageid, urlShort)" .
-			");";
+			") ENGINE MyISAM;";
 		doSimpleCommand($command);
 	}
 
@@ -1075,7 +1075,7 @@ function createTables() {
 			", pagespeedScore int(4) unsigned" .
 			", primary key (statusid)" .
 			", index(statusid)" .
-			");";
+			") ENGINE MyISAM;";
 		doSimpleCommand($command);
 	}
 
@@ -1107,7 +1107,7 @@ function createTables() {
 
 			", primary key (crawlid)" .
 			", index(label, archive, location)" .
-			");";
+			") ENGINE MyISAM;";
 		doSimpleCommand($command);
 	}
 
@@ -1205,7 +1205,7 @@ function createTables() {
 			", renderStartccv5 float unsigned" .
 
 			", primary key (label, slice, device)" .
-			");";
+			") ENGINE MyISAM;";
 		doSimpleCommand($command);
 	}
 
@@ -1221,7 +1221,7 @@ function createTables() {
 			", optout boolean not null" .  // did the website owner ask us NOT to crawl their site
 			", primary key (urlOrig(255))" .
 			", index(urlhash)" .
-			");";
+			") ENGINE MyISAM;";
 		doSimpleCommand($command);
 	}
 
@@ -1233,7 +1233,7 @@ function createTables() {
 			", action varchar(16)" .  // "add", "remove" for now
 			", createDate int(10) unsigned not null" .
 			", primary key (url(255), action)" .
-			");";
+			") ENGINE MyISAM;";
 		doSimpleCommand($command);
 	}
 
@@ -1243,7 +1243,7 @@ function createTables() {
 			"setting varchar (64)" .
 			", val varchar (255)" .
 			", primary key (setting)" .
-			");";
+			") ENGINE MyISAM;";
 		doSimpleCommand($command);
 	}
 }
