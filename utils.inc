@@ -1793,6 +1793,7 @@ function secondLevelDomain($url) {
 // Compare the results of two runs for given URLs.
 function diffRuns($url1, $label1="", $url2="", $label2="", $bPreamble = true) {
 	global $gPagesTable, $gArchive;
+	$device = curDevice();
 
     $latestLabel; // we'll cache this if we have to call it
 	if ( ! $label1 ) {
@@ -1808,7 +1809,7 @@ function diffRuns($url1, $label1="", $url2="", $label2="", $bPreamble = true) {
 	if ( ! $label2 ) {
 		if ( $url1 === $url2 ) {
 			// If the URLs are the same then compare to the label older than $label1
-			$label2 = getPrevLabel($label1, $gArchive, curDevice());
+			$label2 = getPrevLabel($label1, $gArchive, $device);
 			if ( ! $label2 ) {
 				return "";
 			}
@@ -1819,9 +1820,15 @@ function diffRuns($url1, $label1="", $url2="", $label2="", $bPreamble = true) {
 		}
 	}
 
-	$query = "select * from $gPagesTable where url='$url1' and label='$label1';";
+	// The fastest query is with a pageid range.
+	$crawl = getCrawl($label1, $gArchive, $device);
+	$pageidCond = "pageid >= {$crawl['minPageid']} and pageid <= {$crawl['maxPageid']}";
+	$query = "select * from $gPagesTable where url='$url1' and $pageidCond;";
 	$row1 = doRowQuery($query);
-	$query = "select * from $gPagesTable where url='$url2' and label='$label2';";
+
+	$crawl = getCrawl($label2, $gArchive, $device);
+	$pageidCond = "pageid >= {$crawl['minPageid']} and pageid <= {$crawl['maxPageid']}";
+	$query = "select * from $gPagesTable where url='$url2' and $pageidCond;";
 	$row2 = doRowQuery($query);
 
 	// Now, what should we highlight?
