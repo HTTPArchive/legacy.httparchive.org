@@ -1,6 +1,7 @@
 DirectoryIndex index.php
 Options -Indexes
 
+
 <FilesMatch "(\.inc|cachegen)">
 order allow,deny
 deny from all
@@ -14,7 +15,9 @@ require valid-user
 </FilesMatch>
 
 # Compress/gzip html, XML, css and js and fonts and CSV
+<IfModule mod_deflate.c>
 AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/x-javascript application/javascript font/ttf application/octet-stream
+</IfModule>
 
 
 # Add a far future Expires header to .gif, .jpg, .css and .js.
