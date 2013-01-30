@@ -17,6 +17,7 @@ limitations under the License.
 
 require_once("ui.inc");
 require_once("utils.inc");
+require_once("crawls.inc");
 
 $gSlice = getParam('s', 'All');
 $gTitle = "Trends";
