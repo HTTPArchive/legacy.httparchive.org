@@ -5,6 +5,33 @@ require_once("dbapi.inc");
 require_once("requests.inc");
 
 
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// PAGES
+//
+////////////////////////////////////////////////////////////////////////////////
+
+// Return a hash of ALL the data for a given page.
+// Bad API: You need EITHER the pageid OR the url & label.
+function pageData($pageid, $url = null, $label = null) {
+	global $gPagesTable;
+
+	if ( $pageid ) {
+		$query = "select * from $gPagesTable where pageid='$pageid';";
+	}
+	else if ( $url && $label ) {
+		$query = "select * from $gPagesTable where url='$url' and label='$label';";
+	}
+	else {
+		return null;
+	}
+
+	return doRowQuery($query);
+}
+
+
 function pageFromWPT($wptid, $medianRun, $bRepeatView=false) {
 	// Fetch the HAR file from WebPagetest.
 	$wptServer = wptServer();
