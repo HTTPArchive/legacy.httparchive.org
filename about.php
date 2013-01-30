@@ -36,9 +36,10 @@ LI.sublist { margin-bottom: 0; }
 <body>
 <?php echo uiHeader($gTitle); ?>
 
-
+<?php // Make sure to echo the drop down list of "About" links in ui.inc. ?>
 <ul class="aboutlinks">
   <li> <a href="downloads.php">Download data</a>
+  <li> <a href="urls.php">URLs</a>
   <li> <a href="http://code.google.com/p/httparchive/source/browse">Source code</a>
   <li> <a href="http://code.google.com/p/httparchive/issues/list">Bugs</a>
   <li> <a href="news.php">News</a>
@@ -80,6 +81,7 @@ $gFAQ =<<<OUTPUT
 <p>
 Starting in November 2011, the list of URLs is based solely on the <a href="http://www.alexa.com/topsites">Alexa Top 1,000,000 Sites</a>
 (<a href="http://s3.amazonaws.com/alexa-static/top-1m.csv.zip">zip</a>).
+Use the <a href="urls.php">HTTP Archive URLs</a> page to the list of the top 10,000 URLs used in the most recent crawl.
 </p>
 
 <p>From November 2010 through October 2011 there were <a href="lists/All.txt">18,026 URLs analyzed</a>. This list was based on the union of the following lists:
