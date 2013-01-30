@@ -17,6 +17,7 @@ limitations under the License.
 
 require_once("../utils.inc");
 require_once("../dbapi.inc");
+require_once("../crawls.inc");
 require_once("batch_lib.inc");
 require_once("bootstrap.inc");
 
