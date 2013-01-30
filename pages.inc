@@ -2,7 +2,7 @@
 
 require_once("utils.inc");
 require_once("dbapi.inc");
-require_once("resources.inc");
+require_once("requests.inc");
 
 
 function pageFromWPT($wptid, $medianRun, $bRepeatView=false) {
