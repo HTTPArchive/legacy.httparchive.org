@@ -17,6 +17,7 @@ limitations under the License.
 
 require_once("settings.inc");
 
+
 // TODO - remove this - it's deprecated
 $gArchive = getParam("ar", "All");
 
@@ -30,6 +31,7 @@ $gbMobile = ( FALSE !== strpos($curdir, $gMobileDir) || strpos($curdir, "/mobile
 
 // put this BELOW $gbDev - circular global dependencies :-(
 require_once("dbapi.inc");
+require_once("crawls.inc");
 
 // The different "slices" of URLs a user can view.
 // Each element is an array of [dbname, UI name]
@@ -39,30 +41,6 @@ $gaSlices = array( array("All", "All")
 if ( ! isPrivateInstance() ) {
 	$gaSlices[] = array("Top100", "Top 100");
 	$gaSlices[] = array("Top1000", "Top 1000");
-}
-
-
-// DO NOT USE THESE GLOBAL  VARIABLES!
-// These are PRIVATE variables. They should be accessed by the corresponding function.
-$p_MinLabel = $p_MaxLabel = null;
-
-// Return a label from 1 year ago or from querystring.
-function minLabel() {
-	global $p_MinLabel;
-	if ( null === $p_MinLabel ) {
-		$p_MinLabel = getParam("minlabel", latestLabel(null, time()-(365*24*60*60)));
-	}
-	return $p_MinLabel;
-}
-
-
-// Return the most recent label or from querystring.
-function maxLabel() {
-	global $p_MaxLabel, $gArchive;
-	if ( null === $p_MaxLabel ) {
-		$p_MaxLabel = getParam("maxlabel", latestLabel($gArchive));
-	}
-	return $p_MaxLabel;
 }
 
 
@@ -1469,82 +1447,6 @@ function archiveLabelsForUrlSLOW($url, $bChrono=false, $archive=null) {
 	mysql_free_result($result);
 
 	return $aLabels;
-}
-
-
-// Return an array of label names (in chrono order?) for an archive.
-// If $bEpoch is true return labels based on 
-function archiveLabels($archive=null, $bEpoch = false, $format = "n/j/y", $bAll=false) {
-	global $gPagesTable, $gArchive;
-	if ( ! $archive ) {
-		$archive = $gArchive;
-	}
-	$dateRange = dateRange($bAll);
-
-	// CVSNO - use the crawls table
-	$query = "select label, min(startedDateTime) as epoch from $gPagesTable where $dateRange and archive = '$archive' group by label order by epoch asc;";
-	$result = doQuery($query);
-
-	$aLabels = array();
-	while ($row = mysql_fetch_assoc($result)) {
-		$label = $row['label'];
-		$epoch = $row['epoch'];
-		if ( $bEpoch ) {
-			array_push($aLabels, gmdate($format, $epoch));
-		}
-		else {
-			array_push($aLabels, $label);
-		}
-	}
-	mysql_free_result($result);
-
-	return $aLabels;
-}
-
-
-// return the archive for a given label
-function getArchive($label) {
-	global $gPagesTable;
-
-	return doSimpleQuery("select archive from $gPagesTable where label = '$label' limit 1;");
-}
-
-
-// Return the latest (most recent) label for an archive 
-// based on when the pages in that label were analyzed.
-function latestLabel($archive=null, $beforeEpoch=null) {
-	global $gArchive;
-	if ( ! $archive ) {
-		$archive = $gArchive;
-	}
-	$dateRange = dateRange(true);
-
-	$query = "select label from " . crawlsTable() . " where finishedDateTime is not null and archive = '$archive' and location='" . curDevice() . "'" .
-		( $beforeEpoch ? " and startedDateTime <= $beforeEpoch" : "" ) .
-		" group by label order by startedDateTime desc limit 1;";
-	$label = doSimpleQuery($query);
-
-	return $label;
-}
-
-
-function labelMinid($label) {
-	global $gPagesTable;
-
-	$query = "select min(pageid) as minid from $gPagesTable where label='$label';";
-	$pageid = doSimpleQuery($query);
-
-	return $pageid;
-}
-
-
-function labelMaxid($label) {
-	global $gPagesTable;
-
-	$query = "select max(pageid) as maxid from $gPagesTable where label='$label';";
-	$pageid = doSimpleQuery($query);
-
-	return $pageid;
 }
 
 
