@@ -147,6 +147,7 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
 
 	$navlinks = "";
 	if ( $bNavlinks ) {
+		// Make sure to echo the drop down list of "About" links in about.php.
 		$navlinks = '
 <nav>
 <ul>
@@ -158,6 +159,7 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
  	  <li><a href="about.php#mission">Mission</a></li>
 	  <li><a href="about.php#faq">FAQ</a></li>
  	  <li><a href="downloads.php">Download Data</a></li>
+ 	  <li><a href="urls.php">URLs</a></li>
  	  <li><a href="http://code.google.com/p/httparchive/source/browse">Source Code</a></li>
  	  <li><a href="http://code.google.com/p/httparchive/issues/list">Bugs</a></li>
  	  <li><a href="news.php">News</a></li>
