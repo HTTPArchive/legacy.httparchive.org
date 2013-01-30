@@ -17,6 +17,7 @@ limitations under the License.
 
 require_once("utils.inc");
 require_once("settings.inc");
+require_once("crawls.inc");
 
 // default table names
 $gPagesTable = "pages";
@@ -77,33 +78,52 @@ else if ( $gbMobile ) {
 // We restrict the range of queries by adding a date range.
 // Sometimes the date range is affected by querystring params.
 // We also avoid old, undesired data with this.
-$pDateRange = $pDateRangeDefault = null; // for efficiency
 function dateRange($bDefault = false) {
-	global $pDateRange, $pDateRangeDefault, $gbMobile;
+	global $gbMobile;
 
-	// Here's the scoop: We use $pDateRange as a nice global throughout most of our queries to limit
+	// Here's the scoop: We use $dateRange as a nice global throughout most of our queries to limit
 	// the scope of data. BUT...this is a problem when we want to, for example, present the user with 
 	// a list of labels to choose from - we don't want that list of labels to be limited. 
-	// So in some places we use $pDateRangeDefault to get the WHOLE range of data.
+	// So in some places we use $dateRangeDefault to get the WHOLE range of data.
+	$dateRangeDefault = ( isPrivateInstance() ? "pageid >= 1" : ( $gbMobile ? "pageid >= 607" : "pageid >= 10281" ) );
 	if ( $bDefault ) {
-		if ( null === $pDateRangeDefault ) {
-			// Query ALL the date ranges but avoid some undesired data (old, small runs).
-			$pDateRangeDefault = ( isPrivateInstance() ? "pageid >= 1" : ( $gbMobile ? "pageid >= 607" : "pageid >= 10281" ) );
-		}
-		return $pDateRangeDefault;
+		return $dateRangeDefault;
 	}
 	else {
-		if ( null === $pDateRange ) {
-			// Query ALL the date ranges but avoid some undesired data (old, small runs).
-			$pDateRange = ( isPrivateInstance() ? "pageid >= 1" : ( $gbMobile ? "pageid >= 607" : "pageid >= 10281" ) );
-			if ( minLabel() ) {
-				$pDateRange .= " and pageid >= " . labelMinid(minLabel());
-			}
-			if ( maxLabel() ) {
-				$pDateRange .= " and pageid <= " . labelMaxid(maxLabel());
-			}
+		// Query ALL the date ranges but avoid some undesired data (old, small runs).
+		$dateRange = $dateRangeDefault;
+		if ( minLabel() ) {
+			$dateRange .= " and pageid >= " . labelMinid(minLabel());
 		}
-		return $pDateRange;
+		if ( maxLabel() ) {
+			$dateRange .= " and pageid <= " . labelMaxid(maxLabel());
+		}
+		return $dateRange;
+	}
+}
+
+
+function dateRangeCrawls($bDefault = false) {
+	global $gbMobile;
+
+	// Here's the scoop: We use $dateRange as a nice global throughout most of our queries to limit
+	// the scope of data. BUT...this is a problem when we want to, for example, present the user with 
+	// a list of labels to choose from - we don't want that list of labels to be limited. 
+	// So in some places we use $dateRangeDefault to get the WHOLE range of data.
+	$dateRangeDefault = ( isPrivateInstance() ? "minPageid >= 1" : ( $gbMobile ? "minPageid >= 607" : "minPageid >= 10281" ) );
+	if ( $bDefault ) {
+		return $dateRangeDefault;
+	}
+	else {
+		// Query ALL the date ranges but avoid some undesired data (old, small runs).
+		$dateRange = $dateRangeDefault;
+		if ( minLabel() ) {
+			$dateRange .= " and minPageid >= " . labelMinid(minLabel());
+		}
+		if ( maxLabel() ) {
+			$dateRange .= " and maxPageid <= " . labelMaxid(maxLabel());
+		}
+		return $dateRange;
 	}
 }
 
@@ -656,51 +676,6 @@ function statusErrors() {
 
 
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// CRAWLS - meta-information about each crawl (AKA "run")
-//
-////////////////////////////////////////////////////////////////////////////////
-
-// Return a hash corresponding to the specified crawl. Return FALSE if not found.
-function getCrawl($label, $archive, $location) {
-	$crawlsTable = crawlsTable();
-	$query = "select * from $crawlsTable where label = '$label' and archive = '$archive' and location = '$location';";
-	return doRowQuery($query);
-}
-
-
-function createCrawl($hTuples) {
-	$crawlsTable = crawlsTable();
-	$now = time();
-	$cmd = "insert into $crawlsTable set " . hashImplode(", ", "=", $hTuples) . ", timeOfLastChange = $now;";
-	doSimpleCommand($cmd);
-	return true;
-}
-
-
-function updateCrawl($label, $archive, $location, $hTuples) {
-	$crawlsTable = crawlsTable();
-	$now = time();
-	$cmd = "update $crawlsTable set " . hashImplode(", ", "=", $hTuples) . ", timeOfLastChange = $now where label='$label' and archive='$archive' and location='$location';";
-	doSimpleCommand($cmd);
-	return true;
-}
-
-
-// increment the number of passes for this crawl
-// return the resulting number of passes
-function crawlPasses($label, $archive, $location) {
-	$crawlsTable = crawlsTable();
-	return doSimpleQuery("select passes from $crawlsTable where label='$label' and location='$location';");
-}
-
-
-// return the label PRIOR to the current label
-function getPrevLabel($label, $archive, $location) {
-	$crawlsTable = crawlsTable();
-	return doSimpleQuery("select label from $crawlsTable where startedDateTime < (select startedDateTime from $crawlsTable where label='$label' and archive='$archive' and location='$location') order by startedDateTime desc limit 1;");
-}
 
 
 ////////////////////////////////////////////////////////////////////////////////
