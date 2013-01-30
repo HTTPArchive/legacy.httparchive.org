@@ -15,6 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+require_once("utils.inc");
 require_once("ui.inc");
 
 $gTitle = "About the HTTP Archive";
