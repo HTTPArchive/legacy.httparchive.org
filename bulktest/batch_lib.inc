@@ -1,6 +1,7 @@
 <?php
 
 require_once("../utils.inc");
+require_once("../status.inc");
 
 define("NOT_STARTED", 0);
 define("SUBMITTED", 1);
@@ -384,7 +385,7 @@ function importPage($page, $statusInfo) {
 	array_push($aTuples, "url = '" . mysql_real_escape_string($url) . "'");
 	array_push($aTuples, "urlShort = '" . mysql_real_escape_string($urlShort) . "'");
 	array_push($aTuples, "onLoad = " . $page->{'_docTime'});
-	if ( array_key_exists('_TTFB', $page) && $page['_TTFB'] ) {
+	if ( array_key_exists('_TTFB', $page) && $page->{'_TTFB'} ) {
 		array_push($aTuples, "TTFB = " . $page->{'_TTFB'});
 	}
 	array_push($aTuples, "renderStart = " . $page->{'_render'});
@@ -395,21 +396,23 @@ function importPage($page, $statusInfo) {
 		array_push($aTuples, "gzipSavings = " . $page->{'_gzip_savings'});
 	}
 	// CVSNO - add a wrapper function for this monkey business, use json_decode_assoc_array (or whatever it is)
-	if ( array_key_exists('_domElements', $page) && $page['_domElements'] ) {
+	if ( array_key_exists('_domElements', $page) && $page->{'_domElements'} ) {
 		array_push($aTuples, "numDomElements = " . $page->{'_domElements'});
 	}
-	if ( array_key_exists('_domContentLoadedEventStart', $page) && $page['_domContentLoadedEventStart'] ) {
+	if ( array_key_exists('_domContentLoadedEventStart', $page) && $page->{'_domContentLoadedEventStart'} ) {
 		array_push($aTuples, "onContentLoaded = " . $page->{'_domContentLoadedEventStart'});
 	}
-	if ( array_key_exists('_base_page_cdn', $page) && $page['_base_page_cdn'] ) {
+	if ( array_key_exists('_base_page_cdn', $page) && $page->{'_base_page_cdn'} ) {
 		array_push($aTuples, "cdn = '" . mysql_real_escape_string($page->{'_base_page_cdn'}) . "'");
 	}
-	if ( array_key_exists('_SpeedIndex', $page) && $page['_SpeedIndex'] ) {
+	if ( array_key_exists('_SpeedIndex', $page) && $page->{'_SpeedIndex'} ) {
 		array_push($aTuples, "SpeedIndex = " . $page->{'_SpeedIndex'});
 	}
-	$pageSpeedObj = $page->{'_pageSpeed'};
-	if ( $pageSpeedObj ) {
-		array_push($aTuples, "PageSpeed = " . $pageSpeedObj->{'score'});
+	if ( array_key_exists('_pageSpeed', $page) && $page->{'_pageSpeed'} ) {
+		$pageSpeedObj = $page->{'_pageSpeed'};
+		if ( array_key_exists('score', $pageSpeedObj) ) {
+			array_push($aTuples, "PageSpeed = " . $pageSpeedObj->{'score'});
+		}
 	}
 
 	$cmd = "INSERT INTO $gPagesTable SET " . implode(", ", $aTuples) . ";";
