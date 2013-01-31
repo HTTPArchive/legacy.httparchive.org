@@ -26,10 +26,9 @@ if ( !$gLabel ) {
 }
 
 // find min & max pageid of the specified run
-$query = "select min(pageid) as minid, max(pageid) as maxid from $gPagesTable where label='$gLabel';";
-$row = doRowQuery($query);
-$minid = $row['minid'];
-$maxid = $row['maxid'];
+$crawl = getCrawl($gLabel);
+$minid = $crawl['minPageid'];
+$maxid = $crawl['maxPageid'];
 lprint("Run \"$gLabel\": min pageid = $minid, max pageid = $maxid");
 
 
@@ -87,7 +86,7 @@ else {
 	// remove any incomplete cache data that might have been created during the crawl
 	removeStats($gLabel, NULL, $device);
 
-	computeMissingStats($device, true);
+	computeMissingStats($device, true, false, $gLabel);
 
 	if ( ! $gbMobile && ( $gStatsTableDesktop != $gStatsTableDev ) ) {
 		lprint("Copy stats to production...");
@@ -109,7 +108,7 @@ lprint("...mysqldump file created: $dumpfile.gz");
 
 // pages csv
 // Unique dir for this dump cuz mysqldump writes files that aren't writable by this process, and mysqldump -T can NOT overwrite existing files.
-$labelUnderscore = str_replace(" ", "_", $label);
+$labelUnderscore = str_replace(" ", "_", $gLabel);
 $tmpdir = "/tmp/$labelUnderscore." . time();
 $cmd = "mkdir $tmpdir; chmod 777 $tmpdir;";
 exec($cmd);
