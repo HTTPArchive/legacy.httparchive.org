@@ -92,9 +92,9 @@ function computeStats($label, $slice, $device) {
 
 
 // If $bUpdate = false then only compute stats if there are NO stats for the run (ie, the entire row is missing).
-function computeMissingStats($device, $bVerbose = false, $bUpdate = false) {
+function computeMissingStats($device, $bVerbose = false, $bUpdate = false, $label = null) {
 	$aDevices = ( $device ? array($device) : array("IE8", "iphone") );
-	$aLabels = archiveLabels(null, false, "n/j/y", true);
+	$aLabels = ( $label ? array($label) : archiveLabels(null, false, "n/j/y", true) );
 	$aSlices = sliceNames();
 	foreach ( $aDevices as $device ) {
 		for ( $i = count($aLabels)-1; $i >= 0; $i-- ) {
@@ -370,15 +370,18 @@ function computeCorrelations($label, $slice, $device, $sliceCond, $var1) {
 			$sumY = $row['sumY'];
 			$sumYY = $row['sumYY'];
 			$sumXY = $row['sumXY'];
-			$cc = (($n*$sumXY) - ($sumX*$sumY)) / sqrt( (($n*$sumXX) - ($sumX*$sumX)) * (($n*$sumYY) - ($sumY*$sumY)) );
-			// I want to sort the results by correlation coefficient ($cc),
-			// so I use $cc as the hash key. But, $cc is not unique 
-			// (it's possible for two variables to have the same $cc).
-			// So the value for each hash entry is an array of variable name(s).
-			if ( ! array_key_exists("$cc", $hCC) ) {
-				$hCC["$cc"] = array();
+			$denominator = sqrt( (($n*$sumXX) - ($sumX*$sumX)) * (($n*$sumYY) - ($sumY*$sumY)) );
+			if ( $denominator ) { // avoid divide by zero errors
+				$cc = (($n*$sumXY) - ($sumX*$sumY)) / $denominator;
+				// I want to sort the results by correlation coefficient ($cc),
+				// so I use $cc as the hash key. But, $cc is not unique 
+				// (it's possible for two variables to have the same $cc).
+				// So the value for each hash entry is an array of variable name(s).
+				if ( ! array_key_exists("$cc", $hCC) ) {
+					$hCC["$cc"] = array();
+				}
+				array_push($hCC["$cc"], $var2);
 			}
-			array_push($hCC["$cc"], $var2);
 		}
 	}
 
@@ -471,12 +474,5 @@ function computeOther($label, $slice, $device, $sliceCond, &$hTuples = array()) 
 
 	return $hTuples;
 }
-
-
-// Add the end of a crawl we compute the stats and then copy them to production.
-function copyStatsToTable($statsTableSource, $statsTableTarget) {
-	//doSimpleCommand("insert into $statsTableTarget select * from $statsTableSource;");
-}
-
 
 ?>
