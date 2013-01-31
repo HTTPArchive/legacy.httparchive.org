@@ -52,18 +52,28 @@ if ( 0 === totalNotDone() ) {
 		// We just finished the last pass. Wrap it up...
 		cprint(date("G:i") . ": DONE with tests. Copying...");
 		$gParamLabel = $labelFromRun; // hack!
-		require_once("copy.php");
+
+		// IMPORTANT: Update crawl info FIRST because many pieces of code reference this:
+		$query = "select min(pageid) as minid, max(pageid) as maxid from $gPagesTable where label='$labelFromRun';";
+		$row = doRowQuery($query);
+		$minid = $row['minid'];
+		$maxid = $row['maxid'];
 		$numPages = doSimpleQuery("select count(*) from $gPagesTable where pageid >= $minid and pageid <= $maxid;");
 		$numRequests = doSimpleQuery("select count(*) from $gRequestsTable where pageid >= $minid and pageid <= $maxid;");
 		updateCrawl($labelFromRun, $gArchive, $locations[0], 
 					array(
-						  "finishedDateTime" => time(),
-						  "minPageid" => $minid, // set inside copy.php
-						  "maxPageid" => $maxid, // set inside copy.php
+						  "minPageid" => $minid,
+						  "maxPageid" => $maxid,
 						  "numErrors" => statusErrors(),
 						  "numPages" => $numPages,
 						  "numRequests" => $numRequests
 						  ));
+
+		// Copy rows, calc stats, create dump files, etc.
+		require_once("copy.php");
+
+		updateCrawl($labelFromRun, $gArchive, $locations[0], array( "finishedDateTime" => time() ));
+
 		cprint(date("G:i") . ": DONE with crawl!");
 		exit(0);
 	}
