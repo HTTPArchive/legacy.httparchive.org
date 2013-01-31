@@ -32,6 +32,11 @@ else if ( ! isset($gPageid) && getParam('u') && getParam('l') ) {
 	$gLabel = getParam('l');
 	$pageData = pageData(null, $url, $gLabel);
 }
+else if ( getParam('rand') ) {
+	$crawl = latestCrawl();
+	$gPageid = randomPageid($crawl);
+	$pageData = pageData($gPageid);
+}
 else {
 	// should never reach here
 	header('Location: websites.php');
