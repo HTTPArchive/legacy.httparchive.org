@@ -207,7 +207,7 @@ $gUrl = $url;
 require_once("stats.inc");
 require_once("charts.inc");
 
-$hStats = getStats($gLabel, $gSlice, ($gbMobile ? "iphone" : "IE8"), $url);
+$hStats = getStats($gLabel, $gSlice, curDevice(), $url);
 echo bytesContentTypeChart($hStats);
 echo responseSizes($hStats);
 echo popularImageFormats($hStats);
