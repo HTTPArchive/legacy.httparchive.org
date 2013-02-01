@@ -129,7 +129,7 @@ function dateRangeCrawls($bDefault = false) {
 
 
 function dbtable($table, $device="", $label="", $slice="") {
-	if ( "iphone" === $device ) {
+	if ( FALSE !== stripos($device, "iphone") ) {
 		$table .= "mobile";
 	}
 	else if ( isDev() ) {
