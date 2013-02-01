@@ -19,7 +19,7 @@ require_once("bootstrap.inc");
 require_once("../utils.inc");
 require_once("batch_lib.inc");
 
-$aDevices = array("IE8", "iphone"); // CVSNO
+$aDevices = allDevices();
 
 foreach ( $aDevices as $device ) {
 	foreach ( $gaTasks as $task ) {
