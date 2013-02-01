@@ -37,4 +37,4 @@ $wptApiKey = '';
 
 // list of locations to use
 $locations = array();
-$locations[] = ( $gbMobile ? 'iphone4' : 'IE8' );
+$locations[] = curDevice();
