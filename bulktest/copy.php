@@ -75,7 +75,7 @@ else {
 // Compute stats
 require_once("../stats.inc");
 require_once("../dbapi.inc");
-$device = ( $gbMobile ? "iphone" : "IE8" );
+$device = curDevice();
 
 if ( getStats($gLabel, "All", $device) ) {
 	lprint("Stats already computed.");
