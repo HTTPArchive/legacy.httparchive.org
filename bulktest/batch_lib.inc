@@ -773,7 +773,7 @@ function runCompleted($label) {
 	global $gbMobile;
 
 	// We determine that a run is completed if its stats exist.
-	$device = ( $gbMobile ? "iphone" : "IE8" );
+	$device = curDevice();
 
 	return ( getStats($label, "All", $device) );
 }
