@@ -32,7 +32,7 @@ require_once("charts.inc");
 </style>
 	
 <?php
-$device = ($gbMobile ? "iphone" : "IE8");
+$device = curDevice();
 $hTrends = getTrends($gSlice, $device, $gUrl);
 
 
