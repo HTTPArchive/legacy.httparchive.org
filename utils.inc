@@ -1524,7 +1524,13 @@ function crawledUrls($pageid=null, $n=20) {
 
 
 function curDevice() {
-	return ( isMobile() ? "iphone" : "IE8" );
+	return ( isMobile() ? "iphone4" : "IE8" );
+}
+
+
+// Return an array of devices
+function allDevices() {
+	return array("iphone4", "IE8");
 }
 
 
