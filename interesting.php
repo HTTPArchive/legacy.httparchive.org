@@ -69,7 +69,7 @@ echo selectSlice($gSlice, "onchange='document.location=\"?a=$gArchive&l=$gLabel&
 require_once("stats.inc");
 require_once("charts.inc");
 
-$hStats = getStats($gLabel, $gSlice, ($gbMobile ? "iphone" : "IE8"));
+$hStats = getStats($gLabel, $gSlice, curDevice());
 
 echo bytesContentTypeChart($hStats) . "\n";
 echo responseSizes($hStats) . "\n";
