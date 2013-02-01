@@ -93,7 +93,7 @@ function computeStats($label, $slice, $device) {
 
 // If $bUpdate = false then only compute stats if there are NO stats for the run (ie, the entire row is missing).
 function computeMissingStats($device, $bVerbose = false, $bUpdate = false, $label = null) {
-	$aDevices = ( $device ? array($device) : array("IE8", "iphone") );
+	$aDevices = ( $device ? array($device) : allDevices() );
 	$aLabels = ( $label ? array($label) : archiveLabels(null, false, "n/j/y", true) );
 	$aSlices = sliceNames();
 	foreach ( $aDevices as $device ) {
