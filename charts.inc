@@ -145,16 +145,15 @@ function popularImageFormats($hStats) {
 
 
 function maxage($hStats) {
-	$aNames = array("None", "t <= 0", "0 < t <= 1", "1 < t <= 30", "30 < t <= 365", "365 < t");
-	$aValues = array($hStats['maxageNull'],
-					 $hStats['maxage0'],
+	$aNames = array("t = 0", "0 < t <= 1", "1 < t <= 30", "30 < t <= 365", "t > 365");
+	$aValues = array($hStats['maxage0'],
 					 $hStats['maxage1'],
 					 $hStats['maxage30'],
 					 $hStats['maxage365'],
 					 $hStats['maxageMore']
 					 );
 
-	return percentageColumnChart("Cache-Control: max-age (days)", "max-age", $aNames, $aValues, "184852");
+	return percentageColumnChart("Cache Lifetime (days)", "caching", $aNames, $aValues, "184852");
 }
 
 
