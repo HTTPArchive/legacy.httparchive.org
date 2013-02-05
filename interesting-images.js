@@ -28,7 +28,7 @@ $gJsonP = getParam('jsonp', '');
 
 require_once("stats.inc");
 require_once("charts.inc");
-$hStats = getStats($gLabel, $gSlice, ($gbMobile ? "iphone" : "IE8"));
+$hStats = getStats($gLabel, $gSlice, curDevice());
 ?>
 // HTML strings for each image
 var gaSnippets = new Array();
