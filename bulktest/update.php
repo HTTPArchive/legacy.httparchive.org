@@ -21,7 +21,7 @@ if ( $gbDev ) {
 $pagesTable = $gPagesTable;
 $requestsTable = $gRequestsTable;
 
-$device = ( $gbMobile ? "iphone" : "IE8" );
+$device = curDevice();
 
 $label = null;
 if ( array_key_exists(1, $argv) ) {
