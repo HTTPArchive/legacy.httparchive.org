@@ -22,7 +22,7 @@ require_once("../utils.inc");
 // Compute stats
 require_once("../stats.inc");
 require_once("../dbapi.inc");
-$device = ( $gbMobile ? "iphone" : "IE8" );
+$device = curDevice();
 
 echo "Computing stats...\n";
 
@@ -30,7 +30,7 @@ computeMissingStats($device, true);
 
 if ( ! $gbMobile ) {
 	echo "Copy stats to production...\n";
-	$cmd = "replace into $gStatsTableDesktop select * from $gStatsTableDev where device='IE8';";
+	$cmd = "replace into $gStatsTableDesktop select * from $gStatsTableDev where device='$device';";
 	doSimpleCommand($cmd);
 }
 echo "...stats computed and copied.\n";
