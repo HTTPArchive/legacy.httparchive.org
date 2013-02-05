@@ -90,7 +90,8 @@ else {
 
 	if ( ! $gbMobile && ( $gStatsTableDesktop != $gStatsTableDev ) ) {
 		lprint("Copy stats to production...");
-		$cmd = "replace into $gStatsTableDesktop select * from $gStatsTableDev where device='IE8';";
+		$device = curDevice();
+		$cmd = "replace into $gStatsTableDesktop select * from $gStatsTableDev where device='$device';";
 		doSimpleCommand($cmd);
 	}
 	lprint("...stats computed and copied.");
