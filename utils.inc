@@ -123,11 +123,28 @@ $ghColumnTitles = array (
 						 "perFlash" => "Sites with Flash",
 						 "perFonts" => "Sites with Custom Fonts",
 						 "maxageNull" => "Requests with Caching Headers",
+						 "maxage0" => "Uncacheable Resources",
 						 "perGlibs" => "Sites using Google Libraries API",
 						 "perHttps" => "HTTPS Requests",
+						 "numHttps" => "HTTPS Requests",
 						 "perCompressed" => "Compressed Responses",
 						 "perErrors" => "Pages with Errors (4xx, 5xx)",
-						 "perRedirects" => "Pages with Redirects (3xx)"
+						 "perRedirects" => "Pages with Redirects (3xx)",
+						 "reqGif" => "Gif Requests",
+						 "bytesGif" => "Gif Transfer Size",
+						 "reqJpg" => "Jpg Requests",
+						 "bytesJpg" => "Jpg Transfer Size",
+						 "reqPng" => "Png Requests",
+						 "bytesPng" => "Png Transfer Size",
+						 "reqFont" => "Font Requests",
+						 "bytesFont" => "Font Transfer Size",
+						 "maxDomainReqs" => "Max Domain",
+						 "numDomElements" => "DOM Elements",
+						 "SpeedIndex" => "Speed Index",
+						 "TTFB" => "TTFB",
+						 "fullyLoaded" => "Fully Loaded",
+						 "bytesHtmlDoc" => "Doc Size",
+						 "visualComplete" => "Visually Complete"
 						 );
 
 
