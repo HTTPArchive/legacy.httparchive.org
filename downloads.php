@@ -25,10 +25,14 @@ function listFiles($hFiles) {
 	$aKeys = array_keys($hFiles);
 	sort($aKeys, SORT_NUMERIC);
 	foreach( array_reverse($aKeys) as $epoch ) {
-		$sHtml .= "  <li> " . date("M j, Y", $epoch) . ": " .
-			( array_key_exists('IE', $hFiles[$epoch]) ? "<br>&nbsp;&nbsp;" . $hFiles[$epoch]['IE'] : "" ) .
-			( array_key_exists('iPhone', $hFiles[$epoch]) ? "<br>&nbsp;&nbsp;" . $hFiles[$epoch]['iPhone'] : "" ) .
-			"\n";
+		$label = date("M j Y", $epoch);
+		$crawl = getCrawl($label);
+		if ( "All" === $crawl['archive'] ) {
+			$sHtml .= "  <li> $label: " .
+				( array_key_exists('IE', $hFiles[$epoch]) ? "<br>&nbsp;&nbsp;" . $hFiles[$epoch]['IE'] : "" ) .
+				( array_key_exists('iPhone', $hFiles[$epoch]) ? "<br>&nbsp;&nbsp;" . $hFiles[$epoch]['iPhone'] : "" ) .
+				"\n";
+		}
 	}
 
 	return $sHtml;
