@@ -81,17 +81,12 @@ if ( getStats($gLabel, "All", $device) ) {
 	lprint("Stats already computed.");
 }
 else {
-	lprint("Computing stats...");
-
-	// remove any incomplete cache data that might have been created during the crawl
-	removeStats($gLabel, NULL, $device);
-
-	computeMissingStats($device, true, false, $gLabel);
+	lprint("Computing stats for $gLabel $device...");
+	replaceStats($gLabel, null, $device);
 
 	if ( ! $gbMobile && ( $gStatsTableDesktop != $gStatsTableDev ) ) {
 		lprint("Copy stats to production...");
-		$device = curDevice();
-		$cmd = "replace into $gStatsTableDesktop select * from $gStatsTableDev where device='$device';";
+		$cmd = "replace into $gStatsTableDesktop select * from $gStatsTableDev where label='$gLabel' and device='$device';";
 		doSimpleCommand($cmd);
 	}
 	lprint("...stats computed and copied.");
