@@ -61,7 +61,8 @@ foreach(array('PageSpeed', 'numDomains') as $field) {
 }
 
 if ( "url" != $gSlice ) {
-	foreach(array('perGlibs', 'perFlash', 'perFonts', 'maxageNull', 'perCompressed', 'perHttps', 'perErrors', 'perRedirects') as $field) {
+	// TODO - This hardcoded list of DB fields must be synced with the list in getTrendsData().
+	foreach(array('perGlibs', 'perFlash', 'perFonts', 'maxage0', 'perCompressed', 'perHttps', 'perErrors', 'perRedirects') as $field) {
 		echo formatChart($field, $hTrends, $aRunNames, $labels);
 	}
 }
@@ -113,7 +114,7 @@ function formatChart($field, $hTrends, $aRunNames, $labels) {
 	$skip = getSkip(count($aRunNames));
 	$fieldVals = fieldValues($field, $hTrends, $aRunNames, $min, $max);
 
-	if ( strpos("x|perFlash|perFonts|PageSpeed|perGlibs|maxageNull|perErrors|perRedirects|perHttps|perCompressed|", "|$field|") ) {
+	if ( strpos("x|perFlash|perFonts|PageSpeed|perGlibs|maxage0|perErrors|perRedirects|perHttps|perCompressed|", "|$field|") ) {
 		$max = 100;
 	}
 
