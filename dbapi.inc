@@ -403,6 +403,9 @@ alter table statsdev add column bytesFont int(10) unsigned after bytesFlash;
 Jan 9 2013 - make expAge not null
 alter table requests modify expAge int unsigned not null;
 
+Feb 5 2013 - add new stats to stats table
+alter table stats add column bytesHtmlDoc mediumint unsigned after bytesOther, add column perCdn int(4) unsigned after perGlibs, add column gzipSavings int unsigned not null after bytesHtmlDoc, add column gzipTotal int unsigned not null after bytesHtmlDoc, add column numDomElements mediumint unsigned not null after numDomains, add column maxDomainReqs smallint unsigned not null after numDomains, add column fullyLoaded int(10) unsigned after onLoad, add column visualComplete int(10) unsigned after onLoad, add column TTFB int(10) unsigned after PageSpeed, add column SpeedIndex mediumint unsigned after PageSpeed; 
+  [statsdev]
 *******************************************************************************/
 function createTables() {
 	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gUrlsChangeTable, $gSettingsTable;
@@ -602,9 +605,15 @@ function createTables() {
 
 			// averages across ALL SITES in the slice
 			", PageSpeed float unsigned" .
+			", SpeedIndex mediumint unsigned" .      // WPT Speed Index score
+			", TTFB int(10) unsigned" .
 			", renderStart int(10) unsigned" .
 			", onLoad int(10) unsigned" .
+			", visualComplete int(10) unsigned" .
+			", fullyLoaded int(10) unsigned" .
 			", numDomains float unsigned" .
+			", maxDomainReqs smallint unsigned not null" .
+			", numDomElements mediumint unsigned not null" .
 			", reqTotal float unsigned" .
 			", reqHtml float unsigned" .
 			", reqJS float unsigned" .
@@ -630,6 +639,8 @@ function createTables() {
 			", bytesJson int(10) unsigned" .
 			", bytesOther int(10) unsigned" .
 			", bytesHtmlDoc mediumint unsigned" . // size of the main HTML document
+			", gzipTotal int unsigned not null" .          // # of bytes xferred for resources that COULD have been gzipped
+			", gzipSavings int unsigned not null" .        // # of bytes that could have been saved if ALL gzippable resources were gzipped
 
 			// % of sites with at least one of these conditions
 			", perRedirects int(4) unsigned" .
@@ -637,6 +648,7 @@ function createTables() {
 			", perFlash int(4) unsigned" .
 			", perFonts int(4) unsigned" .
 			", perGlibs int(4) unsigned" .
+			", perCdn int(4) unsigned" .
 /*
 			// % of sites that use this JS library
 			", perjQuery float unsigned" .
