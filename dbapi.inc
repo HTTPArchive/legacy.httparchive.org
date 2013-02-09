@@ -224,12 +224,17 @@ function sliceCond($label, $slice, $device, $url = "") {
 // MYSQL WRAPPER
 //
 //
+
+// Reuse a single DB connection for the entire session.
+$gDBConnection = null;
+
 function doSimpleCommand($cmd, $link = null) {
-	global $gMysqlServer, $gMysqlDb, $gMysqlUsername, $gMysqlPassword;
+	global $gMysqlDb;
 
 	if ( ! $link ) {
-		$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
+		$link = getDBConnection();
 	}
+
 	if ( mysql_select_db($gMysqlDb) ) {
 		//dprint("doSimpleCommand: $cmd");
 		$result = mysql_query($cmd, $link);
@@ -242,11 +247,12 @@ function doSimpleCommand($cmd, $link = null) {
 
 
 function doQuery($query, $link = null) {
-	global $gMysqlServer, $gMysqlDb, $gMysqlUsername, $gMysqlPassword;
+	global $gMysqlDb;
 
 	if ( ! $link ) {
-		$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
+		$link = getDBConnection();
 	}
+
 	if ( mysql_select_db($gMysqlDb) ) {
 		//dprint("doQuery: $query");
 		$result = mysql_query($query, $link);
@@ -300,8 +306,9 @@ function doLastInsertId($cmd, $link = null) {
 	global $gMysqlServer, $gMysqlDb, $gMysqlUsername, $gMysqlPassword;
 
 	if ( ! $link ) {
-		$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
+		$link = getDBConnection();
 	}
+
 	$last_insert_id = null;
 	if ( mysql_select_db($gMysqlDb) ) {
 		//dprint("doSimpleCommand: $cmd");
@@ -317,6 +324,19 @@ function doLastInsertId($cmd, $link = null) {
 		}
 	}
 	return $last_insert_id;
+}
+
+
+// Return a MySQL DB Connection.
+// Cache this in a global variable for efficiency.
+function getDBConnection() {
+	global $gDBConnection, $gMysqlServer, $gMysqlUsername, $gMysqlPassword;
+
+	if ( ! $gDBConnection ) {
+		$gDBConnection = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
+	}
+
+	return $gDBConnection;
 }
 
 
