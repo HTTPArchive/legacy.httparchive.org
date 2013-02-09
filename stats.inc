@@ -32,21 +32,25 @@ function addStats($label, $slice, $device, $hStats=null) {
 }
 
 
-function replaceStats($label, $slice, $device, $hStats=null) {
-	if ( ! $hStats ) {
-		$hStats = computeStats($label, $slice, $device);
+function replaceStats($label, $slice=null, $device=null, $hStats=null) {
+	$device = ( $device ? $device : curDevice() );
+
+	if ( $slice ) {
+		if ( ! $hStats ) {
+			$hStats = computeStats($label, $slice, $device);
+		}
+		removeStats($label, $slice, $device);
+		addStatsData($label, $slice, $device, $hStats);
 	}
-
-	removeStatsData($label, $slice, $device);
-
-	return addStatsData($label, $slice, $device, $hStats);
-}
-
-
-// When we had a new stat we want to retroactively fill it in for all previous runs.
-// This command attempts to do that.
-function updateStats($label, $slice, $device) {
-	return updateStatsData($label, $slice, $device);
+	else {
+		// If $slice is NOT provided, do ALL slices (eg, "All", "Top1000", "Top100").
+		$aSlices = sliceNames(false);
+		foreach ( $aSlices as $slice ) {
+			$hStats = computeStats($label, $slice, $device);
+			removeStats($label, $slice, $device);
+			addStatsData($label, $slice, $device, $hStats);
+		}
+	}
 }
 
 
@@ -73,21 +77,6 @@ function getTrends($slice, $device, $url=NULL) {
 	else {
 		return getTrendsData($slice, $device);
 	}
-}
-
-
-function removeStats($label, $slice=NULL, $device=NULL) {
-	if ( !$label && !$slice && !$device ) {
-		// error - you have to supply SOMETHING
-		return NULL;
-	}
-
-	return removeStatsData($label, $slice, $device);
-}
-
-
-function computeStats($label, $slice, $device) {
-	return computeStatsData($label, $slice, $device);
 }
 
 
@@ -214,12 +203,13 @@ function getStatsDataForUrl($label, $slice, $device, $url) {
 function getTrendsData($slice, $device) {
 	$statsTable = statsTable(NULL, $slice, $device);
 
+	// TODO - This hardcoded list of DB fields must be synced with the list in trends.inc.
 	$query = "select label, numurls" .
 		", onLoad, renderStart" .
 		", ROUND(reqTotal) as reqTotal, TRUNCATE(reqHtml, 1) as reqHtml, ROUND(reqJS) as reqJS, TRUNCATE(reqCSS, 1) as reqCSS, ROUND(reqImg) as reqImg" .
 		", TRUNCATE(reqFlash, 1) as reqFlash, ROUND(bytesTotal/1024) as bytesTotal, ROUND(bytesHtml/1024) as bytesHtml, ROUND(bytesJS/1024) as bytesJS" .
 		", ROUND(bytesCSS/1024) as bytesCSS, ROUND(bytesImg/1024) as bytesImg, ROUND(bytesFlash/1024) as bytesFlash" .
-		", ROUND(PageSpeed) as PageSpeed, ROUND(numDomains) as numDomains, perFlash, perFonts, perGlibs, maxageNull, perErrors, perHttps, perCompressed, perRedirects" .
+		", ROUND(PageSpeed) as PageSpeed, ROUND(numDomains) as numDomains, perFlash, perFonts, perGlibs, maxage0, perErrors, perHttps, perCompressed, perRedirects" .
 		" from $statsTable where slice='$slice' and device='$device';";
 
 	$result = doQuery($query);
@@ -262,9 +252,7 @@ function getTrendsDataForUrl($url, $device) {
 
 
 // return a hash of values for a single stats record
-function removeStatsData($label, $slice=NULL, $device=NULL) {
-	$statstable = statsTable($label, $slice, $device);
-
+function removeStats($label, $slice=NULL, $device=NULL) {
 	$aWhere = array();
 	if ( $label ) {
 		$aWhere[] = "label='$label'";
@@ -277,9 +265,11 @@ function removeStatsData($label, $slice=NULL, $device=NULL) {
 	}
 	$sWhere = implode(" and ", $aWhere);
 	if ( ! $sWhere ) {
-		die("ERROR: need to specificy paraeters to removeStatsData.\n");
+		tprint("ERROR: need to specificy paraeters to removeStats.\n");
+		return NULL;
 	}
 
+	$statstable = statsTable($label, $slice, $device);
 	$cmd = "delete from $statstable where $sWhere" . ";";
 	doSimpleCommand($cmd);
 
@@ -290,13 +280,13 @@ function removeStatsData($label, $slice=NULL, $device=NULL) {
 // Fill in any missing stats - This is complex given the ease of computing SOME stats
 // while other stats are VERY time consuming to compute.
 // return a hash of stats
-function updateStatsData($label, $slice, $device) {
+function updateStats($label, $slice, $device) {
 	// Get any existing stats (potentially old with gaps, possibly missing altogether).
 	$hStats = getStatsData($label, $slice, $device);
 	
 	if ( ! $hStats ) {
 		// No stats! Re-compute EVERYTHING!
-		$hStats = computeStatsData($label, $slice, $device);
+		$hStats = computeStats($label, $slice, $device);
 	}
 	else {
 		$sliceCond = sliceCond($label, $slice, $device);  // this might be expensive - compute it once
@@ -314,7 +304,7 @@ function updateStatsData($label, $slice, $device) {
 
 // return a hash of stats
 // (FYI - we NEVER enter here with $slice = "url")
-function computeStatsData($label, $slice, $device) {
+function computeStats($label, $slice, $device) {
 	$hStats = array();
 	$sliceCond = sliceCond($label, $slice, $device);  // this might be expensive - compute it once
 	$hStats += computeTrendStats($label, $slice, $device, $sliceCond);
@@ -358,7 +348,7 @@ function computeCorrelations($label, $slice, $device, $sliceCond, $var1) {
 
 	// TODO - make this more flexible
 	$hCC = array(); // hash key is the CC *VALUE*
-	$aVars = array("PageSpeed", "reqTotal", "reqHtml", "reqJS", "reqCSS", "reqImg", "reqFlash", "reqJson", "reqOther", "bytesTotal", "bytesHtml", "bytesJS", "bytesCSS", "bytesImg", "bytesFlash", "bytesJson", "bytesOther", "numDomains");
+	$aVars = array("PageSpeed", "SpeedIndex", "reqTotal", "reqHtml", "reqJS", "reqCSS", "reqImg", "reqGif", "reqJpg", "reqPng", "reqFont", "reqFlash", "reqJson", "reqOther", "bytesTotal", "bytesHtml", "bytesJS", "bytesCSS", "bytesImg", "bytesGif", "bytesJpg", "bytesPng", "bytesFont", "bytesFlash", "bytesJson", "bytesOther", "bytesHtmlDoc", "numDomains", "maxDomainReqs", "numRedirects", "numErrors", "numHttps", "numCompressed", "numDomElements", "maxage0");
 	foreach ($aVars as $var2) {
 		// from http://www.freeopenbook.com/mysqlcookbook/mysqlckbk-chp-13-sect-6.html
 		$cmd = "SELECT @n := COUNT($var1) AS n, @sumX := SUM($var2) AS 'sumX', @sumXX := SUM($var2*$var2) AS 'sumXX', @sumY := SUM($var1) AS 'sumY', @sumYY := SUM($var1*$var1) AS 'sumYY', @sumXY := SUM($var2*$var1) AS 'sumXY' FROM $pagesTable where $sliceCond and $var2 is not null and $var2 > 0;";
@@ -394,8 +384,8 @@ function computeCorrelations($label, $slice, $device, $sliceCond, $var1) {
 		$prettyCC = round($cc*100)/100;
 		foreach($hCC[$cc] as $var2) {
 			$iRows++;
-			$hTuples[$var1 . "ccf$iRows"] = $var2;
-			$hTuples[$var1 . "ccv$iRows"] = $prettyCC;
+			$hTuples[$var1 . "ccf$iRows"] = $var2;      // "ccf" == Correlation Coefficient Field (db column)
+			$hTuples[$var1 . "ccv$iRows"] = $prettyCC;  // "ccv" == Correlation Coefficient Value
 			if ( 5 <= $iRows ) {
 				break;
 			}
