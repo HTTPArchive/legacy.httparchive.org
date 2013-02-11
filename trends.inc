@@ -60,7 +60,7 @@ echo format2LineChart('reqFlash', 'bytesFlash', $hTrends, $aRunNames, $labels, "
 
 echo format2LineChart('PageSpeed', 'SpeedIndex', $hTrends, $aRunNames, $labels);
 echo format2LineChart('numDomElements', 'bytesHtmlDoc', $hTrends, $aRunNames, $labels, "(kB)");
-echo format2LineChart('numDomains', 'maxDomainReqs', $hTrends, $aRunNames, $labels);
+echo format2LineChart('maxDomainReqs', 'numDomains', $hTrends, $aRunNames, $labels);
 
 if ( "url" != $gSlice ) {
 	// TODO - This hardcoded list of DB fields must be synced with the list in getTrendsData().
