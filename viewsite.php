@@ -97,7 +97,7 @@ echo diffRuns($url, $gLabel);
 		<li><a href="#sitestats">Stats</a></li>
 		<li><a href="#trends">Trends</a></li>
 		<li><a href="#waterfall">Waterfall</a></li>
-		<li><a href="#pagespeed">Page Speed</a></li>
+		<li><a href="#pagespeed">PageSpeed</a></li>
 		<li><a href="#requests">Requests</a></li>
 		<li><a href="#downloads">Downloads</a></li>
 	</ul>
@@ -252,7 +252,7 @@ $("#content").bind("onPreviewInit",
 </style>
 
 
-<h2 id=pagespeed>Page Speed</h2>
+<h2 id=pagespeed>PageSpeed</h2>
 
 <?php
 if ( ! $gbMobile ) {
@@ -346,7 +346,7 @@ function doFile($harfile) {
 		return;
 	}
 
-	// If everything is ok we run it through Page Speed.
+	// If everything is ok we run it through PageSpeed.
 	$output = array();
 	$return_var = 128;
 	exec("./har_to_pagespeed text '$harfile'", $output, $return_var);
@@ -399,7 +399,7 @@ function displayRules($rules) {
 		"  <tr><th style='padding-top: 40px; border-bottom: 2px solid; padding-bottom: 8px;'><span style='font-size: 1.2em; padding: 0 2px 0 2px; font-weight: bold; border: 2px solid; color: " . 
 		scoreColor($overallScore) .
 		"'>$overallScore</span></td>" .
-		"<th style='padding-top: 40px; border-bottom: 2px solid; font-weight: bold; font-size: 1.5em;'>Page Speed score</td></tr>\n";
+		"<th style='padding-top: 40px; border-bottom: 2px solid; font-weight: bold; font-size: 1.5em;'>PageSpeed score</td></tr>\n";
 
 	$scores = array_keys($ruleStrings);
 	sort($scores);
