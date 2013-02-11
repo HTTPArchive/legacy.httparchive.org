@@ -162,7 +162,6 @@ $query = "select * from $pagesTable where $pageidCond" . ( $tmpPageid ? " and pa
 $result = doQuery($query);
 $iPages = 0;
 // use one link to make it faster?
-$gLink = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
 while ($row = mysql_fetch_assoc($result)) {
 	importPageMod($row);
 	$iPages++;
@@ -170,7 +169,6 @@ while ($row = mysql_fetch_assoc($result)) {
 		tprint("    finished " . ($iPages/1000) . "K");
 	}
 }
-mysql_close($gLink);
 tprint("...done updating new pages fields.");
 
 if ( $iPages > 0 && ! $gbMobile ) { // no pagestmp table for mobile
@@ -267,7 +265,7 @@ exit();
 // shortened version from batch_lib.inc
 // $hPage is the $row from mysql for this page - IT HAS ALL THE CURRENT FIELD VALUES! We're just adding to those here.
 function importPageMod($hPage) {
-	global $pagesTable, $requestsTable, $gLink;
+	global $pagesTable, $requestsTable;
 	$t_CVSNO = time();
 
 	$pageid = $hPage['pageid'];
@@ -333,7 +331,7 @@ function importPageMod($hPage) {
 	$hPage['maxageNull'] = $hPage['maxage0'] = $hPage['maxage1'] = $hPage['maxage30'] = $hPage['maxage365'] = $hPage['maxageMore'] = 0;
 	$hPage['bytesHtmlDoc'] = $hPage['numRedirects'] = $hPage['numErrors'] = $hPage['numGlibs'] = $hPage['numHttps'] = $hPage['numCompressed'] = $hPage['maxDomainReqs'] = 0;
 
-	$result = doQuery("select mimeType, urlShort, resp_content_type, respSize, expAge, firstHtml, status, resp_content_encoding, req_host from $requestsTable where pageid = $pageid;", $gLink);
+	$result = doQuery("select mimeType, urlShort, resp_content_type, respSize, expAge, firstHtml, status, resp_content_encoding, req_host from $requestsTable where pageid = $pageid;");
 	//tprint("after query", $t_CVSNO);
 	while ($row = mysql_fetch_assoc($result)) {
 		$reqUrl = $row['urlShort'];
@@ -401,7 +399,7 @@ function importPageMod($hPage) {
 		hashImplode(", ", "=", $hPage) .
 		";";
 	//tprint("before insert", $t_CVSNO);
-	doSimpleCommand($cmd, $gLink);
+	doSimpleCommand($cmd);
 	//tprint("after insert\n", $t_CVSNO);
 }
 
