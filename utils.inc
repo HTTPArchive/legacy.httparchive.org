@@ -104,7 +104,7 @@ $ghColumnTitles = array (
 						 "numurls" => "URLs Analyzed",
 						 "onLoad" => "Load Time",
 						 "renderStart" => "Start Render Time",
-						 "PageSpeed" => "Page Speed Score",
+						 "PageSpeed" => "PageSpeed Score",
 						 "reqTotal" => "Total Requests",
 						 "bytesTotal" => "Total Transfer Size",
 						 "reqHtml" => "HTML Requests",
@@ -119,7 +119,7 @@ $ghColumnTitles = array (
 						 "bytesFlash" => "Flash Transfer Size",
 						 "reqOther" => "Other Requests",
 						 "bytesOther" => "Other Transfer Size",
-						 "numDomains" => "Domains",
+						 "numDomains" => "# Domains",
 						 "perFlash" => "Sites with Flash",
 						 "perFonts" => "Sites with Custom Fonts",
 						 "maxageNull" => "Requests with Caching Headers",
@@ -130,6 +130,7 @@ $ghColumnTitles = array (
 						 "perCompressed" => "Compressed Responses",
 						 "perErrors" => "Pages with Errors (4xx, 5xx)",
 						 "perRedirects" => "Pages with Redirects (3xx)",
+						 "perCdn" => "Sites hosting HTML on CDN",
 						 "reqGif" => "Gif Requests",
 						 "bytesGif" => "Gif Transfer Size",
 						 "reqJpg" => "Jpg Requests",
@@ -138,7 +139,7 @@ $ghColumnTitles = array (
 						 "bytesPng" => "Png Transfer Size",
 						 "reqFont" => "Font Requests",
 						 "bytesFont" => "Font Transfer Size",
-						 "maxDomainReqs" => "Max Domain",
+						 "maxDomainReqs" => "Max Reqs on 1 Domain",
 						 "numDomElements" => "DOM Elements",
 						 "SpeedIndex" => "Speed Index",
 						 "TTFB" => "TTFB",
@@ -1617,7 +1618,7 @@ function commaize($num) {
 
 $ghFieldColors = array(
 					   "numurls" => "000000",
-					   "onLoad" => "229942",
+					   "onLoad" => "CC0000",
 					   "renderStart" => "224499",
 					   "PageSpeed" => "008000",
 					   "reqTotal" => "15A50E", //B09542",
@@ -1662,7 +1663,8 @@ $ghFieldUnits = array(
 					  "perRedirects" => "%",
 					  "perHttps" => "%",
 					  "perCompressed" => "%",
-					  "maxageNull" => "%",
+					  "perCdn" => "%",
+					  "maxage0" => "%",
 					  "perGlibs" => "%"
 					  );
 
@@ -1764,7 +1766,7 @@ function diffRuns($url1, $label1="", $url2="", $label2="", $bPreamble = true) {
 
 	// Now, what should we highlight?
 	$sDiff = 
-		bigDiff("Page Speed", $row1['PageSpeed'], $row2['PageSpeed'], 5) .
+		bigDiff("PageSpeed", $row1['PageSpeed'], $row2['PageSpeed'], 5) .
 		bigDiff("requests", $row1['reqTotal'], $row2['reqTotal'], 5) .
 		bigDiff("scripts", $row1['reqJS'], $row2['reqJS'], 2) .
 		bigDiff("images", $row1['reqImg'], $row2['reqImg'], 4) .
