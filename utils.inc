@@ -1638,18 +1638,24 @@ $ghFieldColors = array(
 					   "perErrors" => "B09542",
 					   "perHttps" => "B4B418",
 					   "perRedirects" => "008000",
-					   "maxageNull" => "184852",
+					   "maxage0" => "184852",
 					   "perGlibs" => "7777CC",
+					   "bytesHtmlDoc" => "00009D",
+					   "SpeedIndex" => "3B356A",
+					   "maxDomainReqs" => "E94E19",
+					   "numDomElements" => "007099",
+					   "perCdn" => "AA0033"
 					   );
 
-$ghFieldUnits = array("onLoad" => "ms",
-					  "renderStart" => "ms",
+$ghFieldUnits = array(					  
 					  "bytesTotal" => "kB",
 					  "bytesHtml" => "kB",
+					  "bytesHtmlDoc" => "kB",
 					  "bytesJS" => "kB",
 					  "bytesCSS" => "kB",
 					  "bytesFlash" => "kB",
 					  "bytesImg" => "kB",
+					  "bytesFont" => "kB",
 					  "perFlash" => "%",
 					  "perFonts" => "%",
 					  "perErrors" => "%",
