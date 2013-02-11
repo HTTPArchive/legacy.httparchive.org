@@ -117,15 +117,19 @@ function computeMissingStats($device, $bVerbose = false, $bUpdate = false, $labe
 
 $gaTrendStats = array(
 					  "onLoad",
+					  "TTFB",
 					  "renderStart",
+					  "visualComplete",
+					  "fullyLoaded",
 					  "PageSpeed",
+					  "SpeedIndex",
 					  "reqTotal",
 					  "reqHtml",
 					  "reqJS",
 					  "reqCSS",
 					  "reqImg",
 					  "reqFlash",
-					  "reqJson",
+					  //"reqJson", // too hard to identify based on mimeType
 					  "reqOther",
 					  "reqFont",
 					  "reqGif",
@@ -137,13 +141,18 @@ $gaTrendStats = array(
 					  "bytesCSS",
 					  "bytesImg",
 					  "bytesFlash",
-					  "bytesJson",
+					  //"bytesJson", // too hard to identify based on mimeType
 					  "bytesOther",
 					  "bytesFont",
 					  "bytesGif",
 					  "bytesJpg",
 					  "bytesPng",
-					  "numDomains"
+					  "bytesHtmlDoc",
+					  "gzipTotal",
+					  "gzipSavings",
+					  "numDomElements",
+					  "numDomains",
+					  "maxDomainReqs"
 					  );
 
 
@@ -204,12 +213,33 @@ function getTrendsData($slice, $device) {
 	$statsTable = statsTable(NULL, $slice, $device);
 
 	// TODO - This hardcoded list of DB fields must be synced with the list in trends.inc.
-	$query = "select label, numurls" .
-		", onLoad, renderStart" .
-		", ROUND(reqTotal) as reqTotal, TRUNCATE(reqHtml, 1) as reqHtml, ROUND(reqJS) as reqJS, TRUNCATE(reqCSS, 1) as reqCSS, ROUND(reqImg) as reqImg" .
-		", TRUNCATE(reqFlash, 1) as reqFlash, ROUND(bytesTotal/1024) as bytesTotal, ROUND(bytesHtml/1024) as bytesHtml, ROUND(bytesJS/1024) as bytesJS" .
-		", ROUND(bytesCSS/1024) as bytesCSS, ROUND(bytesImg/1024) as bytesImg, ROUND(bytesFlash/1024) as bytesFlash" .
-		", ROUND(PageSpeed) as PageSpeed, ROUND(numDomains) as numDomains, perFlash, perFonts, perGlibs, maxage0, perErrors, perHttps, perCompressed, perRedirects" .
+	$query = "select label" .
+		", numurls" .
+		", onLoad" .
+		", renderStart" .
+		", ROUND(reqTotal) as reqTotal" .
+		", TRUNCATE(reqHtml, 1) as reqHtml" .
+		", ROUND(reqJS) as reqJS" .
+		", TRUNCATE(reqCSS, 1) as reqCSS" .
+		", ROUND(reqImg) as reqImg" .
+		", TRUNCATE(reqFlash, 1) as reqFlash" .
+		", ROUND(bytesTotal/1024) as bytesTotal" .
+		", ROUND(bytesHtml/1024) as bytesHtml" .
+		", ROUND(bytesJS/1024) as bytesJS" .
+		", ROUND(bytesCSS/1024) as bytesCSS" .
+		", ROUND(bytesImg/1024) as bytesImg" .
+		", ROUND(bytesFlash/1024) as bytesFlash" .
+		", ROUND(PageSpeed) as PageSpeed" .
+		", ROUND(numDomains) as numDomains" .
+
+		", perFlash" .
+		", perFonts" .
+		", perGlibs" .
+		", maxage0" .
+		", perErrors" .
+		", perHttps" .
+		", perCompressed" .
+		", perRedirects" .
 		" from $statsTable where slice='$slice' and device='$device';";
 
 	$result = doQuery($query);
@@ -233,11 +263,24 @@ function getTrendsData($slice, $device) {
 function getTrendsDataForUrl($url, $device) {
 	$pagesTable = pagesTable(NULL, NULL, $device);
 
-	$query = "select label, count(*) as numurls" .
-		", reqTotal, reqHtml, reqJS, reqCSS, reqImg" .
-		", reqFlash, ROUND(bytesTotal/1024) as bytesTotal, ROUND(bytesHtml/1024) as bytesHtml, ROUND(bytesJS/1024) as bytesJS" .
-		", ROUND(bytesCSS/1024) as bytesCSS, ROUND(bytesImg/1024) as bytesImg, ROUND(bytesFlash/1024) as bytesFlash" .
-		", ROUND(PageSpeed) as PageSpeed, ROUND(numDomains) as numDomains" .
+	$query = "select label" .
+		", count(*) as numurls" .
+		//", onLoad" .
+		//", renderStart" .
+		", reqTotal" .
+		", reqHtml" .
+		", reqJS" .
+		", reqCSS" .
+		", reqImg" .
+		", reqFlash" .
+		", ROUND(bytesTotal/1024) as bytesTotal" .
+		", ROUND(bytesHtml/1024) as bytesHtml" .
+		", ROUND(bytesJS/1024) as bytesJS" .
+		", ROUND(bytesCSS/1024) as bytesCSS" .
+		", ROUND(bytesImg/1024) as bytesImg" .
+		", ROUND(bytesFlash/1024) as bytesFlash" .
+		", ROUND(PageSpeed) as PageSpeed" .
+		", ROUND(numDomains) as numDomains" .
 		" from $pagesTable where url = '$url' group by label;";
 	$result = doQuery($query);
 
@@ -348,7 +391,7 @@ function computeCorrelations($label, $slice, $device, $sliceCond, $var1) {
 
 	// TODO - make this more flexible
 	$hCC = array(); // hash key is the CC *VALUE*
-	$aVars = array("PageSpeed", "SpeedIndex", "reqTotal", "reqHtml", "reqJS", "reqCSS", "reqImg", "reqGif", "reqJpg", "reqPng", "reqFont", "reqFlash", "reqJson", "reqOther", "bytesTotal", "bytesHtml", "bytesJS", "bytesCSS", "bytesImg", "bytesGif", "bytesJpg", "bytesPng", "bytesFont", "bytesFlash", "bytesJson", "bytesOther", "bytesHtmlDoc", "numDomains", "maxDomainReqs", "numRedirects", "numErrors", "numHttps", "numCompressed", "numDomElements", "maxage0");
+	$aVars = array("PageSpeed", "SpeedIndex", "reqTotal", "reqHtml", "reqJS", "reqCSS", "reqImg", "reqGif", "reqJpg", "reqPng", "reqFont", "reqFlash", "reqOther", "bytesTotal", "bytesHtml", "bytesJS", "bytesCSS", "bytesImg", "bytesGif", "bytesJpg", "bytesPng", "bytesFont", "bytesFlash", "bytesOther", "bytesHtmlDoc", "numDomains", "maxDomainReqs", "numRedirects", "numErrors", "numHttps", "numCompressed", "numDomElements", "maxage0");
 	foreach ($aVars as $var2) {
 		// from http://www.freeopenbook.com/mysqlcookbook/mysqlckbk-chp-13-sect-6.html
 		$cmd = "SELECT @n := COUNT($var1) AS n, @sumX := SUM($var2) AS 'sumX', @sumXX := SUM($var2*$var2) AS 'sumXX', @sumY := SUM($var1) AS 'sumY', @sumYY := SUM($var1*$var1) AS 'sumYY', @sumXY := SUM($var2*$var1) AS 'sumXY' FROM $pagesTable where $sliceCond and $var2 is not null and $var2 > 0;";
@@ -460,6 +503,12 @@ function computeOther($label, $slice, $device, $sliceCond, &$hTuples = array()) 
 		$query = "select sum(numCompressed) as compressed, sum(reqHtml) + sum(reqJS) + sum(reqCSS) + sum(reqJson) as candidates from $pagesTable where $sliceCond;";
 		$row = doRowQuery($query);
 		$hTuples['perCompressed'] = round(100 * $row['compressed'] / $row['candidates']);
+	}
+
+	// CDN
+	if ( !array_key_exists('perCdn', $hTuples) || null === $hTuples['perCdn'] ) {
+		$num = doSimpleQuery("select count(*) from $pagesTable where $sliceCond and cdn is not null;");
+		$hTuples['perCdn'] = round(100*$num/$totalPages);
 	}
 
 	return $hTuples;
