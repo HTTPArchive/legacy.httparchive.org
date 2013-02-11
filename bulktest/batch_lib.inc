@@ -870,7 +870,7 @@ function prettyMimetype($mimeType, $url) {
 	$mimeType = strtolower($mimeType);
 
 	// do most unique first
-	foreach(array("flash", "font", "css", "image", "script", "html") as $type) {
+	foreach(array("flash", "font", "css", "image", "script", "html") as $type) {  // we could add "json" here, but there are only 40K requests w/ "json" in the mimetype, and 200K with "json" in the URL
 		if ( false !== strpos($mimeType, $type) ) {
 			return $type;
 		}
