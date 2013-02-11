@@ -115,45 +115,96 @@ function computeMissingStats($device, $bVerbose = false, $bUpdate = false, $labe
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-$gaTrendStats = array(
-					  "onLoad",
-					  "TTFB",
-					  "renderStart",
-					  "visualComplete",
-					  "fullyLoaded",
-					  "PageSpeed",
-					  "SpeedIndex",
-					  "reqTotal",
-					  "reqHtml",
-					  "reqJS",
-					  "reqCSS",
-					  "reqImg",
-					  "reqFlash",
-					  //"reqJson", // too hard to identify based on mimeType
-					  "reqOther",
-					  "reqFont",
-					  "reqGif",
-					  "reqJpg",
-					  "reqPng",
-					  "bytesTotal",
-					  "bytesHtml",
-					  "bytesJS",
-					  "bytesCSS",
-					  "bytesImg",
-					  "bytesFlash",
-					  //"bytesJson", // too hard to identify based on mimeType
-					  "bytesOther",
-					  "bytesFont",
-					  "bytesGif",
-					  "bytesJpg",
-					  "bytesPng",
-					  "bytesHtmlDoc",
-					  "gzipTotal",
-					  "gzipSavings",
-					  "numDomElements",
-					  "numDomains",
-					  "maxDomainReqs"
+// List of fields (including mysql massaging) for selecting data from the "pages" table and saving to the "stats" table.
+$gaTrendsCompute = array(
+					  "ROUND(AVG(onLoad)) as onLoad",
+					  "ROUND(AVG(TTFB)) as TTFB",
+					  "ROUND(AVG(renderStart)) as renderStart",
+					  "ROUND(AVG(visualComplete)) as visualComplete",
+					  "ROUND(AVG(fullyLoaded)) as fullyLoaded",
+					  "ROUND(AVG(PageSpeed)) as PageSpeed",
+					  "ROUND(AVG(SpeedIndex)) as SpeedIndex",
+					  "ROUND(AVG(bytesHtmlDoc)) as bytesHtmlDoc",
+					  "ROUND(AVG(gzipTotal)) as gzipTotal",
+					  "ROUND(AVG(gzipSavings)) as gzipSavings",
+					  "ROUND(AVG(numDomElements)) as numDomElements",
+					  "ROUND(AVG(numDomains)) as numDomains",
+					  "ROUND(AVG(maxDomainReqs)) as maxDomainReqs",
+
+					  "TRUNCATE(AVG(reqTotal, 1)) as reqTotal",
+					  "TRUNCATE(AVG(reqHtml, 1)) as reqHtml",
+					  "TRUNCATE(AVG(reqJS, 1)) as reqJS",
+					  "TRUNCATE(AVG(reqCSS, 1)) as reqCSS",
+					  "TRUNCATE(AVG(reqImg, 1)) as reqImg",
+					  "TRUNCATE(AVG(reqFlash, 1)) as reqFlash",
+					  //"TRUNCATE(AVG(reqJson, 1)) as reqJson", // too hard to identify based on mimeType
+					  "TRUNCATE(AVG(reqOther, 1)) as reqOther",
+					  "TRUNCATE(AVG(reqFont, 1)) as reqFont",
+					  "TRUNCATE(AVG(reqGif, 1)) as reqGif",
+					  "TRUNCATE(AVG(reqJpg, 1)) as reqJpg",
+					  "TRUNCATE(AVG(reqPng, 1)) as reqPng",
+					  "ROUND(AVG(bytesTotal)) as bytesTotal",
+					  "ROUND(AVG(bytesHtml)) as bytesHtml",
+					  "ROUND(AVG(bytesJS)) as bytesJS",
+					  "ROUND(AVG(bytesCSS)) as bytesCSS",
+					  "ROUND(AVG(bytesImg)) as bytesImg",
+					  "ROUND(AVG(bytesFlash)) as bytesFlash",
+					  //"ROUND(AVG(bytesJson)) as bytesJson", // too hard to identify based on mimeType
+					  "ROUND(AVG(bytesOther)) as bytesOther",
+					  "ROUND(AVG(bytesFont)) as bytesFont",
+					  "ROUND(AVG(bytesGif)) as bytesGif",
+					  "ROUND(AVG(bytesJpg)) as bytesJpg",
+					  "ROUND(AVG(bytesPng)) as bytesPng"
 					  );
+
+
+// List of fields (including mysql massaging) to extract from the "stats" table to show as trend charts.
+// This list is used for labels AND for individual websites.
+$gaTrendsGet = array(
+					 "onLoad",
+					 "TTFB",
+					 "renderStart",
+					 "visualComplete",
+					 "fullyLoaded",
+					 "PageSpeed",
+					 "SpeedIndex",
+					 "ROUND(bytesHtmlDoc/1024) as bytesHtmlDoc",
+					 // gzipTotal?
+					 // gzipSavings?
+					 "numDomElements",
+					 "numDomains",
+					 "maxDomainReqs",
+
+					 "ROUND(reqTotal) as reqTotal",       // if there are A LOT of requests, do ROUND
+					 "TRUNCATE(reqHtml, 1) as reqHtml",   // if there are A FEW requests, show a float
+					 "ROUND(reqJS) as reqJS",
+					 "TRUNCATE(reqCSS, 1) as reqCSS",
+					 "ROUND(reqImg) as reqImg",
+					 "TRUNCATE(reqFlash, 1) as reqFlash",
+					 "TRUNCATE(reqFont, 1) as reqFont",
+					 "ROUND(bytesTotal/1024) as bytesTotal",
+					 "ROUND(bytesHtml/1024) as bytesHtml",
+					 "ROUND(bytesJS/1024) as bytesJS",
+					 "ROUND(bytesCSS/1024) as bytesCSS",
+					 "ROUND(bytesImg/1024) as bytesImg",
+					 "ROUND(bytesFlash/1024) as bytesFlash",
+					 "ROUND(bytesFont/1024) as bytesFont"
+					 );
+
+
+// List of fields (including mysql massaging) to extract from the "stats" table to show as trend charts.
+// This list is used for labels only (NOT websites);
+$gaTrendsGetLabel = array(
+						  "perFlash",
+						  "perFonts",
+						  "perGlibs",
+						  "maxage0",
+						  "perErrors",
+						  "perHttps",
+						  "perCompressed",
+						  "perRedirects",
+						  "perCdn"
+						  );
 
 
 // return a hash of values for a single stats record
@@ -210,36 +261,15 @@ function getStatsDataForUrl($label, $slice, $device, $url) {
 // Returns a hash where the key is the label (run name, eg, "Oct 1 2011").
 // The value for each key is another hash of all the trends data fields. 
 function getTrendsData($slice, $device) {
+	global $gaTrendsGet, $gaTrendsGetLabel;
+
 	$statsTable = statsTable(NULL, $slice, $device);
 
 	// TODO - This hardcoded list of DB fields must be synced with the list in trends.inc.
 	$query = "select label" .
 		", numurls" .
-		", onLoad" .
-		", renderStart" .
-		", ROUND(reqTotal) as reqTotal" .
-		", TRUNCATE(reqHtml, 1) as reqHtml" .
-		", ROUND(reqJS) as reqJS" .
-		", TRUNCATE(reqCSS, 1) as reqCSS" .
-		", ROUND(reqImg) as reqImg" .
-		", TRUNCATE(reqFlash, 1) as reqFlash" .
-		", ROUND(bytesTotal/1024) as bytesTotal" .
-		", ROUND(bytesHtml/1024) as bytesHtml" .
-		", ROUND(bytesJS/1024) as bytesJS" .
-		", ROUND(bytesCSS/1024) as bytesCSS" .
-		", ROUND(bytesImg/1024) as bytesImg" .
-		", ROUND(bytesFlash/1024) as bytesFlash" .
-		", ROUND(PageSpeed) as PageSpeed" .
-		", ROUND(numDomains) as numDomains" .
-
-		", perFlash" .
-		", perFonts" .
-		", perGlibs" .
-		", maxage0" .
-		", perErrors" .
-		", perHttps" .
-		", perCompressed" .
-		", perRedirects" .
+		", " . implode(", ", $gaTrendsGet) .
+		", " . implode(", ", $gaTrendsGetLabel) .
 		" from $statsTable where slice='$slice' and device='$device';";
 
 	$result = doQuery($query);
@@ -261,26 +291,13 @@ function getTrendsData($slice, $device) {
 //   - Add a "urlhash" field to the pages table (same as urls table) - right now we're searching on "url".
 //   - Cache trending data per URL - that's a big table.
 function getTrendsDataForUrl($url, $device) {
+	global $gaTrendsGet;
+
 	$pagesTable = pagesTable(NULL, NULL, $device);
 
 	$query = "select label" .
 		", count(*) as numurls" .
-		//", onLoad" .
-		//", renderStart" .
-		", reqTotal" .
-		", reqHtml" .
-		", reqJS" .
-		", reqCSS" .
-		", reqImg" .
-		", reqFlash" .
-		", ROUND(bytesTotal/1024) as bytesTotal" .
-		", ROUND(bytesHtml/1024) as bytesHtml" .
-		", ROUND(bytesJS/1024) as bytesJS" .
-		", ROUND(bytesCSS/1024) as bytesCSS" .
-		", ROUND(bytesImg/1024) as bytesImg" .
-		", ROUND(bytesFlash/1024) as bytesFlash" .
-		", ROUND(PageSpeed) as PageSpeed" .
-		", ROUND(numDomains) as numDomains" .
+		", " . implode(", ", $gaTrendsGet) .
 		" from $pagesTable where url = '$url' group by label;";
 	$result = doQuery($query);
 
@@ -360,29 +377,18 @@ function computeStats($label, $slice, $device) {
 
 
 function computeTrendStats($label, $slice, $device, $sliceCond) {
-	global $gArchive;
+	global $gArchive, $gaTrendsCompute;
 
-	$aFields = trendStatsFields();
+	$aFields = $gaTrendsCompute;
 	$pagesTable = pagesTable($label, $slice, $device);
 
-	$query = "select count(*) as numurls";
-	foreach ($aFields as $field) {
-		// HACK - we massage the resulting number based on the field's label - yuck!
-		$query .= ( false === strpos($field, "bytes")
-					? ", TRUNCATE(AVG($field), 1) as $field"   // truncate requests to 1 decimal place
-					: ", ROUND(AVG($field)) as $field" );      // round bytes to nearest integer
-	}
-	$query .= " from $pagesTable where archive = '$gArchive' and label='$label' and $sliceCond;";
+	$query = "select count(*) as numurls, " .
+		implode(", ", $gaTrendsCompute) . 
+		" from $pagesTable where archive = '$gArchive' and label='$label' and $sliceCond;";
 
 	$row = doRowQuery($query);
 
 	return $row;
-}
-
-
-function trendStatsFields() {
-	global $gaTrendStats;
-	return $gaTrendStats;
 }
 
 
