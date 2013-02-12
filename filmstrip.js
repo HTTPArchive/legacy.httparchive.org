@@ -31,7 +31,7 @@ $interval = ( $gbMobile ? 1000 : ( $onLoad > 15000 ? 5000 : ( $onLoad > 4000 ? 1
 $renderStart = $row['renderStart'];
 
 $xmlurl = "{$wptServer}xmlResult.php?test=$wptid";
-$xmlstr = file_get_contents($xmlurl);
+$xmlstr = fetchUrl($xmlurl);
 $xml = new SimpleXMLElement($xmlstr);
 $frames = $xml->data->run[($wptrun - 1)]->firstView->videoFrames;
 $maxFrame = 0;
