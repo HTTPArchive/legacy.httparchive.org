@@ -76,7 +76,7 @@ if ( $gRurl ) {
 			$url_to_fetch = substr($gRurl, -1) == '/' ? $gRurl : $gRurl . '/';
 			$url_to_fetch .= 'removehttparchive.txt';
 			// This requires setting this in php.ini: allow_url_fopen = On
-			$bRemovalConfirmed = ( FALSE === @file_get_contents($url_to_fetch) ? false : true );
+			$bRemovalConfirmed = ( FALSE === @fetchUrl($url_to_fetch) ? false : true );
 			if ( ! $bRemovalConfirmed ) {
 				echo "<p class=warning><a href='$url_to_fetch' style='text-decoration: underline; color: #870E00;'>$url_to_fetch</a> was not found.<br>$gRurl is still archived.</p>\n";
 			}
