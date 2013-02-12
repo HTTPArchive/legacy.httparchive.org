@@ -520,4 +520,59 @@ function computeOther($label, $slice, $device, $sliceCond, &$hTuples = array()) 
 	return $hTuples;
 }
 
+
+// Helper function to fix a crawl's maxage* values.
+function updateCrawlMaxage($label) {
+	global $gPagesTable;
+	$result = doQuery("select pageid from $gPagesTable where label='$label';");
+	while ($row = mysql_fetch_assoc($result)) {
+		updatePageMaxage($row['pageid']);
+	}
+	mysql_free_result($result);
+}
+
+
+// Helper function to fix a page's maxage* values.
+function updatePageMaxage($pageid) {
+	global $gPagesTable, $gRequestsTable;
+
+	$result = doQuery("select expAge from $gRequestsTable where pageid = $pageid;");
+
+	$maxageNull = $maxage0 = $maxage1 = $maxage30 = $maxage365 = $maxageMore = 0;
+	while ($row = mysql_fetch_assoc($result)) {
+		// count expiration windows
+		$expAge = $row['expAge'];
+		$daySecs = 24*60*60;
+		if ( NULL === $expAge ) {
+			$maxageNull++;
+		}
+		else if ( 0 === intval($expAge) ) {
+			$maxage0++;
+		}
+		else if ( $expAge <= (1 * $daySecs) ) {
+			$maxage1++;
+		}
+		else if ( $expAge <= (30 * $daySecs) ) {
+			$maxage30++;
+		}
+		else if ( $expAge <= (365 * $daySecs) ) {
+			$maxage365++;
+		}
+		else {
+			$maxageMore++;
+		}
+	}
+	mysql_free_result($result);
+
+	$cmd = "UPDATE $gPagesTable SET " .
+		" maxageNull = $maxageNull" .
+		", maxage0 = $maxage0" .
+		", maxage1 = $maxage1" .
+		", maxage30 = $maxage30" .
+		", maxage365 = $maxage365" .
+		", maxageMore = $maxageMore" .
+		" where pageid = $pageid;";
+	doSimpleCommand($cmd);
+}
+
 ?>
