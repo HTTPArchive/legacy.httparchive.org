@@ -7,7 +7,7 @@ $wptrun = getParam("wptrun");
 $bCached = getParam("cached", 0);
 if ( $wptid && $wptrun ) {
 	$target = wptHarFileUrl($wptid, $wptrun, $bCached);
-	echo file_get_contents($target) . ";\n";
+	echo fetchUrl($target) . ";\n";
 }
 else if ( array_key_exists('u', $_GET) ) {
 	dprint("ERROR: harviewer.js was accessed using the *deprecated* \"u\" querystring parameter.");
