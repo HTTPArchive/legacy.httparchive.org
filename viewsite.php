@@ -272,7 +272,7 @@ else {
 	$fullpath = "./harfiles-delme/$gPageid.$file.har";
 	$bWritten = false;
 	if( strlen($file) ) {
-		$response = file_get_contents($harfileWptUrl);
+		$response = fetchUrl($harfileWptUrl);
 		if( strlen($response) ) {
 			file_put_contents("$fullpath", $response);
 			$bWritten = true;
