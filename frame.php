@@ -13,7 +13,7 @@ $wptrun = getParam('wptrun');
 
 $wptServer = wptServer();
 $xmlurl = "{$wptServer}xmlResult.php?test=$wptid";
-$xmlstr = file_get_contents($xmlurl);
+$xmlstr = fetchUrl($xmlurl);
 $xml = new SimpleXMLElement($xmlstr);
 $frames = $xml->data->run[($wptrun - 1)]->firstView->videoFrames;
 $tbefore = 0;
