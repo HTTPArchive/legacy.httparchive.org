@@ -60,13 +60,6 @@ function isEmptyQuery($resource) {
 }
 
 
-// Fetch file and retry if it fails.
-function fetchUrl($fn) {
-	$contents = file_get_contents($fn);
-	return $contents;
-}
-
-
 // Set status code in status table
 function setStatus($statusid, $status) {
 	global $gStatusTable;
@@ -292,7 +285,7 @@ function importWptResults($statusInfo, $bDebug=false) {
 	$request = $wptServer . "export.php?test=$wptid&run=$medianRun&cached=" . ( $gbRepeatView ? "1" : "0" ) . "&php=1";
 	$response = fetchUrl($request);
 	if ( strlen($response) ) {
-		if ( ImportHarJson($response, $statusInfo) ) {
+		if ( importHarJson($response, $statusInfo) ) {
 			return DONE;
 		}
 	}
