@@ -1849,6 +1849,12 @@ function getHarFileContents($filename) {
 }
 
 
+// more intuitive wrapper
+function fetchUrl($url) {
+	return file_get_contents($url);
+}
+
+
 // Delete all rows related to a specific page.
 function purgePage($pageid) {
 	global $gPagesTable, $gRequestsTable;
