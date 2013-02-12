@@ -174,6 +174,7 @@ $gaTrendsGet = array(
 					 "numDomElements",
 					 "numDomains",
 					 "maxDomainReqs",
+					 "maxage0",
 
 					 "ROUND(reqTotal) as reqTotal",       // if there are A LOT of requests, do ROUND
 					 "TRUNCATE(reqHtml, 1) as reqHtml",   // if there are A FEW requests, show a float
@@ -198,7 +199,6 @@ $gaTrendsGetLabel = array(
 						  "perFlash",
 						  "perFonts",
 						  "perGlibs",
-						  "maxage0",
 						  "perErrors",
 						  "perHttps",
 						  "perCompressed",
