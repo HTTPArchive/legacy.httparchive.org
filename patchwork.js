@@ -33,7 +33,7 @@ while ($row = mysql_fetch_assoc($result)) {
 		$wptrun = $row['wptrun'];
 
 		$xmlurl = "{$wptServer}xmlResult.php?test=$wptid";
-		$xmlstr = file_get_contents($xmlurl);
+		$xmlstr = fetchUrl($xmlurl);
 		$xml = new SimpleXMLElement($xmlstr);
 		$frames = $xml->data->run[($wptrun - 1)]->firstView->videoFrames;
 		if ( $frames->frame ) {
