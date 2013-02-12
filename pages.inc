@@ -36,7 +36,7 @@ function pageFromWPT($wptid, $medianRun, $bRepeatView=false) {
 	// Fetch the HAR file from WebPagetest.
 	$wptServer = wptServer();
 	$url = $wptServer . "export.php?test=$wptid&run=$medianRun&cached=" . ( $bRepeatView ? "1" : "0" ) . "&php=1";
-	$response = file_get_contents($url);
+	$response = fetchUrl($url);
 
 	return pageFromHar($response);
 }
