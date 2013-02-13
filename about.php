@@ -82,7 +82,7 @@ $gFAQ =<<<OUTPUT
 <p>
 Starting in November 2011, the list of URLs is based solely on the <a href="http://www.alexa.com/topsites">Alexa Top 1,000,000 Sites</a>
 (<a href="http://s3.amazonaws.com/alexa-static/top-1m.csv.zip">zip</a>).
-Use the <a href="urls.php">HTTP Archive URLs</a> page to the list of the top 10,000 URLs used in the most recent crawl.
+Use the <a href="urls.php">HTTP Archive URLs</a> page to see the list of the top 10,000 URLs used in the most recent crawl.
 </p>
 
 <p>From November 2010 through October 2011 there were <a href="lists/All.txt">18,026 URLs analyzed</a>. This list was based on the union of the following lists:
@@ -110,7 +110,7 @@ Use the <a href="urls.php">HTTP Archive URLs</a> page to the list of the top 10,
   <li> empty cache
 </ul>
 
-<p>Each URL is loaded 3 times. The data from the median run (based on load) is collected via a <a href="#harfile">HAR file</a>.
+<p>Each URL is loaded 3 times. The data from the median run (based on load time) is collected via a <a href="#harfile">HAR file</a>.
 The HTTP Archive collects these HAR files, parses them, and populates our database with the relevant information.</p>
 
 <p>
@@ -171,16 +171,188 @@ are well known, the entire website doesn't necessarily map well to a single URL.
 			   <h2 id=waterfall>How is the HTTP waterfall chart generated?</h2>
 					<p>The HTTP waterfall chart is generated from the HAR file via JavaScript. The code is from Jan Odvarko's <a href='http://www.softwareishard.com/har/viewer/'>HAR Viewer</a>. Jan is also one of the creators of the HAR specification. Thanks Jan!</p>
 
-
-<h2 id=intersection>When looking at Trends what does it mean to choose the "intersection" URLs?</h2>
+			   <h2 id=charts>What are the definitions for the various charts?</h2>
 <p>
-The number and exact list of URLs changes from run to run.
-Comparing trends for "All" the URLs from run to run is a bit like comparing apples and oranges.
-For more of an apples to apples comparison you can choose the "intersection" URLs.
-This is the maximum set of URLs that were measured in every run.
+The charts from the <a href="trends.php">Trends</a> and <a href="interesting.php">Stats</a> pages are explained here.
 </p>
 
- 
+<dl>
+  <dt id=numurls> <a href="trends.php#numurls">URLs Analyzed</a>
+  <dd> This chart shows the total number of URLs archived during each crawl. 
+This chart is important because the number of URLs (sample size) can affect the metrics being gathered.
+
+  <dt id=renderStart> <a href="trends.php#onLoad">Load Time</a>
+  <dd> This chart plots the average window.onload time in milliseconds.
+
+  <dt id=reqTotal> <a href="trends.php#renderStart">Start Render Time</a>
+  <dd> Start render is the time at which something was first displayed to the screen.
+
+  <dt id=bytesTotal> <a href="trends.php#bytesTotal">Total Transfer Size</a>
+  <dd> This is the average transfer size of all responses for a single website. 
+<!-- CVSNO - does this include headers? note in all sections below -->
+Note that if the response is compressed, the transfer size is smaller than the original uncompressed content.
+
+  <dt id=reqTotal> <a href="trends.php#reqTotal">Total Requests</a>
+  <dd> This chart shows the average number of requests for a single website.
+
+
+  <dt id=bytesHtml> <a href="trends.php#bytesHtml">HTML Transfer Size</a>
+  <dd> This is the average transfer size of all HTML responses for a single website. 
+Note that if the response is compressed, the transfer size is smaller than the original uncompressed content.
+
+  <dt id=reqHtml> <a href="trends.php#reqHtml"></a>
+  <dd> This chart shows the average number of HTML requests for a single website.
+
+
+  <dt id=bytesJS> <a href="trends.php#bytesJS">JS Transfer Size</a>
+  <dd> This is the average transfer size of all JavaScript responses for a single website. 
+Note that if the response is compressed, the transfer size is smaller than the original uncompressed content.
+
+  <dt id=reqJS> <a href="trends.php#reqJS">JS Requests</a>
+  <dd> This chart shows the average number of JavaScript requests for a single website.
+
+
+  <dt id=bytesCSS> <a href="trends.php#bytesCSS">CSS Transfer Size</a>
+  <dd> This is the average transfer size of all stylesheet responses for a single website. 
+Note that if the response is compressed, the transfer size is smaller than the original uncompressed content.
+
+  <dt id=reqCSS> <a href="trends.php#reqCSS">CSS Requests</a>
+  <dd> This chart shows the average number of stylesheet requests for a single website.
+
+
+  <dt id=bytesImg> <a href="trends.php#bytesImg">Image Transfer Size</a>
+  <dd> This is the average transfer size of all image responses for a single website. 
+
+  <dt id=reqImg> <a href="trends.php#reqImg">Image Requests</a>
+  <dd> This chart shows the average number of image requests for a single website.
+
+
+  <dt id=bytesFlash> <a href="trends.php#bytesFlash">Flash Transfer Size</a>
+  <dd> This is the average transfer size of all Flash responses for a single website. 
+
+  <dt id=reqFlash> <a href="trends.php#reqFlash">Flash Requests</a>
+  <dd> This chart shows the average number of Flash requests for a single website.
+
+
+  <dt id=SpeedIndex> <a href="trends.php#SpeedIndex">Speed Index</a>
+  <dd> This chart shows the average Speed Index value across all websites. 
+<a href="https://sites.google.com/a/webpagetest.org/docs/using-webpagetest/metrics/speed-index">Speed Index</a> measures how quickly the page is rendered. 
+Lower values are better.
+
+  <dt id=PageSpeed> <a href="trends.php#PageSpeed">PageSpeed Score</a>
+  <dd> <a href="https://developers.google.com/speed/pagespeed/">PageSpeed</a> is a performance analysis tool that grades websites on
+a scale of 1-100. 
+Higher scores are better.
+This chart shows the average PageSpeed score across all websites.
+
+  <dt id=htmlDocSize> <a href="trends.php#htmlDocSize">Doc Size</a>
+  <dd> This chart shows the average size in kB of the main HTML document for the website.
+NOTE: Right now this is the <i>compressed</i> size. We hope to change that to the uncompressed size in the future.
+
+  <dt id=numDomElements> <a href="trends.php#numDomElements">DOM Elements</a>
+  <dd> This charts shows the average number of DOM elements across all websites.
+
+  <dt id=numDomains> <a href="trends.php#numDomains"># Domains</a>
+  <dd> A single web page typically loads resources from a variety of web servers across many domains.
+This chart shows the average number of domains that are accessed across all websites.
+
+  <dt id=maxDomainReqs> <a href="trends.php#maxDomainReqs">Max Reqs on 1 Domain</a>
+  <dd> This long-named chart shows an interesting performance statistic.
+A single web page typically loads resources from various domains.
+For each page, the number of requests on the most-used domain is calculated,
+and this chart shows the average of that value across all websites.
+
+  <dt id=maxage0> <a href="trends.php#maxage0">Uncacheable Resources</a>
+  <dd> A response can be read from the cache without requiring any HTTP requests if it is still fresh.
+This <i>freshness lifetime</i> is determined by the
+<a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9">Cache-Control</a> and
+<a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.21">Expires</a> headers.
+This chart shows the percentage of responses that were NOT cacheable, i.e, they had a "freshness lifetime" of zero seconds.
+The <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html">calculation of freshness lifetime</a> is complex but we've tried to reproduce it here as follows, where freshness lifetime is <code>expAge</code>:
+<ul>
+  <li> If <code>must-revalidate</code>, <code>no-cache</code>, or <code>no-store</code> is specified, then <code>expAge</code> is 0.
+  <li> Otherwise, if <code>max-age</code> is specified, then the number of seconds is the <code>expAge</code>.
+  <li> Otherwise, if there is an <code>Expires</code> header, <code>expAge</code> is the difference between the <code>Expires</code> date and the time when the request was made.
+  <li> Otherwise, <code>expAge</code> is 0.
+</ul>
+
+  <dt id=perGlibs> <a href="trends.php#perGlibs">Sites using Google Libraries API</a>
+  <dd> This is the percentage of sites that have at least one request containing "googleapis.com" in the hostname.
+
+  <dt id=perFlash> <a href="trends.php#perFlash">Sites with Flash</a>
+  <dd> This chart shows the percentage of sites that make at least one Flash request.
+Note that this Flash request could be from an ad or some other third party content on the page, 
+and may not be from the website's main content.
+
+  <dt id=perFonts> <a href="trends.php#perFonts">Sites with Custom Fonts</a>
+  <dd> This chart shows the percentage of sites that make at least one request for a custom font.
+The determination of a custom font request is based on the Content-Type response header.
+However, since many fonts today do not have the proper Content-Type value, we also include requests that end in 
+".eot", ".ttf", ".woff", or ".otf", or contain ".eot?", ".ttf?", ".woff?", or ".otf?" (i.e., a querystring).
+
+  <dt id=perCompressed> <a href="trends.php#perCompressed">Compressed Responses</a>
+  <dd> This chart shows the number of compressed responses over the number of HTML, CSS, and JavaScript requests.
+There's a flaw in this calculation because 10-20% of compressed responses are images, fonts, or Flash.
+We'll be updating this chart soon.
+
+  <dt id=perHttps> <a href="trends.php#perHttps">HTTPS Requests</a>
+  <dd> This chart shows the percentage of requests done over https.
+
+  <dt id=perErrors> <a href="trends.php#perErrors">Pages with Errors</a>
+  <dd> This chart shows the percentage of pages that have at least one error, i.e., a response with a 4xx or 5xx status code.
+
+  <dt id=perRedirects> <a href="trends.php#perRedirects">Pages with Redirects</a>
+  <dd> This chart shows the percentage of websites that have at least one redirect.
+A response is classified as a redirect if it has a 3xx status code other than 304.
+Note that the redirect may be from an ad or other third party content.
+
+  <dt id=perCdn> <a href="trends.php#perCdn">Sites hosting HTML on CDN</a>
+  <dd> This measures the percentage of sites that have their main HTML document served from a CDN. 
+
+  <dt id=bytesperpage> <a href="interesting.php#bytesperpage">Average Bytes per Page by Content Type</a>
+  <dd> This chart shows the breakdown of website size by content type. 
+Note that the sizes are the transfer sizes. 
+Therefore, compressed responses are counted as smaller than the original uncompressed content.
+
+  <dt id=responsesizes> <a href="interesting.php#responsesizes">Average Individual Response Size</a>
+  <dd> This chart shows the average transfer size for specific content types.
+
+  <dt id=googlelibs> <a href="interesting.php#googlelibs">Pages Using Google Libraries API</a>
+  <dd> This chart shows the percentage of sites that have at least one request containing "googleapis.com" in the hostname.
+
+  <dt id=flash> <a href="interesting.php#flash">Pages Using Flash</a>
+  <dd> This chart shows the percentage of sites with at least one Flash request.
+
+  <dt id=fonts> <a href="interesting.php#fonts">Pages Using Custom Fonts</a>
+  <dd> This chart shows the percentage of sites that make at least one request for a custom font. 
+See <a href="#perFonts">Sites with Custom Fonts</a> for more information.
+
+  <dt id=imageformats> <a href="interesting.php#imageformats">Image Requests by Format</a>
+  <dd> This chart breaks down all image requests based on format type.
+
+  <dt id=caching> <a href="interesting.php#caching">Cache Lifetime</a>
+  <dd> This shows a histogram of the cache lifetime (AKA, freshness lifetime) of requests across all websites.
+See <a href="#maxage0">Uncacheable Resources</a> for more information.
+
+  <dt id=protocol> <a href="interesting.php#protocol">HTTPS Requests</a>
+  <dd> This chart shows the percentage of requests done over https.
+
+  <dt id=errors> <a href="interesting.php#errors">Pages with Errors</a>
+  <dd> This chart shows the percentage of pages that have at least one error, i.e., a response with a 4xx or 5xx status code.
+
+  <dt id=redirects> <a href="interesting.php#redirects">Pages with Redirects</a>
+  <dd> This chart shows the percentage of websites that have at least one redirect.
+A response is classified as a redirect if it has a 3xx status code other than 304.
+Note that the redirect may be from an ad or other third party content.
+
+  <dt id=onLoad> <a href="interesting.php#onLoad">Highest Correlation to Load Time</a>
+  <dd> This chart shows the five variables that have the highest correlation to page load time.
+
+  <dt id=renderStart> <a href="interesting.php#renderStart">Highest Correlation to Render Time</a>
+  <dd> This chart shows the five variables that have the highest correlation to start render time.
+
+</dl>
+
 
 			   <h2 id=tablecolumns>What are the definitions for the table columns for a website's requests?</h2>
 
