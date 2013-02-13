@@ -11,7 +11,7 @@ blockquote:before, blockquote:after, q:before, q:after { content: ''; content: n
 ins { text-decoration: none; }
 del { text-decoration: line-through; }
 table { border-collapse: collapse; border-spacing: 0; }
-
+.info { font-size: 0.8em; padding: 0 4px; line-height: 0em; border-radius: 5px/5px; border: 2px solid #DDF; margin-left: 2em;}
 /* Old styles, probably will be replaced */
 .tdnum { text-align: right; }
 .nobr { white-space: nowrap; }
