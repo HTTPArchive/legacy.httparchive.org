@@ -216,7 +216,7 @@ function pieChart($title, $id, $aNames, $aValues, $color="007099", $legend = "")
 		( $legend ? "&chdlp=b&chdl=$legend" : "" ) .
 		"&chl=" .
 		urlencode(implode("|", $aNames)) .
-		"&chma=|5&chtt=" . urlencode($title) . "'></a>";
+		"&chma=|5&chtt=" . urlencode($title) . "' style='vertical-align: top;'></a><a href='about.php#$id' class=info title='info'>i</a>";
 }
 
 
@@ -241,7 +241,7 @@ function percentageColumnChart($title, $id, $aNames, $aValues, $color="80C65A") 
 		urlencode(implode("|", $aNames)) .
 		"&chm=N**%,676767,0,,12,,::4&chxp=0,20,40,60,80,100&chxs=0,$color,11.5,0,lt,$color|1,676767,11.5,0,lt,67676700&chxtc=0,4|1,4&chxt=y,x&chbh=60,30,20&chs=500x225&cht=bvg&chco=$color&chd=t:" .
 		implode(",", $aValues) .
-		"&chtt=" . urlencode($title) . "'></a>";
+		"&chtt=" . urlencode($title) . "' style='vertical-align: top;'></a><a href='about.php#$field' class=info title='info'>i</a>";
 }
 
 
@@ -250,7 +250,7 @@ function correlationColumnChart($title, $id, $aNames, $aValues, $color="80C65A")
 		str_replace("Requests", "Reqs", str_replace("Transfer", "Xfer", urlencode(implode("|", $aNames)))) .
 		"&chxr=0,0,1&chxs=1,676767,11.5,0,lt,67676700&chxtc=1,5&chxt=y,x&chbh=60,30,30&chs=500x225&cht=bvg&chco=$color&chds=0,1&chd=t:" .
 		implode(",", $aValues) .
-		"&chm=N,676767,0,,12,,::4&chtt=" . urlencode($title) . "'></a>";
+		"&chm=N,676767,0,,12,,::4&chtt=" . urlencode($title) . "' style='vertical-align: top;'></a><a href='about.php#$field' class=info title='info'>i</a>";
 }
 
 
@@ -264,7 +264,7 @@ function horizontalBarChart($title, $id, $aNames, $aValues, $color="80C65A", $mi
 		"&chxtc=0,6&chxs=0,676767,11.5,0,l|1,676767,11.5,1,lt,67676700&chxr=1,0,160|0,$min,$max&chxt=x,y&chbh=22&chs=640x$height" .
 		"&cht=bhg&chco=$color&chds=$min,$max&chd=t:" .
 		implode(",", $aValues) .
-		"&chm=N**$markSuffix,676767,0,,12,,:4:&chma=|0,5&chtt=" . urlencode($title) . "'></a>";
+		"&chm=N**$markSuffix,676767,0,,12,,:4:&chma=|0,5&chtt=" . urlencode($title) . "' style='vertical-align: top;'></a>"; // lame - no "info" link on this chart because it's too wide <a href='about.php#$field' class=info title='info'>i</a>
 }
 
 ?>
