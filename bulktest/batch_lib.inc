@@ -504,7 +504,8 @@ function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 		}
 		$content = $response->{ 'content' };
 		array_push($aTuples, "respSize = " . $content->{ 'size' });
-		array_push($aTuples, "mimeType = '" . mysql_real_escape_string($content->{ 'mimeType' }) . "'");
+		$mimeType = mysql_real_escape_string($content->{ 'mimeType' });
+		array_push($aTuples, "mimeType = '$mimeType'");
 	
 		$headers = $response->{ 'headers' };
 		$other = "";
@@ -570,6 +571,7 @@ function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 		}
 		if ( ! $firstHtmlUrl && 200 == $status ) {
 			// This is the first URL found associated with the page that's HTML.
+			// We could check that mimeType like "%html%", but some HTML responses have the wrong content-type.
 			$bFirstHtml = 1;
 			$firstHtmlUrl = $url;
 		}
@@ -870,10 +872,10 @@ function prettyMimetype($mimeType, $url) {
 	}
 
 	// some fonts don't have "font" in their mimeType (25% as of 12/2012)
-	if ( preg_match('/.*\.eot/', $url) || preg_match('/.*\.eot\?/', $url) ||
-		 preg_match('/.*\.ttf/', $url) || preg_match('/.*\.ttf\?/', $url) ||
-		 preg_match('/.*\.woff/', $url) || preg_match('/.*\.woff\?/', $url) ||
-		 preg_match('/.*\.otf/', $url) || preg_match('/.*\.otf\?/', $url) ) {
+	if ( preg_match('/.*\.eot$/', $url) || preg_match('/.*\.eot\?/', $url) ||
+		 preg_match('/.*\.ttf$/', $url) || preg_match('/.*\.ttf\?/', $url) ||
+		 preg_match('/.*\.woff$/', $url) || preg_match('/.*\.woff\?/', $url) ||
+		 preg_match('/.*\.otf$/', $url) || preg_match('/.*\.otf\?/', $url) ) {
 		return "font";
 	}
 
