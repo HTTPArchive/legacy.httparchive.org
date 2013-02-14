@@ -119,7 +119,7 @@ function format2LineChart($field, $field2, $hTrends, $aRunNames, $labels, $sUnit
 		"&chxp=0&chdl=" . urlencode(fieldTitle($field)) . ( $sUnits1 ? "+$sUnits1" : "" ) . "|" . urlencode(fieldTitle($field2)) . ( $sUnits2 ? "+$sUnits2" : "" ) . "&chdlp=bv|r" .
 		"";
 
-	return "<div id='$field2&$field' style='margin: 40px 0 60px 0;'><a class=image-link href='#$field2&$field'><img src=$url width=600 height=300 style='vertical-align:top;'></a><a href='about.php#$field' class=info title='info'>i</a>" .
+	return "<div id='$field2&$field' style='margin: 40px 0 60px 0;'><a class=image-link href='#$field2&$field'><img src=$url width=600 height=300 style='vertical-align:top;'></a><a href='about.php#$field2' class=info title='info'>i</a>" .
 		( $footnote ? "<div>$footnote<div>" : "" ) . "</div>\n";
 }
 
