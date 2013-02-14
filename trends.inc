@@ -63,11 +63,12 @@ if ( ! $gbMobile ) {
 if ( $gbMobile ) {
 	// we don't have PageSpeed on mobile :-(
 	echo formatChart('SpeedIndex', $hTrends, $aRunNames, $labels);
+	echo formatChart('bytesHtmlDoc', $hTrends, $aRunNames, $labels, "(kB)");
 }
 else {
 	echo format2LineChart('PageSpeed', 'SpeedIndex', $hTrends, $aRunNames, $labels);
+	echo format2LineChart('numDomElements', 'bytesHtmlDoc', $hTrends, $aRunNames, $labels, "(kB)");
 }
-echo format2LineChart('numDomElements', 'bytesHtmlDoc', $hTrends, $aRunNames, $labels, "(kB)");
 echo format2LineChart('maxDomainReqs', 'numDomains', $hTrends, $aRunNames, $labels);
 
 echo formatChart("maxage0", $hTrends, $aRunNames, $labels);
@@ -75,7 +76,7 @@ echo formatChart("maxage0", $hTrends, $aRunNames, $labels);
 if ( "url" != $gSlice ) {
 	// TODO - This hardcoded list of DB fields must be synced with the list in getTrendsData().
 	$aCharts = ( $gbMobile ?
-				 array('perGlibs', 'perFonts', 'perCompressed', 'perHttps', 'perErrors', 'perRedirects', 'perCdn') : 
+				 array('perGlibs', 'perFonts', 'perCompressed', 'perHttps', 'perErrors', 'perRedirects') : 
 				 array('perGlibs', 'perFlash', 'perFonts', 'perCompressed', 'perHttps', 'perErrors', 'perRedirects', 'perCdn') );
 	foreach($aCharts as $field) {
 		echo formatChart($field, $hTrends, $aRunNames, $labels);
