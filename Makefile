@@ -13,7 +13,7 @@ push :
 	mkdir -p $(gDesktopDir)/lists
 	cp -p lists/*.txt $(gDesktopDir)/lists/.
 	echo "push .htaccess!"
-	echo "CVSNO: ln -s $(gDevDir)/aaa/harviewer/webapp harviewer"
+	echo "CVSNO: ln -s $(gDevDir)/harviewer/webapp harviewer"
 
 pushmobile :
 	cp -p *.php *.inc *.js *.css favicon.ico apple-*.png robots.txt $(gMobileDir)/.
@@ -27,5 +27,5 @@ pushmobile :
 	mkdir -p $(gMobileDir)/harfiles-delme
 	ls -l $(gMobileDir)/har_to_pagespeed
 	echo "push .htaccess!"
-	echo "CVSNO: ln -s $(gDevDir)/aaa/harviewer/webapp harviewer"
+	echo "CVSNO: ln -s $(gDevDir)/harviewer/webapp harviewer"
 	echo "CVSNO: har_to_pagespeed and harfiles-delme"
