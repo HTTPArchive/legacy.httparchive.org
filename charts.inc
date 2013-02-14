@@ -18,6 +18,9 @@ limitations under the License.
 require_once("utils.inc");
 require_once("dbapi.inc");
 
+// Normally charts have an href to the page they're currently in (interesting.php or viewsite.php).
+// But if we're on index.php we need to point somewhere else.
+$gPhpFile = ( "/index.php" == $_SERVER['PHP_SELF'] ? "interesting.php" : "" );
 
 // eg: average total amount of JS downloaded per page
 function bytesContentTypeChart($hStats) {
@@ -210,7 +213,9 @@ function correlationChart($hStats, $var1) {
 
 
 function pieChart($title, $id, $aNames, $aValues, $color="007099", $legend = "") {
-	return "<a href='#$id'><img width=400 height=225 id=$id class=chart src='http://chart.apis.google.com/chart?chs=400x225&cht=p&chco=$color&chd=t:" .
+	global $gPhpFile;
+
+	return "<a href='$gPhpFile#$id'><img width=400 height=225 id=$id class=chart src='http://chart.apis.google.com/chart?chs=400x225&cht=p&chco=$color&chd=t:" .
 		implode(",", $aValues) .
 		chdsMinmax($aValues, true) .
 		( $legend ? "&chdlp=b&chdl=$legend" : "" ) .
@@ -237,27 +242,33 @@ function chdsMinmax($aValues, $bZero = false) {
 
 
 function percentageColumnChart($title, $id, $aNames, $aValues, $color="80C65A") {
-	return "<a href='#$id'><img width=500 height=225 id=$id class=chart src='http://chart.apis.google.com/chart?chxl=0:|20%25|40%25|60%25|80%25|100%25|1:|" .
+	global $gPhpFile;
+
+	return "<a href='$gPhpFile#$id'><img width=500 height=225 id=$id class=chart src='http://chart.apis.google.com/chart?chxl=0:|20%25|40%25|60%25|80%25|100%25|1:|" .
 		urlencode(implode("|", $aNames)) .
 		"&chm=N**%,676767,0,,12,,::4&chxp=0,20,40,60,80,100&chxs=0,$color,11.5,0,lt,$color|1,676767,11.5,0,lt,67676700&chxtc=0,4|1,4&chxt=y,x&chbh=60,30,20&chs=500x225&cht=bvg&chco=$color&chd=t:" .
 		implode(",", $aValues) .
-		"&chtt=" . urlencode($title) . "' style='vertical-align: top;'></a><a href='about.php#$field' class=info title='info'>i</a>";
+		"&chtt=" . urlencode($title) . "' style='vertical-align: top;'></a><a href='about.php#$id' class=info title='info'>i</a>";
 }
 
 
 function correlationColumnChart($title, $id, $aNames, $aValues, $color="80C65A") {
-	return "<a href='#$id'><img width=500 height=225 id=$id class=chart src='http://chart.apis.google.com/chart?chxl=1:|" .
+	global $gPhpFile;
+
+	return "<a href='$gPhpFile#$id'><img width=500 height=225 id=$id class=chart src='http://chart.apis.google.com/chart?chxl=1:|" .
 		str_replace("Requests", "Reqs", str_replace("Transfer", "Xfer", urlencode(implode("|", $aNames)))) .
 		"&chxr=0,0,1&chxs=1,676767,11.5,0,lt,67676700&chxtc=1,5&chxt=y,x&chbh=60,30,30&chs=500x225&cht=bvg&chco=$color&chds=0,1&chd=t:" .
 		implode(",", $aValues) .
-		"&chm=N,676767,0,,12,,::4&chtt=" . urlencode($title) . "' style='vertical-align: top;'></a><a href='about.php#$field' class=info title='info'>i</a>";
+		"&chm=N,676767,0,,12,,::4&chtt=" . urlencode($title) . "' style='vertical-align: top;'></a><a href='about.php#$id' class=info title='info'>i</a>";
 }
 
 
 function horizontalBarChart($title, $id, $aNames, $aValues, $color="80C65A", $min, $max, $xtitle = "", $bPercentage = false, $markSuffix = "") {
+	global $gPhpFile;
+
 	$height = ( count($aValues) > 7 ? 370 : ( count($aValues) > 5 ? 260 : 220 ) );
 
-	return "<a href='#$id'><img width=640 height=$height id=$id class=chart src='http://chart.apis.google.com/chart?" .
+	return "<a href='$gPhpFile#$id'><img width=640 height=$height id=$id class=chart src='http://chart.apis.google.com/chart?" .
 		( $bPercentage ? "chxp=0,20,40,60,80,100&chxl=0:|20%|40%|60%|80%|100%|1:|" : "chxl=1:|" ) .
 		urlencode(implode("|", array_reverse($aNames))) .
 		( $xtitle ? "&chdlp=b&chdl=$xtitle" : "" ) .
