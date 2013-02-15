@@ -332,6 +332,9 @@ function doLastInsertId($cmd, $link = null) {
 function getDBConnection() {
 	global $gDBConnection, $gMysqlServer, $gMysqlUsername, $gMysqlPassword;
 
+	// CVSNO - figure out why forking processes screws up this global variable & how to fix (mysql_ing?)
+	return mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
+
 	if ( ! $gDBConnection ) {
 		$gDBConnection = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
 	}
