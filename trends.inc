@@ -179,7 +179,7 @@ function fieldValues($field, $hTrends, $aRunNames, &$min, &$max, $bZero = true) 
 		$aValues[] = ( array_key_exists($run, $hTrends) ? $hTrends[$run][$field] : "_" );
 	}
 
-	if ( "maxageNull" === $field ) {
+	if ( "maxageNull" === $field || "maxage0" === $field ) {
 		// take the inverse
 		$len = count($aValues);
 		for ( $i = 0; $i < $len; $i++ ) {
