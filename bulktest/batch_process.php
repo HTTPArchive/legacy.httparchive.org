@@ -113,6 +113,7 @@ foreach ( $gaTasks as $task ) {
 		if ( $pid ) {
 			// parent process - save the child process ID
 			$aChildPids[] = $pid;
+			tprint("$task pid = $pid");
 		} 
 		else {
 			// child process
@@ -133,7 +134,7 @@ foreach ( $gaTasks as $task ) {
 				// Fill page table and request table
 				fillTables($gNumParse, $n-1);  // use the process # as a way to divvy up the jobs, use n-1 since it has to be zero-based
 			}
-			fclose($fp);
+			flock($fp, LOCK_UN);
 			lprint("...DONE with task \"$task\"!");
 			exit();
 		}
