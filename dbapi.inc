@@ -662,8 +662,8 @@ function createTables() {
 			", bytesJson int(10) unsigned" .
 			", bytesOther int(10) unsigned" .
 			", bytesHtmlDoc mediumint unsigned" . // size of the main HTML document
-			", gzipTotal int unsigned not null" .          // # of bytes xferred for resources that COULD have been gzipped
-			", gzipSavings int unsigned not null" .        // # of bytes that could have been saved if ALL gzippable resources were gzipped
+			", gzipTotal int unsigned not null" .          // avg # of bytes xferred for resources that COULD have been gzipped
+			", gzipSavings int unsigned not null" .        // avg # of bytes that could have been saved if ALL gzippable resources were gzipped
 
 			// % of sites with at least one of these conditions
 			", perRedirects int(4) unsigned" .
