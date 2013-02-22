@@ -65,9 +65,9 @@ function pageFromHar($sJson) {
 
 	$page = $aPages[0];
 
-	// Copy some properties buried deep in the JSON structure to the top.
-	$page['onContentLoaded'] = ( array_key_exists('onContentLoaded', $page['pageTimings']) ? $page['pageTimings']['onContentLoaded'] : NULL );
-	$page['onLoad'] = $page['pageTimings']['onLoad'];
+	// Copy some properties deep in the JSON structure to the top.
+	$page['onContentLoaded'] = ( array_key_exists('_domContentLoadedEventStart', $page) && $page['_domContentLoadedEventStart'] ? $page['_domContentLoadedEventStart'] : NULL );
+	$page['onLoad'] = $page['_docTime'];
 	$aResources = $HAR['log']['entries'];
 	$page['url'] = $aResources[0]['request']['url']; // ASSUME the first request is for the main URL
 	$page['resources'] = resourcesFromHar($aResources, $page['id']);
