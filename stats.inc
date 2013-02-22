@@ -521,6 +521,51 @@ function computeOther($label, $slice, $device, $sliceCond, &$hTuples = array()) 
 }
 
 
+// Helper function to fix a crawl's expAge values for all requests.
+function updateCrawlExpAge($label) {
+	global $gRequestsTable;
+
+	$crawl = getCrawl($label);
+	if ( $crawl ) {
+		$query = "select requestid, expAge, resp_cache_control, resp_expires, resp_date, startedDateTime from $gRequestsTable where pageid >= {$crawl['minPageid']} and pageid <= {$crawl['maxPageid']};";
+		$result = doQuery($query);
+		while ($row = mysql_fetch_assoc($result)) {
+			$newExpAge = computeRequestExpAge($row['resp_cache_control'], $row['resp_expires'], $row['resp_date'], $row['startedDateTime']);
+			if ( $newExpAge != $row['expAge'] ) {
+				$cmd = "update $gRequestsTable set expAge = $newExpAge where requestid = {$row['requestid']};";
+				doSimpleCommand($cmd);
+			}
+		}
+		mysql_free_result($result);
+	}
+}
+
+
+// Helper function to fix a request's expAge value
+function computeRequestExpAge($cc, $resp_expires, $resp_date, $startedDateTime) {
+	$expAge = 0;
+
+	if ( $cc && 
+		 ( FALSE !== stripos($cc, "must-revalidate") || FALSE !== stripos($cc, "no-cache") || FALSE !== stripos($cc, "no-store") ) ) {
+		// These directives dictate the response can NOT be cached.
+		$expAge = 0;
+	}
+	else if ( $cc  && FALSE !== ($posMaxage = stripos($cc, "max-age=")) ) {
+		$expAge = intval(substr($cc, $posMaxage+8));
+	}
+	else if ( $resp_expires ) {
+		// According to RFC 2616 ( http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.2.4 ):
+		//     freshness_lifetime = expires_value - date_value
+		// If the Date: response header is present, we use that.
+		// Otherwise we fall back to $startedDateTime which is based on the client so might suffer from clock skew.
+		$startEpoch = ( $resp_date ? strtotime($resp_date) : $startedDateTime );
+		$expAge = strtotime($resp_expires) - $startEpoch;
+	}
+
+	return $expAge;
+}
+
+
 // Helper function to fix a crawl's maxage* values.
 function updateCrawlMaxage($label) {
 	global $gPagesTable;
