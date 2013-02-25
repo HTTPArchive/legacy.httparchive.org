@@ -115,7 +115,7 @@ exec($cmd);
 lprint("...mysqldump file created: $dumpfile.gz");
 
 // requests
-$requestsTable = ( $gbMobile ? $gPagesTableMobile : $gPagesTableDesktop );
+$requestsTable = ( $gbMobile ? $gRequestsTableMobile : $gRequestsTableDesktop );
 $dumpfile = dumpfileName($gLabel, "requests");
 $cmd = "mysqldump --where='$pageidCond' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $requestsTable | gzip > $dumpfile.gz";
 exec($cmd);
