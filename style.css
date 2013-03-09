@@ -433,3 +433,8 @@ footer li + li + li + li {
 .warning { 
 	font-weight: bold;
 	color: #C00; }
+
+/* Override a style in harviewer/css/requestBody.css */
+.netInfoParamValue {
+	padding: 0;
+}
