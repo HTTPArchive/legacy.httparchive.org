@@ -40,6 +40,9 @@ DD { margin-left: 40px; font-size: 0.9em; }
 <h1><?php echo $gTitle ?></h1>
 
 <dl id=news>
+	<dt> March 19, 2013
+	<dd> Testing change: The default connection speed was increased from DSL (1.5 mbps) to Cable (5.0 mbps).
+
   <dt> June 15, 2012: <a href="http://royal.pingdom.com/2012/06/15/loading-todays-sites-over-dialup/">Want pain? Try loading today’s websites over dial-up</a>
   <dd> Pingdom quotes HTTP Archive page size stats.
 
