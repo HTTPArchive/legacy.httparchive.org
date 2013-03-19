@@ -46,7 +46,8 @@ if ( "url" != $gSlice ) {
 	// show URLs first so people can see if they're doing intersection or not
 	// but don't show it if we're only looking at a single URL
 	echo formatChart('numurls', $hTrends, $aRunNames, $labels);
-	echo format2LineChart('renderStart', 'onLoad', $hTrends, $aRunNames, $labels, "(ms)", true, "<div style='margin-left: 2em; font-size:0.9em;'>* Based on limited, synthetic data. See <a href='http://dev.httparchive.org/about.php#accuracy'>FAQ</a> for known biases.</div>", "(ms)");
+	// Time is too inconsistent.
+	// echo format2LineChart('renderStart', 'onLoad', $hTrends, $aRunNames, $labels, "(ms)", true, "<div style='margin-left: 2em; font-size:0.9em;'>* Based on limited, synthetic data. See <a href='http://dev.httparchive.org/about.php#accuracy'>FAQ</a> for known biases.</div>", "(ms)");
 }
 
 echo format2LineChart('reqTotal', 'bytesTotal', $hTrends, $aRunNames, $labels, "(kB)");
