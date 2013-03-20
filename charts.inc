@@ -181,12 +181,21 @@ function requestErrors($hStats) {
 
 
 function redirects($hStats) {
-	$yes = $hStats['perRedirects'];
-	$no = 100-$yes;
-	$aVarNames = array("No Redirects $no%", "Redirects $yes%");
-	$aVarValues = array($no, $yes);
+	global $gLabel, $gSlice, $gPagesTable;
+	$sliceCond = sliceCond($gLabel, $gSlice, curDevice()); //CVSNO
+	$numurls = $hStats['numurls'];
+	$query = "select numRedirects, round(100*count(*)/$numurls) as percent from $gPagesTable where $sliceCond group by numRedirects having percent > 1 order by numRedirects asc;";
+	$result = doQuery($query);
+	$aNames = array();
+	$aValues = array();
+	while ($row = mysql_fetch_array($result)) {
+		list($numRedirects, $percent) = $row;
+		array_push($aNames, $numRedirects);
+		array_push($aValues, $percent);
+	}
+	mysql_free_result($result);
 
-	return pieChart("Pages with Redirects (3xx)", "redirects", $aVarNames, $aVarValues, "008000");
+	return percentageColumnChart("Redirects per Page", "redirects", $aNames, $aValues, "000000");
 }
 
 
@@ -244,9 +253,11 @@ function chdsMinmax($aValues, $bZero = false) {
 function percentageColumnChart($title, $id, $aNames, $aValues, $color="80C65A") {
 	global $gPhpFile;
 
+	$n = count($aNames);
+	$colw = ( $n < 6 ? 60 : round(315/$n) );
 	return "<a href='$gPhpFile#$id'><img width=500 height=225 id=$id class=chart src='http://chart.apis.google.com/chart?chxl=0:|20%25|40%25|60%25|80%25|100%25|1:|" .
 		urlencode(implode("|", $aNames)) .
-		"&chm=N**%,676767,0,,12,,::4&chxp=0,20,40,60,80,100&chxs=0,$color,11.5,0,lt,$color|1,676767,11.5,0,lt,67676700&chxtc=0,4|1,4&chxt=y,x&chbh=60,30,20&chs=500x225&cht=bvg&chco=$color&chd=t:" .
+		"&chm=N**%,676767,0,,12,,::4&chxp=0,20,40,60,80,100&chxs=0,$color,11.5,0,lt,$color|1,676767,11.5,0,lt,67676700&chxtc=0,4|1,4&chxt=y,x&chbh=$colw,30,20&chs=500x225&cht=bvg&chco=$color&chd=t:" .
 		implode(",", $aValues) .
 		"&chtt=" . urlencode($title) . "' style='vertical-align: top;'></a><a href='about.php#$id' class=info title='info'>i</a>";
 }
