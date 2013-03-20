@@ -25,8 +25,9 @@ require_once("../dbapi.inc");
 $device = curDevice();
 
 echo "Computing stats...\n";
-
-computeMissingStats($device, true);
+computeMissingStats($device, true, true);
+echo "DONE\n";
+exit();
 
 if ( ! $gbMobile ) {
 	echo "Copy stats to production...\n";
