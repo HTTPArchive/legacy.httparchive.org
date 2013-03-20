@@ -18,6 +18,49 @@ limitations under the License.
 require_once("utils.inc");
 require_once("dbapi.inc");
 
+
+// Get all the info about a particular URL.
+// If $bMassage is true then various permutations of $url will be attempted, e.g., 
+// appending "/" and prepending "www.".
+function getUrl($url, $bMassage=false) {
+	global $gUrlsTable;
+
+	// TODO - What if there are multiple results?
+	$query = "select * from $gUrlsTable where urlOrig='$url' or urlFixed='$url';";
+	$row = doRowQuery($query);
+	$existingUrl = ( $row['urlFixed'] ? $row['urlFixed'] : $row['urlOrig'] );
+
+	if ( ! $existingUrl && $bMassage ) {
+		if ( FALSE === strpos($url, "/", 10) ) {
+			// add a trailing "/"
+			$alturl = $url . "/";
+			$query = "select * from $gUrlsTable where urlOrig='$alturl' or urlFixed='$alturl';";
+			$row = doRowQuery($query);
+			$existingUrl = ( $row['urlFixed'] ? $row['urlFixed'] : $row['urlOrig'] );
+		}
+
+		if ( !$existingUrl && FALSE === strpos($alturl, "http://www.") && FALSE === strpos($alturl, "https://www.") ) {
+			// add "www."
+			$alturl = str_replace("http://", "http://www.", $alturl);
+			$alturl = str_replace("https://", "https://www.", $alturl);
+			$query = "select * from $gUrlsTable where urlOrig='$alturl' or urlFixed='$alturl';";
+			$row = doRowQuery($query);
+			$existingUrl = ( $row['urlFixed'] ? $row['urlFixed'] : $row['urlOrig'] );
+		}
+	}
+
+	if ( $existingUrl ) {
+		// Set the best value for URL.
+		$row['url'] = $existingUrl;
+	}
+	else {
+		$row = null;
+	}
+
+	return $row;
+}
+
+
 function rankUrl($url) {
 	global $gUrlsTable;
 
@@ -171,5 +214,11 @@ function optoutUrl($url) {
 	doSimpleCommand($cmd);
 }
 
+
+// Since it's hard to remember the SQL for converting a URL to urlhash,
+// use this helper function to return the appropriate SQL where condition.
+function getUrlhashCond($url) {
+	return "urlhash = conv(substring(md5('$url'), 1, 4), 16, 10)";
+}
 
 ?>
