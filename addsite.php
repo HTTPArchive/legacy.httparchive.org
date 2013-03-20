@@ -50,14 +50,15 @@ if ( $gRurl ) {
 		echo "<p class=warning>The URL entered is invalid: $gRurl</p>\n";
 	}
 	else {
-		$existingUrl = urlExists($gRurl, $other, $optout);
+		$urlObj = getUrl($gRurl, true);
 		$bAdd = false;
-		if ( $existingUrl ) {
-			if ( $optout ) {
+		if ( $urlObj ) {
+			if ( $urlObj['optout'] ) {
 				$bAdd = false;
 				echo "<p class=warning>The owner of $gRurl has opted out of the HTTP Archive.</p>\n";
 			}
-			else if ( ! $other ) {
+			else if ( ! $urlObj['other'] ) {
+				// If it exists but it's not marked "other" - then add it and set other=true;
 				$bAdd = true;
 			}
 			else {
@@ -73,7 +74,17 @@ if ( $gRurl ) {
 			}
 		}
 		else {
-			$bAdd = true;
+			// We get A LOT of requests to add deep pages (eg, "http://www.youtube.com/blahblah").
+			// But we only allow one page per hostname if the URL is not in the list of top sites.
+			// Here we check if this is a deep URL.
+			$rooturl = substr($gRurl, 0, strpos($gRurl, "/", 10));
+			$rooturlObj = getUrl($rooturl, true);
+			if ( $rooturlObj ) {
+				echo "<p class=warning>$gRurl will not be added because <a href='{$rooturlObj['url']}'>{$rooturlObj['url']}</a> is already in the crawl. If a URL is not in the list of <a href='about.php#listofurls'>top URLs</a> it can only be added if there are no other URLs with the same hostname already in the crawl.</p>\n";
+			}
+			else {
+				$bAdd = true;
+			}
 		}
 
 		if ( $bAdd ) {
