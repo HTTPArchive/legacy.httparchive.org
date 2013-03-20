@@ -264,11 +264,11 @@ function fillTables($divisor=NULL, $modulo=NULL) {
 		$totalParsed = 0;
 		while ($statusInfo = mysql_fetch_assoc($tests)) {
 			t_mark('importWptResults');
+			//tprint("parse proc # " . (1+$modulo) . ", statusid = " . $statusInfo['statusid'] . ", total = $totalParsed");
 			$status = importWptResults($statusInfo);
 			t_aggregate('importWptResults');
 			setStatus($statusInfo['statusid'], $status);
 			$totalParsed++;
-			//dprint("parse proc # " . (1+$modulo) . ", statusid = " . $statusInfo['statusid'] . ", total = $totalParsed");
 			//t_echoagg();
 		}
 	}
@@ -537,17 +537,24 @@ function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 			array_push($aTuples, "respCookieLen = $cookielen");
 		}
 		// calculate expAge - number of seconds before resource expires
+		// CVSNO - use the new computeRequestExpAge function.
 		$expAge = 0;
 		$cc = ( array_key_exists('resp_cache_control', $hHeaders) ? $hHeaders['resp_cache_control'] : null );
-		if ( $cc  && FALSE !== stripos($cc, "must-revalidate") && FALSE !== stripos($cc, "no-cache") && FALSE !== stripos($cc, "no-store") ) {
+		if ( $cc && 
+			 ( FALSE !== stripos($cc, "must-revalidate") || FALSE !== stripos($cc, "no-cache") || FALSE !== stripos($cc, "no-store") ) ) {
 			// These directives dictate the response can NOT be cached.
 			$expAge = 0;
 		}
 		else if ( $cc  && FALSE !== ($posMaxage = stripos($cc, "max-age=")) ) {
-			$expAge = intval(substr($hHeaders['resp_cache_control'], $posMaxage+8));
+			$expAge = intval(substr($cc, $posMaxage+8));
 		}
 		else if ( array_key_exists('resp_expires', $hHeaders) ) {
-			$expAge = strtotime($hHeaders['resp_expires']) - $startedDateTime;
+			// According to RFC 2616 ( http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.2.4 ):
+			//     freshness_lifetime = expires_value - date_value
+			// If the Date: response header is present, we use that.
+			// Otherwise we fall back to $startedDateTime which is based on the client so might suffer from clock skew.
+			$startEpoch = ( array_key_exists('resp_date', $hHeaders) ? strtotime($hHeaders['resp_date']) : $startedDateTime );
+			$expAge = strtotime($hHeaders['resp_expires']) - $startEpoch;
 		}
 		array_push($aTuples, "expAge = " . ( $expAge < 0 ? 0 : $expAge ));
 
@@ -733,6 +740,8 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 
 function countTestsWithCode($status) {
 	global $gStatusTable;
+
+	//CVSNO - fix these functions later $query = "SELECT COUNT(*) FROM $gStatusTable" . ( -1 == $status ? ";" : " WHERE status=$status;" );
 	if ( -1 == $status )
 		$query = "SELECT COUNT(*) FROM $gStatusTable;";
 	else
