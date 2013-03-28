@@ -183,13 +183,15 @@ $gaTrendsGet = array(
 					 "ROUND(reqImg) as reqImg",
 					 "TRUNCATE(reqFlash, 1) as reqFlash",
 					 "TRUNCATE(reqFont, 1) as reqFont",
+					 "TRUNCATE(reqOther, 1) as reqOther",
 					 "ROUND(bytesTotal/1024) as bytesTotal",
 					 "ROUND(bytesHtml/1024) as bytesHtml",
 					 "ROUND(bytesJS/1024) as bytesJS",
 					 "ROUND(bytesCSS/1024) as bytesCSS",
 					 "ROUND(bytesImg/1024) as bytesImg",
 					 "ROUND(bytesFlash/1024) as bytesFlash",
-					 "ROUND(bytesFont/1024) as bytesFont"
+					 "ROUND(bytesFont/1024) as bytesFont",
+					 "ROUND(bytesOther/1024) as bytesOther"
 					 );
 
 
