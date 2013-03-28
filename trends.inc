@@ -58,6 +58,7 @@ echo format2LineChart('reqImg', 'bytesImg', $hTrends, $aRunNames, $labels, "(kB)
 if ( ! $gbMobile ) {
 	echo format2LineChart('reqFlash', 'bytesFlash', $hTrends, $aRunNames, $labels, "(kB)");
 }
+echo format2LineChart('reqOther', 'bytesOther', $hTrends, $aRunNames, $labels, "(kB)");
 // Fonts are too small now. It's better to show it as "percent of sites using a custom font".
 // echo format2LineChart('reqFont', 'bytesFont', $hTrends, $aRunNames, $labels, "(kB)");
 
