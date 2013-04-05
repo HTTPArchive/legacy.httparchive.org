@@ -140,6 +140,16 @@ is another variable that affects time measurements.
 in other browsers or locations or connection speeds. They are best used as a source of comparison.</p>
 
 
+<h2 id=xfersize2012>Why are transfer sizes prior to Oct 1 2012 smaller?</h2>
+
+<p>
+The <code>web10</code> parameter in the <a href="https://sites.google.com/a/webpagetest.org/docs/advanced-features/webpagetest-restful-apis#TOC-Parameters">WebPagetest API</a>
+determines whether the test should stop at document complete (window.onload) as opposed to later once network activity has subsided. 
+Prior to Oct 1 2012 the tests were configured to stop at document complete.
+However, lazy loading resources (loading them dynamically after window.onload) has grown in popularity.
+Therefore, this setting was changed so that these post-onload requests would be captured.
+This resulted in more HTTP requests being recorded with a subsequent bump in transfer size.
+</p>
 
 
 
