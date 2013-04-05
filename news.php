@@ -48,6 +48,8 @@ DD { margin-left: 40px; font-size: 0.9em; }
 	(See the <a href="https://sites.google.com/a/webpagetest.org/docs/advanced-features/webpagetest-restful-apis#TOC-Parameters"><code>web10</code></a> WebPagetest parameter.)
 	One result of this is that the number of requests and total size of pages increased because more network requests were captured.
 
+	<dt> September 1, 2012: Number of URLs increased to 300K for IE. iPhone increased from 2K to 5K.
+
   <dt> June 15, 2012: <a href="http://royal.pingdom.com/2012/06/15/loading-todays-sites-over-dialup/">Want pain? Try loading today’s websites over dial-up</a>
   <dd> Pingdom quotes HTTP Archive page size stats.
 
@@ -56,6 +58,8 @@ DD { margin-left: 40px; font-size: 0.9em; }
 
   <dt> May 24, 2012: <a href="http://www.webperformancetoday.com/2012/05/24/average-web-page-size-1-mb/">Bad news for site owners and mobile users: The average web page is now 1 MB</a>
   <dd> Joshua Bixby from Strangeloop Networks sites statistics from HTTP Archive about growth of web content.
+
+  <dt> May 1, 2012: Number of URLs increased to 200K for IE.
 
   <dt> April 28, 2012: <a href="http://www.websiteoptimization.com/speed/tweak/blocking-javascript/">Blocking JavaScript with Web Page Test</a>
   <dd> Cites growth of JavaScript from HTTP Archive.
@@ -69,7 +73,7 @@ DD { margin-left: 40px; font-size: 0.9em; }
   <dt> April 16, 2012: <a href="http://dl.dropbox.com/u/91644/Pages%20vs%20No.%20Resources.png">Pages vs. No. Resources</a>
   <dd> Andy Davies' analysis of data. <a href="https://twitter.com/#!/andydavies/status/192298419765788672">"Did it to validate the 150 resource default of the proposed W3C Resource Timing spec"</a>.
 
-  <dt> April 1, 2012: Number of URLs increased to 100K.
+  <dt> April 1, 2012: Number of URLs increased to 100K for IE.
 
   <dt> March 15, 2012: Switch from IE8 to IE9.
 
