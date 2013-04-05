@@ -40,8 +40,13 @@ DD { margin-left: 40px; font-size: 0.9em; }
 <h1><?php echo $gTitle ?></h1>
 
 <dl id=news>
-	<dt> March 19, 2013
-	<dd> Testing change: The default connection speed was increased from DSL (1.5 mbps) to Cable (5.0 mbps).
+  <dt> March 19, 2013
+  <dd> Testing change: The default connection speed was increased from DSL (1.5 mbps) to Cable (5.0 mbps).
+
+	<dt> Oct 1, 2012
+	<dd> Testing change: Instead of stopping the test recording at window.onload, the test is continued until network activity stops. 
+	(See the <a href="https://sites.google.com/a/webpagetest.org/docs/advanced-features/webpagetest-restful-apis#TOC-Parameters"><code>web10</code></a> WebPagetest parameter.)
+	One result of this is that the number of requests and total size of pages increased because more network requests were captured.
 
   <dt> June 15, 2012: <a href="http://royal.pingdom.com/2012/06/15/loading-todays-sites-over-dialup/">Want pain? Try loading today’s websites over dial-up</a>
   <dd> Pingdom quotes HTTP Archive page size stats.
@@ -65,6 +70,8 @@ DD { margin-left: 40px; font-size: 0.9em; }
   <dd> Andy Davies' analysis of data. <a href="https://twitter.com/#!/andydavies/status/192298419765788672">"Did it to validate the 150 resource default of the proposed W3C Resource Timing spec"</a>.
 
   <dt> April 1, 2012: Number of URLs increased to 100K.
+
+  <dt> March 15, 2012: Switch from IE8 to IE9.
 
   <dt> January 2012: Migrated httparchive.org to new data center.
 
