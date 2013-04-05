@@ -70,7 +70,9 @@ if ( $gbMobile ) {
 	echo formatChart('bytesHtmlDoc', $hTrends, $aRunNames, $labels, "(kB)");
 }
 else {
-	echo format2LineChart('PageSpeed', 'SpeedIndex', $hTrends, $aRunNames, $labels);
+	// Speed Index is too erratic - hide it similar to Page Load
+	// echo format2LineChart('PageSpeed', 'SpeedIndex', $hTrends, $aRunNames, $labels);
+	echo formatChart('PageSpeed', $hTrends, $aRunNames, $labels);
 	echo format2LineChart('numDomElements', 'bytesHtmlDoc', $hTrends, $aRunNames, $labels, "(kB)");
 }
 echo format2LineChart('maxDomainReqs', 'numDomains', $hTrends, $aRunNames, $labels);
