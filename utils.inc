@@ -1265,6 +1265,7 @@ $gaTop1000 = array(
 // Don't link to some websites.
 // This is a list of domains - any URL with this domain will be considered "on the blacklist".
 $ghBlackList = array(
+					 "privatemembers.com" => 1, "www.privatemembers.com" => 1,
 					 "mavideoporno.fr" => 1, "www.mavideoporno.fr" => 1,
 					 "livejasmin.com" => 1, "www.livejasmin.com" => 1,
 					 "beeg.com" => 1, "www.beeg.com" => 1,
@@ -1630,7 +1631,7 @@ $ghFieldColors = array(
 					   "reqFlash" => "4B557A",
 					   "reqImg" => "1515FF", //AA0033",
 					   "reqFont" => "A60099",
-					   "reqOther" => "809542",
+					   "reqOther" => "6A5C49",
 					   "bytesTotal" => "006600", //1D7D61",
 					   "bytesHtml" => "014F78",
 					   "bytesJS" => "982807", //7777CC",
@@ -1638,7 +1639,7 @@ $ghFieldColors = array(
 					   "bytesImg" => "00009D", //CF557B",
 					   "bytesFlash" => "222222",
 					   "bytesFont" => "CC0000",
-					   "bytesOther" => "84B418",
+					   "bytesOther" => "6A3135",
 					   "numDomains" => "AA0033",
 					   "perFlash" => "AA0033",
 					   "perFonts" => "007099", 
