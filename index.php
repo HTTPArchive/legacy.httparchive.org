@@ -78,9 +78,10 @@ The <a href="http://code.google.com/p/httparchive/source/checkout">HTTP Archive 
 var gaSnippets = new Array();
 
 <?php
+$gLabel = latestLabel();
 require_once("stats.inc");
 require_once("charts.inc");
-$hStats = getStats(latestLabel(), "All", curDevice());
+$hStats = getStats($gLabel, "All", curDevice());
 ?>
 gaSnippets.push("<?php echo bytesContentTypeChart($hStats) ?>");
 gaSnippets.push("<?php echo responseSizes($hStats) ?>");
