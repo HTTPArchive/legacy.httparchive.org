@@ -1263,8 +1263,8 @@ $gaTop1000 = array(
 
 
 // Don't link to some websites.
-// This is a list of domains - any URL with this domain will be considered "on the blacklist".
-$ghBlackList = array(
+// This is a list of domains - any URL with this domain will be considered "adult content".
+$ghAdultContent = array(
 					 "privatemembers.com" => 1, "www.privatemembers.com" => 1,
 					 "mavideoporno.fr" => 1, "www.mavideoporno.fr" => 1,
 					 "livejasmin.com" => 1, "www.livejasmin.com" => 1,
@@ -1557,7 +1557,7 @@ function allDevices() {
 
 // Display a link (or not) to a URL.
 function siteLink($url) {
-	if ( onBlackList($url) ) {
+	if ( isAdultContent($url) ) {
 		// no link, just url
 		return shortenUrl($url);
 	}
@@ -1567,19 +1567,19 @@ function siteLink($url) {
 }
 
 
-// Return true if the specified URL (or a variation) is in the blacklist.
-function onBlacklist($url) {
-	global $ghBlackList;
+// Return true if the specified URL (or a variation) is adult content
+function isAdultContent($url) {
+	global $ghAdultContent;
 
-	$bBlacklisted = true;
+	$bAdultContent = true;
 
-	// base blacklisting on hostname
+	// base adult content on hostname
 	$hostname = hostname($url);
 	if ( $hostname ) {
-		$bBlacklisted = array_key_exists($hostname, $ghBlackList);
+		$bAdultContent = array_key_exists($hostname, $ghAdultContent);
 	}
 
-	return $bBlacklisted;
+	return $bAdultContent;
 }
 
 
