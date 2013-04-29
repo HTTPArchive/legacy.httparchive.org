@@ -109,7 +109,7 @@ echo diffRuns($url, $gLabel);
 
 <?php 
 // Build a table that has empty cells to be filled in later.
-if ( ! onBlacklist($url) ) {
+if ( ! isAdultContent($url) ) {
 
 	if ( $gbMobile ) {
 		// right now Blaze.io only does 1 FPS

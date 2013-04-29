@@ -27,7 +27,7 @@ $i = 0;
 $msMax = 0;
 while ($row = mysql_fetch_assoc($result)) {
 	$url = $row['url'];
-	if ( ! onBlackList($url) ) {
+	if ( ! isAdultContent($url) ) {
 		$pageid = $row['pageid'];
 		$wptid = $row['wptid'];
 		$wptrun = $row['wptrun'];
