@@ -377,13 +377,19 @@ function importPage($page, $statusInfo) {
 	array_push($aTuples, "label = '" . mysql_real_escape_string($label) . "'");
 	array_push($aTuples, "url = '" . mysql_real_escape_string($url) . "'");
 	array_push($aTuples, "urlShort = '" . mysql_real_escape_string($urlShort) . "'");
-	array_push($aTuples, "onLoad = " . $page->{'_docTime'});
 	if ( array_key_exists('_TTFB', $page) && $page->{'_TTFB'} ) {
 		array_push($aTuples, "TTFB = " . $page->{'_TTFB'});
 	}
 	array_push($aTuples, "renderStart = " . $page->{'_render'});
 	array_push($aTuples, "fullyLoaded = " . $page->{'_fullyLoaded'});
 	array_push($aTuples, "visualComplete = " . $page->{'_visualComplete'});
+	$onload = $page->{'_docTime'};
+	if ( 0 == $onload ) {
+		// sometimes (<1%) there's no onload value so let's use the max of the other values
+		$onload = max($page->{'_visualComplete'}, $page->{'_fullyLoaded'});
+	}
+	array_push($aTuples, "onLoad = " . $onload);
+
 	if ( array_key_exists('_gzip_total', $page) ) {
 		array_push($aTuples, "gzipTotal = " . $page->{'_gzip_total'});
 		array_push($aTuples, "gzipSavings = " . $page->{'_gzip_savings'});
@@ -769,17 +775,6 @@ function totalNotDone() {
 	$totalNotDone = $loadedUrls + $submittedTests + $completedTests + $xmlDoneTests;
 
 	return $totalNotDone;
-}
-
-
-// Is the run (crawl) with the specified label done?
-function runCompleted($label) {
-	global $gbMobile;
-
-	// We determine that a run is completed if its stats exist.
-	$device = curDevice();
-
-	return ( getStats($label, "All", $device) );
 }
 
 
