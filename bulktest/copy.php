@@ -149,7 +149,7 @@ if ( ! $gbMobile ) {
 	// schema mysql dump
 	$dumpfile = "../downloads/httparchive_schema.sql";
 	lprint("Creating mysqldump file $dumpfile ...");
-	$cmd = "mysqldump --no-data --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop $gRequestsTableDesktop $gPagesTableDesktop $gRequestsTableMobile $gPagesTableMobile $gCrawlsTable > $dumpfile";
+	$cmd = "mysqldump --no-data --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop $gRequestsTableDesktop $gPagesTableDesktop $gRequestsTableMobile $gPagesTableMobile $gCrawlsTable $gUrlsTableDesktop > $dumpfile";
 	exec($cmd);
 	lprint("...mysqldump file created: $dumpfile");
 
