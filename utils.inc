@@ -1383,7 +1383,7 @@ function wptHarFileUrl($wptid, $wptrun, $bCached=0) {
 }
 
 // Return HTML to create a select list of archive labels (eg, "Oct 2010", "Nov 2010").
-function selectArchiveLabel($archive, $curLabel, $bReverse=true, $bOnchage = true, $id="") {
+function selectArchiveLabel($archive, $curLabel, $bReverse=true, $bOnchage = true, $id="sellabel") {
 	global $gPagesTable;
 	$dateRange = dateRange(true);
 
