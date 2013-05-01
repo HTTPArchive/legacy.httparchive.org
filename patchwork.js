@@ -5,23 +5,23 @@ require_once("dbapi.inc");
 
 
 // Return an array of frame times for each page.
-$gN = getParam('n');
-$gL = getParam('l');
-if ( ! $gN || ! $gL ) {
+$gNumUrls = getParam('n');
+$gLabel = getParam('l');
+if ( ! $gNumUrls || ! $gLabel ) {
 	exit();
 }
 
 
 // Ask for twice as many as needed so we can filter out adult sites.
-$query = "select pageid, url, wptid, wptrun from $gPagesTable where label='$gL' and rank > 0 and rank <= " . (2*$gN) . " order by rank asc;";
+$limitgoogle = "(url = 'http://www.google.com/' OR url not like '%://www.google.%')";
+$query = "select pageid, url, wptid, wptrun from $gPagesTable where label='$gLabel' and rank > 0 and rank <= " . (2*$gNumUrls) . " and $limitgoogle order by rank asc;";
 $result = doQuery($query);
 if ( 0 == mysql_num_rows($result) ) {
 	mysql_free_result($result);
 	// Older crawls do NOT have values for "rank". Use today's rank.
-	$query = "select u.rank, pageid, url, wptid, wptrun from $gPagesTable, $gUrlsTable as u where label='$gL' and u.rank > 0 and u.rank <= " . (2*$gN) . " and urlOrig=url order by u.rank asc;";
+	$query = "select u.rank, pageid, url, wptid, wptrun from $gPagesTable, $gUrlsTable as u where label='$gLabel' and u.rank > 0 and u.rank <= " . (2*$gNumUrls) . " and urlOrig=url and $limitgoogle order by u.rank asc;";
 	$result = doQuery($query);
 }
-
 $wptServer = wptServer();
 $i = 0;
 $msMax = 0;
@@ -47,7 +47,7 @@ while ($row = mysql_fetch_assoc($result)) {
 		}
 		
 		$i++;
-		if ( $i >= $gN ) {
+		if ( $i >= $gNumUrls ) {
 			break;
 		}
 	}
