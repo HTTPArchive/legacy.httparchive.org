@@ -236,7 +236,7 @@ var hPages = {}; // this gets added to by patchwork.js
 <a style="margin-left: 0.6em; broder-bottom: 0; font-size: 1.5em; color: #FFF; display: none;" href="javascript:pause()" title="Pause" id=pausebtn><img src="images/pauseButton.png" style="vertical-align: middle;" width=41></a>
 <a style="margin-left: 0.6em; broder-bottom: 0; font-size: 1.5em; color: #FFF;" href="javascript:forward()" title="Forward">+</a>
 <form style="margin-left: 0.6em; display:inline;" onsubmit="doSubmitTime();return false;">
-<input id=time type=text size=5 value=<?php echo $gCurTime ?> style="text-align: right; border-color: #333; margin: 0 0 0.2em 0; background: #000;"> ms
+<input id=time type=text size=5 value=<?php echo $gCurTime ?> style="text-align: right; border-color: #333; margin: 0 0 0.2em 0; background: #000; color: #DDD;"> ms
 </form>
 <form style="margin-left: 0.6em; display:inline; font-size: 0.6em;">
 <select id=size onchange="doSize()">
@@ -273,7 +273,7 @@ while ($row = mysql_fetch_assoc($result)) {
 		$wptrun = $row['wptrun'];
 		echo "<div style='height: {$gH}px; width: {$gW}px; float: left; background: #FFF;'>" . // show white in case of missing images
 			"<a href='viewsite.php?pageid=$pageid' title='$url' class=img>" .
-			"<img id=$pageid data-wptid='$wptid' data-wptrun=$wptrun style='border-width: 0; height: {$gH}px; width: {$gW}px;' src='frame.php?t=$gCurTime&wptid=$wptid&wptrun=$wptrun'>" .
+			"<img id=$pageid data-wptid='$wptid' data-wptrun=$wptrun style='border-width: 0; height: {$gH}px; width: {$gW}px;' src='frame.php?t=$gCurTime&wptid=$wptid&wptrun=$wptrun&pageid=$pageid'>" .
 			"</a>" .
 			"</div>" .
 			"";
