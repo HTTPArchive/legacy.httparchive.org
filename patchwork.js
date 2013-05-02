@@ -11,6 +11,7 @@ if ( ! $gNumUrls || ! $gLabel1 ) {
 	exit();
 }
 $gLabel2 = getParam('l2');
+$gCallback = getParam('callback');
 $wptServer = wptServer();
 $msMax = 0;
 
@@ -86,5 +87,6 @@ mysql_free_result($result);
 
 
 
-echo "\nmsMax = Math.max(msMax, $msMax);\n";
+echo "\nmsMax = Math.max(msMax, $msMax);\n" .
+	( $gCallback ? "$gCallback();\n" : "" );
 ?>
