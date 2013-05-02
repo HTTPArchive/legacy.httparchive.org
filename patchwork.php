@@ -6,13 +6,18 @@ require_once("dbapi.inc");
 $gTitle = "Render Patchwork";
 $gCurTime = getParam('t', '0'); // the current time frame (0.1, 0.2, 0.3, etc.) in milliseconds
 $gNumUrls = getParam('n', 100); // number of top sites to look at
-if ( $gNumUrls <= 0 || 200 < $gNumUrls ) {
+if ( $gNumUrls <= 0 || 100 < $gNumUrls ) {
 	// constrain the # of images
 	$gNumUrls = 100;
 }
-$gLabel = getParam('l');        // crawl label
-if ( ! $gLabel ) {
-	$gLabel = latestLabel(); // only do this if we have to
+$gLabel2 = getParam('l2');        // crawl label
+if ( ! $gLabel2 ) {
+	$gLabel2 = latestLabel(); // only do this if we have to
+}
+$gLabel1 = getParam('l1');        // crawl label
+if ( ! $gLabel1 ) {
+	// 1 year earlier
+	$gLabel1 = getPrevLabel($gLabel2, $gArchive, curDevice(), 31104000); // only do this if we have to (360*24*60*60)
 }
 $gMinStep = ( $gbMobile ? 1000 : 100 ); // finest granularity of screenshots for this browser
 $gStep = getParam('step', ( $gbMobile ? 1000 : 1000 ));  // time interval to step during playback
@@ -95,12 +100,15 @@ function pause() {
 
 
 function adjustImages() {
-	var allthumbs = document.getElementById('allthumbs');
-	var aImages = allthumbs.getElementsByTagName('img');
-	var len = aImages.length;
-	for ( var i = 0; i < len; i++ ) {
-		var image = aImages[i];
-		adjustImage(image);
+	var aIds = ['allthumbs1', 'allthumbs2'];
+	for ( var j = 0; j < aIds.length; j++ ) {
+		var container = document.getElementById(aIds[j]);
+		var aImages = container.getElementsByTagName('img');
+		var len = aImages.length;
+		for ( var i = 0; i < len; i++ ) {
+			var image = aImages[i];
+			adjustImage(image);
+		}
 	}
 }
 
@@ -109,7 +117,7 @@ function adjustImage(image) {
 	var pageid = image.id;
 	var hFrames = hPages[pageid];
 	if ( ! hFrames ) {
-		dprint("ERROR: Pageid " + pageid + " wasn't found in hFrames.");
+		dprint("ERROR: Pageid " + pageid + " wasn't found in hPages.");
 	}
 	else { 
 		// Iterate backwards through the screenshots to find the right one to show.
@@ -214,7 +222,7 @@ function doSize(w) {
 
 
 function gotoLink() {
-	document.location = "patchwork.php?t=" + document.getElementById('time').value + "&w=" + getSize() + "&l=" + getLabel() + "&n=" + gNumUrls;
+	document.location = "patchwork.php?t=" + document.getElementById('time').value + "&w=" + getSize() + "&l1=<?php echo $gLabel1 ?>&l2=<?php echo $gLabel2 ?>&n=" + gNumUrls;
 }
 
 
@@ -223,9 +231,6 @@ function dprint(msg) {
 		console.log(msg);
 	}
 }
-
-
-var hPages = {}; // this gets added to by patchwork.js
 </script>
 </head>
 
@@ -245,23 +250,26 @@ var hPages = {}; // this gets added to by patchwork.js
 <option value=200 <?php echo ( 200 == $gW ? "selected" : "" ) ?>> medium
 <option value=400 <?php echo ( 400 == $gW ? "selected" : "" ) ?>> large
 </select>
-<span style="margin-left: 0.6em;">
-	<?php echo selectArchiveLabel($gArchive, $gLabel, true, false); ?>
-</span>
 </form>
 <a href="javascript:gotoLink()" style="margin-left: 1em; font-size: 0.8em;" class=txt>link</a>
 </div>
 
-<div id=allthumbs>
+<table style="width: 99%; border-bottom: 0;">
+<tr>
+<td style="width: 50%; padding: 0; padding-left: 2em;">
+<div style="margin-left: 3em;">
+	<?php echo selectArchiveLabel($gArchive, $gLabel1, true, false); ?>
+</div>
+<div id=allthumbs1>
 <?php
 // Display a thumbnail of the Top N websites at a certain time in the loading process.
 $limitgoogle = "(url = 'http://www.google.com/' OR url not like '%://www.google.%')"; // There are 10+ sites that all look the same from Google intl sites
-$query = "select pageid, url, wptid, wptrun from $gPagesTable where label='$gLabel' and rank > 0 and rank <= " . (2*$gNumUrls) . " and $limitgoogle order by rank asc;";
+$query = "select pageid, url, wptid, wptrun from $gPagesTable where label='$gLabel1' and rank > 0 and rank <= " . (2*$gNumUrls) . " and $limitgoogle order by rank asc;";
 $result = doQuery($query);
 if ( 0 == mysql_num_rows($result) ) {
 	mysql_free_result($result);
 	// Older crawls do NOT have values for "rank". Use today's rank.
-	$query = "select pageid, url, wptid, wptrun from $gPagesTable, $gUrlsTable as u where label='$gLabel' and u.rank > 0 and u.rank <= " . (2*$gNumUrls) . " and urlOrig=url and $limitgoogle order by u.rank asc;";
+	$query = "select pageid, url, wptid, wptrun from $gPagesTable, $gUrlsTable as u where label='$gLabel1' and u.rank > 0 and u.rank <= " . (2*$gNumUrls) . " and urlOrig=url and $limitgoogle order by u.rank asc;";
 	$result = doQuery($query);
 }
 $i = 0;
@@ -286,6 +294,48 @@ while ($row = mysql_fetch_assoc($result)) {
 mysql_free_result($result);
 ?>
 </div>
+</td>
+<td style="width: 50%; padding: 0; padding-left: 2em;">
+<div style="margin-left: 3em;">
+	<?php echo selectArchiveLabel($gArchive, $gLabel2, true, false); ?>
+</div>
+<div id=allthumbs2>
+<?php
+// Display a thumbnail of the Top N websites at a certain time in the loading process.
+$limitgoogle = "(url = 'http://www.google.com/' OR url not like '%://www.google.%')"; // There are 10+ sites that all look the same from Google intl sites
+$query = "select pageid, url, wptid, wptrun from $gPagesTable where label='$gLabel2' and rank > 0 and rank <= " . (2*$gNumUrls) . " and $limitgoogle order by rank asc;";
+$result = doQuery($query);
+if ( 0 == mysql_num_rows($result) ) {
+	mysql_free_result($result);
+	// Older crawls do NOT have values for "rank". Use today's rank.
+	$query = "select pageid, url, wptid, wptrun from $gPagesTable, $gUrlsTable as u where label='$gLabel2' and u.rank > 0 and u.rank <= " . (2*$gNumUrls) . " and urlOrig=url and $limitgoogle order by u.rank asc;";
+	$result = doQuery($query);
+}
+$i = 0;
+while ($row = mysql_fetch_assoc($result)) {
+	$url = $row['url'];
+	if ( ! isAdultContent($url) ) {
+		$pageid = $row['pageid'];
+		$wptid = $row['wptid'];
+		$wptrun = $row['wptrun'];
+		echo "<div style='height: {$gH}px; width: {$gW}px; float: left; background: #FFF;'>" . // show white in case of missing images
+			"<a href='viewsite.php?pageid=$pageid' title='$url' class=img>" .
+			"<img id=$pageid data-wptid='$wptid' data-wptrun=$wptrun style='border-width: 0; height: {$gH}px; width: {$gW}px;' src='frame.php?t=$gCurTime&wptid=$wptid&wptrun=$wptrun&pageid=$pageid'>" .
+			"</a>" .
+			"</div>" .
+			"";
+		$i++;
+		if ( $i >= $gNumUrls ) {
+			break;
+		}
+	}
+}
+mysql_free_result($result);
+?>
+</div>
+</td>
+</tr>
+</table>
 
 <script>
 var sellabel = document.getElementById('sellabel');
@@ -297,7 +347,12 @@ else if (sellabel.attachEvent) {
 }
 </script>
 
-<script src="patchwork.js?n=<?php echo $gNumUrls ?>&l=<?php echo $gLabel ?>" async></script>
+<script>
+var hPages = {}; // this gets populated by patchwork.js
+var msMax = 0;
+</script>
+<script src="patchwork.js?n=<?php echo $gNumUrls ?>&l=<?php echo $gLabel1 ?>" async></script>
+<script src="patchwork.js?n=<?php echo $gNumUrls ?>&l=<?php echo $gLabel2 ?>" async></script>
 </body>
 </html>
 
