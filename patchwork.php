@@ -21,7 +21,7 @@ if ( ! $gLabel1 ) {
 }
 $gMinStep = ( $gbMobile ? 1000 : 100 ); // finest granularity of screenshots for this browser
 $gStep = getParam('step', ( $gbMobile ? 1000 : 1000 ));  // time interval to step during playback
-$gW = getParam('w', 100); // normal dimensions are 138x200 or 90x200
+$gW = getParam('w', ($gbMobile ? 50 : 100)); // normal dimensions are 138x200 or 90x200
 // mobile images are 200x300, IE are 200x138
 $gH = round( ($gbMobile ? 300 : 138)*$gW/200 );
 $wptServer = wptServer();
@@ -207,16 +207,19 @@ function doSize(w) {
 	}
 	var h = parseInt( (gbMobile ? 300 : 138)*w/200 );
 
-	var allthumbs = document.getElementById('allthumbs');
-	var aImages = allthumbs.getElementsByTagName('img');
-	var len = aImages.length;
-	for ( var i = 0; i < len; i++ ) {
-		var image = aImages[i];
-		image.style.width = w + "px";
-		image.style.height = h + "px";
-		var parent = image.parentNode.parentNode;
-		parent.style.width = w + "px";
-		parent.style.height = h + "px";
+	var aIds = ['allthumbs1', 'allthumbs2'];
+	for ( var j = 0; j < aIds.length; j++ ) {
+		var allthumbs = document.getElementById(aIds[j]);
+		var aImages = allthumbs.getElementsByTagName('img');
+		var len = aImages.length;
+		for ( var i = 0; i < len; i++ ) {
+			var image = aImages[i];
+			image.style.width = w + "px";
+			image.style.height = h + "px";
+			var parent = image.parentNode.parentNode;
+			parent.style.width = w + "px";
+			parent.style.height = h + "px";
+		}
 	}
 }
 
