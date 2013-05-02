@@ -50,6 +50,8 @@ var gStep = <?php echo $gStep ?>;
 var gMinStep = <?php echo $gMinStep ?>;
 var gbPlay = false;
 var gbMobile = <?php echo ( $gbMobile ? "true" : "false" ) ?>;
+var gNumStarted = 0;  // how many pages have started rendering
+var gNumFinished = 0; // how many pages have finished rendering
 
 function forward() {
 	if ( checkReady() ) {
@@ -102,7 +104,8 @@ function pause() {
 function adjustImages() {
 	var aIds = ['allthumbs1', 'allthumbs2'];
 	for ( var j = 0; j < aIds.length; j++ ) {
-		var container = document.getElementById(aIds[j]);
+		var id = aIds[j];
+		var container = document.getElementById(id);
 		var aImages = container.getElementsByTagName('img');
 		var len = aImages.length;
 		for ( var i = 0; i < len; i++ ) {
@@ -110,6 +113,7 @@ function adjustImages() {
 			adjustImage(image);
 		}
 	}
+	countStarted();
 }
 
 
@@ -131,6 +135,26 @@ function adjustImage(image) {
 				return;
 			}
 		}
+	}
+}
+
+
+function countStarted() {
+	var aIds = ['allthumbs1', 'allthumbs2'];
+	for ( var j = 0; j < aIds.length; j++ ) {
+		var id = aIds[j];
+		var container = document.getElementById(id);
+		var aImages = container.getElementsByTagName('img');
+		var len = aImages.length;
+		gNumStarted = 0;
+		for ( var i = 0; i < len; i++ ) {
+			var image = aImages[i];
+			var pageid = image.id;
+			if ( -1 === image.src.indexOf("0000.jpg") && (!gbMobile || pageid >= 12217 || -1 === image.src.indexOf("0010.jpg")) ) {
+				gNumStarted++
+			}
+		}
+		document.getElementById(id+'started').innerHTML = parseInt((100*gNumStarted/gNumUrls)+0.5) + "% started rendering";
 	}
 }
 
@@ -279,11 +303,12 @@ $sUrls = substr($sUrls, 1); // remove leading ","
 mysql_free_result($result);
 ?>
 
-<table style="width: 99%; border-bottom: 0;">
+<table style="width: 100%; border-bottom: 0;">
 <tr>
 <td style="width: 50%; padding: 0; padding-left: 2em;">
 <div style="margin-left: 3em;">
 	<?php echo selectArchiveLabel($gArchive, $gLabel1, true, false, 'label1'); ?>
+<span id=allthumbs1started style="color: #DDD; vertical-align: super; margin-left: 1em;"></span>
 </div>
 <div id=allthumbs1>
 <?php
@@ -309,6 +334,7 @@ mysql_free_result($result);
 <td style="width: 50%; padding: 0; padding-left: 2em;">
 <div style="margin-left: 3em;">
 	<?php echo selectArchiveLabel($gArchive, $gLabel2, true, false, 'label2'); ?>
+<span id=allthumbs2started style="color: #DDD; vertical-align: super; margin-left: 1em;"></span>
 </div>
 <div id=allthumbs2>
 <?php
@@ -339,10 +365,12 @@ var sellabel2 = document.getElementById('label2');
 if (sellabel1.addEventListener) {
 	sellabel1.addEventListener('change', gotoLink, false);
 	sellabel2.addEventListener('change', gotoLink, false);
+	window.addEventListener('load', countStarted, false);
 }
 else if (sellabel1.attachEvent) {
 	sellabel1.attachEvent('onchange', gotoLink);
 	sellabel2.attachEvent('onchange', gotoLink);
+	window.attachEvent('onload', countStarted);
 }
 </script>
 
@@ -350,8 +378,7 @@ else if (sellabel1.attachEvent) {
 var hPages = {}; // this gets populated by patchwork.js
 var msMax = 0;
 </script>
-<script src="patchwork.js?n=<?php echo $gNumUrls ?>&l=<?php echo $gLabel1 ?>" async></script>
-<script src="patchwork.js?n=<?php echo $gNumUrls ?>&l=<?php echo $gLabel2 ?>" async></script>
+<script src="patchwork.js?n=<?php echo $gNumUrls ?>&l1=<?php echo $gLabel1 ?>&l2=<?php echo $gLabel2 ?>" async></script>
 </body>
 </html>
 
