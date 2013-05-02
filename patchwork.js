@@ -53,5 +53,5 @@ while ($row = mysql_fetch_assoc($result)) {
 	}
 }
 mysql_free_result($result);
-echo "\nvar msMax = $msMax;\n";
+echo "\nmsMax = Math.max(msMax, $msMax);\n";
 ?>
