@@ -101,6 +101,13 @@ function pause() {
 }
 
 
+// This is the function that gets called when the async patchwork.js script is loaded.
+function doPatchwork() {
+	toggleBusy("none");
+	gotoTime(gCurTime);
+}
+
+
 function adjustImages() {
 	var aIds = ['allthumbs1', 'allthumbs2'];
 	for ( var j = 0; j < aIds.length; j++ ) {
@@ -249,7 +256,15 @@ function doSize(w) {
 
 
 function gotoLink() {
+	toggleBusy("block");
 	document.location = "patchwork.php?t=" + document.getElementById('time').value + "&w=" + getSize() + "&l1=" + getLabel('label1') + "&l2=" + getLabel('label2') + "&n=" + gNumUrls;
+}
+
+
+function toggleBusy(val) {
+	var busy = document.getElementById('busy');
+	val = ( val ? val : ( "none" == busy.style.display ? "block" : "none" ) );
+	busy.style.display = val;
 }
 
 
@@ -262,6 +277,9 @@ function dprint(msg) {
 </head>
 
 <body>
+<div id=busy style="display: none; font-size: 1.5em; color: #DDD; padding: 8px 0 8px 4em; position: fixed; background: #000; width: 100%">
+downloading thumbnails... <img src="images/busy.gif" style="vertical-align: middle;">
+</div>
 <div style="font-size: 2em;">
 <a style="margin-left: 0.6em; broder-bottom: 0; font-size: 1.5em; color: #FFF;" href="javascript:back()" title="Back">-</a>
 <a style="margin-left: 0.6em; broder-bottom: 0; font-size: 1.5em; color: #FFF;" href="javascript:play()" title="Play" id=playbtn><img src="images/playButton.png" style="vertical-align: middle;"></a>
@@ -322,7 +340,7 @@ while ($row = mysql_fetch_assoc($result)) {
 	$wptrun = $row['wptrun'];
 	echo "<div style='height: {$gH}px; width: {$gW}px; float: left; background: #FFF;'>" . // show white in case of missing images
 		"<a href='viewsite.php?pageid=$pageid' title='$url' class=img>" .
-		"<img id=$pageid data-wptid='$wptid' data-wptrun=$wptrun style='border-width: 0; height: {$gH}px; width: {$gW}px;' src='frame.php?t=$gCurTime&wptid=$wptid&wptrun=$wptrun&pageid=$pageid'>" .
+		"<img id=$pageid data-wptid='$wptid' data-wptrun=$wptrun style='border-width: 0; height: {$gH}px; width: {$gW}px;' src='images/thumbnail-" . ( $gbMobile ? "iphone" : "ie" ) . ".jpg'>" .
 		"</a>" .
 		"</div>" .
 		"";
@@ -347,7 +365,7 @@ while ($row = mysql_fetch_assoc($result)) {
 	$wptrun = $row['wptrun'];
 	echo "<div style='height: {$gH}px; width: {$gW}px; float: left; background: #FFF;'>" . // show white in case of missing images
 		"<a href='viewsite.php?pageid=$pageid' title='$url' class=img>" .
-		"<img id=$pageid data-wptid='$wptid' data-wptrun=$wptrun style='border-width: 0; height: {$gH}px; width: {$gW}px;' src='frame.php?t=$gCurTime&wptid=$wptid&wptrun=$wptrun&pageid=$pageid'>" .
+		"<img id=$pageid data-wptid='$wptid' data-wptrun=$wptrun style='border-width: 0; height: {$gH}px; width: {$gW}px;' src='images/thumbnail-" . ( $gbMobile ? "iphone" : "ie" ) . ".jpg'>" .
 		"</a>" .
 		"</div>" .
 		"";
@@ -377,8 +395,9 @@ else if (sellabel1.attachEvent) {
 <script>
 var hPages = {}; // this gets populated by patchwork.js
 var msMax = 0;
+toggleBusy("block");
 </script>
-<script src="patchwork.js?n=<?php echo $gNumUrls ?>&l1=<?php echo $gLabel1 ?>&l2=<?php echo $gLabel2 ?>" async></script>
+<script src="patchwork.js?n=<?php echo $gNumUrls ?>&l1=<?php echo $gLabel1 ?>&l2=<?php echo $gLabel2 ?>&callback=doPatchwork" async></script>
 </body>
 </html>
 
