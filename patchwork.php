@@ -303,6 +303,10 @@ downloading thumbnails... <img src="images/busy.gif" style="vertical-align: midd
 </div>
 
 <?php 
+// Figure out which crawl is earliest:
+$earliestLabel = doSimpleQuery("select label from crawls where (label = '$gLabel1' or label = '$gLabel2') and location = '" . curDevice() . "' order by minPageid asc limit 1;");
+$bChrono = ( $earliestLabel == $gLabel1 );
+
 // Find the topmost URLs in both crawls:
 $limitgoogle = "(url = 'http://www.google.com/' OR url not like '%://www.google.%')"; // There are 10+ sites that all look the same from Google intl sites
 $maxRank = 5 * $gNumUrls; // we get back MORE results than needed so we can filter out adult content
@@ -316,9 +320,8 @@ while ($row = mysql_fetch_assoc($result)) {
 	$minid = $row['minid'];
 	$maxid = $row['maxid'];
 	if ( ! isAdultContent($url) ) {
-		// CVSNO - "minid" doesn't necessarily go first!!!!
-		$imgs1 .= getImgHtml($minid, $url);
-		$imgs2 .= getImgHtml($maxid, $url);
+		$imgs1 .= getImgHtml(($bChrono ? $minid : $maxid), $url);
+		$imgs2 .= getImgHtml(($bChrono ? $maxid : $minid), $url);
 
 		$i++;
 		if ( $i >= $gNumUrls ) {
