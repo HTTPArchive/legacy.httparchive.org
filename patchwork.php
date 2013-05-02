@@ -65,7 +65,7 @@ function forward() {
 
 function back() {
 	if ( checkReady() ) {
-		if ( (gCurTime - gStep) > 0 ) {
+		if ( (gCurTime - gStep) >= 0 ) {
 			gotoTime(gCurTime - gStep);
 		}
 	}
@@ -127,8 +127,12 @@ function adjustImages() {
 function adjustImage(image) {
 	var pageid = image.id;
 	var hFrames = hPages[pageid];
+	var aInfo = hPageInfo[pageid];
 	if ( ! hFrames ) {
 		dprint("ERROR: Pageid " + pageid + " wasn't found in hPages.");
+	}
+	else if ( ! aInfo ) {
+		dprint("ERROR: Pageid " + pageid + " wasn't found in hPageInfo.");
 	}
 	else { 
 		// Iterate backwards through the screenshots to find the right one to show.
@@ -137,8 +141,8 @@ function adjustImage(image) {
 			if ( hFrames[t] ) {
 				var f = "0000" + parseInt(t/100);
 				f = f.substring(f.length-4); // eg, "0025" is 2500 ms
-				image.src = "<?php echo $wptServer ?>thumbnail.php?test=" + image.getAttribute("data-wptid") + 
-					"&width=200&file=video_" + image.getAttribute("data-wptrun") + "/frame_" + f + ".jpg";
+				image.src = "<?php echo $wptServer ?>thumbnail.php?test=" + aInfo[0] + 
+					"&width=200&file=video_" + aInfo[1] + "/frame_" + f + ".jpg";
 				return;
 			}
 		}
@@ -256,7 +260,6 @@ function doSize(w) {
 
 
 function gotoLink() {
-	toggleBusy("block");
 	document.location = "patchwork.php?t=" + document.getElementById('time').value + "&w=" + getSize() + "&l1=" + getLabel('label1') + "&l2=" + getLabel('label2') + "&n=" + gNumUrls;
 }
 
@@ -277,7 +280,7 @@ function dprint(msg) {
 </head>
 
 <body>
-<div id=busy style="display: none; font-size: 1.5em; color: #DDD; padding: 8px 0 8px 4em; position: fixed; background: #000; width: 100%">
+<div id=busy style="display: none; font-size: 1.5em; color: #DDD; padding: 8px 0 8px 4em; position: fixed; background: #000; width: 100%;">
 downloading thumbnails... <img src="images/busy.gif" style="vertical-align: middle;">
 </div>
 <div style="font-size: 2em;">
@@ -303,22 +306,37 @@ downloading thumbnails... <img src="images/busy.gif" style="vertical-align: midd
 // Find the topmost URLs in both crawls:
 $limitgoogle = "(url = 'http://www.google.com/' OR url not like '%://www.google.%')"; // There are 10+ sites that all look the same from Google intl sites
 $maxRank = 5 * $gNumUrls; // we get back MORE results than needed so we can filter out adult content
-$query = "select url, count(*) as num from $gPagesTable, $gUrlsTable as u where (label = '$gLabel1' or label = '$gLabel2') and url=urlOrig and u.rank > 0 and u.rank < $maxRank and $limitgoogle group by url having num=2 order by u.rank asc;";
+$query = "select url, min(pageid) as minid, max(pageid) as maxid, count(*) as num from $gPagesTable, $gUrlsTable as u where (label = '$gLabel1' or label = '$gLabel2') and url=urlOrig and u.rank > 0 and u.rank < $maxRank and $limitgoogle group by url having num=2 order by u.rank asc;";
 $result = doQuery($query);
 $i = 0;
-$sUrls = "";
+$imgs1 = "";
+$imgs2 = "";
 while ($row = mysql_fetch_assoc($result)) {
 	$url = $row['url'];
+	$minid = $row['minid'];
+	$maxid = $row['maxid'];
 	if ( ! isAdultContent($url) ) {
-		$sUrls .= ", '$url'";
+		// CVSNO - "minid" doesn't necessarily go first!!!!
+		$imgs1 .= getImgHtml($minid, $url);
+		$imgs2 .= getImgHtml($maxid, $url);
+
 		$i++;
 		if ( $i >= $gNumUrls ) {
 			break;
 		}
 	}
 }
-$sUrls = substr($sUrls, 1); // remove leading ","
 mysql_free_result($result);
+
+function getImgHtml($pageid, $url) {
+	global $gH, $gW, $gbMobile;
+	return "<div style='height: {$gH}px; width: {$gW}px; float: left; background: #FFF;'>" . // show white in case of missing images
+		"<a href='viewsite.php?pageid=$pageid' title='$url' class=img>" .
+		"<img id=$pageid style='border-width: 0; height: {$gH}px; width: {$gW}px;' src='images/thumbnail-" . ( $gbMobile ? "iphone" : "ie" ) . ".jpg'>" .
+		"</a>" .
+		"</div>" .
+		"\n";
+}
 ?>
 
 <table style="width: 100%; border-bottom: 0;">
@@ -329,24 +347,7 @@ mysql_free_result($result);
 <span id=allthumbs1started style="color: #DDD; vertical-align: super; margin-left: 1em;"></span>
 </div>
 <div id=allthumbs1>
-<?php
-// Display a thumbnail of the Top N websites at a certain time in the loading process.
-$query = "select pageid, url, wptid, wptrun from $gPagesTable, $gUrlsTable as u where label='$gLabel1' and urlOrig=url and u.rank > 0 and u.rank <= $maxRank and url in ($sUrls) order by u.rank asc;";
-$result = doQuery($query);
-while ($row = mysql_fetch_assoc($result)) {
-	$url = $row['url'];
-	$pageid = $row['pageid'];
-	$wptid = $row['wptid'];
-	$wptrun = $row['wptrun'];
-	echo "<div style='height: {$gH}px; width: {$gW}px; float: left; background: #FFF;'>" . // show white in case of missing images
-		"<a href='viewsite.php?pageid=$pageid' title='$url' class=img>" .
-		"<img id=$pageid data-wptid='$wptid' data-wptrun=$wptrun style='border-width: 0; height: {$gH}px; width: {$gW}px;' src='images/thumbnail-" . ( $gbMobile ? "iphone" : "ie" ) . ".jpg'>" .
-		"</a>" .
-		"</div>" .
-		"";
-}
-mysql_free_result($result);
-?>
+<?php echo $imgs1 ?>
 </div>
 </td>
 <td style="width: 50%; padding: 0; padding-left: 2em;">
@@ -355,23 +356,7 @@ mysql_free_result($result);
 <span id=allthumbs2started style="color: #DDD; vertical-align: super; margin-left: 1em;"></span>
 </div>
 <div id=allthumbs2>
-<?php
-$query = "select pageid, url, wptid, wptrun from $gPagesTable, $gUrlsTable as u where label='$gLabel2' and urlOrig=url and u.rank > 0 and u.rank <= $maxRank and url in ($sUrls) order by u.rank asc;";
-$result = doQuery($query);
-while ($row = mysql_fetch_assoc($result)) {
-	$url = $row['url'];
-	$pageid = $row['pageid'];
-	$wptid = $row['wptid'];
-	$wptrun = $row['wptrun'];
-	echo "<div style='height: {$gH}px; width: {$gW}px; float: left; background: #FFF;'>" . // show white in case of missing images
-		"<a href='viewsite.php?pageid=$pageid' title='$url' class=img>" .
-		"<img id=$pageid data-wptid='$wptid' data-wptrun=$wptrun style='border-width: 0; height: {$gH}px; width: {$gW}px;' src='images/thumbnail-" . ( $gbMobile ? "iphone" : "ie" ) . ".jpg'>" .
-		"</a>" .
-		"</div>" .
-		"";
-}
-mysql_free_result($result);
-?>
+<?php echo $imgs2 ?>
 </div>
 </td>
 </tr>
@@ -394,6 +379,7 @@ else if (sellabel1.attachEvent) {
 
 <script>
 var hPages = {}; // this gets populated by patchwork.js
+var hPageInfo = {}; // this gets populated by patchwork.js
 var msMax = 0;
 toggleBusy("block");
 </script>
