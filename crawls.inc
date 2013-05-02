@@ -63,9 +63,10 @@ function crawlPasses($label, $archive, $location) {
 
 
 // return the label PRIOR to the current label
-function getPrevLabel($label, $archive, $location) {
+function getPrevLabel($label, $archive, $location, $delta=0) {
 	$crawlsTable = crawlsTable();
-	return doSimpleQuery("select label from $crawlsTable where startedDateTime < (select startedDateTime from $crawlsTable where label='$label' and archive='$archive' and location='$location') order by startedDateTime desc limit 1;");
+	$query = "select label from $crawlsTable where startedDateTime < ((select startedDateTime from $crawlsTable where label='$label' and archive='$archive' and location='$location')-$delta) order by startedDateTime desc limit 1;";
+	return doSimpleQuery($query);
 }
 
 
