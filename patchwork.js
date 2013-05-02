@@ -35,58 +35,39 @@ while ($row = mysql_fetch_assoc($result)) {
 $sUrls = substr($sUrls, 1); // remove leading ","
 mysql_free_result($result);
 
-// Display a thumbnail of the Top N websites at a certain time in the loading process.
-$query = "select pageid, url, wptid, wptrun from $gPagesTable, $gUrlsTable as u where label='$gLabel1' and urlOrig=url and u.rank > 0 and u.rank <= $maxRank and url in ($sUrls) order by u.rank asc;";
-$result = doQuery($query);
-while ($row = mysql_fetch_assoc($result)) {
-	$url = $row['url'];
-	$pageid = $row['pageid'];
-	$wptid = $row['wptid'];
-	$wptrun = $row['wptrun'];
+echoInfo($gLabel1, $sUrls);
+echoInfo($gLabel2, $sUrls);
 
-	$xmlurl = "{$wptServer}xmlResult.php?test=$wptid";
-	$xmlstr = fetchUrl($xmlurl);
-	$xml = new SimpleXMLElement($xmlstr);
-	$frames = $xml->data->run[($wptrun - 1)]->firstView->videoFrames;
-	if ( $frames->frame ) {
-		$sJS = "";
-		foreach($frames->frame as $frame) {
-			$ms = floatval($frame->time) * 1000;
-			$msMax = max($msMax, $ms);
-			$sJS .= ( $sJS ? ", " : "" ) . "$ms: 1"; // must NOT end with a comma - poop
-		}
-		echo "hPages[$pageid] = {" . $sJS . "};\n";
-	}
-}
-mysql_free_result($result);
-
-// Display a thumbnail of the Top N websites at a certain time in the loading process.
-$query = "select pageid, url, wptid, wptrun from $gPagesTable, $gUrlsTable as u where label='$gLabel2' and urlOrig=url and u.rank > 0 and u.rank <= $maxRank and url in ($sUrls) order by u.rank asc;";
-$result = doQuery($query);
-while ($row = mysql_fetch_assoc($result)) {
-	$url = $row['url'];
-	$pageid = $row['pageid'];
-	$wptid = $row['wptid'];
-	$wptrun = $row['wptrun'];
-
-	$xmlurl = "{$wptServer}xmlResult.php?test=$wptid";
-	$xmlstr = fetchUrl($xmlurl);
-	$xml = new SimpleXMLElement($xmlstr);
-	$frames = $xml->data->run[($wptrun - 1)]->firstView->videoFrames;
-	if ( $frames->frame ) {
-		$sJS = "";
-		foreach($frames->frame as $frame) {
-			$ms = floatval($frame->time) * 1000;
-			$msMax = max($msMax, $ms);
-			$sJS .= ( $sJS ? ", " : "" ) . "$ms: 1"; // must NOT end with a comma - poop
-		}
-		echo "hPages[$pageid] = {" . $sJS . "};\n";
-	}
-}
-mysql_free_result($result);
-
-
-
-echo "\nmsMax = Math.max(msMax, $msMax);\n" .
+echo "\nmsMax = $msMax;\n" .
 	( $gCallback ? "$gCallback();\n" : "" );
+
+
+function echoInfo($label, $sUrls) {
+	global $gPagesTable, $gUrlsTable, $msMax, $maxRank, $wptServer;
+	// Echo the frame times, wptid, and wptrun info for the pages in JS format.
+	$query = "select pageid, url, wptid, wptrun from $gPagesTable, $gUrlsTable as u where label='$label' and urlOrig=url and u.rank > 0 and u.rank <= $maxRank and url in ($sUrls) order by u.rank asc;";
+	$result = doQuery($query);
+	while ($row = mysql_fetch_assoc($result)) {
+		$url = $row['url'];
+		$pageid = $row['pageid'];
+		$wptid = $row['wptid'];
+		$wptrun = $row['wptrun'];
+
+		$xmlurl = "{$wptServer}xmlResult.php?test=$wptid";
+		$xmlstr = fetchUrl($xmlurl);
+		$xml = new SimpleXMLElement($xmlstr);
+		$frames = $xml->data->run[($wptrun - 1)]->firstView->videoFrames;
+		if ( $frames->frame ) {
+			$sJS = "";
+			foreach($frames->frame as $frame) {
+				$ms = floatval($frame->time) * 1000;
+				$msMax = max($msMax, $ms);
+				$sJS .= ( $sJS ? ", " : "" ) . "$ms: 1"; // must NOT end with a comma - poop
+			}
+			echo "hPages[$pageid] = {" . $sJS . "};\n" . 
+				"hPageInfo[$pageid] = ['$wptid', $wptrun];\n";
+		}
+	}
+	mysql_free_result($result);
+}
 ?>
