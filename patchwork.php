@@ -188,8 +188,8 @@ function getSize() {
 }
 
 
-function getLabel() {
-	var sel = document.getElementById('sellabel');
+function getLabel(id) {
+	var sel = document.getElementById(id);
 	return sel.options[sel.selectedIndex].value;
 }
 
@@ -222,7 +222,7 @@ function doSize(w) {
 
 
 function gotoLink() {
-	document.location = "patchwork.php?t=" + document.getElementById('time').value + "&w=" + getSize() + "&l1=<?php echo $gLabel1 ?>&l2=<?php echo $gLabel2 ?>&n=" + gNumUrls;
+	document.location = "patchwork.php?t=" + document.getElementById('time').value + "&w=" + getSize() + "&l1=" + getLabel('label1') + "&l2=" + getLabel('label2') + "&n=" + gNumUrls;
 }
 
 
@@ -254,42 +254,50 @@ function dprint(msg) {
 <a href="javascript:gotoLink()" style="margin-left: 1em; font-size: 0.8em;" class=txt>link</a>
 </div>
 
-<table style="width: 99%; border-bottom: 0;">
-<tr>
-<td style="width: 50%; padding: 0; padding-left: 2em;">
-<div style="margin-left: 3em;">
-	<?php echo selectArchiveLabel($gArchive, $gLabel1, true, false); ?>
-</div>
-<div id=allthumbs1>
-<?php
-// Display a thumbnail of the Top N websites at a certain time in the loading process.
+<?php 
+// Find the topmost URLs in both crawls:
 $limitgoogle = "(url = 'http://www.google.com/' OR url not like '%://www.google.%')"; // There are 10+ sites that all look the same from Google intl sites
-$query = "select pageid, url, wptid, wptrun from $gPagesTable where label='$gLabel1' and rank > 0 and rank <= " . (2*$gNumUrls) . " and $limitgoogle order by rank asc;";
+$maxRank = 5 * $gNumUrls; // we get back MORE results than needed so we can filter out adult content
+$query = "select url, count(*) as num from $gPagesTable, $gUrlsTable as u where (label = '$gLabel1' or label = '$gLabel2') and url=urlOrig and u.rank > 0 and u.rank < $maxRank and $limitgoogle group by url having num=2 order by u.rank asc;";
 $result = doQuery($query);
-if ( 0 == mysql_num_rows($result) ) {
-	mysql_free_result($result);
-	// Older crawls do NOT have values for "rank". Use today's rank.
-	$query = "select pageid, url, wptid, wptrun from $gPagesTable, $gUrlsTable as u where label='$gLabel1' and u.rank > 0 and u.rank <= " . (2*$gNumUrls) . " and urlOrig=url and $limitgoogle order by u.rank asc;";
-	$result = doQuery($query);
-}
 $i = 0;
+$sUrls = "";
 while ($row = mysql_fetch_assoc($result)) {
 	$url = $row['url'];
 	if ( ! isAdultContent($url) ) {
-		$pageid = $row['pageid'];
-		$wptid = $row['wptid'];
-		$wptrun = $row['wptrun'];
-		echo "<div style='height: {$gH}px; width: {$gW}px; float: left; background: #FFF;'>" . // show white in case of missing images
-			"<a href='viewsite.php?pageid=$pageid' title='$url' class=img>" .
-			"<img id=$pageid data-wptid='$wptid' data-wptrun=$wptrun style='border-width: 0; height: {$gH}px; width: {$gW}px;' src='frame.php?t=$gCurTime&wptid=$wptid&wptrun=$wptrun&pageid=$pageid'>" .
-			"</a>" .
-			"</div>" .
-			"";
+		$sUrls .= ", '$url'";
 		$i++;
 		if ( $i >= $gNumUrls ) {
 			break;
 		}
 	}
+}
+$sUrls = substr($sUrls, 1); // remove leading ","
+mysql_free_result($result);
+?>
+
+<table style="width: 99%; border-bottom: 0;">
+<tr>
+<td style="width: 50%; padding: 0; padding-left: 2em;">
+<div style="margin-left: 3em;">
+	<?php echo selectArchiveLabel($gArchive, $gLabel1, true, false, 'label1'); ?>
+</div>
+<div id=allthumbs1>
+<?php
+// Display a thumbnail of the Top N websites at a certain time in the loading process.
+$query = "select pageid, url, wptid, wptrun from $gPagesTable, $gUrlsTable as u where label='$gLabel1' and urlOrig=url and u.rank > 0 and u.rank <= $maxRank and url in ($sUrls) order by u.rank asc;";
+$result = doQuery($query);
+while ($row = mysql_fetch_assoc($result)) {
+	$url = $row['url'];
+	$pageid = $row['pageid'];
+	$wptid = $row['wptid'];
+	$wptrun = $row['wptrun'];
+	echo "<div style='height: {$gH}px; width: {$gW}px; float: left; background: #FFF;'>" . // show white in case of missing images
+		"<a href='viewsite.php?pageid=$pageid' title='$url' class=img>" .
+		"<img id=$pageid data-wptid='$wptid' data-wptrun=$wptrun style='border-width: 0; height: {$gH}px; width: {$gW}px;' src='frame.php?t=$gCurTime&wptid=$wptid&wptrun=$wptrun&pageid=$pageid'>" .
+		"</a>" .
+		"</div>" .
+		"";
 }
 mysql_free_result($result);
 ?>
@@ -297,38 +305,23 @@ mysql_free_result($result);
 </td>
 <td style="width: 50%; padding: 0; padding-left: 2em;">
 <div style="margin-left: 3em;">
-	<?php echo selectArchiveLabel($gArchive, $gLabel2, true, false); ?>
+	<?php echo selectArchiveLabel($gArchive, $gLabel2, true, false, 'label2'); ?>
 </div>
 <div id=allthumbs2>
 <?php
-// Display a thumbnail of the Top N websites at a certain time in the loading process.
-$limitgoogle = "(url = 'http://www.google.com/' OR url not like '%://www.google.%')"; // There are 10+ sites that all look the same from Google intl sites
-$query = "select pageid, url, wptid, wptrun from $gPagesTable where label='$gLabel2' and rank > 0 and rank <= " . (2*$gNumUrls) . " and $limitgoogle order by rank asc;";
+$query = "select pageid, url, wptid, wptrun from $gPagesTable, $gUrlsTable as u where label='$gLabel2' and urlOrig=url and u.rank > 0 and u.rank <= $maxRank and url in ($sUrls) order by u.rank asc;";
 $result = doQuery($query);
-if ( 0 == mysql_num_rows($result) ) {
-	mysql_free_result($result);
-	// Older crawls do NOT have values for "rank". Use today's rank.
-	$query = "select pageid, url, wptid, wptrun from $gPagesTable, $gUrlsTable as u where label='$gLabel2' and u.rank > 0 and u.rank <= " . (2*$gNumUrls) . " and urlOrig=url and $limitgoogle order by u.rank asc;";
-	$result = doQuery($query);
-}
-$i = 0;
 while ($row = mysql_fetch_assoc($result)) {
 	$url = $row['url'];
-	if ( ! isAdultContent($url) ) {
-		$pageid = $row['pageid'];
-		$wptid = $row['wptid'];
-		$wptrun = $row['wptrun'];
-		echo "<div style='height: {$gH}px; width: {$gW}px; float: left; background: #FFF;'>" . // show white in case of missing images
-			"<a href='viewsite.php?pageid=$pageid' title='$url' class=img>" .
-			"<img id=$pageid data-wptid='$wptid' data-wptrun=$wptrun style='border-width: 0; height: {$gH}px; width: {$gW}px;' src='frame.php?t=$gCurTime&wptid=$wptid&wptrun=$wptrun&pageid=$pageid'>" .
-			"</a>" .
-			"</div>" .
-			"";
-		$i++;
-		if ( $i >= $gNumUrls ) {
-			break;
-		}
-	}
+	$pageid = $row['pageid'];
+	$wptid = $row['wptid'];
+	$wptrun = $row['wptrun'];
+	echo "<div style='height: {$gH}px; width: {$gW}px; float: left; background: #FFF;'>" . // show white in case of missing images
+		"<a href='viewsite.php?pageid=$pageid' title='$url' class=img>" .
+		"<img id=$pageid data-wptid='$wptid' data-wptrun=$wptrun style='border-width: 0; height: {$gH}px; width: {$gW}px;' src='frame.php?t=$gCurTime&wptid=$wptid&wptrun=$wptrun&pageid=$pageid'>" .
+		"</a>" .
+		"</div>" .
+		"";
 }
 mysql_free_result($result);
 ?>
@@ -338,12 +331,15 @@ mysql_free_result($result);
 </table>
 
 <script>
-var sellabel = document.getElementById('sellabel');
-if (sellabel.addEventListener) {
-	sellabel.addEventListener('change', gotoLink, false);
+var sellabel1 = document.getElementById('label1');
+var sellabel2 = document.getElementById('label2');
+if (sellabel1.addEventListener) {
+	sellabel1.addEventListener('change', gotoLink, false);
+	sellabel2.addEventListener('change', gotoLink, false);
 }
-else if (sellabel.attachEvent) {
-	sellabel.attachEvent('onchange', gotoLink);
+else if (sellabel1.attachEvent) {
+	sellabel1.attachEvent('onchange', gotoLink);
+	sellabel2.attachEvent('onchange', gotoLink);
 }
 </script>
 
