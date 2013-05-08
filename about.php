@@ -43,7 +43,6 @@ LI.sublist { margin-bottom: 0; }
   <li> <a href="urls.php">URLs</a>
   <li> <a href="http://code.google.com/p/httparchive/source/browse">Source code</a>
   <li> <a href="http://code.google.com/p/httparchive/issues/list">Bugs</a>
-  <li> <a href="news.php">News</a>
   <li> <a href="http://groups.google.com/group/httparchive/topics">Contact us</a>
 </ul>
 
@@ -85,39 +84,35 @@ Starting in November 2011, the list of URLs is based solely on the <a href="http
 Use the <a href="urls.php">HTTP Archive URLs</a> page to see the list of the top 10,000 URLs used in the most recent crawl.
 </p>
 
-<p>From November 2010 through October 2011 there were <a href="lists/All.txt">18,026 URLs analyzed</a>. This list was based on the union of the following lists:
-<ul class=indent>
-  <li> <a href="lists/Alexa%20500.txt">Alexa 500</a> (<a href="http://www.alexa.com/topsites/global">source</a>)
-  <li> <a href="lists/Alexa%20US%20500.txt">Alexa US 500</a> (<a href="http://www.alexa.com/topsites/countries/US">source</a>)
-  <li> <a href="lists/Alexa10K.txt">Alexa 10,000</a> (<a href="http://www.alexa.com/topsites">source</a>, <a href="http://s3.amazonaws.com/alexa-static/top-1m.csv.zip">zip</a>)
-  <li> <a href="lists/Fortune%20500.txt">Fortune 500</a> (<a href="http://money.cnn.com/magazines/fortune/fortune500/2010/full_list/">source</a>)
-  <li> <a href="lists/Global%20500.txt">Global 500</a> (<a href="http://money.cnn.com/magazines/fortune/global500/2010/full_list/">source</a>)
-  <li> <a href="lists/Quantcast10K.txt">Quantcast10K</a> (<a href="http://www.quantcast.com/top-sites-1">source</a>)
-</ul>
-
+<p>Prior to November 2011 there were 18K URLs analyzed based on the union of the following lists:
+<a href="lists/Alexa%20500.txt">Alexa 500</a> (<a href="http://www.alexa.com/topsites/global">source</a>),
+<a href="lists/Alexa%20US%20500.txt">Alexa US 500</a> (<a href="http://www.alexa.com/topsites/countries/US">source</a>),
+<a href="lists/Alexa10K.txt">Alexa 10,000</a> (<a href="http://www.alexa.com/topsites">source</a>, <a href="http://s3.amazonaws.com/alexa-static/top-1m.csv.zip">zip</a>),
+<a href="lists/Fortune%20500.txt">Fortune 500</a> (<a href="http://money.cnn.com/magazines/fortune/fortune500/2010/full_list/">source</a>),
+<a href="lists/Global%20500.txt">Global 500</a> (<a href="http://money.cnn.com/magazines/fortune/global500/2010/full_list/">source</a>),
+and
+<a href="lists/Quantcast10K.txt">Quantcast10K</a> (<a href="http://www.quantcast.com/top-sites-1">source</a>).
+</p>
 
 
 
 <h2 id=datagathered>How is the data gathered?</h2>
 
-<p>The list of URLs is fed to <a href="http://webpagetest.org">WebPagetest.org</a>. (Huge thanks to Pat Meenan!)</p>
+<p>The list of URLs is fed to our private instance of <a href="http://webpagetest.org">WebPagetest</a>. 
+(Huge thanks to Pat Meenan!)</p>
 
 <p>The WebPagetest settings are:</p>
 <ul class=indent>
-	<li> <strong>Internet Explorer 9</strong> (was IE8 until October 15, 2012)
-  <li> Dulles, VA
-  <li> DSL
-  <li> empty cache
+  <li> <strong>Internet Explorer 9</strong> (was IE8 until October 15, 2012) and iPhone4
+  <li> the test agents are located in Redwood City, CA
+  <li> the default WebPagetest connection speed is used
+  <li> empty cache ("first view")
 </ul>
 
 <p>Each URL is loaded 3 times. The data from the median run (based on load time) is collected via a <a href="#harfile">HAR file</a>.
 The HTTP Archive collects these HAR files, parses them, and populates our database with the relevant information.</p>
 
-<p>
-For the <a href="http://mobile.httparchive.org/">HTTP Archive Mobile</a> the data is gathered using
-<a href="http://code.google.com/p/mobitest-agent/">Mobitest</a> from <a href="https://blogs.akamai.com/2012/03/open-sourcing-mobitest.html">Blaze.io &amp; Akamai</a>.
-The test agent is iPhone 4.3.
-</p>
+
 
 <h2 id=accuracy>How accurate is the data, in particular the time measurements?</h2>
 
@@ -128,7 +123,7 @@ The time measurements are gathered in a test environment, and thus have all the 
 <ul class=indent> 
 <li>browser - All tests are performed using a single browser. 
 Page load times can vary depending on browser.
-<li>location - The HAR files are generated from WebPagetest.org's location in Redwood City, CA.
+<li>location - The HAR files are generated from Redwood City, CA.
 The distance to the site's servers can affect time measurements.
 <li>sample size - Each URL is loaded three times. The HAR file is generated from the median test run.
 This is not a large sample size.
@@ -152,16 +147,34 @@ This resulted in more HTTP requests being recorded with a subsequent bump in tra
 </p>
 
 
+<h2 id=testchanges>What changes have been made to the test environment that might affect the data?</h2>
+The following test configuration changes could affect results:
+<ul>
+  <li> Mar 19 2013
+The default connection speed was increased from DSL (1.5 mbps) to Cable (5.0 mbps). This only affects IE (not iPhone).
+  <li> Oct 1 2012
+Instead of stopping at document complete (window.onload), the tests were changed to 
+run until the end of network activity. This increased the size and number of requests per page.
+  <li> Sep 1 2012
+The number of URLs tested increased from 200K to 300K for IE, and from 2K to 5K for iPhone.
+  <li> Jul 1 2012
+The HTTP Archive Mobile switched from running on the Blaze.io framework to WebPagetest. 
+This involved several changes including new iPhone hardware (although both used iOS5) 
+and a new geo location (from Toronto to Redwood City).
+  <li> May 1 2012
+The number of URLs tested increased from 100K to 200K for IE.
+  <li> Mar 15 2012
+Switch from IE8 to IE9.
+</ul>
+
 
 			   <h2 id=limitations>What are the limitations of this testing methodology (using lists)?</h2>
 
 <p>
 The HTTP Archive examines each URL in the list, but does not crawl the website other pages.
-Although these lists of websites
-(<a href="http://money.cnn.com/magazines/fortune/fortune500/2010/full_list/">Fortune 500</a>
-and 
-<a href="http://www.alexa.com/topsites">Alexa Top 500</a> for example)
-are well known, the entire website doesn't necessarily map well to a single URL.</p>
+Although this list of websites
+is well known, the entire website doesn't necessarily map well to a single URL.</p>
+
 <ul class=indent>
 <li>Most websites are comprised of many separate web pages. The landing page may not be representative of the overall site.
 <li>Some websites, such as <a href="http://www.facebook.com/">http://www.facebook.com/</a>, require logging in to see typical content.
