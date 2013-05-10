@@ -60,10 +60,7 @@ echo format2LineChart('reqImg', 'bytesImg', $hTrends, $aRunNames, $labels, "(kB)
 if ( ! $gbMobile ) {
 	echo format2LineChart('reqFlash', 'bytesFlash', $hTrends, $aRunNames, $labels, "(kB)", false, "<div style='margin-left: 2em; font-size:0.9em;'>* Transfer sizes prior to Oct 1 2012 are smaller due to a <a href='about.php#xfersize2012'>change in testing</a>.</div>");
 }
-// Fonts are too small now. It's better to show it as "percent of sites using a custom font".
-if ( array_key_exists("fonts", $_GET) ) {
-	echo format2LineChart('reqFont', 'bytesFont', $hTrends, $aRunNames, $labels, "(kB)", false, "<div style='margin-left: 2em; font-size:0.9em;'>* Transfer sizes prior to Oct 1 2012 are smaller due to a <a href='about.php#xfersize2012'>change in testing</a>.</div>");
-}
+echo format2LineChart('reqFont', 'bytesFont', $hTrends, $aRunNames, $labels, "(kB)", false, "<div style='margin-left: 2em; font-size:0.9em;'>* Transfer sizes prior to Oct 1 2012 are smaller due to a <a href='about.php#xfersize2012'>change in testing</a>.</div>");
 echo format2LineChart('reqOther', 'bytesOther', $hTrends, $aRunNames, $labels, "(kB)", false, "<div style='margin-left: 2em; font-size:0.9em;'>* Transfer sizes prior to Oct 1 2012 are smaller due to a <a href='about.php#xfersize2012'>change in testing</a>.</div>");
 
 if ( $gbMobile ) {
