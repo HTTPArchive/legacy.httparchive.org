@@ -186,4 +186,98 @@ function randomPageid($crawl) {
 	$query = "select pageid from pages where pageid >= {$crawl['minPageid']} and pageid <= {$crawl['maxPageid']} order by pageid asc limit $offset, 1;";
 	return doSimpleQuery($query);
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// 
+// BATCH PROCESSING CODE
+//
+////////////////////////////////////////////////////////////////////////////////
+
+// Create the Mysql dump files for a crawl.
+// TODO: This code assumes that ../downloads/ exists. Instead, it should be able to find the download directory.
+function dumpCrawl($label, $archive=null, $location=null) {
+	global $gbMobile, $gPagesTableMobile, $gPagesTableDesktop, $gRequestsTableMobile, $gRequestsTableDesktop, $gStatsTableDesktop, $gCrawlsTable, $gUrlsTableDesktop;
+	global $gMysqlUsername, $gMysqlPassword, $gMysqlServer, $gMysqlDb;
+
+	$crawl = getCrawl($label, $archive, $location);
+	$minid = $crawl['minPageid'];
+	$maxid = $crawl['maxPageid'];
+	$pageidCond = "pageid >= $minid and pageid <= $maxid";
+
+	// pages
+	// We have to EXPLICITLY specify the Desktop table because we do NOT want the dump file to point to a DEV table.
+	$pagesTable = ( $gbMobile ? $gPagesTableMobile : $gPagesTableDesktop );
+	$dumpfile = dumpfileName($label, "pages");
+	$cmd = "mysqldump --where='$pageidCond' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $pagesTable | gzip > $dumpfile.gz";
+	exec($cmd);
+	lprint("...mysqldump file created: $dumpfile.gz");
+
+	// pages csv
+	// Unique dir for this dump cuz mysqldump writes files that aren't writable by this process, and mysqldump -T can NOT overwrite existing files.
+	$labelUnderscore = str_replace(" ", "_", $label);
+	$tmpdir = "/tmp/$labelUnderscore." . time();
+	$cmd = "mkdir $tmpdir; chmod 777 $tmpdir;";
+	exec($cmd);
+	$dumpfile = dumpfileName($label, "pages", "csv");
+	$cmd = "mysqldump --where='$pageidCond' -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer -T $tmpdir --fields-enclosed-by=\\\" --fields-terminated-by=, $gMysqlDb $pagesTable; " .
+		"gzip -f -c $tmpdir/$pagesTable.txt > $dumpfile.gz";
+	exec($cmd);
+	lprint("...mysqldump file created: $dumpfile.gz");
+
+	// requests
+	$requestsTable = ( $gbMobile ? $gRequestsTableMobile : $gRequestsTableDesktop );
+	$dumpfile = dumpfileName($label, "requests");
+	$cmd = "mysqldump --where='$pageidCond' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $requestsTable | gzip > $dumpfile.gz";
+	exec($cmd);
+	lprint("...mysqldump file created: $dumpfile.gz");
+
+	// requests csv
+	$dumpfile = dumpfileName($label, "requests", "csv");
+	$cmd = "mysqldump --where='$pageidCond' -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer -T $tmpdir --fields-enclosed-by=\\\" --fields-terminated-by=, $gMysqlDb $requestsTable; " .
+		"gzip -f -c $tmpdir/$requestsTable.txt > $dumpfile.gz";
+	exec($cmd);
+	lprint("...mysqldump file created: $dumpfile.gz");
+	exec("/bin/rm -rf $tmpdir"); // remove the temporary directory - it's BIG!
+}
+
+
+// Dump the other "meta" tables not specific to a crawl.
+// TODO: This code assumes that ../downloads/ exists. Instead, it should be able to find the download directory.
+function dumpOther() {
+	global $gbMobile, $gPagesTableMobile, $gPagesTableDesktop, $gRequestsTableMobile, $gRequestsTableDesktop, $gStatsTableDesktop, $gCrawlsTable, $gUrlsTableDesktop;
+	global $gMysqlUsername, $gMysqlPassword, $gMysqlServer, $gMysqlDb;
+
+	// stats mysql dump - create this after all crawls both desktop & mobile
+	$dumpfile = "../downloads/httparchive_stats";
+	lprint("Creating mysqldump file $dumpfile ...");
+	$cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop | gzip > $dumpfile.gz";
+	exec($cmd);
+	lprint("...mysqldump file created: $dumpfile.gz");
+
+	// crawls mysql dump
+	$dumpfile = "../downloads/httparchive_crawls";
+	lprint("Creating mysqldump file $dumpfile ...");
+	$cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gCrawlsTable | gzip > $dumpfile.gz";
+	exec($cmd);
+	lprint("...mysqldump file created: $dumpfile.gz");
+
+	// schema & urls dumps - only create these for desktop
+	if ( ! $gbMobile ) {
+		// schema mysql dump
+		$dumpfile = "../downloads/httparchive_schema.sql";
+		lprint("Creating mysqldump file $dumpfile ...");
+		$cmd = "mysqldump --no-data --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop $gRequestsTableDesktop $gPagesTableDesktop $gRequestsTableMobile $gPagesTableMobile $gCrawlsTable $gUrlsTableDesktop > $dumpfile";
+		exec($cmd);
+		lprint("...mysqldump file created: $dumpfile");
+
+		// urls mysql dump
+		$dumpfile = "../downloads/httparchive_urls";
+		lprint("Creating mysqldump file $dumpfile ...");
+		$cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gUrlsTableDesktop | gzip > $dumpfile.gz";
+		exec($cmd);
+		lprint("...mysqldump file created: $dumpfile.gz");
+	}
+}
+
 ?>
