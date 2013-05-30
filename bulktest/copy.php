@@ -94,72 +94,9 @@ else {
 
 
 
-// mysqldump file
-// pages
-$pagesTable = ( $gbMobile ? $gPagesTableMobile : $gPagesTableDesktop );
-$dumpfile = dumpfileName($gLabel, "pages");
-$cmd = "mysqldump --where='$pageidCond' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $pagesTable | gzip > $dumpfile.gz";
-exec($cmd);
-lprint("...mysqldump file created: $dumpfile.gz");
-
-// pages csv
-// Unique dir for this dump cuz mysqldump writes files that aren't writable by this process, and mysqldump -T can NOT overwrite existing files.
-$labelUnderscore = str_replace(" ", "_", $gLabel);
-$tmpdir = "/tmp/$labelUnderscore." . time();
-$cmd = "mkdir $tmpdir; chmod 777 $tmpdir;";
-exec($cmd);
-$dumpfile = dumpfileName($gLabel, "pages", "csv");
-$cmd = "mysqldump --where='$pageidCond' -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer -T $tmpdir --fields-enclosed-by=\\\" --fields-terminated-by=, $gMysqlDb $pagesTable; " .
-	"gzip -f -c $tmpdir/$pagesTable.txt > $dumpfile.gz";
-exec($cmd);
-lprint("...mysqldump file created: $dumpfile.gz");
-
-// requests
-$requestsTable = ( $gbMobile ? $gRequestsTableMobile : $gRequestsTableDesktop );
-$dumpfile = dumpfileName($gLabel, "requests");
-$cmd = "mysqldump --where='$pageidCond' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $requestsTable | gzip > $dumpfile.gz";
-exec($cmd);
-lprint("...mysqldump file created: $dumpfile.gz");
-
-// requests csv
-$dumpfile = dumpfileName($gLabel, "requests", "csv");
-$cmd = "mysqldump --where='$pageidCond' -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer -T $tmpdir --fields-enclosed-by=\\\" --fields-terminated-by=, $gMysqlDb $requestsTable; " .
-	"gzip -f -c $tmpdir/$requestsTable.txt > $dumpfile.gz";
-exec($cmd);
-lprint("...mysqldump file created: $dumpfile.gz");
-exec("/bin/rm -rf $tmpdir"); // remove the temporary directory - it's BIG!
-
-
-// stats mysql dump - create this after all crawls both desktop & mobile
-$dumpfile = "../downloads/httparchive_stats";
-lprint("Creating mysqldump file $dumpfile ...");
-$cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop | gzip > $dumpfile.gz";
-exec($cmd);
-lprint("...mysqldump file created: $dumpfile.gz");
-
-// crawls mysql dump
-$dumpfile = "../downloads/httparchive_crawls";
-lprint("Creating mysqldump file $dumpfile ...");
-$cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gCrawlsTable | gzip > $dumpfile.gz";
-exec($cmd);
-lprint("...mysqldump file created: $dumpfile.gz");
-
-// schema & urls dumps - only create these for desktop
-if ( ! $gbMobile ) {
-	// schema mysql dump
-	$dumpfile = "../downloads/httparchive_schema.sql";
-	lprint("Creating mysqldump file $dumpfile ...");
-	$cmd = "mysqldump --no-data --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gStatsTableDesktop $gRequestsTableDesktop $gPagesTableDesktop $gRequestsTableMobile $gPagesTableMobile $gCrawlsTable $gUrlsTableDesktop > $dumpfile";
-	exec($cmd);
-	lprint("...mysqldump file created: $dumpfile");
-
-	// urls mysql dump
-	$dumpfile = "../downloads/httparchive_urls";
-	lprint("Creating mysqldump file $dumpfile ...");
-	$cmd = "mysqldump --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $gUrlsTableDesktop | gzip > $dumpfile.gz";
-	exec($cmd);
-	lprint("...mysqldump file created: $dumpfile.gz");
-}
+// mysqldump files
+dumpCrawl($gLabel);
+dumpOther();
 
 
 cprint(date("G:i") . ": DONE copying latest run to production.");
