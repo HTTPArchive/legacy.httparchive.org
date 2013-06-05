@@ -206,7 +206,8 @@ function correlationChart($hStats, $var1) {
 	$aNames = array();
 	$aValues = array();
 	for ( $i = 1; $i <= 5; $i++ ) {
-		$aNames[] = $ghColumnTitles[$hStats["{$var1}ccf$i"]];
+		$field = $hStats["{$var1}ccf$i"];
+		$aNames[] = ( array_key_exists($field, $ghColumnTitles) ? $ghColumnTitles[$field] : $field );
 		$aValues[] = $hStats["{$var1}ccv$i"];
 	}
 
