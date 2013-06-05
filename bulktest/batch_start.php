@@ -158,7 +158,7 @@ function checkForBatchRun() {
 
 
 function parseParams() {
-	global $argv, $argc, $gSublabel, $gbImportUrls, $locations, $gUrlsFile, $gNumUrls;
+	global $argv, $argc, $gSublabel, $gbImportUrls, $locations, $gUrlsFile, $gNumUrls, $gbUrlsFileSpecified;
 	
 	// if there are any options they MUST be in this order:
 	//   # of URLs or URL file
