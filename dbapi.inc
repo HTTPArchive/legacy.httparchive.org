@@ -432,7 +432,6 @@ alter table stats add column bytesHtmlDoc mediumint unsigned after bytesOther, a
 *******************************************************************************/
 function createTables() {
 	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gUrlsChangeTable, $gSettingsTable;
-	global $ghReqHeaders, $ghRespHeaders;
 
 	if ( ! tableExists($gPagesTable) ) {
 		$command = "create table $gPagesTable (" .
@@ -508,59 +507,7 @@ function createTables() {
 	}
 
 	if ( ! tableExists($gRequestsTable) ) {
-		$sColumns = "";
-		$aColumns = array_values($ghReqHeaders);
-		sort($aColumns);
-		for ( $i = 0; $i < count($aColumns); $i++ ) {
-			$column = $aColumns[$i];
-			$sColumns .= ", $column varchar (255)";
-		}
-		$aColumns = array_values($ghRespHeaders);
-		sort($aColumns);
-		for ( $i = 0; $i < count($aColumns); $i++ ) {
-			$column = $aColumns[$i];
-			$sColumns .= ", $column varchar (255)";
-		}
-
-		$command = "create table $gRequestsTable (" .
-			"requestid int unsigned not null auto_increment" .
-			", pageid int unsigned not null" .
-
-			", startedDateTime int(10) unsigned" .
-			", time int(10) unsigned" .
-			", method varchar (32)" .
-			", url text" .
-			", urlShort varchar (255)" .
-			", redirectUrl text" .
-			", firstReq tinyint(1) not null" .
-			", firstHtml tinyint(1) not null" .
-
-			// req
-			", reqHttpVersion varchar (32)" .
-			", reqHeadersSize int(10) unsigned" .
-			", reqBodySize int(10) unsigned" .
-			", reqCookieLen int(10) unsigned not null".
-			", reqOtherHeaders text" .
-
-			// response
-			", status int(10) unsigned" .
-			", respHttpVersion varchar (32)" .
-			", respHeadersSize int(10) unsigned" .
-			", respBodySize int(10) unsigned" .
-			", respSize int(10) unsigned" .
-			", respCookieLen int(10) unsigned not null".
-			", expAge int unsigned not null" .             // number of seconds until response expires
-			", mimeType varchar(255)" .  // slightly normalized version of resp_content_type - ~1000 distinct values
-			", respOtherHeaders text" .
-
-			// headers
-			$sColumns .
-
-			", primary key (requestid)" .
-			", index(pageid)" .
-			", unique key (startedDateTime, pageid, urlShort)" .
-			") ENGINE MyISAM;";
-		doSimpleCommand($command);
+		createRequestsTable($gRequestsTable);
 	}
 
 	// Create Status Table
@@ -764,4 +711,63 @@ function createTables() {
 	}
 }
 
+
+function createRequestsTable($tablename) {
+	global $ghReqHeaders, $ghRespHeaders;
+
+	$sColumns = "";
+	$aColumns = array_values($ghReqHeaders);
+	sort($aColumns);
+	for ( $i = 0; $i < count($aColumns); $i++ ) {
+		$column = $aColumns[$i];
+		$sColumns .= ", $column varchar (255)";
+	}
+	$aColumns = array_values($ghRespHeaders);
+	sort($aColumns);
+	for ( $i = 0; $i < count($aColumns); $i++ ) {
+		$column = $aColumns[$i];
+		$sColumns .= ", $column varchar (255)";
+	}
+
+	$command = "create table $tablename (" .
+		"requestid int unsigned not null auto_increment" .
+		", pageid int unsigned not null" .
+
+		", startedDateTime int(10) unsigned" .
+		", time int(10) unsigned" .
+		", method varchar (32)" .
+		", url text" .
+		", urlShort varchar (255)" .
+		", redirectUrl text" .
+		", firstReq tinyint(1) not null" .
+		", firstHtml tinyint(1) not null" .
+
+		// req
+		", reqHttpVersion varchar (32)" .
+		", reqHeadersSize int(10) unsigned" .
+		", reqBodySize int(10) unsigned" .
+		", reqCookieLen int(10) unsigned not null".
+		", reqOtherHeaders text" .
+
+		// response
+		", status int(10) unsigned" .
+		", respHttpVersion varchar (32)" .
+		", respHeadersSize int(10) unsigned" .
+		", respBodySize int(10) unsigned" .
+		", respSize int(10) unsigned" .
+		", respCookieLen int(10) unsigned not null".
+		", expAge int unsigned not null" .             // number of seconds until response expires
+		", mimeType varchar(255)" .  // slightly normalized version of resp_content_type - ~1000 distinct values
+		", respOtherHeaders text" .
+
+		// headers
+		$sColumns .
+
+		", primary key (requestid)" .
+		", index(pageid)" .
+		", unique key (startedDateTime, pageid, urlShort)" .
+		") ENGINE MyISAM;";
+
+	doSimpleCommand($command);
+}
 ?>
