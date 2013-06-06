@@ -79,11 +79,14 @@ function flattenHeaders(&$resource, $aHeaders, $prefix, $mapping) {
 
 
 // Return TRUE or FALSE indicating if the page's resources are in the requests table.
-function resourcesAvailableFromTable($pageid) {
+function resourcesAvailableFromTable($pageid, $tablename) {
 	global $gRequestsTable;
-	$num = doSimpleQuery("select count(*) from $gRequestsTable where pageid = '$pageid';");
+
+	$num = doSimpleQuery("select count(*) from " . ( $tablename ? $tablename : $gRequestsTable ) . " where pageid = '$pageid';");
+
 	return $num;
 }
+
 
 // We should NOT be accessing the requests table from the production website.
 function getRequestsFromTableDEPRECATED($pageid) {
