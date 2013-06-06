@@ -79,7 +79,7 @@ function flattenHeaders(&$resource, $aHeaders, $prefix, $mapping) {
 
 
 // Return TRUE or FALSE indicating if the page's resources are in the requests table.
-function resourcesAvailableFromTable($pageid, $tablename) {
+function resourcesAvailableFromTable($pageid, $tablename=null) {
 	global $gRequestsTable;
 
 	$num = doSimpleQuery("select count(*) from " . ( $tablename ? $tablename : $gRequestsTable ) . " where pageid = '$pageid';");
