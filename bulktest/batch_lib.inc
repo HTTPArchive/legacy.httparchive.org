@@ -2,6 +2,7 @@
 
 require_once("../utils.inc");
 require_once("../status.inc");
+require_once("../crawls.inc");
 
 define("NOT_STARTED", 0);
 define("SUBMITTED", 1);
@@ -775,17 +776,6 @@ function totalNotDone() {
 	$totalNotDone = $loadedUrls + $submittedTests + $completedTests + $xmlDoneTests;
 
 	return $totalNotDone;
-}
-
-
-// mysqldump filename for a crawl
-// $table is either "pages" or "requests"
-// $format is "" or "csv"
-function dumpfileName($label, $table="", $format="") {
-	global $gbMobile;
-	$dumpfile = "../downloads/httparchive_" . ( $gbMobile ? "mobile_" : "" ) . str_replace(" ", "_", $label) . 
-		( $table ? "_$table" : "" ) . ( $format ? ".$format" : "" );
-	return $dumpfile;
 }
 
 
