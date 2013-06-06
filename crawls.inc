@@ -17,6 +17,7 @@ limitations under the License.
 
 require_once("utils.inc");
 require_once("dbapi.inc");
+require_once("requests.inc");
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -196,6 +197,44 @@ function randomPageid($crawl) {
 
 // Create the Mysql dump files for a crawl.
 // TODO: This code assumes that ../downloads/ exists. Instead, it should be able to find the download directory.
+function dumpCrawl2($label, $archive=null, $location=null) {
+	global $gbMobile, $gPagesTableMobile, $gPagesTableDesktop, $gRequestsTableMobile, $gRequestsTableDesktop, $gStatsTableDesktop, $gCrawlsTable, $gUrlsTableDesktop;
+	global $gMysqlUsername, $gMysqlPassword, $gMysqlServer, $gMysqlDb;
+
+	$crawl = getCrawl($label, $archive, $location);
+	$crawlid = $crawl['crawlid'];
+	$tablename = "requests_$crawlid";
+	if ( ! tableExists($tablename) ) {
+		tprint("ERROR: Table \"$tablename\" doesn't exist.");
+		return;
+	}
+
+	// requests
+	$dumpfile = dumpfileName2($tablename) . ".gz";
+	if ( file_exists($dumpfile) ) {
+		// bail even though we didn't check the csv file
+		tprint("Bailing - mysqldump file already exists: $dumpfile.");
+		return;
+	}
+	$cmd = "mysqldump --opt --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $tablename | gzip > $dumpfile";
+	exec($cmd);
+	lprint("...mysqldump file created: $dumpfile");
+
+	// requests csv
+	$dumpfile = dumpfileName2($tablename, "csv") . ".gz";
+	$dumpfileSql = dumpfileName2($tablename, "sql");
+	$tmpdir = "/tmp/$tablename." . time(); // Unique dir for this dump cuz mysqldump writes files that aren't writable by this process, and mysqldump -T can NOT overwrite existing files.
+	exec("mkdir $tmpdir; chmod 777 $tmpdir;");
+	$cmd = "mysqldump --opt --complete-insert --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer -T $tmpdir $gMysqlDb $tablename; " .
+		"gzip -f -c $tmpdir/$tablename.txt > $dumpfile ; cp $tmpdir/$tablename.sql $dumpfileSql";
+	exec($cmd);
+	exec("/bin/rm -rf $tmpdir"); // remove the temporary directory - it's BIG!
+	lprint("...mysqldump file created: $dumpfile");
+}
+
+
+// Create the Mysql dump files for a crawl.
+// TODO: This code assumes that ../downloads/ exists. Instead, it should be able to find the download directory.
 function dumpCrawl($label, $archive=null, $location=null) {
 	global $gbMobile, $gPagesTableMobile, $gPagesTableDesktop, $gRequestsTableMobile, $gRequestsTableDesktop, $gStatsTableDesktop, $gCrawlsTable, $gUrlsTableDesktop;
 	global $gMysqlUsername, $gMysqlPassword, $gMysqlServer, $gMysqlDb;
@@ -279,5 +318,274 @@ function dumpOther() {
 		lprint("...mysqldump file created: $dumpfile.gz");
 	}
 }
+
+
+// Import a crawl from the Mysql dump file.
+// This assumes the dump file is stored in the Internet Archive S3-like storage.
+function importCrawl2($label, $archive="All", $location=null, $bCsv=false, $bRemoveDumpfile=true) {
+	global $gMysqlUsername, $gMysqlPassword, $gMysqlServer, $gMysqlDb;
+
+	$device = ( $location ? $location : curDevice() );
+	$crawl = getCrawl($label, $archive, $device);
+	if ( FALSE === $crawl ) {
+		tprint("ERROR: Crawl \"$label\" for archive \"$archive\" and location \"$device\" wasn't found.");
+		return false;
+	}
+
+	// TODO - For now we only care about the "requests" table. We assume "pages" is already there.
+	$crawlid = $crawl['crawlid'];
+	$tablename = "requests_$crawlid";
+	if ( tableExists($tablename) ) {
+		tprint("ERROR: Table \"$tablename\" already exists.");
+		return false;
+	}
+
+	$dumpfile = dumpfileName2($tablename, ( $bCsv ? "csv" : "" )) . ".gz";
+	if ( ! file_exists( $dumpfile ) ) {
+		// CVSNO - later we'll read the new dump file format from IA - but not now
+		tprint("CVSNO: ERROR - for now we only read from disk files");
+		return false; // CVSNO
+		$dumpUrl = "http://www.archive.org/download/httparchive_downloads/$dumpfile";
+		tprint("Downloading dump file $dumpUrl...");
+		exec("wget $dumpUrl");
+		tprint("...done downloading.");
+	}
+	if ( ! file_exists( $dumpfile ) ) {
+		tprint("ERROR: download failed.");
+		return false;
+	}
+
+	tprint("Restoring dump file \"$dumpfile\"...");
+	if ( $bCsv ) {
+		// Create the table.
+		$dumpfileSql = dumpfileName2($tablename, "sql");
+		exec("mysql -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb < $dumpfileSql");
+		// Unzip the dumpfile.
+		$dumpfileUnzip = dumpfileName2($tablename, "csv");
+		exec("gunzip -c $dumpfile > $dumpfileUnzip");
+		// Import the dumpfile.
+		exec("mysqlimport -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer --local $gMysqlDb $dumpfileUnzip");
+		unlink($dumpfileUnzip);
+	}
+	else {
+		exec("gunzip -c $dumpfile | mysql -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb");
+	}
+	tprint("...done importing dump file.");
+
+	// Check that import succeeded.
+	$minPageid = $crawl['minPageid'];
+	$maxPageid = $crawl['maxPageid'];
+	if ( ! tableExists($tablename) ) {
+		tprint("ERROR: Table \"$tablename\" wasn't created.");
+		return false;
+	}
+	else if ( ! resourcesAvailableFromTable($minPageid, $tablename) || ! resourcesAvailableFromTable($maxPageid, $tablename) ) {
+		tprint("ERROR: Couldn't find requests matching pageids $minPageid and $maxPageid.");
+		return false;
+	}
+
+	tprint("Requests were restored successfully.");
+
+	if ( $bRemoveDumpfile ) {
+		unlink($dumpfile);
+		tprint("Deleted $dumpfile.");
+	}
+
+	return true;
+}
+
+
+// Import a crawl from the Mysql dump file.
+// This assumes the dump file is stored in the Internet Archive S3-like storage.
+function importCrawl($label, $archive="All", $location=null) {
+	global $gbMobile, $gPagesTableDesktop, $gRequestsTableDesktop, $gStatsTableDesktop;
+	global $gPagesTable, $gRequestsTable, $gStatsTable;
+	global $gMysqlUsername, $gMysqlPassword, $gMysqlServer, $gMysqlDb;
+	global $gbDev;
+
+	if ( $gbDev ) {
+		// use the "production" tables
+		$gbDev = false;
+		$gRequestsTable = $gRequestsTableDesktop;
+		$gPagesTable = $gPagesTableDesktop;
+		$gStatsTable = $gStatsTableDesktop;
+	}
+
+	$device = ( $location ? $location : curDevice() );
+
+	$crawl = getCrawl($label, $archive, $device);
+	if ( FALSE === $crawl ) {
+		tprint("ERROR: Crawl \"$label\" for archive \"$archive\" and location \"$device\" wasn't found.");
+		return false;
+	}
+
+	$minPageid = $crawl['minPageid'];
+	$maxPageid = $crawl['maxPageid'];
+
+	if ( resourcesAvailableFromTable($minPageid) && resourcesAvailableFromTable($maxPageid) ) {
+		tprint("Bailing - it appears that these requests already exist in '$gRequestsTable' with pageids: $minPageid and $maxPageid.");
+		return false;
+	}
+
+	// TODO - For now we only care about the "requests" table. We assume "pages" is already there.
+	$dumpfile = "httparchive_" . ($gbMobile ? "mobile_" : "") . str_replace(" ", "_", $label) . "_requests.gz";
+	if ( ! file_exists( $dumpfile ) ) {
+		$dumpUrl = "http://www.archive.org/download/httparchive_downloads/$dumpfile";
+		tprint("Downloading dump file $dumpUrl...");
+		exec("wget $dumpUrl");
+		tprint("...done downloading.");
+	}
+	if ( ! file_exists( $dumpfile ) ) {
+		tprint("ERROR: download failed.");
+		return false;
+	}
+	tprint("Restoring dump file \"$dumpfile\"...");
+	$cmd = "gunzip -c $dumpfile | mysql -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb";
+	exec($cmd);
+	tprint("...done restoring dump file.");
+	if ( ! resourcesAvailableFromTable($minPageid) || ! resourcesAvailableFromTable($maxPageid) ) {
+		tprint("ERROR: after dump requests are STILL missing.");
+		return false;
+	}
+	tprint("Requests were restored successfully.");
+	unlink($dumpfile);
+	tprint("Deleted $dumpfile.");
+	tprint("DONE");
+
+	return true;
+}
+
+
+// Create a table for an individual crawl.
+// This function was created when migrating from a single huge "requests" table to merge tables.
+// TODO Right now we just do the "requests" table.
+function exportCrawlToTable($label, $archive="All", $location=null, $bRemoveExisting=false) {
+	global $gbMobile, $gPagesTableDesktop, $gRequestsTableDesktop, $gStatsTableDesktop;
+	global $gPagesTable, $gRequestsTable, $gStatsTable;
+	global $gMysqlUsername, $gMysqlPassword, $gMysqlServer, $gMysqlDb;
+	global $gbDev;
+
+	if ( $gbDev ) {
+		// use the "production" tables
+		$gbDev = false;
+		$gRequestsTable = $gRequestsTableDesktop;
+		$gPagesTable = $gPagesTableDesktop;
+		$gStatsTable = $gStatsTableDesktop;
+	}
+
+	$device = ( $location ? $location : curDevice() );
+
+	$crawl = getCrawl($label, $archive, $device);
+	if ( FALSE === $crawl ) {
+		tprint("ERROR: Crawl \"$label\" for archive \"$archive\" and location \"$device\" wasn't found.");
+		return;
+	}
+
+	// make sure the main "requests" table has these requests
+	$minPageid = $crawl['minPageid'];
+	$maxPageid = $crawl['maxPageid'];
+	if ( ! resourcesAvailableFromTable($minPageid) || ! resourcesAvailableFromTable($maxPageid) ) {
+		tprint("Bailing - it appears that these requests don't exist in '$gRequestsTable' with pageids: $minPageid and $maxPageid.");
+		return;
+	}
+
+	// create the NEW requests table just for this crawl
+	$crawlid = $crawl['crawlid'];
+	$tablename = "requests_$crawlid";
+	if ( tableExists($tablename) ) {
+		tprint("ERROR: Table \"$tablename\" already exists.");
+		return;
+	}
+	createRequestsTable($tablename);
+	if ( ! tableExists($tablename) ) {
+		tprint("ERROR: Failed to create table \"$tablename\".");
+		return;
+	}
+
+	// copy the rows
+	$cmd = "insert into $tablename select * from $gRequestsTable where pageid >= $minPageid and pageid <= $maxPageid;";
+	tprint("Copy 'requests' rows from \"$gRequestsTable\" to \"$tablename\" from pageid $minPageid to $maxPageid...");
+	doSimpleCommand("$cmd");
+
+	if ( $bRemoveExisting ) {
+		$cmd = "delete from $gRequestsTable where pageid >= $minPageid and pageid <= $maxPageid;";
+		tprint("Remove 'requests' rows from \"$gRequestsTable\" from pageid $minPageid to $maxPageid...");
+		doSimpleCommand("$cmd");
+	}
+
+	tprint("DONE");
+}
+
+
+// mysqldump filename for a crawl
+// $table is either "pages" or "requests"
+// $format is "" or "csv"
+function dumpfileName2($tablename, $format="") {
+	$downloadsDir;
+	if ( file_exists("./downloads2") ) {
+		$downloadsDir = "./downloads2";
+	}
+	else if ( file_exists("../downloads2") ) {
+		$downloadsDir = "../downloads2";
+	}
+	else {
+		tprint("ERROR: Can't find downloads directory.");
+		exit(1);
+	}
+
+	$dumpfile = "$downloadsDir/$tablename" . ( $format ? ".$format" : "" );
+
+	return $dumpfile;
+}
+
+
+// mysqldump filename for a crawl
+// $table is either "pages" or "requests"
+// $format is "" or "csv"
+function dumpfileName($label, $table="", $format="") {
+	global $gbMobile;
+
+	$downloadsDir;
+	if ( file_exists("./downloads") ) {
+		$downloadsDir = "./downloads";
+	}
+	else if ( file_exists("../downloads") ) {
+		$downloadsDir = "../downloads";
+	}
+	else {
+		tprint("ERROR: Can't find downloads directory.");
+		exit(1);
+	}
+		
+	$dumpfile = "$downloadsDir/httparchive_" . ( $gbMobile ? "mobile_" : "" ) . str_replace(" ", "_", $label) . 
+		( $table ? "_$table" : "" ) . ( $format ? ".$format" : "" );
+	//CVSNO - use this function up above wherever there's a TODO
+
+	return $dumpfile;
+}
+
+
+// Only used during the migration from a single "requests" table to individual merge tables.
+function createCrawlMergeTable($label, $archive="All", $location=null) {
+	$device = ( $location ? $location : curDevice() );
+	$crawl = getCrawl($label, $archive, $device);
+	if ( FALSE === $crawl ) {
+		tprint("ERROR: Crawl \"$label\" for archive \"$archive\" and location \"$device\" wasn't found.");
+		return;
+	}
+
+	// create the NEW requests table just for this crawl
+	$crawlid = $crawl['crawlid'];
+	$tablename = "requests_$crawlid";
+	if ( tableExists($tablename) ) {
+		tprint("Bailing - table \"$tablename\" already exists for label \"$label\".");
+		return;
+	}
+
+	importCrawl($label);
+	exportCrawlToTable($label, "All", null, true);
+	tprint("DONE");
+}
+
 
 ?>
