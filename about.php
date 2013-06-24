@@ -150,6 +150,8 @@ This resulted in more HTTP requests being recorded with a subsequent bump in tra
 <h2 id=testchanges>What changes have been made to the test environment that might affect the data?</h2>
 The following test configuration changes could affect results:
 <ul>
+  <li> Jun 24 2013
+The default connection speed for mobile was decreased to an emulated 3G network.
   <li> Mar 19 2013
 The default connection speed was increased from DSL (1.5 mbps) to Cable (5.0 mbps). This only affects IE (not iPhone).
   <li> Oct 1 2012
