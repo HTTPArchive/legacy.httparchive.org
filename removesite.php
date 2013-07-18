@@ -29,25 +29,6 @@ $gRurl = getParam("rurl", "");
 
 <?php echo headfirst() ?>
 <link type="text/css" rel="stylesheet" href="style.css" />
-
-<!-- autocomplete URL picker -->
-<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/themes/cupertino/jquery-ui.css"/>
-<script>
-// Load jQuery
-// jquery.min.js loaded elsewhere
-// google.load("jquery", "1.5.1");
-google.load("jqueryui", "1.8.1");
-</script>
-<style>
-.ui-autocomplete-loading { 
-	background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat; }
-</style>
-<script>
-$(function() {
-		$( "#rurl" ).autocomplete({ source: "findurl.php",
-					minLength: 2 });
-	});
-</script>
 </head>
 
 <body>
@@ -93,7 +74,7 @@ if ( $gRurl ) {
 function confirmRemove() {
 	var url = document.getElementById("rurl").value;
 	if ( ! url ) {
-		alert("Please select a URL.");
+		alert("Please enter a URL.");
 	}
 	else if ( confirm("This will remove ALL DATA about " + url + " and remove it from all future archiving. Do you want to continue?") ) {
 		return true;
@@ -109,7 +90,7 @@ Follow these steps to remove your website's data from the HTTP Archive and preve
 
 <ol style="margin-left: 2em;">
 <form name=removesite action="<? echo $_SERVER['PHP_SELF'] ;?>" onsubmit="return confirmRemove()">
-  <li> Select your URL:
+  <li> Enter your URL:
   <span class="ui-widget" style="font-size: 1em;">
     <input id="rurl" name="rurl" style="margin: 0;" size=35 />
   </span>
