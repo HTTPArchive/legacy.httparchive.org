@@ -61,10 +61,11 @@ function getUrl($url, $bMassage=false) {
 }
 
 
+// Return the URL to Alexa for more info about the website's rank.
 function rankUrl($url) {
 	global $gUrlsTable;
 
-	$query = "select urlOrig from $gUrlsTable where urlhash=conv(substring(md5('$url'),1,4),16,10) and (urlFixed='$url' or urlOrig='$url') order by rank asc;";
+	$query = "select urlOrig from $gUrlsTable where " . getUrlhashCond($url) . " and (urlFixed='$url' or urlOrig='$url') order by rank asc;";
 	$urlOrig = doSimpleQuery($query);
 
 	$aMatches = array();
@@ -83,12 +84,13 @@ function rankUrl($url) {
 }
 
 
+// Return the website's rank.
 // TODO - Eventually we might want to return the rank RELATIVE to a specific pageid.
 // For example, foobar.com might be rank 123 today but was 456 at the time of the run.
 function rank($url, $pageid=null) {
 	global $gUrlsTable;
 
-	$query = "select rank from $gUrlsTable where urlhash=conv(substring(md5('$url'),1,4),16,10) and (urlOrig='$url') order by rank asc;";
+	$query = "select rank from $gUrlsTable where " . getUrlhashCond($url) . " and (urlOrig='$url') order by rank asc;";
 	$rank = doSimpleQuery($query);
 
 	return ( $rank ? $rank : "n/a" );
