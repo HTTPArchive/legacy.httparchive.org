@@ -21,8 +21,14 @@ function pageData($pageid, $url = null, $label = null) {
 	if ( $pageid ) {
 		$query = "select * from $gPagesTable where pageid='$pageid';";
 	}
-	else if ( $url && $label ) {
-		$query = "select * from $gPagesTable where url='$url' and label='$label';";
+	else if ( $url ) {
+		if ( $label ) {
+			$query = "select * from $gPagesTable where url='$url' and label='$label';";
+		}
+		else {
+			// If there's no label we pull the LATEST results.
+			$query = "select * from $gPagesTable where url='$url' order by pageid desc limit 1;";
+		}
 	}
 	else {
 		return null;
