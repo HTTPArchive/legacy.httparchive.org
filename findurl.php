@@ -3,13 +3,14 @@ require_once("utils.inc");
 header('Content-Type: text/javascript'); 
 
 $maxResults = 50;
+$maxLimit = 500;
 
 $term = getParam("term");
 if ( ! $term ) {
     return; // no need to run anything - May be, return 'warn' in dev mode
 }
 
-$query = "select urlShort, max(pageid) as pageid, rank from $gPagesTable where archive='$gArchive' and urlShort like '%$term%' group by urlShort order by rank asc limit 101;";
+$query = "select urlOrig, rank from $gUrlsTable where (urlOrig like '%$term%' or urlFixed like '%$term%') group by urlOrig order by rank asc limit $maxLimit;";
 $result = doQuery($query);
 
 // Only return $maxResults results.
@@ -20,17 +21,16 @@ $aRankedSites = array();
 $aUnrankedSites = array();
 $numUrls = mysql_num_rows($result);
 while ( $row = mysql_fetch_assoc($result) ) {
-	$url = $row['urlShort'];
-	$pageid = $row['pageid'];
+	$url = $row['urlOrig'];
 	$rank = $row['rank'];
 
 	if ( null == $rank ) {
 		if ( count($aUnrankedSites) < $maxResults ) {
-			array_push($aUnrankedSites, array("label" => $url, "value" => $url, "data-pageid" => $pageid));
+			array_push($aUnrankedSites, array("label" => $url, "value" => $url, "data-url" => $url));
 		}
 	}
 	else if ( count($aRankedSites) < $maxResults ) {
-		array_push($aRankedSites, array("label" => $url, "value" => $url, "data-pageid" => $pageid));
+		array_push($aRankedSites, array("label" => $url, "value" => $url, "data-url" => $url));
 	}
 	else {
 		break;
