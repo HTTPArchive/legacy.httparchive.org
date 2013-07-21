@@ -38,6 +38,14 @@ function pageData($pageid, $url = null, $label = null) {
 }
 
 
+function getPage($url, $crawlid) {
+	global $gPagesTable, $gUrlsTable;
+
+	$urlhash = doSimpleQuery("select urlhash from $gUrlsTable where urlOrig = '$url';");
+	return doRowQuery("select * from $gPagesTable where urlhash=$urlhash and url='$url' and crawlid=$crawlid limit 1;");
+}
+
+
 function pageFromWPT($wptid, $medianRun, $bRepeatView=false) {
 	// Fetch the HAR file from WebPagetest.
 	$wptServer = wptServer();
