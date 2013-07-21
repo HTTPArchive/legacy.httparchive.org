@@ -37,6 +37,14 @@ function getCrawl($label, $archive=null, $location=null) {
 }
 
 
+// Return a hash corresponding to the specified crawl. Return FALSE if not found.
+function getCrawlFromId($crawlid) {
+	global $gCrawlsTable;
+	$query = "select * from $gCrawlsTable where crawlid=$crawlid;";
+	return doRowQuery($query);
+}
+
+
 function createCrawl($hTuples) {
 	$crawlsTable = crawlsTable();
 	$now = time();
@@ -96,8 +104,9 @@ function maxLabel() {
 
 
 // Return an array of label names (in chrono order?) for an archive.
-// If $bEpoch is true return labels based on 
-function archiveLabels($archive=null, $bEpoch = false, $format = "n/j/y", $bAll=false) {
+// If $bEpoch is true return labels based on epoch date.
+// If $bCrawlid is true return crawlid instead of label.
+function archiveLabels($archive=null, $bEpoch = false, $format = "n/j/y", $bAll=false, $bCrawlid=false) {
 	global $gCrawlsTable, $gArchive;
 	if ( ! $archive ) {
 		$archive = $gArchive;
@@ -106,7 +115,7 @@ function archiveLabels($archive=null, $bEpoch = false, $format = "n/j/y", $bAll=
 	$device = curDevice();
 
 	// CVSNO - use the crawls table
-	$query = "select label, startedDateTime as epoch from $gCrawlsTable where $dateRange and archive = '$archive' and location='$device' order by epoch asc;";
+	$query = "select label, startedDateTime as epoch, crawlid from $gCrawlsTable where $dateRange and archive = '$archive' and location='$device' order by epoch asc;";
 	$result = doQuery($query);
 
 	$aLabels = array();
@@ -115,6 +124,9 @@ function archiveLabels($archive=null, $bEpoch = false, $format = "n/j/y", $bAll=
 		$epoch = $row['epoch'];
 		if ( $bEpoch ) {
 			array_push($aLabels, gmdate($format, $epoch));
+		}
+		else if ( $bCrawlid ) {
+			array_push($aLabels, $row['crawlid']);
 		}
 		else {
 			array_push($aLabels, $label);
@@ -197,7 +209,7 @@ function randomPageid($crawl) {
 
 // Create the Mysql dump files for a crawl.
 // TODO: This code assumes that ../downloads/ exists. Instead, it should be able to find the download directory.
-function dumpCrawl2($label, $archive=null, $location=null) {
+function dumpCrawl2($label, $archive=null, $location=null, $bMysql=true, $bCsv=true) {
 	global $gbMobile, $gPagesTableMobile, $gPagesTableDesktop, $gRequestsTableMobile, $gRequestsTableDesktop, $gStatsTableDesktop, $gCrawlsTable, $gUrlsTableDesktop;
 	global $gMysqlUsername, $gMysqlPassword, $gMysqlServer, $gMysqlDb;
 
@@ -210,26 +222,32 @@ function dumpCrawl2($label, $archive=null, $location=null) {
 	}
 
 	// requests
-	$dumpfile = dumpfileName2($tablename) . ".gz";
-	if ( file_exists($dumpfile) ) {
-		// bail even though we didn't check the csv file
-		tprint("Bailing - mysqldump file already exists: $dumpfile.");
-		return;
+	if ( $bMysql ) {
+		$dumpfile = dumpfileName2($tablename) . ".gz";
+		tprint("Creating dump file $dumpfile...");
+		if ( file_exists($dumpfile) ) {
+			// bail even though we didn't check the csv file
+			tprint("Bailing - mysqldump file already exists: $dumpfile.");
+			return;
+		}
+		$cmd = "mysqldump --opt --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $tablename | gzip > $dumpfile";
+		exec($cmd);
+		lprint("...mysqldump file created: $dumpfile");
 	}
-	$cmd = "mysqldump --opt --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $tablename | gzip > $dumpfile";
-	exec($cmd);
-	lprint("...mysqldump file created: $dumpfile");
 
 	// requests csv
-	$dumpfile = dumpfileName2($tablename, "csv") . ".gz";
-	$dumpfileSql = dumpfileName2($tablename, "sql");
-	$tmpdir = "/tmp/$tablename." . time(); // Unique dir for this dump cuz mysqldump writes files that aren't writable by this process, and mysqldump -T can NOT overwrite existing files.
-	exec("mkdir $tmpdir; chmod 777 $tmpdir;");
-	$cmd = "mysqldump --opt --complete-insert --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer -T $tmpdir $gMysqlDb $tablename; " .
-		"gzip -f -c $tmpdir/$tablename.txt > $dumpfile ; cp $tmpdir/$tablename.sql $dumpfileSql";
-	exec($cmd);
-	exec("/bin/rm -rf $tmpdir"); // remove the temporary directory - it's BIG!
-	lprint("...mysqldump file created: $dumpfile");
+	if ( $bCsv ) {
+		$dumpfile = dumpfileName2($tablename, "csv") . ".gz";
+		tprint("Creating dump file $dumpfile...");
+		$dumpfileSql = dumpfileName2($tablename, "sql");
+		$tmpdir = "/tmp/$tablename." . time(); // Unique dir for this dump cuz mysqldump writes files that aren't writable by this process, and mysqldump -T can NOT overwrite existing files.
+		exec("mkdir $tmpdir; chmod 777 $tmpdir;");
+		$cmd = "mysqldump --opt --complete-insert --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer -T $tmpdir $gMysqlDb $tablename; " .
+			"gzip -f -c $tmpdir/$tablename.txt > $dumpfile ; cp $tmpdir/$tablename.sql $dumpfileSql";
+		exec($cmd);
+		exec("/bin/rm -rf $tmpdir"); // remove the temporary directory - it's BIG!
+		lprint("...mysqldump file created: $dumpfile");
+	}
 }
 
 
@@ -322,7 +340,7 @@ function dumpOther() {
 
 // Import a crawl from the Mysql dump file.
 // This assumes the dump file is stored in the Internet Archive S3-like storage.
-function importCrawl2($label, $archive="All", $location=null, $bCsv=false, $bRemoveDumpfile=true) {
+function importCrawl2($label, $archive="All", $location=null, $bCsv=false, $bRemoveDumpfile=false) { // CVSNO - change $bRemoveDumpfile to "true" after done migrating
 	global $gMysqlUsername, $gMysqlPassword, $gMysqlServer, $gMysqlDb;
 
 	$device = ( $location ? $location : curDevice() );
