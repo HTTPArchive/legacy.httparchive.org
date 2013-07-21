@@ -61,16 +61,19 @@ function doSubmit() {
 
 function showResults(aResults) {
 	var sHtml = "";
-	for ( var i=0, len=aResults.length; i < len; i++ ) {
-		var hResult = aResults[i];
-		var url = hResult["label"];
-		var value = hResult["value"];
-		if ( 0 == value ) {
-			sHtml = "<li style='margin-bottom: 1em;'> " + url + "\n" + sHtml;
-			break;
+
+	if ( aResults ) {
+		for ( var i=0, len=aResults.length; i < len; i++ ) {
+			var hResult = aResults[i];
+			var url = hResult["label"];
+			var value = hResult["value"];
+			if ( 0 == value ) {
+				sHtml = "<li style='margin-bottom: 1em;'> " + url + "\n" + sHtml;
+				break;
+			}
+			var pageid = hResult["data-pageid"];
+			sHtml += "<li> <a href='viewsite.php?pageid=" + pageid + "'>" + url + "\n";
 		}
-		var pageid = hResult["data-pageid"];
-		sHtml += "<li> <a href='viewsite.php?pageid=" + pageid + "'>" + url + "\n";
 	}
 
 	document.getElementById("urls").innerHTML = ( sHtml ? 
