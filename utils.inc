@@ -1740,7 +1740,7 @@ function diffRuns($url1, $crawlid1=0, $url2="", $crawlid2=0, $bPreamble = true) 
 	if ( ! $crawlid2 ) {
 		if ( $url1 === $url2 ) {
 			// If the URLs are the same then compare to the crawl prior to $latestCrawl.
-			$prevCrawl = latestCrawl(null, $latestCrawl['startedDateTime']);
+			$prevCrawl = latestCrawl(null, $latestCrawl['startedDateTime']-1);
 			if ( ! $prevCrawl ) {
 				return "";
 			}
