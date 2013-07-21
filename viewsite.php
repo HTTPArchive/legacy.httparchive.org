@@ -58,6 +58,7 @@ ob_start();
 
 $gPageid = $pageData['pageid'];
 $gLabel = $pageData['label'];
+$gCrawlid = $pageData['crawlid'];
 $url = $pageData['url'];
 $wptid = $pageData['wptid'];
 $wptrun = $pageData['wptrun'];
@@ -87,7 +88,7 @@ $harfileWptUrl = wptHarFileUrl($wptid, $wptrun, 0);
 <div><a href="<?php echo rankUrl($url) ?>">Alexa rank: <?php echo commaize( rank($url, $gPageid) ) ?></a></div>
 <div>
 <?php 
-echo diffRuns($url, $gLabel);
+echo diffRuns($url, $gCrawlid);
 ?>
 </div>
 
@@ -220,9 +221,8 @@ echo percentByProtocol($hStats);
 <?php
 // trends.inc is REALLY SLOW so we flush the buffer first.
 ob_flush();
-if ( getParam("flush", 1) ) { //CVSNO - remove this after blog post is old
-	flush();
-}
+flush();
+
 require_once('trends.inc');
 ?>
 
