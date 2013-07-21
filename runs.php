@@ -43,8 +43,7 @@ DD { margin-left: 40px; }
 Here are the most recent URLs collected:
 </p>
 
-<div id="urls" style="border: 2px solid #999; padding: 8px;">
-</div>
+<div id="urls" style="border: 2px solid #999; padding: 8px; white-space: pre; overflow: auto;"></div>
 <div id=spinner style="visibility: hidden; text-align: center;">
 <img src="images/busy.gif">
 </div>
@@ -66,7 +65,7 @@ function addUrls(aUrls) {
 		sHtml += "<code style='font-size: 0.9em'>" + formatDate(aUrl[1]) + "</code> " +
 			"<a href='" + aUrl[2] + "' target='_blank'>" + aUrl[2] + "</a>" +
 			( aUrl[3] ? " - " + aUrl[3] : "" ) +
-			"<br>\n";
+			"\n";
 		gLastPageid = aUrl[0];
 	}
 
