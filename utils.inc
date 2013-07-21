@@ -29,9 +29,11 @@ $curdir = getcwd(); // for efficiency
 $gbDev = ( FALSE !== strpos($curdir, $gDevDir) || strpos($curdir, "/trunk.httparchive.org") );
 $gbMobile = ( FALSE !== strpos($curdir, $gMobileDir) || strpos($curdir, "/mobile.httparchive.org") );
 
+
 // put this BELOW $gbDev - circular global dependencies :-(
 require_once("dbapi.inc");
 require_once("crawls.inc");
+require_once("pages.inc");
 
 // The different "slices" of URLs a user can view.
 // Each element is an array of [dbname, UI name]
@@ -1431,48 +1433,28 @@ function selectSiteLabel($url, $curLabel="", $bChrono=false) {
 
 
 // Return an array of label names (in chrono order?) for a specific URL.
-// This does NOT take into account the URL!!!!
-// See archiveLabelsForUrlSLOW and bug #359.
-function archiveLabelsForUrl($url, $bChrono=false, $archive=null) {
-	global $gCrawlsTable, $gArchive;
-	if ( ! $archive ) {
-		$archive = $gArchive;
-	}
-
-	$device = curDevice();
-	$query = "select label from $gCrawlsTable where archive='$archive' and location='$device' order by startedDateTime " . 
-		( $bChrono ? "asc" : "desc" ) . ";";
-	$result = doQuery($query);
-	$aLabels = array();
-	while ($row = mysql_fetch_assoc($result)) {
-		$label = $row['label'];
-		array_push($aLabels, $label);
-	}
-	mysql_free_result($result);
-
-	return $aLabels;
-}
-
-
-// Return an array of label names (in chrono order?) for a specific URL.
 // We used to do it this way but it's too slow. 
-function archiveLabelsForUrlSLOW($url, $bChrono=false, $archive=null) {
-	global $gPagesTable;
+function archiveLabelsForUrl($url, $bChrono=false, $archive=null) {
+	global $gPagesTable, $gUrlsTable;
 	global $gArchive;
 	if ( ! $archive ) {
 		$archive = $gArchive;
 	}
 	$dateRange = dateRange(true);
 
-	$query = "select label from $gPagesTable where $dateRange and archive='$archive' and url = '$url' group by label order by startedDateTime " . 
-		( $bChrono ? "asc" : "desc" ) . ";";
-	$result = doQuery($query);
 	$aLabels = array();
-	while ($row = mysql_fetch_assoc($result)) {
-		$label = $row['label'];
-		array_push($aLabels, $label);
+
+	$urlhash = doSimpleQuery("select urlhash from $gUrlsTable where urlOrig = '$url';");
+	if ( $urlhash ) {
+		$query = "select label from $gPagesTable where urlhash=$urlhash and $dateRange and archive='$archive' and url = '$url' group by label order by startedDateTime " . 
+			( $bChrono ? "asc" : "desc" ) . ";";
+		$result = doQuery($query);
+		while ($row = mysql_fetch_assoc($result)) {
+			$label = $row['label'];
+			array_push($aLabels, $label);
+		}
+		mysql_free_result($result);
 	}
-	mysql_free_result($result);
 
 	return $aLabels;
 }
@@ -1513,18 +1495,17 @@ function crawledUrlsJS($pageid=null, $n=20) {
 	$aUrls = crawledUrls($pageid, $n);
 	$sJS = "";
 
-	// optimization: find the namels of the two most recent labels
-	$aLabels = archiveLabels();
-	$label1 = $aLabels[count($aLabels)-1];
-	$label2 = $aLabels[count($aLabels)-2];
+	// optimization: find the namels of the two most recent crawlids
+	$aCrawlids = archiveLabels(null, false, "n/j/y", false, true); // true == crawlids
+	$crawlid1 = $aCrawlids[count($aCrawlids)-1];
+	$crawlid2 = $aCrawlids[count($aCrawlids)-2];
 	foreach($aUrls as $aUrl) {
 		$sJS .= ( $sJS ? ",\n" : "" );
-
 		$sJS .= "    [" . 
 			$aUrl[0] . ", " .  // pageid
 			$aUrl[1] . ", '" . // createDate
 			$aUrl[2] . "', '" . // url
-			diffRuns($aUrl[2], $label1, $aUrl[2], $label2, false) . "']";
+			diffRuns($aUrl[2], $crawlid1, $aUrl[2], $crawlid2, false) . "']";
 	}
 
 	return $sJS;
@@ -1738,63 +1719,59 @@ function secondLevelDomain($url) {
 }
 
 // Compare the results of two runs for given URLs.
-function diffRuns($url1, $label1="", $url2="", $label2="", $bPreamble = true) {
+function diffRuns($url1, $crawlid1=0, $url2="", $crawlid2=0, $bPreamble = true) {
 	global $gPagesTable, $gArchive;
 	$device = curDevice();
 
-    $latestLabel; // we'll cache this if we have to call it
-	if ( ! $label1 ) {
+    $latestCrawl; // we'll cache this if we have to call it
+	if ( $crawlid1 ) {
+		$latestCrawl = getCrawlFromId($crawlid1);
+	}
+	else {
 		// use the most recent label
-		$latestLabel = latestLabel(); // cache it for below
-		$label1 = $latestLabel;
+		$latestCrawl = latestCrawl(); // cache it for below
+		$crawlid1 = $latestCrawl['crawlid'];
 	}
 
 	if ( ! $url2 ) {
 		$url2 = $url1;
 	}
 
-	if ( ! $label2 ) {
+	if ( ! $crawlid2 ) {
 		if ( $url1 === $url2 ) {
-			// If the URLs are the same then compare to the label older than $label1
-			$label2 = getPrevLabel($label1, $gArchive, $device);
-			if ( ! $label2 ) {
+			// If the URLs are the same then compare to the crawl prior to $latestCrawl.
+			$prevCrawl = latestCrawl(null, $latestCrawl['startedDateTime']);
+			if ( ! $prevCrawl ) {
 				return "";
 			}
+			$crawlid2 = $prevCrawl['crawlid'];
 		}
 		else {
 			// If the 2nd URL is different then also use the most recent label.
-			$label2 = ( $latestLabel ? $latestLabel : latestLabel() );
+			$crawlid2 = $crawlid1;
 		}
 	}
 
-	// The fastest query is with a pageid range.
-	$crawl = getCrawl($label1, $gArchive, $device);
-	$pageidCond = "pageid >= {$crawl['minPageid']} and pageid <= {$crawl['maxPageid']}";
-	$query = "select * from $gPagesTable where url='$url1' and $pageidCond;";
-	$row1 = doRowQuery($query);
-
-	$crawl = getCrawl($label2, $gArchive, $device);
-	$pageidCond = "pageid >= {$crawl['minPageid']} and pageid <= {$crawl['maxPageid']}";
-	$query = "select * from $gPagesTable where url='$url2' and $pageidCond;";
-	$row2 = doRowQuery($query);
+	$crawl1 = getPage($url1, $crawlid1);
+	$crawl2 = getPage($url2, $crawlid2);
 
 	// Now, what should we highlight?
 	$sDiff = 
-		bigDiff("PageSpeed", $row1['PageSpeed'], $row2['PageSpeed'], 5) .
-		bigDiff("requests", $row1['reqTotal'], $row2['reqTotal'], 5) .
-		bigDiff("scripts", $row1['reqJS'], $row2['reqJS'], 2) .
-		bigDiff("images", $row1['reqImg'], $row2['reqImg'], 4) .
-		bigDiff("size", intval($row1['bytesTotal']/1024), intval($row2['bytesTotal']/1024), 50, "kB") .
-		bigDiff("JS size", intval($row1['bytesJS']/1024), intval($row2['bytesJS']/1024), 20, "kB") .
-		bigDiff("image size", intval($row1['bytesImg']/1024), intval($row2['bytesImg']/1024), 30, "kB") .
-		bigDiff("domains", $row1['numDomains'], $row2['numDomains'], 3) .
+		bigDiff("PageSpeed", $crawl1['PageSpeed'], $crawl2['PageSpeed'], 5) .
+		bigDiff("requests", $crawl1['reqTotal'], $crawl2['reqTotal'], 5) .
+		bigDiff("scripts", $crawl1['reqJS'], $crawl2['reqJS'], 2) .
+		bigDiff("images", $crawl1['reqImg'], $crawl2['reqImg'], 4) .
+		bigDiff("size", intval($crawl1['bytesTotal']/1024), intval($crawl2['bytesTotal']/1024), 50, "kB") .
+		bigDiff("JS size", intval($crawl1['bytesJS']/1024), intval($crawl2['bytesJS']/1024), 20, "kB") .
+		bigDiff("image size", intval($crawl1['bytesImg']/1024), intval($crawl2['bytesImg']/1024), 30, "kB") .
+		bigDiff("domains", $crawl1['numDomains'], $crawl2['numDomains'], 3) .
 		"";
 
 	if ( $sDiff ) {
 		// trim trailing comma-space
 		$sDiff = substr($sDiff, 0, count($sDiff)-3);
 		if ( $bPreamble ) {
-			$sDiff = "compared to $label2: " . $sDiff;
+			$sDiff = "compared to " . $crawl2['label'] . ": " . $sDiff;
 		}
 	}
 
