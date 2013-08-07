@@ -170,7 +170,7 @@ function approveRemoveUrl($url) {
 // Set "other=true" for a URL in the urls table.
 function addOtherUrl($url) {
 	global $gUrlsTable;
-	$cmd = "replace into $gUrlsTable set urlOrig='$url', other=1;";
+	$cmd = "replace into $gUrlsTable set urlOrig='$url', other=1, " . getUrlhashCond($url) . ";";
 	$result = doSimpleCommand($cmd);
 }
 
