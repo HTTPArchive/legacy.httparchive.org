@@ -220,7 +220,13 @@ function optoutUrl($url) {
 // Since it's hard to remember the SQL for converting a URL to urlhash,
 // use this helper function to return the appropriate SQL where condition.
 function getUrlhashCond($url) {
-	return "urlhash = conv(substring(md5('$url'), 1, 4), 16, 10)";
+	return "urlhash = " . getUrlhashFunc($url);
 }
 
+
+// Since it's hard to remember the SQL for converting a URL to urlhash,
+// use this helper function to return the appropriate SQL conversion functions.
+function getUrlhashFunc($url) {
+	return "conv(substring(md5('$url'), 1, 4), 16, 10)";
+}
 ?>
