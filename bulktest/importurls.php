@@ -58,6 +58,7 @@ $handle = @fopen($gUrlsFile, "r");
 if ( $handle ) {
 	$sInsert = "";
 	$n = 0;
+	$timeAdded = time();
 
 	while (($line = fgets($handle, 4096)) !== false) {
 		$line = rtrim($line);
@@ -76,14 +77,14 @@ if ( $handle ) {
 		}
 
 		if ( $urlOrig ) {
-			$sInsert .= ",('" . mysqlEscape($urlOrig) . "'" . 
+			$sInsert .= ",('" . mysqlEscape($urlOrig) . "', $timeAdded" . 
 				( $rank  ? ", $rank"  : "" ) . 
 				( $other ? ", $other" : "" ) .
 				")";
 			$n++;
 			if ( 0 === ( $n % 1000 ) ) {
 				// faster to do many inserts at a time
-				doSimpleCommand("insert into $gUrlsTable (urlOrig" .
+				doSimpleCommand("insert into $gUrlsTable (urlOrig, timeAdded" .
 								( $rank  ? ", ranktmp"  : "" ) .
 								( $other ? ", other" : "" ) . 
 								") VALUES " . substr($sInsert, 1) .
@@ -98,7 +99,7 @@ if ( $handle ) {
 
 	// catch any final inserts
 	if ( $sInsert ) {
-				doSimpleCommand("insert into $gUrlsTable (urlOrig" .
+				doSimpleCommand("insert into $gUrlsTable (urlOrig, timeAdded" .
 								( $rank  ? ", ranktmp"  : "" ) .
 								( $other ? ", other" : "" ) . 
 								") VALUES " . substr($sInsert, 1) .
