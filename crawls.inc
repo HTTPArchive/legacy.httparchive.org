@@ -262,6 +262,8 @@ function dumpCrawl($label, $archive=null, $location=null) {
 	$maxid = $crawl['maxPageid'];
 	$pageidCond = "pageid >= $minid and pageid <= $maxid";
 
+	lprint("Dumping crawl \"$label\" with crawlid " . $crawl['crawlid'] . ".");
+
 	// pages
 	// We have to EXPLICITLY specify the Desktop table because we do NOT want the dump file to point to a DEV table.
 	$pagesTable = ( $gbMobile ? $gPagesTableMobile : $gPagesTableDesktop );
