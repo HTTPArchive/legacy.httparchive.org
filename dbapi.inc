@@ -347,6 +347,16 @@ function tableExists($tablename) {
 	return ( $tablename == doSimpleQuery("show tables like '$tablename';") );
 }
 
+// scary
+function dropTable($tablename) {
+	doSimpleCommand("drop table $tablename;");
+}
+
+function columnExists($column, $table) {
+	// We reference the "Field" value returned from "show columns".
+	return doSimpleQuery("show columns from $table where Field = '$column';");
+}
+
 
 /*******************************************************************************
 SCHEMA CHANGES:
@@ -429,6 +439,15 @@ alter table requests modify expAge int unsigned not null;
 Feb 5 2013 - add new stats to stats table
 alter table stats add column bytesHtmlDoc mediumint unsigned after bytesOther, add column perCdn int(4) unsigned after perGlibs, add column gzipSavings int unsigned not null after bytesHtmlDoc, add column gzipTotal int unsigned not null after bytesHtmlDoc, add column numDomElements mediumint unsigned not null after numDomains, add column maxDomainReqs smallint unsigned not null after numDomains, add column fullyLoaded int(10) unsigned after onLoad, add column visualComplete int(10) unsigned after onLoad, add column TTFB int(10) unsigned after PageSpeed, add column SpeedIndex mediumint unsigned after PageSpeed; 
   [statsdev]
+
+July 2013 -
+pages:
+  add columns: crawlid, urlhash
+requests:
+crawls:
+  add columns: notes
+stats:
+  add columns: crawlid
 *******************************************************************************/
 function createTables() {
 	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gUrlsChangeTable, $gSettingsTable;
@@ -439,10 +458,12 @@ function createTables() {
 			", createDate int(10) unsigned not null" .
 			", archive varchar (16) not null" .
 			", label varchar (32) not null" .        // name of the crawl, eg, "Sep 15 2012"
+			", crawlid int unsigned not null" .      // crawlid joins with "crawls" table
 			", wptid varchar (64) not null" .        // webpagetest.org id
 			", wptrun int(2) unsigned not null" .    // webpagetest.org median #
 			", url text" .                           // main URL fetched
 			", urlShort varchar (255)" .             // shortened URL to use in index
+			", urlhash int(8) unsigned" .            // hash for faster searching - use getUrlhashCond()
 			", cdn varchar (64)" .                   // if the base page is served by a CDN
 
 			", startedDateTime int(10) unsigned" .   // epoch time when page was crawled 
@@ -501,6 +522,7 @@ function createTables() {
 			", gzipSavings int unsigned not null" .        // # of bytes that could have been saved if ALL gzippable resources were gzipped
 
 			", primary key (pageid)" .
+			", index(urlhash)" .
 			", unique key (label, urlShort)" .
 			") ENGINE MyISAM;";
 		doSimpleCommand($command);
@@ -514,6 +536,7 @@ function createTables() {
 	if ( ! tableExists($gStatusTable) ) {
 		$command = "create table $gStatusTable (" .
 			"statusid int unsigned not null auto_increment" .
+			", crawlid int unsigned not null" .      // crawlid joins with "crawls" table
 			", url text" .
 			", location varchar (32) not null" .
 			", archive varchar (32) not null" .
@@ -541,6 +564,7 @@ function createTables() {
 			", label varchar (32) not null" .
 			", archive varchar (32) not null" .
 			", location varchar (32) not null" . // AKA "device" - the WPT location value
+			", notes varchar(64)" .              // notes like "test" or "js off"
 			", video boolean not null" .         // true = video was recorded
 			", docComplete boolean not null" .   // true = stopped at onload; false = ran later
 			", fvonly boolean not null" .        // true = first view only
@@ -568,6 +592,7 @@ function createTables() {
 	if ( ! tableExists($gStatsTable) ) {
 		$command = "create table $gStatsTable (" .
 			"label varchar (32) not null" .           // "Oct 1 2011"
+			", crawlid int unsigned not null" .      // crawlid joins with "crawls" table
 			", slice varchar (32) not null" .         // "Top100", "Top1000", "intersection", or "All"
 			", device varchar (32) not null" .        // "iphone43", "isim", or "IE8"
 			", version int(6) unsigned not null" .    // the SVN version # so we can track what values to recompute
@@ -675,7 +700,8 @@ function createTables() {
 	// Create Urls Table
 	if ( ! tableExists($gUrlsTable) ) {
 		$command = "create table $gUrlsTable (" .
-			"urlhash int(8) unsigned" .
+			"timeAdded int(10) unsigned not null" . // epoch time when this URL was added to the list
+			", urlhash int(8) unsigned" .           // hash for faster searching - use getUrlhashCond()
 			", urlOrig text character set binary" . // use "binary" so it's case *sensitive*
 			", urlFixed text" .
 			", rank int(10) unsigned" .
@@ -712,7 +738,7 @@ function createTables() {
 }
 
 
-function createRequestsTable($tablename) {
+function createRequestsTable($tablename, $aMergeTables=null) {
 	global $ghReqHeaders, $ghRespHeaders;
 
 	$sColumns = "";
@@ -765,9 +791,170 @@ function createRequestsTable($tablename) {
 
 		", primary key (requestid)" .
 		", index(pageid)" .
-		", unique key (startedDateTime, pageid, urlShort)" .
-		") ENGINE MyISAM;";
+		", unique key (startedDateTime, pageid, urlShort) ) " . 
+		( $aMergeTables ? 
+		  "ENGINE=MERGE UNION=(" . implode(",", $aMergeTables) . ") INSERT_METHOD=NO;" :
+		  "ENGINE=MyISAM;" );
 
 	doSimpleCommand($command);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// SCHEMA CHANGES
+//
+// Let's try something new. 
+// 
+// We *used to* make manual changes to the tables using
+// the MySQL commandline and document those in the comments for the createTables
+// function. But that makes it hard for other people to apply those changes, and
+// to apply changes programmatically.
+// 
+// The *new* approach will be to write a function to apply the changes. It would
+// also be nice if there was a way to intelligently apply multiple changes as
+// needed - but I need to think about how to make the code reflexive.
+////////////////////////////////////////////////////////////////////////////////
+
+// === PHASE 1: Add columns for new db schema.
+// DONE 1. Add "crawlid" column to pages*
+// 2. Add "crawlid" column to requests*
+// NO - use "device" to determine this 3. Add "devicetype" column to "crawls". Possible values are "desktop" or "mobile".
+// 4. Add "browser" column to "crawls". Possible values are "IE" and "iphone".
+// DONE 5. Add "notes" column to crawls for things like "JS disabled" or "faster network".
+// 6. Add "crawltype" column to crawls. Possible values are "public", "hidden", "test", "ongoing". Only "public" crawls are visible through the UI.
+// DONE 7. Add "crawlid" column to stats
+// 8. Remove "label" indexes for "pages*". Create "crawlid" indexes.
+//
+// === PHASE 2: Add columns for new stats.
+// 1. pages.connections (available in old HAR files)
+// 2. pages.localStorage (newly added by Pat, bug 379)
+// 3. pages.viewport (newly added by Pat)
+// 4. pages.docWidth, pages.docHeight (newly added by Pat, bug 380)
+// 5. pages.domDepth (newly added by Pat, bug 385)
+// 6. pages.doctype (newly added by Pat)
+// 7. requests.cdn (available in old HAR files)
+// 8. requests.imgWidth, imgHeight, imgDomWidth, imgDomHeight (newly added by Pat, bug 381)
+// 
+// === PHASE 3: Remove unnecessary columns after code is updated to use new columns.
+// 1. Remove "label" and "archive" columns from pages.
+// 2. Remove the "archive" column from crawls.
+// 3. Remove the "archive" column from status.
+// 4. Remove "label" from stats
+function db_upgrade_mergeTables($table) {
+	db_addColumn("crawlid", $table, "int unsigned not null", "label");
+	return;
+
+	/*
+	$aPages = array("pagesdev", "pagesmobile", "pages");
+	$aLocations = array("IE8", "iphone4", "IE8");
+	for ( $i = 0; $i < count($aPages), $i++ ) {
+		$pagestable = $aPages[$i];
+		$location = $aLocations[$i];
+		db_pages_addCrawlidColumn($pagestable);
+		db_pages_setCrawlid($pagestable, $location);
+	}
+	*/
+
+	// Loop through all the individual requests tables.
+	// In some cases we're going to have to import this from CSV.
+	// In the case of mobile we'll have to create the merge tables.
+	$query = "select crawlid, label, location from crawls where archive = 'All' order by crawlid asc;";
+	$result = doQuery($query);
+	while ($row = mysql_fetch_assoc($result)) {
+		$crawlid = $row['crawlid'];
+		$label = $row['label'];
+		$location = $row['location'];
+		$requeststable = "requests_$crawlid";
+		tprint("=== $requeststable - $label");
+		$bDropTable = false;
+		if ( ! tableExists($requeststable) ) {
+			importCrawl2($label, "All", $location, true, false);
+			$bDropTable = true;
+		}
+		db_requests_addCrawlidColumn($requeststable);
+		db_requests_setCrawlid($requeststable);
+		if ( $bDropTable ) {
+			tprint("dropping table $requeststable");
+			dropTable($requeststable);
+		}
+		tprint("done $requeststable - $label\n");
+		tprint("CVSNO - exiting!"); exit(); //CVSNO
+	}
+	mysql_free_result($result);
+}
+
+
+function db_pages_addCrawlidColumn($table) {
+	return db_addColumn("crawlid", $table, "int unsigned not null", "label");
+}
+
+// Populate the crawlid column with the appropriate values.
+function db_pages_setCrawlid($table, $location) {
+	if ( ! columnExists("crawlid", $table) ) {
+		dprint("WARNING: Bailing - column 'crawlid' does not exist in table '$table'.");
+		return false;
+	}
+
+	// The "pages" table has a "label" column. Use that to determine the crawlid value.
+	$cmd = "UPDATE $table as p, crawls as c SET p.crawlid = c.crawlid WHERE p.label = c.label and c.location = '$location';";
+	doSimpleCommand($cmd);
+	return true;
+}
+
+function db_requests_addCrawlidColumn($table) {
+	return db_addColumn("crawlid", $table, "int unsigned not null", "pageid");
+}
+
+// Populate the crawlid column with the appropriate values.
+function db_requests_setCrawlid($table) {
+	if ( ! columnExists("crawlid", $table) ) {
+		dprint("WARNING: Bailing - column 'crawlid' does not exist in table '$table'.");
+		return false;
+	}
+
+	// The new "requests" tables have the crawlid in the name - just suck it out and set it.
+	$crawlid = substr($table, strlen("requests_"));
+	$cmd = "UPDATE $table SET crawlid = $crawlid;";
+	doSimpleCommand($cmd);
+	return true;
+}
+
+
+function db_addColumn($column, $table, $def, $columnAfter="") {
+	if ( db_columnMissing($column, $table) ) {
+		$cmd = "alter table $table add column $column $def" . ( $columnAfter ? " after $columnAfter" : "" );
+		doSimpleCommand($cmd);
+	}
+	return columnExists($column, $table);
+}
+
+
+function db_dropColumn($column, $table) {
+	if ( columnExists($column, $table) ) {
+		$cmd = "alter table $table drop column $column;";
+		doSimpleCommand($cmd);
+	}
+	else {
+		dprint("WARNING: Column '$column' does not exist for table '$table'. No need to remove it.");
+	}
+
+	return ! columnExists($column, $table);
+}
+
+
+// Helper function to check that 
+function db_columnMissing($column, $table) {
+	if ( ! tableExists($table) ) {
+		dprint("ERROR: Table '$table' doesn't exist.");
+		return false;
+	}
+
+	if ( columnExists($column, $table) ) {
+		dprint("WARNING: Bailing - column '$column' already exists in table '$table'.");
+		return false;
+	}
+
+	return true;
 }
 ?>
