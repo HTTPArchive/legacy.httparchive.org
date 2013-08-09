@@ -63,6 +63,15 @@ function updateCrawl($label, $archive, $location, $hTuples) {
 }
 
 
+function updateCrawlFromId($crawlid, $hTuples) {
+	$crawlsTable = crawlsTable();
+	$now = time();
+	$cmd = "update $crawlsTable set " . hashImplode(", ", "=", $hTuples) . ", timeOfLastChange = $now where crawlid=$crawlid;";
+	doSimpleCommand($cmd);
+	return true;
+}
+
+
 // increment the number of passes for this crawl
 // return the resulting number of passes
 function crawlPasses($label, $archive, $location) {
@@ -114,7 +123,7 @@ function archiveLabels($archive=null, $bEpoch = false, $format = "n/j/y", $bAll=
 	$dateRange = dateRangeCrawls($bAll);
 	$device = curDevice();
 
-	// CVSNO - use the crawls table
+	// use the crawls table
 	$query = "select label, startedDateTime as epoch, crawlid from $gCrawlsTable where $dateRange and archive = '$archive' and location='$device' order by epoch asc;";
 	$result = doQuery($query);
 
