@@ -59,25 +59,8 @@ if ( $gbImportUrls ) {
 // Empty the status table
 removeAllStatusData();
 
-// Load the next batch
-// WARNING: Two runs submitted on the same day will have the same label.
-$date = getdate();
-$label = substr($date['month'], 0, 3) . " " . $date['mday'] . " " . $date['year'] . $gSublabel;
-
-if ( $gUrlsFile && $gbUrlsFileSpecified ) {  // we set $gUrlsFile in importurls.php, so need a boolean to indicate if it was specified
-	loadUrlsFromFile($label, $gUrlsFile);
-}
-else if ( $gNumUrls ) {
-	loadUrlsFromDb($label, $gNumUrls, false);
-}
-else if ( $gbMobile ) {
-	loadUrlsFromDB($label, 5000, false);
-}
-else {
-	loadUrlsFromDB($label, 300000, true);
-}
-
-$numUrls = doSimpleQuery("select count(*) from $gStatusTable;");
+// START THE CRAWL
+// create a partial crawl record - we'll fill out the missing fields as we get them
 createCrawl(array(
 				  "label" => $label,
 				  "archive" => $gArchive,
@@ -87,10 +70,31 @@ createCrawl(array(
 				  "fvonly" => $fvonly,
 				  "runs" => $runs,
 				  "startedDateTime" => $startedDateTime,
-				  "numUrls" => $numUrls,
 				  "passes" => 0
 				  ));
+$crawl = getCrawl($label, $gArchive, $locations[0]);
+$crawlid = $crawl['crawlid'];
 
+
+// WARNING: Two runs submitted on the same day will have the same label.
+$date = getdate();
+$label = substr($date['month'], 0, 3) . " " . $date['mday'] . " " . $date['year'] . $gSublabel;
+
+if ( $gUrlsFile && $gbUrlsFileSpecified ) {  // we set $gUrlsFile in importurls.php, so need a boolean to indicate if it was specified
+	loadUrlsFromFile($crawlid, $label, $gUrlsFile);
+}
+else if ( $gNumUrls ) {
+	loadUrlsFromDb($crawlid, $label, $gNumUrls, false);
+}
+else if ( $gbMobile ) {
+	loadUrlsFromDB($crawlid, $label, 5000, false);
+}
+else {
+	loadUrlsFromDB($crawlid, $label, 300000, true);
+}
+
+$numUrls = doSimpleQuery("select count(*) from $gStatusTable where crawlid=$crawlid;");
+updateCrawlFromId($crawlid, array( "numUrls" => $numUrls ));
 cprint("DONE submitting batch run");
 
 
@@ -99,21 +103,21 @@ cprint("DONE submitting batch run");
 
 
 // Load the URLs in urls.txt file into status table.
-function loadUrlsFromFile($label, $file=NULL) {
+function loadUrlsFromFile($crawlid, $label, $file=NULL) {
 	$file = ( $file ? $file : ($gbMobile ? './urls.1000' : './urls.txt') );
 	$urls = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
 	foreach( $urls as $url ) {
 		$url = trim($url);
 		if( strlen($url) ) {
-			loadUrl($label, $url);
+			loadUrl($crawlid, $label, $url);
 		}
 	}
 }
 
 
 // Load the URLs in urls.txt file into status table.
-function loadUrlsFromDB($label, $numUrls, $bOther=false) {
+function loadUrlsFromDB($crawlid, $label, $numUrls, $bOther=false) {
 	global $gUrlsTable;
 	$query = "select urlOrig, urlFixed, rank from $gUrlsTable where (rank <= $numUrls" . ( $bOther ? " OR other=true" : "" ) . ")" .
 		" and optout=false order by rank asc;";
@@ -121,18 +125,18 @@ function loadUrlsFromDB($label, $numUrls, $bOther=false) {
 	while ($row = mysql_fetch_assoc($result)) {
 		$urlOrig = $row['urlOrig'];
 		$urlFixed = $row['urlFixed'];
-		loadUrl($label, ( $urlFixed ? $urlFixed : $urlOrig ), $row['rank']);
+		loadUrl($crawlid, $label, ( $urlFixed ? $urlFixed : $urlOrig ), $row['rank']);
 	}
 }
 
 
 
 // Submit the specified URL to all the locations.
-function loadUrl($label, $url, $rank=NULL) {
+function loadUrl($crawlid, $label, $url, $rank=NULL) {
 	global $locations;
 
 	foreach ( $locations as $location ) {
-		addStatusData($url, $location, $label, $rank);
+		addStatusData($url, $location, $crawlid, $label, $rank);
 	}
 }
 
