@@ -359,8 +359,9 @@ function importPage($page, $statusInfo) {
 	global $gPagesTable, $gRequestsTable;
 	$archive = $statusInfo['archive'];
 	$label = $statusInfo['label'];
-	if ( ! $label ) {
-		dprint("ERROR: 'label' was null in importPage");
+	$crawlid = $statusInfo['crawlid'];
+	if ( ! $label || ! $crawlid ) {
+		dprint("ERROR: 'label' or 'crawlid' was null in importPage");
 		return null;
 	}
 	$url = $statusInfo['url'];
@@ -376,6 +377,7 @@ function importPage($page, $statusInfo) {
 	array_push($aTuples, "startedDateTime = $startedDateTime");
 	array_push($aTuples, "archive = '" . mysql_real_escape_string($archive) . "'");
 	array_push($aTuples, "label = '" . mysql_real_escape_string($label) . "'");
+	array_push($aTuples, "crawlid = $crawlid");
 	array_push($aTuples, "url = '" . mysql_real_escape_string($url) . "'");
 	array_push($aTuples, "urlShort = '" . mysql_real_escape_string($urlShort) . "'");
 	if ( array_key_exists('_TTFB', $page) && $page->{'_TTFB'} ) {
