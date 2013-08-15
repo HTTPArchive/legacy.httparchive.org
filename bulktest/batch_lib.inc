@@ -3,6 +3,7 @@
 require_once("../utils.inc");
 require_once("../status.inc");
 require_once("../crawls.inc");
+require_once("../urls.inc");
 
 define("NOT_STARTED", 0);
 define("SUBMITTED", 1);
@@ -379,6 +380,7 @@ function importPage($page, $statusInfo) {
 	array_push($aTuples, "label = '" . mysql_real_escape_string($label) . "'");
 	array_push($aTuples, "crawlid = $crawlid");
 	array_push($aTuples, "url = '" . mysql_real_escape_string($url) . "'");
+	array_push($aTuples, "urlhash = " . getUrlhashFunc($url));
 	array_push($aTuples, "urlShort = '" . mysql_real_escape_string($urlShort) . "'");
 	if ( array_key_exists('_TTFB', $page) && $page->{'_TTFB'} ) {
 		array_push($aTuples, "TTFB = " . $page->{'_TTFB'});
