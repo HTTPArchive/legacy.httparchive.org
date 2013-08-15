@@ -61,6 +61,9 @@ removeAllStatusData();
 
 // START THE CRAWL
 // create a partial crawl record - we'll fill out the missing fields as we get them
+// WARNING: Two runs submitted on the same day will have the same label.
+$date = getdate();
+$label = substr($date['month'], 0, 3) . " " . $date['mday'] . " " . $date['year'] . $gSublabel;
 createCrawl(array(
 				  "label" => $label,
 				  "archive" => $gArchive,
@@ -75,10 +78,6 @@ createCrawl(array(
 $crawl = getCrawl($label, $gArchive, $locations[0]);
 $crawlid = $crawl['crawlid'];
 
-
-// WARNING: Two runs submitted on the same day will have the same label.
-$date = getdate();
-$label = substr($date['month'], 0, 3) . " " . $date['mday'] . " " . $date['year'] . $gSublabel;
 
 if ( $gUrlsFile && $gbUrlsFileSpecified ) {  // we set $gUrlsFile in importurls.php, so need a boolean to indicate if it was specified
 	loadUrlsFromFile($crawlid, $label, $gUrlsFile);
