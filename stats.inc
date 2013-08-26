@@ -457,6 +457,9 @@ function computeOther($label, $slice, $device, $sliceCond, &$hTuples = array()) 
 	// total page & request count so we can do percentages
 	$totalPages = doSimpleQuery("select count(*) from $pagesTable where $sliceCond;");
 	$totalRequests = doSimpleQuery("select sum(reqTotal) from $pagesTable where $sliceCond;");
+	if ( ! $totalPages ) {
+		return $hTuples;
+	}
 
 	// redirects
 	if ( !array_key_exists('perRedirects', $hTuples) || null === $hTuples['perRedirects'] ) {
