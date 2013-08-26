@@ -576,6 +576,16 @@ function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 			array_push($aTuples, "$header = '" . mysql_real_escape_string($hHeaders[$header]) . "'");
 		}
 
+		// CUSTOM RULES
+		if ( array_key_exists('_custom_rules', $entry) ) {
+			$customrules = $entry->{'_custom_rules'};
+			if ( array_key_exists('ModPageSpeed', $customrules) ) {
+				$count = $customrules->{'ModPageSpeed'}->{'count'};
+				// TODO array_push($aTuples, "reqBodySize = $count");
+			}
+		}
+
+		// wrap it up
 		$bFirstReq = 0;
 		$bFirstHtml = 0;
 		if ( ! $firstUrl ) {
