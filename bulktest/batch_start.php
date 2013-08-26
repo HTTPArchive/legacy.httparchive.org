@@ -42,6 +42,7 @@ checkForBatchRun();    // exit if there's already a batch run going
 createTables();        // Create all the tables if they are not there.
 if ( file_exists("batch.log") ) unlink("batch.log");   // remove log file
 
+
 // Update the list of URLs from Alexa:
 if ( $gbImportUrls ) {
 	// TODO - Should we do this for $gbMobile too?????
@@ -55,6 +56,7 @@ if ( $gbImportUrls ) {
 		doSimpleCommand("insert into $gUrlsTableDesktop select * from $gUrlsTableDev;");
 	}
 }
+
 
 // Empty the status table
 removeAllStatusData();
@@ -189,7 +191,7 @@ function parseParams() {
 		}
 		else if ( 3 === $i ) {
 			if ( "1" === $argv[3] ) {
-				$gbImportUrls = true;
+				$gbImportUrls = ( $gbUrlsFileSpecified ? false : true );   // If the list of URLs is specified in a file, we DON'T want to import the Alexa list.
 			}
 			else if ( "0" === $argv[3] ) {
 				$gbImportUrls = false;
