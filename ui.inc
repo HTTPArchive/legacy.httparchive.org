@@ -201,7 +201,7 @@ function uiFooter() {
 <a title="New Relic" href="http://www.newrelic.com/">New Relic</a>,
 <a title="O'Reilly Media" href="http://oreilly.com/">O&#8217;Reilly Media</a>,
 <a href="http://www.etsy.com/">Etsy</a>,
-<a title="Strangeloop Networks" href="http://www.strangeloopnetworks.com/">Strangeloop</a>,
+<a title="Radware" href="http://www.radware.com/">Radware</a>,
 <a title="dynaTrace Software" href="http://www.dynatrace.com/">dynaTrace Software</a>, and
 <a title="Torbit" href="http://torbit.com/">Torbit</a>.
 <br>
