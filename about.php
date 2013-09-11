@@ -498,7 +498,7 @@ The HTTP Archive is possible through the support of these sponsors:
 <a title="New Relic" href="http://www.newrelic.com/">New Relic</a>,
 <a title="O'Reilly Media" href="http://oreilly.com/">O&#8217;Reilly Media</a>,
 <a href="http://www.etsy.com/">Etsy</a>,
-<a title="Strangeloop Networks" href="http://www.strangeloopnetworks.com/">Strangeloop</a>,
+<a title="Radware" href="http://www.radware.com/">Radware</a>,
 <a title="dynaTrace Software" href="http://www.dynatrace.com/">dynaTrace Software</a>,
 and
 <a title="Torbit" href="http://torbit.com/">Torbit</a>.
@@ -511,7 +511,7 @@ and
 <a class=image-link style="margin-left: 10px;" title="O'Reilly Media" href="http://oreilly.com/"><img class="alignnone" title="O'Reilly Media" src="/images/oreilly.gif" alt="" width="155" height="35" /></a></div>
 <div style="margin-top: 20px;">
 <a class=image-link href="http://www.etsy.com/"><img class="alignnone" title="Etsy" src="/images/etsy.png" alt="" width="106" height="61" /></a> 
-<a class=image-link style="margin-left: 10px; vertical-align: top;" title="Strangeloop Networks" href="http://www.strangeloopnetworks.com/"><img class="alignnone" title="Strangeloop" src="/images/strangeloop.gif" alt="" width="120" height="25" /></a> 
+<a class=image-link style="margin-left: 10px; vertical-align: top;" title="Radware" href="http://www.radware.com/"><img style="padding-bottom: 10px;" class="alignnone" title="Radware" src="/images/radware.jpg" alt="" width="150" height="49" /></a> 
 <a class=image-link style="margin-left: 10px;" title="dynaTrace Software" href="http://www.dynatrace.com/"><img class="alignnone" title="dynaTrace Software" src="/images/dynatrace.gif" alt="" width="120" height="31" /></a>
 <a class=image-link style="margin-left: 20px;" title="Torbit" href="http://torbit.com/"><img style="padding-bottom: 20px;" class="alignnone" title="Torbit" src="/images/torbit_120.png" alt="" width="120" height="25" /></a>
 </div>
