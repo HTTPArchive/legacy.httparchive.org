@@ -14,6 +14,13 @@ AuthName "Restricted"
 require valid-user
 </FilesMatch>
 
+<FilesMatch "query.php">
+AuthType Basic
+AuthUserFile /var/www/.htpasswd
+AuthName "Restricted"
+require valid-user
+</FilesMatch>
+
 # Compress/gzip html, XML, css and js and fonts and CSV
 <IfModule mod_deflate.c>
 AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/x-javascript application/javascript font/ttf application/octet-stream
@@ -24,7 +31,7 @@ AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application
 # TODO - Need to add a versioning system to resource URLs to make them cacheable.
 <FilesMatch "\.(png|gif|jpg|js|css|ico)$">
 ExpiresActive On
-ExpiresDefault "access plus 1 day"
+ExpiresDefault "access plus 7 days"
 Header set ETag ""
 </FilesMatch>
 
