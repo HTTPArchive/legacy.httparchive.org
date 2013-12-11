@@ -149,23 +149,31 @@ This resulted in more HTTP requests being recorded with a subsequent bump in tra
 
 <h2 id=testchanges>What changes have been made to the test environment that might affect the data?</h2>
 The following test configuration changes could affect results:
-<ul>
-  <li> Jun 24 2013
+<ul class=indent>
+  <li> <strong>Nov 15 2013 and Dec 1 2013</strong> - 
+Normally we use IE9 as our test agent, but sometime around Nov 15 2013 our test agents started auto-updating to IE11. 
+In the Nov 15 2013 crawl about 7.5% of websites were tested with IE11. 
+Although this affected some results, the impact was judged to be minimal so we left the data intact.
+In the Dec 1 2013 crawl about 47% of websites were tested with IE11. 
+This had a dramatic affect on results with a 10x increase in failures and a drop from 71% to 34% in responses gzipped.
+(We are not sure what produced that change.) 
+Because the results changed so significantly the data from the Dec 1 2013 crawl was removed.
+  <li> <strong>Jun 24 2013</strong> - 
 The default connection speed for mobile was decreased to an emulated 3G network.
-  <li> Mar 19 2013
+  <li> <strong>Mar 19 2013</strong> - 
 The default connection speed was increased from DSL (1.5 mbps) to Cable (5.0 mbps). This only affects IE (not iPhone).
-  <li> Oct 1 2012
+  <li> <strong>Oct 1 2012</strong> - 
 Instead of stopping at document complete (window.onload), the tests were changed to 
 run until the end of network activity. This increased the size and number of requests per page.
-  <li> Sep 1 2012
+  <li> <strong>Sep 1 2012</strong> - 
 The number of URLs tested increased from 200K to 300K for IE, and from 2K to 5K for iPhone.
-  <li> Jul 1 2012
+  <li> <strong>Jul 1 2012</strong> - 
 The HTTP Archive Mobile switched from running on the Blaze.io framework to WebPagetest. 
 This involved several changes including new iPhone hardware (although both used iOS5) 
 and a new geo location (from Toronto to Redwood City).
-  <li> May 1 2012
+  <li> <strong>May 1 2012</strong> - 
 The number of URLs tested increased from 100K to 200K for IE.
-  <li> Mar 15 2012
+  <li> <strong>Mar 15 2012</strong> - 
 Switch from IE8 to IE9.
 </ul>
 
