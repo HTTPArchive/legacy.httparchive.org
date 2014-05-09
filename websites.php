@@ -40,10 +40,14 @@ $gMaxUrls = 20000;
 <form onsubmit="doSubmit(); return false;">
 <div style="font-size: 1em;">
   <label style="vertical-align: baseline;">Find URL: </label>
-  <input id="url" style="vertical-align: baseline; margin-left: 1em;" size=40/>
+  <input id="url" style="vertical-align: baseline; margin-left: 1em;" size=40 autocapitalize="off" />
   <input type=submit value="Search" style="vertical-align: baseline; margin-left: 1em;">
 </div>
 </form>
+
+<script>
+document.getElementById("url").focus();
+</script>
 
 <div id=urls>
 </div>
@@ -68,11 +72,12 @@ function showResults(aResults) {
 			var url = hResult["label"];
 			var value = hResult["value"];
 			if ( 0 == value ) {
+				// Remaining URLs
 				sHtml = "<li style='margin-bottom: 1em;'> " + url + "\n" + sHtml;
 				break;
 			}
-			var pageid = hResult["data-pageid"];
-			sHtml += "<li> <a href='viewsite.php?pageid=" + pageid + "'>" + url + "\n";
+			var urlhash = hResult["data-urlhash"];
+			sHtml += "<li> <a href='viewsite.php?u=" + escape(url) + "&h=" + urlhash + "'>" + url + "\n";
 		}
 	}
 
