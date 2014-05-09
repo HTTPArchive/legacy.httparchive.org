@@ -438,3 +438,13 @@ footer li + li + li + li {
 .netInfoParamValue {
 	padding: 0;
 }
+
+.chart { 
+	border: 1px solid #BBB; 
+	padding: 4px; 
+	margin-bottom: 40px; 
+}
+.tightlist LI {
+	margin-left: 2em;
+	margin-bottom: 0;
+}
