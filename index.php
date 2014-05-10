@@ -57,7 +57,7 @@ h2 {
   <li><strong><a href="websites.php">Website performance</a></strong><br>specific URL screenshots, waterfall charts, HTTP headers
 </ul>
 
-The <a href="http://code.google.com/p/httparchive/source/checkout">HTTP Archive code</a> is open source and the data is <a href="downloads.php">downloadable</a>.
+The <a href="https://github.com/HTTPArchive/httparchive">HTTP Archive code</a> is open source and the data is <a href="downloads.php">downloadable</a>.
 
 
 <center>
