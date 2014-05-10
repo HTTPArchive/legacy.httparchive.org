@@ -300,7 +300,7 @@ function getTrendsDataForUrl($url, $device) {
 	$query = "select label" .
 		", count(*) as numurls" .
 		", " . implode(", ", $gaTrendsGet) .
-		" from $pagesTable where url = '$url' group by label;";
+		" from $pagesTable where " . getUrlhashCond($url) . " and url = '$url' group by label;";
 	$result = doQuery($query);
 
 	$hTrends = array();
