@@ -38,7 +38,7 @@ $maxFrame = 0;
 $aTimes = array();
 if ( $frames->frame ) {
 	foreach($frames->frame as $frame) {
-		$time = floatval($frame->time) * 1000;
+		$time = floatval($frame->time);
 		$aTimes[$time] = true;
 		$maxFrame = $time;
 	}
