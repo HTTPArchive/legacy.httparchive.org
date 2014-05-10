@@ -15,7 +15,7 @@ require_once("requests.inc");
 
 // Return a hash of ALL the data for a given page.
 // Bad API: You need EITHER the pageid OR the url & label.
-function pageData($pageid, $url = null, $label = null) {
+function pageData($pageid, $url = null, $label = null, $urlhash = null) {
 	global $gPagesTable;
 
 	if ( $pageid ) {
@@ -27,7 +27,7 @@ function pageData($pageid, $url = null, $label = null) {
 		}
 		else {
 			// If there's no label we pull the LATEST results.
-			$query = "select * from $gPagesTable where url='$url' order by pageid desc limit 1;";
+			$query = "select * from $gPagesTable where url='$url' and " . ( $urlhash ? "urlhash=$urlhash" : getUrlhashCond($url) ) . " order by pageid desc limit 1;";
 		}
 	}
 	else {
