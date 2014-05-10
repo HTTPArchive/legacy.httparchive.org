@@ -41,8 +41,8 @@ LI.sublist { margin-bottom: 0; }
 <ul class="aboutlinks">
   <li> <a href="downloads.php">Download data</a>
   <li> <a href="urls.php">URLs</a>
-  <li> <a href="http://code.google.com/p/httparchive/source/browse">Source code</a>
-  <li> <a href="http://code.google.com/p/httparchive/issues/list">Bugs</a>
+  <li> <a href="https://github.com/HTTPArchive/httparchive">Source code</a>
+  <li> <a href="https://github.com/HTTPArchive/httparchive/issues">Bugs</a> (<a href="http://code.google.com/p/httparchive/issues/list">old</a>)
   <li> <a href="http://groups.google.com/group/httparchive/topics">Contact us</a>
 </ul>
 
@@ -222,7 +222,6 @@ This chart is important because the number of URLs (sample size) can affect the 
 
   <dt id=bytesTotal> <a href="trends.php#bytesTotal">Total Transfer Size</a>
   <dd> This is the average transfer size of all responses for a single website. 
-<!-- CVSNO - does this include headers? note in all sections below -->
 Note that if the response is compressed, the transfer size is smaller than the original uncompressed content.
 
   <dt id=reqTotal> <a href="trends.php#reqTotal">Total Requests</a>
@@ -468,7 +467,7 @@ You can have your site removed from the HTTP Archive via the
 			   <h2 id=adultcontent>How do I report inappropriate (adult only) content?</h2>
 					 <p>
 Please report any inappropriate content by
-<a href="http://code.google.com/p/httparchive/issues/entry?summary=Inappropriate+Content">creating a new issue</a>.
+<a href="https://github.com/HTTPArchive/httparchive/issues">creating a new issue</a>.
 You may come across inappropriate content when viewing a website's filmstrip screenshots.
 You can help us flag these websites.
 Screenshots are not shown for websites flagged as adult only.
@@ -509,21 +508,32 @@ The HTTP Archive is possible through the support of these sponsors:
 <a href="http://www.etsy.com/">Etsy</a>,
 <a title="Radware" href="http://www.radware.com/">Radware</a>,
 <a title="dynaTrace Software" href="http://www.dynatrace.com/">dynaTrace Software</a>,
+<a title="Torbit" href="http://torbit.com/">Torbit</a>,
+<a title="Instart Logic" href="http://instartlogic.com/">Instart Logic</a>,
 and
-<a title="Torbit" href="http://torbit.com/">Torbit</a>.
+<a title="Catchpoint Systems" href="http://www.catchpoint.com/">Catchpoint Systems</a>.
 </p>
 
-<div>
-<a class=image-link title="Google" href="http://www.google.com/"><img class="alignnone" title="Google" src="/images/google.gif" alt="" width="120" height="40" /></a> 
-<a class=image-link style="margin-left: 10px;" title="Mozilla" href="http://www.mozilla.org/firefox"><img class="alignnone" title="Mozilla" src="/images/mozilla.png" alt="" width="145" height="100" /></a> 
-<a class=image-link style="margin-left: 10px;" title="New Relic" href="http://www.newrelic.com/"><img class="alignnone" title="New Relic" src="/images/newrelic.gif" alt="" width="120" height="22" /></a> 
-<a class=image-link style="margin-left: 10px;" title="O'Reilly Media" href="http://oreilly.com/"><img class="alignnone" title="O'Reilly Media" src="/images/oreilly.gif" alt="" width="155" height="35" /></a></div>
-<div style="margin-top: 20px;">
-<a class=image-link href="http://www.etsy.com/"><img class="alignnone" title="Etsy" src="/images/etsy.png" alt="" width="106" height="61" /></a> 
-<a class=image-link style="margin-left: 10px; vertical-align: top;" title="Radware" href="http://www.radware.com/"><img style="padding-bottom: 10px;" class="alignnone" title="Radware" src="/images/radware.jpg" alt="" width="150" height="49" /></a> 
-<a class=image-link style="margin-left: 10px;" title="dynaTrace Software" href="http://www.dynatrace.com/"><img class="alignnone" title="dynaTrace Software" src="/images/dynatrace.gif" alt="" width="120" height="31" /></a>
-<a class=image-link style="margin-left: 20px;" title="Torbit" href="http://torbit.com/"><img style="padding-bottom: 20px;" class="alignnone" title="Torbit" src="/images/torbit_120.png" alt="" width="120" height="25" /></a>
+<style>
+#imagelogos A { margin-left: 10px; }
+#imagelogos IMG { vertical-align: middle; }
+</style>
+
+<div id=imagelogos>
+<a class=image-link style="" title="Google" href="http://www.google.com/"><img class="alignnone" title="Google" src="/images/google.gif" alt="" width="120" height="40" /></a> 
+<a class=image-link style="" title="Mozilla" href="http://www.mozilla.org/firefox"><img class="alignnone" title="Mozilla" src="/images/mozilla.png" alt="" width="145" height="100" /></a> 
+<a class=image-link style="" title="New Relic" href="http://www.newrelic.com/"><img class="alignnone" title="New Relic" src="/images/newrelic.gif" alt="" width="120" height="22" /></a> 
+<a class=image-link style="" title="O'Reilly Media" href="http://oreilly.com/"><img class="alignnone" title="O'Reilly Media" src="/images/oreilly.gif" alt="" width="155" height="35" /></a>
+<a class=image-link style="" title="Etsy" href="http://www.etsy.com/"><img class="alignnone" src="/images/etsy.png" alt="" width="106" height="61" /></a> 
+<a class=image-link style="" title="Radware" href="http://www.radware.com/"><img class="alignnone" title="Radware" src="/images/radware.jpg" alt="" width="150" height="49" /></a> 
+<a class=image-link style="" title="dynaTrace Software" href="http://www.dynatrace.com/"><img class="alignnone" title="dynaTrace Software" src="/images/dynatrace.gif" alt="" width="120" height="31" /></a>
+<a class=image-link style="" title="Torbit" href="http://torbit.com/"><img class="alignnone" title="Torbit" src="/images/torbit_120.png" alt="" width="120" height="25" /></a>
+<a class=image-link style="" title="Instart Logic" href="http://instartlogic.com/"><img class="alignnone" title="Instart Logic" src="/images/Instart_Logic_Logo_150px-width.jpg" alt="" width=150 height=44 /></a>
+<a class=image-link style="" title="Catchpoint Systems" href="http://www.catchpoint.com/"><img class="alignnone" title="Catchpoint Systems" src="/images/cp-logo-150px.png" alt="" width="150" height="150" /></a>
+<!--
+-->
 </div>
+<div style="clear: both;"></div>
 
 
 			   <h2 id=donate>How do I make a donation to support the HTTP Archive?</h2>
@@ -531,7 +541,7 @@ and
 The HTTP Archive is part of the Internet Archive, a 501(c)(3) non-profit.
 Donations in support of the HTTP Archive can be made through the Internet Archive's 
 <a href="http://www.archive.org/donate/index.php">donation page</a>.
-Make sure to designate your donation is for the "HTTP Archive".
+Make sure to send a follow-up email to <a href="mailto:donations@archive.org">donations@archive.org</a> designating your donation to the "HTTP Archive".
 </p>
 
 			   <h2 id=contact>Who do I contact for more information?</h2>
