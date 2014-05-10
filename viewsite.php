@@ -32,6 +32,10 @@ else if ( ! isset($gPageid) && getParam('u') && getParam('l') ) {
 	$gLabel = getParam('l');
 	$pageData = pageData(null, $url, $gLabel);
 }
+else if ( ! isset($gPageid) && getParam('u') ) {
+	$url = getParam('u');
+	$pageData = pageData(null, $url, null, getParam('h'));
+}
 else if ( getParam('rand') ) {
 	$crawl = latestCrawl();
 	$gPageid = randomPageid($crawl);
@@ -100,6 +104,7 @@ echo diffRuns($url, $gCrawlid);
 		<li><a href="#waterfall">Waterfall</a></li>
 		<li><a href="#pagespeed">PageSpeed</a></li>
 		<li><a href="#requests">Requests</a></li>
+		<li><a href="#cdns">CDNs</a></li>
 		<li><a href="#downloads">Downloads</a></li>
 	</ul>
 	
@@ -127,7 +132,7 @@ OUTPUT;
 OUTPUT;
 	}
 
-	$sBorder = ( $gbMobile ? "2px solid #E0E0E0" : "0px" );
+	$sBorder = ( $gbMobile ? "2px solid #E0E0E0" : "2px solid #E0E0E0" );
 	echo <<<OUTPUT
 <section id="videoContainer">
 <div id="videoDiv">
@@ -516,7 +521,11 @@ for ( $i = 0; $i < $len; $i++ ) {
 }
 ?>
 
-</table></form></div>
+</table></form>
+<form style="font-size: 0.8em;" onsubmit="hideRows(); return false;">
+only show URLs containing: <input type=text id=rowfilter size=50>
+</form>
+</div>
 
 <table id='stats' class='tablesort' border=0 cellpadding=0 cellspacing=0>
 <?php
@@ -605,8 +614,78 @@ function toggleCustomColDiag() {
 		jQuery('#requestCustomCols').hide();
     }
 }
+
+
+function toggleCdnUrls(i) {
+    var toggleButton = document.getElementById('cdnbtn_' + i);
+    var toggleElem = document.getElementById('cdnurls_' + i);
+
+	if ( toggleButton && toggleElem ) {
+		if ( '+' == toggleButton.value ) {
+			toggleButton.value = '-';
+			toggleElem.style.display = 'block';
+		} 
+		else {
+			toggleButton.value = '+';
+			toggleElem.style.display = 'none';
+		}
+    }
+}
+
+
+function hideRows() {
+	var str = document.getElementById("rowfilter").value;
+	var aRows = document.getElementById("stats").getElementsByTagName("tr"); 
+	for ( var i=0, len=aRows.length; i < len; i++ ) {
+		var td = aRows[i].getElementsByTagName("td")[1]; // the URL column
+		aRows[i].style.display = ( str && td && td.innerHTML.indexOf(str) === -1 ? "none" : "table-row" );
+	}
+}
 </script>
 
+
+
+<h2 id=cdns>CDNs</h2>
+
+<div>
+<?php
+// Iterate over all the resources and count the # of resources on each CDN.
+$ghCdns = array();
+$hCdnUrls = array();
+foreach($aResources as $resource) {
+	$cdn = ( array_key_exists('_cdn_provider', $resource) ? $resource['_cdn_provider'] : "none" );
+	if ( ! array_key_exists($cdn, $ghCdns) ) {
+		$ghCdns[$cdn] = 0;
+		$hCdnUrls[$cdn] = array();
+	}
+	$ghCdns[$cdn] += 1;
+	array_push($hCdnUrls[$cdn], $resource['url']);
+}
+
+// Display each CDN in descending order of # of resources.
+$gaCounts = array_unique(array_values($ghCdns));
+sort($gaCounts, SORT_NUMERIC);
+$gaCounts = array_reverse($gaCounts);
+$iBtn = 0;
+foreach($gaCounts as $count) {
+	// This isn't efficient, but since the list of CDNs is likely small we'll tolerate it.
+	foreach(array_keys($ghCdns) as $cdn) {
+		if ( $count == $ghCdns[$cdn] ) {
+			$iBtn++;
+			echo "<div style='margin-bottom: 10px;'><input type='button' id='cdnbtn_$iBtn' onclick='toggleCdnUrls($iBtn);' value='+' class=customColToggleButton /> <b>$cdn:</b> $count requests\n";
+			$aUrls = $hCdnUrls[$cdn];
+			sort($aUrls);
+			$sList = "<ul class=tightlist id='cdnurls_$iBtn' style='display: none; margin-left: 4em;'>\n";
+			foreach($aUrls as $requrl) {
+				$sList .= "  <li> <a href='$requrl'>$requrl</a>\n";
+			}
+			$sList .= "</ul>\n</div>\n";
+			echo $sList;
+		}
+	}
+}
+?>
+</div>
 
 
 <h2 id=downloads>Downloads</h2>
