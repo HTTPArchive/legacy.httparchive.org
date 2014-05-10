@@ -3,69 +3,55 @@ require_once("utils.inc");
 header('Content-Type: text/javascript'); 
 
 $maxResults = 50;
-$maxLimit = 500; // we LIMIT more than the max results so that, after whittling, we have enough results
+$maxLimit = 200; // we LIMIT more than the max results so that, after whittling, we have enough results
 
 $term = getParam("term");
 if ( ! $term ) {
     return; // no need to run anything - May be, return 'warn' in dev mode
 }
+$term = strtolower($term); // always search lower case (esp. a problem on iOS)
 
 // First, get all the urlhashes from the "urls" table that match the search term.
-$query = "select urlhash from $gUrlsTable where (urlOrig like '%$term%' or urlFixed like '%$term%') group by urlhash limit $maxLimit;";
+// We CAN'T do ordering here because hashes are shared by multiple URLs,
+// and all we're transferring from here are the hashes.
+$query = "select group_concat(urlhash) from $gUrlsTable where (urlOrig like '%$term%' or urlFixed like '%$term%');";
+$sUrlhashes = doSimpleQuery($query);
+
+// It's possible the list ends in "," which is bad (eg, if urlhash is null).
+if ( "," === substr($sUrlhashes, -1) ) {
+	$sUrlhashes = substr($sUrlhashes, 0, -1);
+}
+
+// It's possible that we don't have any results for some of these URLs:
+// they could have a low rank (> 300K) or always return errors.
+// So we have to look for actual results.
+// The tricky part of this is doing "group by url" but figuring out what to order on.
+// If we order by "rank asc" then NULL gets listed first.
+// We fix that by ordering by "brank, rank asc" but that might not match the LATEST results - only the aggregate.
+// So it's possible we'll put something too high in the order that USED TO BE ranked but is now NULL.
+// TODO - better ordering?
+// TODO - could also save the newest pageid to urls table (altho is that mobile or desktop?) or just a boolean bAreThereAnyResultsForThisURL
+$query = "select url, urlhash, max(pageid) as pageid, min(rank is null) as brank, min(rank) as rank from $gPagesTable " .
+	"where " . dateRange(true) . " and archive='$gArchive' and urlhash in ($sUrlhashes) and urlShort like '%$term%' group by url order by brank, rank asc limit $maxLimit;";
 $result = doQuery($query);
-$aUrlhashes = array();
-while ( $row = mysql_fetch_assoc($result) ) {
-	array_push($aUrlhashes, $row['urlhash']);
+$numUrls = mysql_num_rows($result);
+
+// Only return $maxResults results.
+// If there are more results, return a message with the remaining number.
+$aSites = array();
+while ( count($aSites) < $maxResults && $row = mysql_fetch_assoc($result) ) {
+	$url = $row['url'];
+	array_push($aSites, array("label" => $url, "value" => $url, "data-urlhash" => $row['urlhash'], "data-pageid" => $row['pageid']));
 }
 mysql_free_result($result);
 
-$response = "";
-if ( count($aUrlhashes) ) {
-	// Second, get the newest pageids for each URL matching the search term AND the urlhashes.
-	$query = "select urlShort, max(pageid) as pageid, rank from $gPagesTable where archive='$gArchive' and urlhash in (" .
-		implode(",", $aUrlhashes) . ") and urlShort like '%$term%' group by urlShort order by rank asc limit $maxLimit;";
-	$result = doQuery($query);
-
-
-	// Only return $maxResults results.
-	// If there are more results, return a message with the remaining number.
-	// We want to return the HIGHEST RANKED results first. Unfortunately, "asc" returns NULL first, 
-	// so we have to wade through those in one array, and store the other results in a different array.
-	$aRankedSites = array();
-	$aUnrankedSites = array();
-	$numUrls = mysql_num_rows($result);
-	while ( $row = mysql_fetch_assoc($result) ) {
-		$url = $row['urlShort'];
-		$pageid = $row['pageid'];
-		$rank = $row['rank'];
-
-		if ( null == $rank ) {
-			if ( count($aUnrankedSites) < $maxResults ) {
-				array_push($aUnrankedSites, array("label" => $url, "value" => $url, "data-pageid" => $pageid));
-			}
-		}
-		else if ( count($aRankedSites) < $maxResults ) {
-			array_push($aRankedSites, array("label" => $url, "value" => $url, "data-pageid" => $pageid));
-		}
-		else {
-			break;
-		}
-	}
-
-	if ( count($aRankedSites) < $maxResults ) {
-		// add some UNRANKED results to make up the difference
-		array_splice($aRankedSites, count($aRankedSites), $maxResults, $aUnrankedSites);
-	}		
-
-	if ( $numUrls > $maxResults ) {
-		$remaining = $numUrls - $maxResults;
-		array_push($aRankedSites, array("label" => ( $remaining > 100 ? "100+ more URLs" : "$remaining more URLs" ) . ", refine further", "value" => "0"));
-	}
-	mysql_free_result($result);
-
-	//echo JSON to our jQueryUI auto-complete box
-	$response = json_encode($aRankedSites);
+if ( $numUrls > count($aSites) ) {
+	$remaining = $numUrls - count($aSites);
+	array_push($aSites, array("label" => ( $remaining > 100 ? "100+ more URLs" : "$remaining more URLs" ) . ", refine further", "value" => "0"));
 }
+
+//echo JSON to our jQueryUI auto-complete box
+$response = json_encode($aSites);
 
 $jsonp = getParam("jsonp");
 if ( $jsonp ) {
