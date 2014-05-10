@@ -121,7 +121,7 @@ function formatDumpfileItem($epoch, $browser, $url, $filesize, $table=null, $for
 </style>
 
 <p>
-In addition to the HTTP Archive <a href="http://code.google.com/p/httparchive/source/browse">source code</a> being open source,
+In addition to the HTTP Archive <a href="https://github.com/HTTPArchive/httparchive">source code</a> being open source,
 all of the data gathered is also available for download.
 </p>
 
