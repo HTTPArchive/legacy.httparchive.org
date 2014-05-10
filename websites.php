@@ -76,8 +76,8 @@ function showResults(aResults) {
 				sHtml = "<li style='margin-bottom: 1em;'> " + url + "\n" + sHtml;
 				break;
 			}
-			var urlhash = hResult["data-urlhash"];
-			sHtml += "<li> <a href='viewsite.php?u=" + escape(url) + "&h=" + urlhash + "'>" + url + "\n";
+			var pageid = hResult["data-pageid"];
+			sHtml += "<li> <a href='viewsite.php?u=" + escape(url) + "&pageid=" + pageid + "'>" + url + "\n";
 		}
 	}
 
