@@ -36,9 +36,8 @@ Header set ETag ""
 </FilesMatch>
 
 
-<FilesMatch "(filmstrip|harviewer|interesting-images|runs|patchwork).js">
+<FilesMatch "(trends|filmstrip|harviewer|interesting-images|runs|patchwork).js">
 SetHandler application/x-httpd-php
-Header set Content-Encoding "gzip"
 Header set Content-Type "application/javascript"
 </FilesMatch> 
 
