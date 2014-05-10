@@ -448,6 +448,9 @@ crawls:
   add columns: notes
 stats:
   add columns: crawlid
+
+April 20, 2014 - add crawlid index
+  mysql> create index crawlid on pages (crawlid);
 *******************************************************************************/
 function createTables() {
 	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gUrlsChangeTable, $gSettingsTable;
@@ -523,6 +526,7 @@ function createTables() {
 
 			", primary key (pageid)" .
 			", index(urlhash)" .
+			", index(crawlid)" .
 			", unique key (label, urlShort)" .
 			") ENGINE MyISAM;";
 		doSimpleCommand($command);
