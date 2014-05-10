@@ -160,8 +160,8 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
 	  <li><a href="about.php#faq">FAQ</a></li>
  	  <li><a href="downloads.php">Download Data</a></li>
  	  <li><a href="urls.php">URLs</a></li>
- 	  <li><a href="http://code.google.com/p/httparchive/source/browse">Source Code</a></li>
- 	  <li><a href="http://code.google.com/p/httparchive/issues/list">Bugs</a></li>
+ 	  <li><a href="https://github.com/HTTPArchive/httparchive">Source Code</a></li>
+ 	  <li><a href="https://github.com/HTTPArchive/httparchive/issues">Bugs</a></li>
  	  <li><a href="http://groups.google.com/group/httparchive/topics">Contact Us</a></li>
  	</ul>
   </li>
@@ -170,7 +170,7 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
 	}
 
 	$mobile = "";
-	$version = "BETA";
+	$version = "";
 	if ( $gbMobile ) {
 		$mobile = "<div class=mobilelabel>MOBILE</div>";
 		$version = "ALPHA";
@@ -202,8 +202,11 @@ function uiFooter() {
 <a title="O'Reilly Media" href="http://oreilly.com/">O&#8217;Reilly Media</a>,
 <a href="http://www.etsy.com/">Etsy</a>,
 <a title="Radware" href="http://www.radware.com/">Radware</a>,
-<a title="dynaTrace Software" href="http://www.dynatrace.com/">dynaTrace Software</a>, and
-<a title="Torbit" href="http://torbit.com/">Torbit</a>.
+<a title="dynaTrace Software" href="http://www.dynatrace.com/">dynaTrace Software</a>,
+<a title="Torbit" href="http://torbit.com/">Torbit</a>,
+<a title="Instart Logic" href="http://instartlogic.com/">Instart Logic</a>,
+and
+<a title="Catchpoint Systems" href="http://www.catchpoint.com/">Catchpoint Systems</a>.
 <br>
 powered by <a href="http://www.webpagetest.org">WebPagetest</a>
 </footer>
