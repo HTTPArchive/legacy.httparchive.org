@@ -19,10 +19,17 @@ require_once("../utils.inc");
 require_once("batch_lib.inc");
 require_once("bootstrap.inc");
 
+$bHtml = array_key_exists("REMOTE_ADDR", $_SERVER);
+
 cprint(reportSummary());
 
-$bHtml = array_key_exists("REMOTE_ADDR", $_SERVER);
-echo ($bHtml ? "<pre>" : "" ) . "running tasks:\n";
+echo ($bHtml ? "<pre>" : "" );
+
+$labelFromRun = statusLabel();
+$curPasses = crawlPasses($labelFromRun, $gArchive, $locations[0]);
+echo "completed passes: $curPasses\n\n";
+
+echo "running tasks:\n";
 $device = curDevice();
 foreach ( $gaTasks as $task ) {
 	// lock file for this specific task.
