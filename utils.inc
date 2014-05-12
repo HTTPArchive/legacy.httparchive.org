@@ -156,7 +156,8 @@ $ghColumnTitles = array (
 						 "bytesHtmlDoc" => "Doc Size",
 						 "gzipTotal" => "Gzippable Transfer Size",
 						 "gzipSavings" => "Missed Gzip Savings",
-						 "visualComplete" => "Visually Complete"
+						 "visualComplete" => "Visually Complete",
+						 "_connections" => "TCP Connections"
 						 );
 
 
@@ -1640,7 +1641,8 @@ $ghFieldColors = array(
 					   "SpeedIndex" => "3B356A",
 					   "maxDomainReqs" => "E94E19",
 					   "numDomElements" => "007099",
-					   "perCdn" => "AA0033"
+					   "perCdn" => "AA0033",
+					   "_connections" => "007099", 
 					   );
 
 $ghFieldUnits = array(					  
