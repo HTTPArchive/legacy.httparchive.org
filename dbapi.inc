@@ -455,7 +455,7 @@ April 20, 2014 - add crawlid index
 May 12, 2014 - add _connections and _cdn_provider column
   alter table pagesdev add column _connections int(4) unsigned not null;
   alter table requestsdev add column _cdn_provider varchar(64);
-  alter table stats add column _connections int(4) unsigned 
+  alter table stats add column _connections int(4) unsigned;
 *******************************************************************************/
 function createTables() {
 	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gUrlsChangeTable, $gSettingsTable;
@@ -703,7 +703,7 @@ function createTables() {
 			", renderStartccv5 float unsigned" .
 
 			// columns added later
-			", _connections int(4) unsigned" .
+			", _connections int(4) unsigned not null" .
 
 			", primary key (label, slice, device)" .
 			") ENGINE MyISAM;";
