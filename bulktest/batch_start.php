@@ -177,6 +177,7 @@ function parseParams() {
 			if ( file_exists($val) ) {
 				$gUrlsFile = $val;
 				$gbUrlsFileSpecified = 1;
+				$gbImportUrls = false;
 			}
 			else if ( 0 < intval($val) && $val === "" . intval($val) ) {
 				$gNumUrls = $val;
