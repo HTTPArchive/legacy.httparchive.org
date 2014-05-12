@@ -418,6 +418,7 @@ function importPage($page, $statusInfo) {
 			array_push($aTuples, "PageSpeed = " . $pageSpeedObj->{'score'});
 		}
 	}
+	array_push($aTuples, "_connections = " . $page->{'_connections'});
 
 	$cmd = "INSERT INTO $gPagesTable SET " . implode(", ", $aTuples) . ";";
 	t_mark('importPage: insert into pages');
@@ -448,6 +449,9 @@ function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 		$startedDateTime = strtotime($entry->{ 'startedDateTime' }); // we use this below for expAge calculation
 		array_push($aTuples, "startedDateTime = $startedDateTime");
 		array_push($aTuples, "time = " . $entry->{ 'time' });
+		if ( property_exists($entry, '_cdn_provider') ) {
+			array_push($aTuples, "_cdn_provider = '" . mysql_real_escape_string($entry->{ '_cdn_provider' }) . "'");
+		}
 
 		// REQUEST
 		$request = $entry->{ 'request' };
