@@ -53,9 +53,13 @@ if ( ! $gbMobile ) {
 echo format2LineChart('reqFont', 'bytesFont', $hTrends, $aRunNames, $labels, "(kB)", false);
 echo format2LineChart('reqOther', 'bytesOther', $hTrends, $aRunNames, $labels, "(kB)", false);
 
+echo formatChart('_connections', $hTrends, $aRunNames, $labels);
+
 if ( $gbMobile ) {
 	// we don't have PageSpeed on mobile :-(
-	echo formatChart('SpeedIndex', $hTrends, $aRunNames, $labels);
+	// Speed Index is too erratic - hide it similar to Page Load
+	//echo formatChart('SpeedIndex', $hTrends, $aRunNames, $labels);
+	// we don't have numDomElements on mobile :-(
 	echo formatChart('bytesHtmlDoc', $hTrends, $aRunNames, $labels, "(kB)");
 }
 else {
