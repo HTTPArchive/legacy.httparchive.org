@@ -267,6 +267,7 @@ Note that if the response is compressed, the transfer size is smaller than the o
 
   <dt id=_connections> <a href="trends.php#_connections">TCP Connections</a>
   <dd> This chart shows the average number of TCP connections that were opened during page load. 
+Crawls before May 15 2014 will show zero for this stat.
 
   <dt id=SpeedIndex> <a href="trends.php#SpeedIndex">Speed Index</a>
   <dd> This chart shows the average Speed Index value across all websites. 
