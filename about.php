@@ -265,6 +265,8 @@ Note that if the response is compressed, the transfer size is smaller than the o
   <dt id=reqFlash> <a href="trends.php#reqFlash">Flash Requests</a>
   <dd> This chart shows the average number of Flash requests for a single website.
 
+  <dt id=_connections> <a href="trends.php#_connections">TCP Connections</a>
+  <dd> This chart shows the average number of TCP connections that were opened during page load. 
 
   <dt id=SpeedIndex> <a href="trends.php#SpeedIndex">Speed Index</a>
   <dd> This chart shows the average Speed Index value across all websites. 
