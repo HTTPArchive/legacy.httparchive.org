@@ -451,6 +451,11 @@ stats:
 
 April 20, 2014 - add crawlid index
   mysql> create index crawlid on pages (crawlid);
+
+May 12, 2014 - add _connections and _cdn_provider column
+  alter table pagesdev add column _connections int(4) unsigned not null;
+  alter table requestsdev add column _cdn_provider varchar(64);
+  alter table stats add column _connections int(4) unsigned 
 *******************************************************************************/
 function createTables() {
 	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gUrlsChangeTable, $gSettingsTable;
@@ -523,6 +528,7 @@ function createTables() {
 			", maxageMore smallint unsigned not null" .    // # of responses with 365 < max-age
 			", gzipTotal int unsigned not null" .          // # of bytes xferred for resources that COULD have been gzipped
 			", gzipSavings int unsigned not null" .        // # of bytes that could have been saved if ALL gzippable resources were gzipped
+			", _connections int(4) unsigned not null" .    // # of TCP connections created during page load
 
 			", primary key (pageid)" .
 			", index(urlhash)" .
@@ -696,6 +702,9 @@ function createTables() {
 			", renderStartccf5 varchar (32)" .
 			", renderStartccv5 float unsigned" .
 
+			// columns added later
+			", _connections int(4) unsigned" .
+
 			", primary key (label, slice, device)" .
 			") ENGINE MyISAM;";
 		doSimpleCommand($command);
@@ -792,6 +801,9 @@ function createRequestsTable($tablename, $aMergeTables=null) {
 
 		// headers
 		$sColumns .
+
+		// columns added later
+		", _cdn_provider varchar(64)" .
 
 		", primary key (requestid)" .
 		", index(pageid)" .
