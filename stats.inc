@@ -154,7 +154,10 @@ $gaTrendsCompute = array(
 					  "ROUND(AVG(bytesFont)) as bytesFont",
 					  "ROUND(AVG(bytesGif)) as bytesGif",
 					  "ROUND(AVG(bytesJpg)) as bytesJpg",
-					  "ROUND(AVG(bytesPng)) as bytesPng"
+					  "ROUND(AVG(bytesPng)) as bytesPng",
+					  
+					  // columns added later
+					  "ROUND(AVG(_connections)) as _connections",
 					  );
 
 
@@ -175,6 +178,7 @@ $gaTrendsGet = array(
 					 "numDomains",
 					 "maxDomainReqs",
 					 "maxage0",
+					 "_connections",
 
 					 "ROUND(reqTotal) as reqTotal",       // if there are A LOT of requests, do ROUND
 					 "TRUNCATE(reqHtml, 1) as reqHtml",   // if there are A FEW requests, show a float
