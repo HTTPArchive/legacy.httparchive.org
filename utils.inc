@@ -1388,7 +1388,7 @@ function wptServer() {
 
 
 function wptHarFileUrl($wptid, $wptrun, $bCached=0) {
-	$harfileWptUrl = wptServer() . "export.php?test=$wptid&run=$wptrun&cached=" . ( $bCached ? "1" : "0" );
+	$harfileWptUrl = wptServer() . "export.php?test=$wptid&run=$wptrun&cached=" . ( $bCached ? "1" : "0" ) . "&pretty=1";
 	return $harfileWptUrl;
 }
 
