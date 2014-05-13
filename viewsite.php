@@ -89,7 +89,10 @@ $harfileWptUrl = wptHarFileUrl($wptid, $wptrun, 0);
 	<h1><?php echo str_replace('>http://', '><span class=protocol>http://</span>', siteLink($url)) ?></h1>
 	
 	<p class=summary style="margin-bottom: 4px;">took <?php echo round(($onLoad / 1000), 1) ?> seconds to load <?php echo round(($pageData['bytesTotal']/1024)) ?>kB of data over <?php echo $pageData['reqTotal'] ?> requests.</p>
-<div><a href="<?php echo rankUrl($url) ?>">Alexa rank: <?php echo commaize( rank($url, $gPageid) ) ?></a></div>
+<div>
+<a href="<?php echo rankUrl($url) ?>">Alexa rank: <?php echo commaize( rank($url, $gPageid) ) ?></a>, 
+view in <a href="https://web.archive.org/web/*/<?php echo $url ?>">Wayback Machine</a>
+</div>
 <div>
 <?php 
 echo diffRuns($url, $gCrawlid);
