@@ -456,6 +456,9 @@ May 12, 2014 - add _connections and _cdn_provider column
   alter table pages add column _connections int(4) unsigned not null;
   alter table requests add column _cdn_provider varchar(64);
   alter table stats add column _connections int(4) unsigned not null;
+
+May 13, 2014 - add _adult_site
+  alter table pages add column _adult_site boolean not null;
 *******************************************************************************/
 function createTables() {
 	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gUrlsChangeTable, $gSettingsTable;
@@ -529,6 +532,7 @@ function createTables() {
 			", gzipTotal int unsigned not null" .          // # of bytes xferred for resources that COULD have been gzipped
 			", gzipSavings int unsigned not null" .        // # of bytes that could have been saved if ALL gzippable resources were gzipped
 			", _connections int(4) unsigned not null" .    // # of TCP connections created during page load
+			", _adult_site boolean not null" .
 
 			", primary key (pageid)" .
 			", index(urlhash)" .

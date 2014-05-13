@@ -419,6 +419,7 @@ function importPage($page, $statusInfo) {
 		}
 	}
 	array_push($aTuples, "_connections = " . $page->{'_connections'});
+	array_push($aTuples, "_adult_site = " . $page->{'_adult_site'});
 
 	$cmd = "INSERT INTO $gPagesTable SET " . implode(", ", $aTuples) . ";";
 	t_mark('importPage: insert into pages');
