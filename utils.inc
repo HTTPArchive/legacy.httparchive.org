@@ -1418,14 +1418,22 @@ function selectArchiveLabel($archive, $curLabel, $bReverse=true, $bOnchage = tru
 
 
 // Return HTML to create a select list of archive labels (eg, "Oct 2010", "Nov 2010").
-function selectSiteLabel($url, $curLabel="", $bChrono=false) {
+//   $onchange is a string of JS that is stuffed between quotes.
+//   $bNext means the label AFTER $curLabel should be marked "selected"
+function selectSiteLabel($url, $curLabel="", $onchange, $bChrono=false, $bNext=false) {
 	global $gPagesTable;
 
 	$aLabels = archiveLabelsForUrl($url, $bChrono);
-	$sSelect = "<select class=selectSite onchange='document.location=\"?u=" . urlencode($url) .
-		"&l=\" + escape(this.options[this.selectedIndex].value)'>\n";
+	$sSelect = "<select onchange=" .
+		( $onchange ? "'$onchange'" 
+		  : "'document.location=\"?u=" . urlencode($url) . "&l=\" + escape(this.options[this.selectedIndex].value)'" ) .
+		">\n";
+
 	foreach($aLabels as $label) {
-		$sSelect .= "  <option value='$label'" . ( $curLabel == $label ? " selected" : "" ) . "> $label\n";
+		$sSelect .= "  <option value='$label'" . 
+			( ($label === $curLabel && !$bNext) || ($prevLabel === $curLabel && $bNext) ? " selected" : "" ) . 
+			"> $label\n";
+		$prevLabel = $label;
 	}
 	$sSelect .= "</select>\n";
 
