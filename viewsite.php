@@ -64,10 +64,12 @@ $gPageid = $pageData['pageid'];
 $gLabel = $pageData['label'];
 $gCrawlid = $pageData['crawlid'];
 $url = $pageData['url'];
+$urlencoded = urlencode($url);
 $wptid = $pageData['wptid'];
 $wptrun = $pageData['wptrun'];
 $onLoad = $pageData['onLoad'];
 $renderStart = $pageData['renderStart'];
+$gRank = rank($url, $gPageid);
 
 $wptServer = wptServer();
 $harfileWptUrl = wptHarFileUrl($wptid, $wptrun, 0);
@@ -97,8 +99,19 @@ echo selectSiteLabel($url, $gLabel);
 	
 	<p class=summary style="margin-bottom: 4px;">took <?php echo round(($onLoad / 1000), 1) ?> seconds to load <?php echo round(($pageData['bytesTotal']/1024)) ?>kB of data over <?php echo $pageData['reqTotal'] ?> requests.</p>
 <div style="margin-top: 0.5em;">
-<a href="<?php echo rankUrl($url) ?>">Alexa rank: <?php echo commaize( rank($url, $gPageid) ) ?></a>
-<span style="margin-left: 3em;">view in <a href="https://web.archive.org/web/*/<?php echo $url ?>">Wayback Machine</a></span>
+<a href="<?php echo rankUrl($url) ?>">Alexa rank: <?php echo commaize( $gRank ) ?></a>
+<span style="margin-left: 3em;">view on 
+<?php
+if ( $gbMobile ) {
+	echo "<a href='http://httparchive.org/viewsite.php?u=$urlencoded'>desktop</a> or ";
+}
+else {
+	if ( $gRank <= 5000 ) { // TODO - This is terribly hardwired.
+		echo "<a href='http://mobile.httparchive.org/viewsite.php?u=$urlencoded'>mobile</a> or ";
+	}
+}
+?>
+<a href="https://web.archive.org/web/*/<?php echo $url ?>">Wayback Machine</a></span>
 <span id=comparedates style="margin-left: 3em;">compare to: 
 <?php 
 // compare two different crawls
@@ -147,7 +160,6 @@ OUTPUT;
 	}
 
 	$sBorder = ( $gbMobile ? "2px solid #E0E0E0" : "2px solid #E0E0E0" );
-	$urlencoded = urlencode($url);
 	echo <<<OUTPUT
 <section id="videoContainer">
 <div id="videoDiv">
