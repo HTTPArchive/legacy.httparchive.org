@@ -395,10 +395,6 @@ button:hover, button:focus, .button:hover, .button:focus {
 	color: #3399cc;
 	border-color: #bababa; }
 
-.viewsite .selectSite {
-	float: right;
-	margin-top: -8em; }
-
 footer {
 	margin-top: 7em;
 	font-size: 0.8em;
