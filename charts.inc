@@ -382,7 +382,7 @@ function getSkip($num, $bNum = false) {
 }
 
 
-function getLabels($aLabels) {
+function getLabels($aLabels, $bSkip = true) {
 	$skip = abs(getSkip(count($aLabels), true));
 	$len = count($aLabels);
 	if ( ! $len ) {
@@ -391,7 +391,7 @@ function getLabels($aLabels) {
 	$aNewLabels = array_fill(0, $len, " ");  // have to create all array elements to set in reverse order? php weirdness?
 	$iLabel = 0;
 	for ( $i = $len-1; $i >= 0; $i-- ) {
-		$aNewLabels[$i] = ( 0 === ($iLabel % $skip) ? $aLabels[$i] : " " );
+		$aNewLabels[$i] = ( 0 === ($iLabel % $skip) || ! $bSkip ? $aLabels[$i] : " " );
 		$iLabel++;
 	}
 
