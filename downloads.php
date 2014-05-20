@@ -122,10 +122,13 @@ function formatDumpfileItem($epoch, $browser, $url, $filesize, $table=null, $for
 
 <p>
 In addition to the HTTP Archive <a href="https://github.com/HTTPArchive/httparchive">source code</a> being open source,
-all of the data gathered is also available for download.
-</p>
+all of the data gathered is available as downloadable MySQL dumps.
+These dumps are also available in <a href="https://bigquery.cloud.google.com/">Google BigQuery</a> thanks to Ilya Grigorik. 
+For more information see Ilya's blog post <a href="https://www.igvita.com/2013/06/20/http-archive-bigquery-web-performance-answers/">HTTP Archive + BigQuery = Web Performance Answers</a> 
+and <a href="https://www.youtube.com/watch?v=TOFgDSqNRz4">video</a>.
 
-<h2>Instructions</h2>
+
+<h2>MySQL Dumps</h2>
 <p>
 The results from each crawl are saved as MySQL dump files in both MySQL format and CSV format.
 Dumps are made for both the desktop and mobile crawls.
@@ -135,12 +138,12 @@ To restore a dump:
 
 <ol class=indent>
   <li> Import the <a href="downloads/httparchive_schema.sql">schema</a> to create the tables.
+<br><code style="font-size: 0.8em;">cat httparchive_schema.sql | mysql -u MYSQL_USERNAME -p -h MYSQL_HOSTNAME MYSQL_DB</code>
   <li> Import the desired dump file. Use this command for MySQL-formatted dumps:<br>
 <code style="font-size: 0.8em;">gunzip -c MYSQLDUMP_FILE.gz | mysql -u MYSQL_USERNAME -p -h MYSQL_HOSTNAME MYSQL_DB</code>
 <br>
-	Use this command for CSV-formatted dumps:<br>
-<code style="font-size: 0.8em;">gunzip MYSQLDUMP_FILE.csv.gz<br>
-mysqlimport --local --fields-optionally-enclosed-by="\"" --fields-terminated-by=, --user=MYSQL_USERNAME -p MYSQL_DB MYSQLDUMP_FILE.csv
+	For CSV-formatted dumps, gunzip the file and rename it to either <code>pages.csv</code> or <code>requests.csv</code>, then run this command:
+<br><code style="font-size: 0.8em;">mysqlimport --local --fields-optionally-enclosed-by="\"" --fields-terminated-by=, --user=MYSQL_USERNAME -p MYSQL_DB MYSQLDUMP_FILE.csv
 </code>
   <li> If you want to run a private instance of the source code, you need to also import the stats and crawls dumps.
 </ol>
