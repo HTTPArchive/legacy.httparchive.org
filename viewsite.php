@@ -86,16 +86,30 @@ $harfileWptUrl = wptHarFileUrl($wptid, $wptrun, 0);
 <body class=viewsite id=top>
 <?php echo uiHeader($gTitle); ?>
 
+<div style="float: right;">	
+<?php 
+// Choose a different crawl to view for this site.
+echo selectSiteLabel($url, $gLabel); 
+?>
+</div>
+
 	<h1><?php echo str_replace('>http://', '><span class=protocol>http://</span>', siteLink($url)) ?></h1>
 	
 	<p class=summary style="margin-bottom: 4px;">took <?php echo round(($onLoad / 1000), 1) ?> seconds to load <?php echo round(($pageData['bytesTotal']/1024)) ?>kB of data over <?php echo $pageData['reqTotal'] ?> requests.</p>
-<div>
-<a href="<?php echo rankUrl($url) ?>">Alexa rank: <?php echo commaize( rank($url, $gPageid) ) ?></a>, 
-view in <a href="https://web.archive.org/web/*/<?php echo $url ?>">Wayback Machine</a>
+<div style="margin-top: 0.5em;">
+<a href="<?php echo rankUrl($url) ?>">Alexa rank: <?php echo commaize( rank($url, $gPageid) ) ?></a>
+<span style="margin-left: 3em;">view in <a href="https://web.archive.org/web/*/<?php echo $url ?>">Wayback Machine</a></span>
+<span id=comparedates style="margin-left: 3em;">compare to: 
+<?php 
+// compare two different crawls
+echo selectSiteLabel($url, $gLabel, "", false, true); 
+?>
+<a href="javascript:compareDates()"><img border=0 src="/images/new_window_icon.png"></a>
+</span>
 </div>
 <div>
 <?php 
-echo diffRuns($url, $gCrawlid);
+	//echo diffRuns($url, $gCrawlid);
 ?>
 </div>
 
@@ -110,9 +124,6 @@ echo diffRuns($url, $gCrawlid);
 		<li><a href="#cdns">CDNs</a></li>
 		<li><a href="#downloads">Downloads</a></li>
 	</ul>
-	
-	<?php echo selectSiteLabel($url, $gLabel); ?>
-
 
 <h2 id=filmstrip>Filmstrip, Video</h2>
 
@@ -136,6 +147,7 @@ OUTPUT;
 	}
 
 	$sBorder = ( $gbMobile ? "2px solid #E0E0E0" : "2px solid #E0E0E0" );
+	$urlencoded = urlencode($url);
 	echo <<<OUTPUT
 <section id="videoContainer">
 <div id="videoDiv">
@@ -180,6 +192,15 @@ function showInterval(ms) {
 			break;
 		}
 	}
+}
+
+
+// This is callback from the select list for comparing two dates.
+function compareDates() {
+	var sel = document.getElementById("comparedates").getElementsByTagName("select")[0];
+	var label1 = sel.options[sel.selectedIndex].value;
+	var url = "comparedates.php?u=$urlencoded&label1=" + label1 + "&wptid2=$wptid&label2=$gLabel";
+	window.open(url, "_blank");
 }
 </script>
 
