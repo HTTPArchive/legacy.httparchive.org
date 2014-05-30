@@ -158,6 +158,13 @@ $gaTrendsCompute = array(
 					  
 					  // columns added later
 					  "ROUND(AVG(_connections)) as _connections",
+					  "ROUND(AVG(avg_dom_depth)) as avg_dom_depth",
+					  "ROUND(AVG(document_height)) as document_height",
+					  "ROUND(AVG(document_width)) as document_width",
+					  "ROUND(AVG(localstorage_size)) as localstorage_size",
+					  "ROUND(AVG(sessionstorage_size)) as sessionstorage_size",
+					  "ROUND(AVG(num_iframes)) as num_iframes",
+					  "ROUND(AVG(num_scripts)) as num_scripts",
 					  );
 
 
@@ -179,6 +186,9 @@ $gaTrendsGet = array(
 					 "maxDomainReqs",
 					 "maxage0",
 					 "_connections",
+					 "avg_dom_depth",
+					 "num_iframes",
+					 "num_scripts",
 
 					 "ROUND(reqTotal) as reqTotal",       // if there are A LOT of requests, do ROUND
 					 "TRUNCATE(reqHtml, 1) as reqHtml",   // if there are A FEW requests, show a float
