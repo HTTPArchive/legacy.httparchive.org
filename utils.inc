@@ -157,7 +157,16 @@ $ghColumnTitles = array (
 						 "gzipTotal" => "Gzippable Transfer Size",
 						 "gzipSavings" => "Missed Gzip Savings",
 						 "visualComplete" => "Visually Complete",
-						 "_connections" => "TCP Connections"
+						 "_connections" => "TCP Connections",
+						 "avg_dom_depth" => "Avg DOM Depth",
+						 "document_height" => "Document Height",
+						 "document_width" => "Document Width",
+						 "localstorage_size" => "localStorage Size",
+						 "sessionstorage_size" => "sessionStorage Size",
+						 "num_iframes" => "Iframe Tags",
+						 "num_scripts" => "Script Tags",
+						 "doctype" => "Doctype",
+						 "meta_viewport" => "Meta Viewport",
 						 );
 
 
@@ -1651,6 +1660,15 @@ $ghFieldColors = array(
 					   "numDomElements" => "007099",
 					   "perCdn" => "AA0033",
 					   "_connections" => "007099", 
+					   "avg_dom_depth" => "007099",
+					   "document_height" => "007099",
+					   "document_width" => "007099",
+					   "localstorage_size" => "007099",
+					   "sessionstorage_size" => "007099",
+					   "num_iframes" => "007099",
+					   "num_scripts" => "007099",
+					   "doctype" => "007099",
+					   "meta_viewport" => "007099",
 					   );
 
 $ghFieldUnits = array(					  
