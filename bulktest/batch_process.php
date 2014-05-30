@@ -73,7 +73,7 @@ if ( 0 === totalNotDone() ) {
 		require_once("copy.php");
 
 		updateCrawl($labelFromRun, $gArchive, $locations[0], array( "finishedDateTime" => time() ));
-		
+
 		// save stuff during the transition to the new DB schema
 		exportCrawlToTable($labelFromRun);
 		dumpCrawl2($labelFromRun, "All", null, false, true); // CSV is faster
