@@ -420,6 +420,15 @@ function importPage($page, $statusInfo) {
 	}
 	array_push($aTuples, "_connections = " . $page->{'_connections'});
 	array_push($aTuples, "_adult_site = " . $page->{'_adult_site'});
+	array_push($aTuples, "avg_dom_depth = " . $page->{ '_avg_dom_depth' });
+	array_push($aTuples, "doctype = '" . mysql_real_escape_string($page->{ '_doctype' }) . "'");
+	array_push($aTuples, "document_height = " . $page->{ '_document_height' });
+	array_push($aTuples, "document_width = " . $page->{ '_document_width' });
+	array_push($aTuples, "localstorage_size = " . $page->{ '_localstorage_size' });
+	array_push($aTuples, "sessionstorage_size = " . $page->{ '_sessionstorage_size' });
+	array_push($aTuples, "meta_viewport = '" . mysql_real_escape_string($page->{ '_meta_viewport' }) . "'");
+	array_push($aTuples, "num_iframes = " . $page->{ '_num_iframes' });
+	array_push($aTuples, "num_scripts = " . $page->{ '_num_scripts' });
 
 	$cmd = "INSERT INTO $gPagesTable SET " . implode(", ", $aTuples) . ";";
 	t_mark('importPage: insert into pages');
@@ -452,6 +461,9 @@ function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
 		array_push($aTuples, "time = " . $entry->{ 'time' });
 		if ( property_exists($entry, '_cdn_provider') ) {
 			array_push($aTuples, "_cdn_provider = '" . mysql_real_escape_string($entry->{ '_cdn_provider' }) . "'");
+		}
+		if ( property_exists($entry, '_gzip_save') ) {
+			array_push($aTuples, "_gzip_save = " . $entry->{ '_gzip_save' });
 		}
 
 		// REQUEST
