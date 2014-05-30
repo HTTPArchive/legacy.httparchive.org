@@ -36,6 +36,7 @@ function resourcesFromHar($aHarResources, $pageref=null) {
 		if ( array_key_exists('headersSize', $resp) && 0 < $resp['headersSize'] ) $resource['respHeaderSize'] = $resp['headersSize'];
 		if ( array_key_exists('bodySize', $resp) && 0 < $resp['bodySize'] ) $resource['respBodySize'] = $resp['bodySize'];
 		if ( array_key_exists('_cdn_provider', $resp) ) $resource['_cdn_provider'] = $resp['_cdn_provider'];
+		if ( array_key_exists('_gzip_save', $resp) ) $resource['_gzip_save'] = $resp['_gzip_save'];
 		$content = $resp['content'];
 		$resource['respSize'] = $content['size'];
 		$resource['mimeType'] = $content['mimeType'];
