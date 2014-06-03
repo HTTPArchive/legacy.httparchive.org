@@ -95,7 +95,7 @@ echo selectSiteLabel($url, $gLabel);
 ?>
 </div>
 
-	<h1><?php echo str_replace('>http://', '><span class=protocol>http://</span>', siteLink($url)) ?></h1>
+	<h1><?php echo str_replace('>http://', '><span class=protocol>http://</span>', siteLink($url, $pageData)) ?></h1>
 	
 	<p class=summary style="margin-bottom: 4px;">took <?php echo round(($onLoad / 1000), 1) ?> seconds to load <?php echo round(($pageData['bytesTotal']/1024)) ?>kB of data over <?php echo $pageData['reqTotal'] ?> requests.</p>
 <div style="margin-top: 0.5em;">
@@ -142,7 +142,7 @@ echo selectSiteLabel($url, $gLabel, "", false, true);
 
 <?php 
 // Build a table that has empty cells to be filled in later.
-if ( ! isAdultContent($url) ) {
+if ( ! isAdultContent($url, $pageData) ) {
 
 	if ( $gbMobile ) {
 		// right now Blaze.io only does 1 FPS
