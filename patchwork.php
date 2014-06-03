@@ -310,7 +310,7 @@ $bChrono = ( $earliestLabel == $gLabel1 );
 // Find the topmost URLs in both crawls:
 $limitgoogle = "(url = 'http://www.google.com/' OR url not like '%://www.google.%')"; // There are 10+ sites that all look the same from Google intl sites
 $maxRank = 5 * $gNumUrls; // we get back MORE results than needed so we can filter out adult content
-$query = "select url, min(pageid) as minid, max(pageid) as maxid, count(*) as num from $gPagesTable, $gUrlsTable as u where (label = '$gLabel1' or label = '$gLabel2') and url=urlOrig and u.rank > 0 and u.rank < $maxRank and $limitgoogle group by url having num=2 order by u.rank asc;";
+$query = "select url, min(pageid) as minid, max(pageid) as maxid, count(*) as num, _adult_site from $gPagesTable, $gUrlsTable as u where (label = '$gLabel1' or label = '$gLabel2') and url=urlOrig and u.rank > 0 and u.rank < $maxRank and $limitgoogle group by url having num=2 order by u.rank asc;";
 $result = doQuery($query);
 $i = 0;
 $imgs1 = "";
@@ -319,7 +319,7 @@ while ($row = mysql_fetch_assoc($result)) {
 	$url = $row['url'];
 	$minid = $row['minid'];
 	$maxid = $row['maxid'];
-	if ( ! isAdultContent($url) ) {
+	if ( ! isAdultContent($url, $row) ) {
 		$imgs1 .= getImgHtml(($bChrono ? $minid : $maxid), $url);
 		$imgs2 .= getImgHtml(($bChrono ? $maxid : $minid), $url);
 
