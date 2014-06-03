@@ -418,17 +418,39 @@ function importPage($page, $statusInfo) {
 			array_push($aTuples, "PageSpeed = " . $pageSpeedObj->{'score'});
 		}
 	}
-	array_push($aTuples, "_connections = " . $page->{'_connections'});
-	array_push($aTuples, "_adult_site = " . $page->{'_adult_site'});
-	array_push($aTuples, "avg_dom_depth = " . $page->{ '_avg_dom_depth' });
-	array_push($aTuples, "doctype = '" . mysql_real_escape_string($page->{ '_doctype' }) . "'");
-	array_push($aTuples, "document_height = " . $page->{ '_document_height' });
-	array_push($aTuples, "document_width = " . $page->{ '_document_width' });
-	array_push($aTuples, "localstorage_size = " . $page->{ '_localstorage_size' });
-	array_push($aTuples, "sessionstorage_size = " . $page->{ '_sessionstorage_size' });
-	array_push($aTuples, "meta_viewport = '" . mysql_real_escape_string($page->{ '_meta_viewport' }) . "'");
-	array_push($aTuples, "num_iframes = " . $page->{ '_num_iframes' });
-	array_push($aTuples, "num_scripts = " . $page->{ '_num_scripts' });
+	if ( array_key_exists('_connections', $page) ) {
+		array_push($aTuples, "_connections = " . $page->{'_connections'});
+	}
+	if ( array_key_exists('_adult_site', $page) ) {
+		array_push($aTuples, "_adult_site = " . $page->{'_adult_site'});
+	}
+	if ( array_key_exists('_avg_dom_depth', $page) ) {
+		array_push($aTuples, "avg_dom_depth = " . $page->{ '_avg_dom_depth' });
+	}
+	if ( array_key_exists('_doctype', $page) ) {
+		array_push($aTuples, "doctype = '" . mysql_real_escape_string($page->{ '_doctype' }) . "'");
+	}
+	if ( array_key_exists('_document_height', $page) ) {
+		array_push($aTuples, "document_height = " . $page->{ '_document_height' });
+	}
+	if ( array_key_exists('_document_width', $page) ) {
+		array_push($aTuples, "document_width = " . $page->{ '_document_width' });
+	}
+	if ( array_key_exists('_localstorage_size', $page) ) {
+		array_push($aTuples, "localstorage_size = " . $page->{ '_localstorage_size' });
+	}
+	if ( array_key_exists('_sessionstorage_size', $page) ) {
+		array_push($aTuples, "sessionstorage_size = " . $page->{ '_sessionstorage_size' });
+	}
+	if ( array_key_exists('_meta_viewport', $page) ) {
+		array_push($aTuples, "meta_viewport = '" . mysql_real_escape_string($page->{ '_meta_viewport' }) . "'");
+	}
+	if ( array_key_exists('_num_iframes', $page) ) {
+		array_push($aTuples, "num_iframes = " . $page->{ '_num_iframes' });
+	}
+	if ( array_key_exists('_num_scripts', $page) ) {
+		array_push($aTuples, "num_scripts = " . $page->{ '_num_scripts' });
+	}
 
 	$cmd = "INSERT INTO $gPagesTable SET " . implode(", ", $aTuples) . ";";
 	t_mark('importPage: insert into pages');
