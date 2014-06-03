@@ -52,7 +52,7 @@ function statusLabel() {
 
 // return the number of errors
 function statusErrors() {
-	global $gStatusTable, $gErrBase;
+	global $gStatusTable, $gErrBase; // CVSNO - $gErrBase is defined in batch_lib.inc
 	return doSimpleQuery("select count(*) from $gStatusTable where status >= $gErrBase;");
 }
 
