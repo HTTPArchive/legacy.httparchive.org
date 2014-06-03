@@ -171,6 +171,13 @@ function latestCrawl($archive=null, $beforeEpoch=null) {
 }
 
 
+// Return the latest (most recent) crawl for an archive 
+// based on when the pages in that crawl were analyzed.
+function latestCrawlId($archive=null, $beforeEpoch=null) {
+	return latestCrawl($archive, $beforeEpoch)['crawlid'];
+}
+
+
 // Return the latest (most recent) label for an archive 
 // based on when the pages in that label were analyzed.
 function latestLabel($archive=null, $beforeEpoch=null) {
@@ -219,6 +226,7 @@ function randomPageid($crawl) {
 // Create the Mysql dump files for a crawl.
 // TODO: This code assumes that ../downloads/ exists. Instead, it should be able to find the download directory.
 function dumpCrawl2($label, $archive=null, $location=null, $bMysql=true, $bCsv=true) {
+	// TODO - delete this code
 	global $gbMobile, $gPagesTableMobile, $gPagesTableDesktop, $gRequestsTableMobile, $gRequestsTableDesktop, $gStatsTableDesktop, $gCrawlsTable, $gUrlsTableDesktop;
 	global $gMysqlUsername, $gMysqlPassword, $gMysqlServer, $gMysqlDb;
 
@@ -489,6 +497,7 @@ function importCrawl($label, $archive="All", $location=null) {
 // This function was created when migrating from a single huge "requests" table to merge tables.
 // TODO Right now we just do the "requests" table.
 function exportCrawlToTable($label, $archive="All", $location=null, $bRemoveExisting=false) {
+	// TODO - delete this code
 	global $gbMobile, $gPagesTableDesktop, $gRequestsTableDesktop, $gStatsTableDesktop;
 	global $gPagesTable, $gRequestsTable, $gStatsTable;
 	global $gMysqlUsername, $gMysqlPassword, $gMysqlServer, $gMysqlDb;
@@ -596,6 +605,7 @@ function dumpfileName($label, $table="", $format="") {
 
 // Only used during the migration from a single "requests" table to individual merge tables.
 function createCrawlMergeTable($label, $archive="All", $location=null) {
+	// TODO - delete this code
 	$device = ( $location ? $location : curDevice() );
 	$crawl = getCrawl($label, $archive, $device);
 	if ( FALSE === $crawl ) {
