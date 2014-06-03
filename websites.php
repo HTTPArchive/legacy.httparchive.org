@@ -77,7 +77,7 @@ function showResults(aResults) {
 				break;
 			}
 			var pageid = hResult["data-pageid"];
-			sHtml += "<li> <a href='viewsite.php?u=" + escape(url) + "&pageid=" + pageid + "'>" + url + "\n";
+			sHtml += "<li> <a href='viewsite.php?pageid=" + pageid + "'>" + url + "\n";
 		}
 	}
 
