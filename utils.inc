@@ -1562,8 +1562,8 @@ function allDevices() {
 
 
 // Display a link (or not) to a URL.
-function siteLink($url) {
-	if ( isAdultContent($url) ) {
+function siteLink($url, $pageData=null) {
+	if ( isAdultContent($url, $pageData) ) {
 		// no link, just url
 		return shortenUrl($url);
 	}
@@ -1574,7 +1574,7 @@ function siteLink($url) {
 
 
 // Return true if the specified URL (or a variation) is adult content
-function isAdultContent($url) {
+function isAdultContent($url, $pageData = null) {
 	global $ghAdultContent;
 
 	$bAdultContent = true;
@@ -1582,7 +1582,18 @@ function isAdultContent($url) {
 	// base adult content on hostname
 	$hostname = hostname($url);
 	if ( $hostname ) {
+		// First, check the old manually-compiled list:
 		$bAdultContent = array_key_exists($hostname, $ghAdultContent);
+
+		if ( ! $bAdultContent ) {
+			// If it wasn't in the old manually-compiled list, check the WPT regex tests:
+			if ( ! $pageData ) {
+				$pageData = pageData(null, $url);
+			}
+			if ( $pageData ) {
+				$bAdultContent = $pageData['_adult_site'];
+			}
+		}
 	}
 
 	return $bAdultContent;
