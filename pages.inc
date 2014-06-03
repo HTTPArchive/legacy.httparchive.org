@@ -14,7 +14,7 @@ require_once("requests.inc");
 ////////////////////////////////////////////////////////////////////////////////
 
 // Return a hash of ALL the data for a given page.
-// Bad API: You need EITHER the pageid OR the url & label.
+// Bad API: You need EITHER the pageid OR the url & label (optional).
 function pageData($pageid, $url = null, $label = null, $urlhash = null) {
 	global $gPagesTable;
 
