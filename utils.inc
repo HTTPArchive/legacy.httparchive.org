@@ -1625,14 +1625,7 @@ function formatSize($num) {
 
 // add commas to a big number
 function commaize($num) {
-	$sNum = "$num";
-	$len = strlen($sNum);
-
-	if ( $len <= 3 ) {
-		return $sNum;
-	}
-
-	return commaize(substr($sNum, 0, $len-3)) . "," . substr($sNum, $len-3);
+	return number_format($num);
 }
 
 
@@ -1725,6 +1718,17 @@ function fieldUnits($field) {
 	return ( array_key_exists($field, $ghFieldUnits) ? $ghFieldUnits[$field] : "" );
 }
 
+
+// Pick a color based on the length of a string
+function pickColor($s) {
+	global $ghFieldColors;
+
+	$aColors = array_values($ghFieldColors);
+	$len = count($aColors);
+	$i = (strlen($s)+ord($s)) % $len; // pick a repeatable but random number based on the string
+	
+	return $aColors[$i];
+}
 
 // Get the domain name, eg, "groups.google.com" from "http://groups.google.com/"
 function hostname($url) {
