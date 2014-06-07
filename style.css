@@ -268,7 +268,7 @@ p + ul, p + ol {
 	border-bottom: 0px; }
 #interesting { 
 	width: 660px; 
-	text-align: center; }
+	text-align: left; }
 .keypoints > li {
 	background: #f5f5f5; }
 .keylinks * {
