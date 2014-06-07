@@ -1,7 +1,5 @@
 <?php
 /*
-Copyright 2010 Google Inc.
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -108,7 +106,7 @@ function percentGoogleLibrariesAPI($hStats) {
 	$no = 100-$yes;
 	$aVarNames = array("no $no%", "yes $yes%");
 	$aVarValues = array($no, $yes);
-	return pieChart("Pages Using Google Libraries API", "googlelibs", $aVarNames, $aVarValues, "7777CC");
+	return pieChart("Pages Using Google Libraries API", "googlelibs", $aVarNames, $aVarValues);
 }
 
 
@@ -117,7 +115,7 @@ function percentFlash($hStats) {
 	$no = 100-$yes;
 	$aVarNames = array("No Flash $no%", "Flash $yes%");
 	$aVarValues = array($no, $yes);
-	return pieChart("Pages Using Flash", "flash", $aVarNames, $aVarValues, "AA0033");
+	return pieChart("Pages Using Flash", "flash", $aVarNames, $aVarValues);
 }
 
 
@@ -126,7 +124,7 @@ function percentFonts($hStats) {
 	$no = 100-$yes;
 	$aVarNames = array("No Fonts $no%", "Fonts $yes%");
 	$aVarValues = array($no, $yes);
-	return pieChart("Pages Using Custom Fonts", "fonts", $aVarNames, $aVarValues, "CF557B");
+	return pieChart("Pages Using Custom Fonts", "fonts", $aVarNames, $aVarValues);
 }
 
 
@@ -143,7 +141,7 @@ function popularImageFormats($hStats) {
 	$aVarNames = array("GIF $gif%", "JPEG $jpg%", "PNG $png%", "Other $other%");
 	$aVarValues = array($gif, $jpg, $png, $other);
 
-	return pieChart("Image Requests by Format", "imageformats", $aVarNames, $aVarValues, "E94E19");
+	return pieChart("Image Requests by Format", "imageformats", $aVarNames, $aVarValues);
 }
 
 
@@ -156,7 +154,7 @@ function maxage($hStats) {
 					 $hStats['maxageMore']
 					 );
 
-	return percentageColumnChart("Cache Lifetime (days)", "caching", $aNames, $aValues, "184852");
+	return percentageColumnChart("Cache Lifetime (days)", "caching", $aNames, $aValues);
 }
 
 
@@ -166,7 +164,7 @@ function percentByProtocol($hStats) {
 	$aVarNames = array("HTTP $http%", "HTTPS $https%");
 	$aVarValues = array($http, $https);
 
-	return pieChart("HTTPS Requests", "protocol", $aVarNames, $aVarValues, "B4B418");
+	return pieChart("HTTPS Requests", "protocol", $aVarNames, $aVarValues);
 }
 
 
@@ -176,26 +174,7 @@ function requestErrors($hStats) {
 	$aVarNames = array("No Errors $no%", "Errors $yes%");
 	$aVarValues = array($no, $yes);
 
-	return pieChart("Pages with Errors (4xx, 5xx)", "errors", $aVarNames, $aVarValues, "B09542");
-}
-
-
-function redirects($hStats) {
-	global $gLabel, $gSlice, $gPagesTable;
-	$sliceCond = sliceCond($gLabel, $gSlice, curDevice()); //CVSNO
-	$numurls = $hStats['numurls'];
-	$query = "select numRedirects, round(100*count(*)/$numurls) as percent from $gPagesTable where $sliceCond group by numRedirects having percent > 1 order by numRedirects asc;";
-	$result = doQuery($query);
-	$aNames = array();
-	$aValues = array();
-	while ($row = mysql_fetch_array($result)) {
-		list($numRedirects, $percent) = $row;
-		array_push($aNames, $numRedirects);
-		array_push($aValues, $percent);
-	}
-	mysql_free_result($result);
-
-	return percentageColumnChart("Redirects per Page", "redirects", $aNames, $aValues, "000000");
+	return pieChart("Pages with Errors (4xx, 5xx)", "errors", $aVarNames, $aVarValues);
 }
 
 
@@ -218,13 +197,10 @@ function correlationChart($hStats, $var1) {
 }
 
 
-
-
-
-
-function pieChart($title, $id, $aNames, $aValues, $color="007099", $legend = "") {
+function pieChart($title, $id, $aNames, $aValues, $color="", $legend = "") {
 	global $gPhpFile;
 
+	$color = ( $color ? $color : pickColor($title) );
 	return "<a href='$gPhpFile#$id'><img width=400 height=225 id=$id class=chart src='http://chart.apis.google.com/chart?chs=400x225&cht=p&chco=$color&chd=t:" .
 		implode(",", $aValues) .
 		chdsMinmax($aValues, true) .
@@ -251,14 +227,135 @@ function chdsMinmax($aValues, $bZero = false) {
 }
 
 
-function percentageColumnChart($title, $id, $aNames, $aValues, $color="80C65A") {
+// $minPercent is the value at which we only show one bin then stop
+function histogram($hStats, $column, $title, $id, $binMultiple=1, $minPercent=1, $color="") {
+	global $gLabel, $gSlice, $gPagesTable;
+	$aNames = array();
+	$aValues = array();
+
+	$sliceCond = sliceCond($gLabel, $gSlice, curDevice()); //CVSNO
+	$numurls = $hStats['numurls'];
+
+	$query = "select " . ( 1 === $binMultiple ? $column : "ceil($column/$binMultiple)" ) . 
+		" as x, round(100*count(*)/$numurls) as percent from $gPagesTable where $sliceCond group by x order by x asc;";
+
+	$result = doQuery($query);
+	$bFirst = true;
+	while ($row = mysql_fetch_array($result)) {
+		list($xval, $percent) = $row;
+		if ( 0 == $percent ) {
+			continue;
+		}
+
+		if ( $binMultiple > 1 && 0 < $xval ) {
+			if ( 0 === ($binMultiple % (1024*1024)) ) {
+				$xval = ($xval-1) . "-" . $xval . "M";
+			}
+			else if ( 0 === ($binMultiple % 1024) ) {
+				$multiplier = $binMultiple / 1024;
+				$xval = (($xval-1)*$multiplier+1) . "-" . $xval*$multiplier . "K";
+			}
+			else if ( 0 === ($binMultiple % 1000000) ) {
+				$xval = ($xval-1) . "-" . $xval . "M";
+			}
+			else if ( 0 === ($binMultiple % 1000) ) {
+				$xval = ($xval-1) . "-" . $xval . "K";
+			}
+			else {
+				$xval = (($binMultiple*($xval - 1))+1) . "-" . ($binMultiple*$xval);
+			}
+		}
+		array_push($aNames, $xval);
+		array_push($aValues, $percent);
+		if ( $percent <= $minPercent ) {
+			if ( ! $bFirst ) {
+				break;
+			}
+		}
+		else {
+			$bFirst = false;
+		}
+	}
+	mysql_free_result($result);
+
+	return percentageColumnChart($title, $id, $aNames, $aValues, $color);
+}
+
+
+// $minPercent is the value at which we only show one bin then stop
+function histogram2($hStats, $column, $title, $id, $binMultiple=1, $minPercent=1, $color="") {
+	$aVals = explode(",", $hStats["cdf_$column"]);
+	$hHist = array();
+	foreach($aVals as $val) {
+		if ( $binMultiple ) {
+			$val = ceil($val / $binMultiple);
+		}
+		$val = "" . $val; // trick it in treating this as a key rather than an array index
+		if ( ! array_key_exists($val, $hHist) ) {
+			$hHist[$val] = 0;
+		}
+		$hHist[$val] = $hHist[$val] + 1;
+	}
+
+	$bFirst = true;
+	$aNames = array();
+	$aValues = array();
+	foreach( array_keys($hHist) as $xval ) {
+		$percent = $hHist[$xval];
+		if ( 0 == $percent ) {
+			continue;
+		}
+
+		if ( $binMultiple > 1 && 0 < $xval ) {
+			if ( 0 === ($binMultiple % (1024*1024)) ) {
+				$xval = ($xval-1) . "-" . $xval . "M";
+			}
+			else if ( 0 === ($binMultiple % 1024) ) {
+				$multiplier = $binMultiple / 1024;
+				$xval = (($xval-1)*$multiplier+1) . "-" . $xval*$multiplier . "K";
+			}
+			else if ( 0 === ($binMultiple % 1000000) ) {
+				$xval = ($xval-1) . "-" . $xval . "M";
+			}
+			else if ( 0 === ($binMultiple % 1000) ) {
+				$xval = ($xval-1) . "-" . $xval . "K";
+			}
+			else {
+				$xval = (($binMultiple*($xval - 1))+1) . "-" . ($binMultiple*$xval);
+			}
+		}
+		array_push($aNames, $xval);
+		array_push($aValues, $percent);
+		if ( $percent <= $minPercent ) {
+			if ( ! $bFirst ) {
+				break;
+			}
+		}
+		else {
+			$bFirst = false;
+		}
+	}
+
+	return percentageColumnChart($title, $id, $aNames, $aValues, $color);
+}
+
+
+function percentageColumnChart($title, $id, $aNames, $aValues, $color="") {
 	global $gPhpFile;
 
 	$n = count($aNames);
-	$colw = ( $n < 6 ? 60 : round(315/$n) );
-	return "<a href='$gPhpFile#$id'><img width=500 height=225 id=$id class=chart src='http://chart.apis.google.com/chart?chxl=0:|20%25|40%25|60%25|80%25|100%25|1:|" .
-		urlencode(implode("|", $aNames)) .
-		"&chm=N**%,676767,0,,12,,::4&chxp=0,20,40,60,80,100&chxs=0,$color,11.5,0,lt,$color|1,676767,11.5,0,lt,67676700&chxtc=0,4|1,4&chxt=y,x&chbh=$colw,30,20&chs=500x225&cht=bvg&chco=$color&chd=t:" .
+	$width = ( $n < 7 ? 500 : ( $n < 9 ? 550 : 600 ) );
+	$colw = round(0.75*($width-60) / $n);
+	$colsp = round(0.25*($width-60) / $n);
+	$color = ( $color ? $color : pickColor($title) );
+
+	return "<a href='$gPhpFile#$id'><img width=$width height=225 id=$id class=chart src='http://chart.apis.google.com/chart" .
+		"?chxl=0:|20%25|40%25|60%25|80%25|100%25|1:|" . urlencode(implode("|", $aNames)) .     // axis labels
+		"&chm=N**%,676767,0,,12,,::4" .
+		"&chxp=0,20,40,60,80,100" . 
+		"&chxs=0,$color,11.5,0,lt,$color|1,676767,11.5,0,lt,67676700" . 
+		"&chxtc=0,4|1,4&chxt=y,x&chbh=$colw,30,$colsp" .
+		"&chs={$width}x225&cht=bvg&chco=$color&chd=t:" .
 		implode(",", $aValues) .
 		"&chtt=" . urlencode($title) . "' style='vertical-align: top;'></a><a href='about.php#$id' class=info title='info'>i</a>";
 }
@@ -288,6 +385,41 @@ function horizontalBarChart($title, $id, $aNames, $aValues, $color="80C65A", $mi
 		"&cht=bhg&chco=$color&chds=$min,$max&chd=t:" .
 		implode(",", $aValues) .
 		"&chm=N**$markSuffix,676767,0,,12,,:4:&chma=|0,5&chtt=" . urlencode($title) . "' style='vertical-align: top;'></a>"; // lame - no "info" link on this chart because it's too wide <a href='about.php#$field' class=info title='info'>i</a>
+}
+
+
+function cdf($hStats, $column, $title, $id, $binMultiple=1, $minPercent=1, $color="") {
+	$sHist = $hStats["cdf_$column"];
+	$aVals = explode(",", $sHist);
+	$min = $aVals[0];
+	$max = $aVals[96]; // skip the 100th value
+	$range = $max - $min;
+	$aXLabels = array(0);      // values in the units of the column
+	$aLineLabels = array(0); // percentages
+	$curPercent = 0;
+	for ( $i = 1; $i <= 100; $i++ ) {
+		$x = round($i*$range/100); 
+		while ( $aVals[$curPercent] < $x && $curPercent < 100 ) {
+			$curPercent++;
+		}
+		array_push($aXLabels, ( 0 === ($i % 10) ? number_format($x/$binMultiple, 1) : "+" ));
+		array_push($aLineLabels, $curPercent);
+	}
+
+	$color = pickColor($title);
+	$url = "http://chart.apis.google.com/chart" .
+		"?chxt=x,y" .     // visible axes
+		"&chs=600x300" .  // size
+		"&cht=lxy" .      // chart type
+		"&chco=$color" .  // series color
+		"&chxs=0,676767,11.5,0,lt,676767" . // axis label styles
+		"&chxtc=0,8" .    // axis tick mark style
+		//"&chm=N,$color,0,::$skip,12,,h::8" . // text and data value markers
+		"&chds=0,100,0,100&chts=$color,24&chtt=" . urlencode($title) . "&chls=2&chma=5,5,5,25&chxr=1,0,100,10" .
+		"&chd=t:-1|" . implode(",", $aLineLabels) . 
+		"&chxl=0:|" . implode("%7C", $aXLabels);
+
+	return "<div id='$id' style='margin: 40px 0 60px 0;'><a class=image-link href='#$id'><img src=$url width=600 height=300 style='vertical-align: top;'></a><a href='about.php#$id' class=info title='info'>i</a></div>\n";
 }
 
 
