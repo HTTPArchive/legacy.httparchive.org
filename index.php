@@ -92,7 +92,6 @@ gaSnippets.push("<?php echo popularImageFormats($hStats) ?>");
 gaSnippets.push("<?php echo maxage($hStats) ?>");
 gaSnippets.push("<?php echo percentByProtocol($hStats) ?>");
 gaSnippets.push("<?php echo requestErrors($hStats) ?>");
-gaSnippets.push("<?php echo histogram($hStats, "numRedirects", "Redirects per Page", "redirects") ?>");
 gaSnippets.push("<?php echo correlationChart($hStats, "onLoad") ?>");
 gaSnippets.push("<?php echo correlationChart($hStats, "renderStart") ?>");
 
