@@ -330,7 +330,7 @@ function importHarJson($json_text, $statusInfo) {
 		$firstUrl = "";
 		$firstHtmlUrl = "";
 		t_mark('ImportEntries');
-		$bEntries = importEntries($entries, $pageid, $firstUrl, $firstHtmlUrl);
+		$bEntries = importEntries($entries, $pageid, $statusInfo, $firstUrl, $firstHtmlUrl);
 		t_aggregate('Importentries');
 		if ( false === $bEntries ) {
 			dprint("ERROR($gStatusTable statusid: $statusInfo[statusid]): ImportEntries failed. Purging pageid $pageid");
@@ -471,13 +471,14 @@ function importPage($page, $statusInfo) {
 
 
 // Import the requests within a website.
-function importEntries($entries, $pageid, &$firstUrl, &$firstHtmlUrl) {
+function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUrl) {
 	global $gPagesTable, $gRequestsTable;
 	global $ghReqHeaders, $ghRespHeaders;
 	for ( $i = 0; $i < count($entries); $i++ ) {
 		$entry = $entries[$i];
 		$aTuples = array();
 		array_push($aTuples, "pageid = $pageid");
+		array_push($aTuples, "crawlid = " . $statusInfo['crawlid']);
 		$startedDateTime = strtotime($entry->{ 'startedDateTime' }); // we use this below for expAge calculation
 		array_push($aTuples, "startedDateTime = $startedDateTime");
 		array_push($aTuples, "time = " . $entry->{ 'time' });
