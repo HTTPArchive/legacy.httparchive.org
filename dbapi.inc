@@ -28,6 +28,7 @@ $gUrlsChangeTable = "urlschange";
 $gStatsTable = "stats";
 $gCrawlsTable = "crawls";
 $gSettingsTable = "settings"; // for storing misc settings persistently
+$gCdfTable = "cdf";
 
 // Desktop tables
 $gPagesTableDesktop = $gPagesTable;
@@ -450,7 +451,7 @@ stats:
   add columns: crawlid
 
 April 20, 2014 - add crawlid index
-  mysql> create index crawlid on pages (crawlid);
+  create index crawlid on pages (crawlid);
 
 May 12, 2014 - add _connections and _cdn_provider column
   alter table pages add column _connections int(4) unsigned not null;
@@ -481,6 +482,10 @@ May 29, 2014 - add new columns based on custom_metrics feature in WebPagetest
                     add column sessionstorage_size int(10) unsigned not null,
                     add column num_iframes int(8) unsigned not null,
                     add column num_scripts int(8) unsigned not null;
+
+June ?, 2014 - add crawlid to requests
+  alter table requests add column crawlid int unsigned not null;
+  //TODO create index crawlid on requests (crawlid);
 *******************************************************************************/
 function createTables() {
 	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gUrlsChangeTable, $gSettingsTable;
@@ -847,9 +852,12 @@ function createRequestsTable($tablename, $aMergeTables=null) {
 		// columns added later
 		", _cdn_provider varchar(64)" .
 		", _gzip_save int(10) unsigned not null" .
+		", crawlid int unsigned not null" .
 
 		", primary key (requestid)" .
 		", index(pageid)" .
+		//TODO ", index(crawlid)" .
+
 		", unique key (startedDateTime, pageid, urlShort) ) " . 
 		( $aMergeTables ? 
 		  "ENGINE=MERGE UNION=(" . implode(",", $aMergeTables) . ") INSERT_METHOD=NO;" :
