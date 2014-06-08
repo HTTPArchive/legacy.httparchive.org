@@ -229,62 +229,10 @@ function chdsMinmax($aValues, $bZero = false) {
 
 // $minPercent is the value at which we only show one bin then stop
 function histogram($hStats, $column, $title, $id, $binMultiple=1, $minPercent=1, $color="") {
-	global $gLabel, $gSlice, $gPagesTable;
-	$aNames = array();
-	$aValues = array();
-
-	$sliceCond = sliceCond($gLabel, $gSlice, curDevice()); //CVSNO
-	$numurls = $hStats['numurls'];
-
-	$query = "select " . ( 1 === $binMultiple ? $column : "ceil($column/$binMultiple)" ) . 
-		" as x, round(100*count(*)/$numurls) as percent from $gPagesTable where $sliceCond group by x order by x asc;";
-
-	$result = doQuery($query);
-	$bFirst = true;
-	while ($row = mysql_fetch_array($result)) {
-		list($xval, $percent) = $row;
-		if ( 0 == $percent ) {
-			continue;
-		}
-
-		if ( $binMultiple > 1 && 0 < $xval ) {
-			if ( 0 === ($binMultiple % (1024*1024)) ) {
-				$xval = ($xval-1) . "-" . $xval . "M";
-			}
-			else if ( 0 === ($binMultiple % 1024) ) {
-				$multiplier = $binMultiple / 1024;
-				$xval = (($xval-1)*$multiplier+1) . "-" . $xval*$multiplier . "K";
-			}
-			else if ( 0 === ($binMultiple % 1000000) ) {
-				$xval = ($xval-1) . "-" . $xval . "M";
-			}
-			else if ( 0 === ($binMultiple % 1000) ) {
-				$xval = ($xval-1) . "-" . $xval . "K";
-			}
-			else {
-				$xval = (($binMultiple*($xval - 1))+1) . "-" . ($binMultiple*$xval);
-			}
-		}
-		array_push($aNames, $xval);
-		array_push($aValues, $percent);
-		if ( $percent <= $minPercent ) {
-			if ( ! $bFirst ) {
-				break;
-			}
-		}
-		else {
-			$bFirst = false;
-		}
-	}
-	mysql_free_result($result);
-
-	return percentageColumnChart($title, $id, $aNames, $aValues, $color);
-}
-
-
-// $minPercent is the value at which we only show one bin then stop
-function histogram2($hStats, $column, $title, $id, $binMultiple=1, $minPercent=1, $color="") {
 	$aVals = explode(",", $hStats["cdf_$column"]);
+	if ( 0 == $aVals[98] ) {
+		return "<!-- $column data not available for this crawl -->\n";
+	}
 	$hHist = array();
 	foreach($aVals as $val) {
 		if ( $binMultiple ) {
