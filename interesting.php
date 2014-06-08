@@ -74,7 +74,7 @@ $hCdf = getCdfData($gLabel, $gSlice, curDevice());
 
 echo bytesContentTypeChart($hStats) . "\n";
 echo responseSizes($hStats) . "\n";
-echo histogram($hCdf, "bytesHtmlDoc", "Html Document Transfer Size", "bytesHtmlDoc", 5*1024) . "\n";
+echo histogram($hCdf, "bytesHtmlDoc", "HTML Document Transfer Size", "bytesHtmlDoc", 5*1024) . "\n";
 echo histogram($hCdf, "numDomElements", "# of DOM Elements per Page", "numDomElements", 400, 2) . "\n";
 
 echo percentGoogleLibrariesAPI($hStats) . "\n";
