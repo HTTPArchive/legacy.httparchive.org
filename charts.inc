@@ -231,7 +231,7 @@ function chdsMinmax($aValues, $bZero = false) {
 function histogram($hStats, $column, $title, $id, $binMultiple=1, $minPercent=1, $color="") {
 	$aVals = explode(",", $hStats["cdf_$column"]);
 	if ( 0 == $aVals[98] ) {
-		return "<!-- $column data not available for this crawl -->\n";
+		return "<!-- $column data not available for this crawl -->";
 	}
 	$hHist = array();
 	foreach($aVals as $val) {
