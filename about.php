@@ -454,6 +454,8 @@ Definitions for each of the HTTP headers can be found in the
 <h2 id=addsite>How do I add a website to the HTTP Archive?</h2>
 <p>
 You can add a website to the HTTP Archive via the <a href="{$gMainUrl}addsite.php">Add a Site page</a>.
+We automatically crawl <a href="#listofurls">the world's top URLs</a> but we'll crawl one URL per domain for any website, 
+even if it's not in the list of top URLs.
 </p>
 
 
