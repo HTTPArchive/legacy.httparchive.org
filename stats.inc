@@ -247,6 +247,25 @@ function getStatsData($label, $slice, $device) {
 }
 
 
+// return a hash of values for a single CDF record
+function getCdfData($label, $slice, $device) {
+	global $gCdfTable;
+
+	$crawl = getCrawl($label, null, $device);
+	$query = "select * from $gCdfTable where crawlid={$crawl['crawlid']} and slice='$slice';";
+	$result2 = doQuery($query);
+	$hCdf = array();
+	while ( $row2 = mysql_fetch_array($result2, MYSQL_NUM) ) {
+		// This is rickety. We assume the columns are returned in a certain order. 
+		$stat = $row2[2];
+		$hCdf["cdf_$stat"] = implode(",", array_slice($row2, 3));
+	}
+	mysql_free_result($result2);
+
+	return $hCdf;
+}
+
+
 // return a hash of values for a single stats record
 function getStatsDataForUrl($label, $slice, $device, $url) {
 	$pagesTable = pagesTable($label, $slice, $device);
@@ -277,7 +296,7 @@ function getStatsDataForUrl($label, $slice, $device, $url) {
 // Returns a hash where the key is the label (run name, eg, "Oct 1 2011").
 // The value for each key is another hash of all the trends data fields. 
 function getTrendsData($slice, $device) {
-	global $gaTrendsGet, $gaTrendsGetLabel;
+	global $gaTrendsGet, $gaTrendsGetLabel, $gCdfTable, $gCrawlsTable;
 
 	$statsTable = statsTable(NULL, $slice, $device);
 
@@ -294,6 +313,20 @@ function getTrendsData($slice, $device) {
 		$hTrends[$row['label']] = $row;
 	}
 	mysql_free_result($result);
+
+	// add CDF data
+	/* TODO
+	$query = "select crawls.crawlid as crawlid, label, stat, percentile50, percentile95 from $gCdfTable as cdf, $gCrawlsTable as crawls where cdf.crawlid=crawls.crawlid and slice='$slice' and location='$device';";
+	$result = doQuery($query);
+	while ( $row = mysql_fetch_assoc($result) ) {
+		// We're adding keys like "reqTotal50" and "reqTotal95" to $hTrends:
+		$label = $row['label'];
+		$stat = $row['stat'];
+		$hTrends[$label]["{$stat}50"] = $row['percentile50'];
+		$hTrends[$label]["{$stat}95"] = $row['percentile95'];
+	}
+	mysql_free_result($result);
+	*/
 
 	return $hTrends;
 }
