@@ -173,7 +173,6 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
 	$version = "";
 	if ( $gbMobile ) {
 		$mobile = "<div class=mobilelabel>MOBILE</div>";
-		$version = "ALPHA";
 	}
 
 	if ( $version ) {
