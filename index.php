@@ -65,7 +65,7 @@ The <a href="https://github.com/HTTPArchive/httparchive">HTTP Archive code</a> i
 <tr>
 <td id=leftarrow class=arrow></td>
 <td>
-<div id=interesting>
+<div id=interesting style="text-align: center;">
 <!-- chart will be inserted here -->
 </div>
 </td>
