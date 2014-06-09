@@ -284,6 +284,9 @@ This chart shows the average PageSpeed score across all websites.
   <dd> This chart shows the average size in kB of the main HTML document for the website.
 NOTE: Right now this is the <i>compressed</i> size. We hope to change that to the uncompressed size in the future.
 
+  <dt id=bytesHtmlDoc> <a href="interesting.php#bytesHtmlDoc">HTML Document Transfer Size</a>
+  <dd> The transfer size of the main HTML document.
+
   <dt id=numDomElements> <a href="trends.php#numDomElements">DOM Elements</a>
   <dd> This charts shows the average number of DOM elements across all websites.
 
@@ -379,6 +382,27 @@ See <a href="#maxage0">Uncacheable Resources</a> for more information.
   <dd> This chart shows the percentage of websites that have at least one redirect.
 A response is classified as a redirect if it has a 3xx status code other than 304.
 Note that the redirect may be from an ad or other third party content.
+
+  <dt id=connections> <a href="interesting.php#connections">Connections per Page</a>
+  <dd> The number of TCP connections opened per page. 
+
+  <dt id=avgdomdepth> <a href="interesting.php#avgdomdepth">Average DOM Depth</a>
+  <dd> The average DOM depth in the page.
+
+  <dt id=docheight> <a href="interesting.php#docheight">Document Height</a>
+  <dd> The document height in pixels.
+
+  <dt id=localstorage> <a href="interesting.php#localstorage">Size of localStorage</a>
+  <dd> The size of localStorage. 
+
+  <dt id=sessionstorage> <a href="interesting.php#sessionstorage">Size of sessionStorage</a>
+  <dd> The size of sessionStorage. 
+
+  <dt id=numiframes> <a href="interesting.php#numiframes">Iframes per Page</a>
+  <dd> The number of iframes in the page.
+
+  <dt id=numscripts> <a href="interesting.php#numscripts">Script Tags per Page</a>
+  <dd> The number of SCRIPT tags in the page. This includes both external and inline scripts.
 
   <dt id=onLoad> <a href="interesting.php#onLoad">Highest Correlation to Load Time</a>
   <dd> This chart shows the five variables that have the highest correlation to page load time.
