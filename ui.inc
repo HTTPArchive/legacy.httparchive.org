@@ -204,8 +204,9 @@ function uiFooter() {
 <a title="dynaTrace Software" href="http://www.dynatrace.com/">dynaTrace Software</a>,
 <a title="Torbit" href="http://torbit.com/">Torbit</a>,
 <a title="Instart Logic" href="http://instartlogic.com/">Instart Logic</a>,
+<a title="Catchpoint Systems" href="http://www.catchpoint.com/">Catchpoint Systems</a>,
 and
-<a title="Catchpoint Systems" href="http://www.catchpoint.com/">Catchpoint Systems</a>.
+<a title="Fastly" href="http://bit.ly/1nWd1oL">Fastly</a>.
 <br>
 powered by <a href="http://www.webpagetest.org">WebPagetest</a>
 </footer>
