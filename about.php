@@ -539,8 +539,9 @@ The HTTP Archive is possible through the support of these sponsors:
 <a title="dynaTrace Software" href="http://www.dynatrace.com/">dynaTrace Software</a>,
 <a title="Torbit" href="http://torbit.com/">Torbit</a>,
 <a title="Instart Logic" href="http://instartlogic.com/">Instart Logic</a>,
+<a title="Catchpoint Systems" href="http://www.catchpoint.com/">Catchpoint Systems</a>,
 and
-<a title="Catchpoint Systems" href="http://www.catchpoint.com/">Catchpoint Systems</a>.
+<a title="Fastly" href="http://bit.ly/1nWd1oL">Fastly</a>.
 </p>
 
 <style>
@@ -559,6 +560,7 @@ and
 <a class=image-link style="" title="Torbit" href="http://torbit.com/"><img class="alignnone" title="Torbit" src="/images/torbit_120.png" alt="" width="120" height="25" /></a>
 <a class=image-link style="" title="Instart Logic" href="http://instartlogic.com/"><img class="alignnone" title="Instart Logic" src="/images/Instart_Logic_Logo_150px-width.jpg" alt="" width=150 height=44 /></a>
 <a class=image-link style="" title="Catchpoint Systems" href="http://www.catchpoint.com/"><img class="alignnone" title="Catchpoint Systems" src="/images/cp-logo-150px.png" alt="" width="150" height="150" /></a>
+<a class=image-link style="" title="Fastly" href="http://bit.ly/1nWd1oL"><img class="alignnone" title="Fastly" src="/images/fastly_logo_115x115.png" alt="" width="115" height="115" /></a>
 <!--
 -->
 </div>
