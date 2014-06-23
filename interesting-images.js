@@ -1,7 +1,5 @@
 <?php
 /*
-Copyright 2010 Google Inc.
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -42,7 +40,6 @@ gaSnippets.push("<?php echo popularImageFormats($hStats) ?>");
 gaSnippets.push("<?php echo maxage($hStats) ?>");
 gaSnippets.push("<?php echo percentByProtocol($hStats) ?>");
 gaSnippets.push("<?php echo requestErrors($hStats) ?>");
-gaSnippets.push("<?php echo redirects($hStats) ?>");
 gaSnippets.push("<?php echo correlationChart($hStats, "onLoad") ?>");
 gaSnippets.push("<?php echo correlationChart($hStats, "renderStart") ?>");
 
