@@ -25,7 +25,7 @@ function resourcesFromHar($aHarResources, $pageref=null) {
 		$resource['method'] = $req['method'];
 		$resource['reqHttpVersion'] = $req['httpVersion'];
 		$resource['url'] = $req['url'];
-		if ( array_key_exists('headersSize', $req) && 0 < $req['headersSize'] ) $resource['reqHeaderSize'] = $req['headersSize'];
+		if ( array_key_exists('headersSize', $req) && 0 < $req['headersSize'] ) $resource['reqHeadersSize'] = $req['headersSize'];
 		if ( array_key_exists('bodySize', $req) && 0 < $req['bodySize'] ) $resource['reqBodySize'] = $req['bodySize'];
 		flattenHeaders($resource, $req['headers'], "req", $ghReqHeaders);
 					   
