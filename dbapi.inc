@@ -488,7 +488,7 @@ June ?, 2014 - add crawlid to requests
   //TODO create index crawlid on requests (crawlid);
 *******************************************************************************/
 function createTables() {
-	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gUrlsChangeTable, $gSettingsTable;
+	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gUrlsChangeTable, $gSettingsTable, $gCdfTable;
 
 	if ( ! tableExists($gPagesTable) ) {
 		$command = "create table $gPagesTable (" .
@@ -770,6 +770,23 @@ function createTables() {
 			", optout boolean not null" .  // did the website owner ask us NOT to crawl their site
 			", primary key (urlOrig(255))" .
 			", index(urlhash)" .
+			") ENGINE MyISAM;";
+		doSimpleCommand($command);
+	}
+
+	// Create CDF table.
+	if ( ! tableExists($gCdfTable) ) {
+		$command = "create table $gCdfTable (" .
+			"crawlid int unsigned not null" .      // crawlid joins with "crawls" table
+			", slice varchar (32) not null" .      // "Top100", "Top1000", "intersection", or "All"
+			", stat varchar (32) not null";        // the stat for this CDF (eg, PageSpeed, or bytesTotal)
+		
+		// add columns for all percentages 1-100
+		for ( $i = 1; $i <= 100; $i++ ) {
+			$command .= ", percentile$i int unsigned not null";
+		}
+
+		$command .= ", primary key (crawlid, slice, stat)" .
 			") ENGINE MyISAM;";
 		doSimpleCommand($command);
 	}
