@@ -497,9 +497,9 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 		array_push($aTuples, "url = '" . mysql_real_escape_string($url) . "'");
 		$urlShort = substr($url, 0, 255);
 		array_push($aTuples, "urlShort = '" . mysql_real_escape_string($urlShort) . "'");
-		$reqHeaderSize = $request->{ 'headersSize' };
-		if ( $reqHeaderSize && 0 < $reqHeaderSize ) {
-			array_push($aTuples, "reqHeaderSize = $reqHeaderSize");
+		$reqHeadersSize = $request->{ 'headersSize' };
+		if ( $reqHeadersSize && 0 < $reqHeadersSize ) {
+			array_push($aTuples, "reqHeadersSize = $reqHeadersSize");
 		}
 		$reqBodySize = $request->{ 'bodySize' };
 		if ( $reqBodySize && 0 < $reqBodySize ) {
@@ -545,9 +545,9 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 		if ( property_exists($response, 'url') ) {
 			array_push($aTuples, "redirectUrl = '" . mysql_real_escape_string($response->{ 'url' }) . "'");
 		}
-		$respHeaderSize = $response->{ 'headersSize' };
-		if ( $respHeaderSize && 0 < $respHeaderSize ) {
-			array_push($aTuples, "respHeaderSize = $respHeaderSize");
+		$respHeadersSize = $response->{ 'headersSize' };
+		if ( $respHeadersSize && 0 < $respHeadersSize ) {
+			array_push($aTuples, "respHeadersSize = $respHeadersSize");
 		}
 		$respBodySize = $response->{ 'bodySize' };
 		if ( $respBodySize && 0 < $respBodySize ) {
