@@ -18,6 +18,60 @@ limitations under the License.
 require_once("utils.inc");
 require_once("dbapi.inc");
 
+$gaCdfStats = array(
+					"TTFB",
+					"renderStart",
+					"onContentLoaded", 
+					"onLoad",
+					"fullyLoaded",
+					"visualComplete",
+					"PageSpeed",
+					"SpeedIndex",
+					"reqTotal",
+					"reqHtml",
+					"reqJS",
+					"reqCSS",
+					"reqImg",
+					"reqGif",
+					"reqJpg",
+					"reqPng",
+					"reqFlash",
+					"reqFont",
+					"reqJson",
+					"reqOther",
+					"bytesTotal",
+					"bytesHtml",
+					"bytesJS",
+					"bytesCSS",
+					"bytesImg",
+					"bytesGif",
+					"bytesJpg",
+					"bytesPng",
+					"bytesFlash",
+					"bytesFont",
+					"bytesJson",
+					"bytesOther",
+					"bytesHtmlDoc",
+					"numDomains",
+					"maxDomainReqs",
+					"numRedirects",
+					"numErrors", 
+					"numGlibs",
+					"numHttps",
+					"numCompressed",
+					"numDomElements",
+					"gzipTotal",
+					"gzipSavings",
+					"_connections",
+					"avg_dom_depth",
+					"document_height",
+					"document_width",
+					"localstorage_size",
+					"sessionstorage_size",
+					"num_iframes",
+					"num_scripts",
+					);
+
 
 function addStats($label, $slice, $device, $hStats=null) {
 	if ( getStatsData($label, $slice, $device) ) {
@@ -404,6 +458,7 @@ function updateStats($label, $slice, $device) {
 		//$hStats += computeCorrelations($label, $slice, $device, $sliceCond, "onLoad");
 		//$hStats += computeCorrelations($label, $slice, $device, $sliceCond, "renderStart");
 		computeOther($label, $slice, $device, $sliceCond, $hStats);
+		computeCdfForCrawl($label);
         $hStats = array_merge($hStats, $newStats); // $newStats will overwrite $hStats for duplicate keys
 	}
 
@@ -420,6 +475,7 @@ function computeStats($label, $slice, $device) {
 	$hStats += computeCorrelations($label, $slice, $device, $sliceCond, "onLoad");
 	$hStats += computeCorrelations($label, $slice, $device, $sliceCond, "renderStart");
 	$hStats += computeOther($label, $slice, $device, $sliceCond);
+	computeCdfForCrawl($label);
 
 	return $hStats;
 }
@@ -670,6 +726,57 @@ function updatePageMaxage($pageid) {
 		", maxageMore = $maxageMore" .
 		" where pageid = $pageid;";
 	doSimpleCommand($cmd);
+}
+
+
+function computeCdfForCrawl($label) {
+	$crawl = getCrawl($label);
+	$aSlices = array("All", "Top1000", "Top100");
+	foreach( $aSlices as $slice ) {
+		computeCdf($crawl, $slice);
+	}
+}
+
+
+// Update the "cdf" table for the desired CDF stats.
+function computeCdf($crawl, $slice) {
+	global $gaCdfStats, $gCdfTable, $gPagesTable;
+
+	$crawlid = $crawl['crawlid'];
+	$label = $crawl['label'];
+	$device = $crawl['location'];
+	$sliceCond = sliceCond($label, $slice, $device);
+	$query = "select count(*) as num from $gPagesTable where $sliceCond;";
+	$numUrls = doSimpleQuery($query);
+	if ( 0 == $numUrls ) {
+		echo "ERROR: no URLs for query: $query\n";
+		return;
+	}
+
+	foreach ( $gaCdfStats as $stat ) {
+		$query = "select $stat from $gPagesTable where $sliceCond order by $stat asc;";
+		$result = doQuery($query);
+		$nRows = mysql_num_rows($result);
+		if ( $nRows != $numUrls ) {
+			echo "WARNING: Row count differs for \"$stat\" for slice \"$slice\": should be $numUrls but only $nRows rows found.\n  $query\n\n";
+		}
+
+		$aTuples = array();
+		for ( $i = 1; $i <= 100; $i++ ) {
+			// skip to the Nth row in the results that corresponds to this percentile
+			// TODO - if N is between rows we should really take an average of the two adjacent values
+			$limit = ceil($i * $nRows / 100) - 1;
+			mysql_data_seek($result, $limit);
+			if ( $row = mysql_fetch_array($result) ) {
+				$val = ( $row[0] ? $row[0] : "0" );
+				array_push($aTuples, "percentile$i = $val");
+			}
+		}
+		mysql_free_result($result);
+
+		$cmd = "REPLACE INTO $gCdfTable SET crawlid=$crawlid, slice='$slice', stat='$stat', " . implode(", ", $aTuples) . ";";
+		doSimpleCommand($cmd);
+	}
 }
 
 ?>
