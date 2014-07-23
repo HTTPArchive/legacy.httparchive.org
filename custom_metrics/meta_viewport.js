@@ -6,4 +6,4 @@ for (var i = 0; i < metaTags.length; i++) {
         break;
     }
 }
-return viewport;
+return viewport.replace(/[\x00-\x1F\x80-\xFF]/g, "");
