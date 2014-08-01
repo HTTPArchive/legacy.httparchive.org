@@ -1,0 +1,17 @@
+MAILTO=steve@souders.org
+0 9 1 * * cd /var/www/httparchive.dev/bulktest/ ; /usr/bin/php batch_start.php
+0 9 15 * * cd /var/www/httparchive.dev/bulktest/ ; /usr/bin/php batch_start.php
+*/30 * * * * cd /var/www/httparchive.dev/bulktest/ ; /usr/bin/php batch_process.php 2>> ./batch.log
+
+# Do mobile a little later after the URL list has been downloaded.
+0 10 1 * * cd /var/www/httparchive.mobile/bulktest/ ; /usr/bin/php batch_start.php
+0 10 15 * * cd /var/www/httparchive.mobile/bulktest/ ; /usr/bin/php batch_start.php
+*/30 * * * * cd /var/www/httparchive.mobile/bulktest/ ; /usr/bin/php batch_process.php 2>> ./batch.log
+
+# send me email if any URLs were added
+#0 5 * * * cd /var/www/httparchive.dev/bulktest/ ; /usr/bin/php urlchanges.php
+
+# Hourly archive pass to archive data to the Internet Archive data store
+MAILTO=pmeenan@webpagetest.org
+45 * * * * cd /var/www/webpagetest/cli/ && /usr/bin/php -c /etc/php5/cli/php.ini archive-ia.php > /dev/null 2>&1
+0,15,30,45 * * * * cd /var/www/webpagetest/work && /usr/bin/php -c /etc/php5/cli/php.ini checklocations.php > /dev/null 2>&1
