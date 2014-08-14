@@ -115,7 +115,7 @@ else {
 <span id=comparedates style="margin-left: 3em;">compare to: 
 <?php 
 // compare two different crawls
-echo selectSiteLabel($url, $gLabel, "", false, true); 
+echo selectSiteLabel($url, $gLabel, "undefined", false, true); 
 ?>
 <a href="javascript:compareDates()"><img border=0 src="/images/new_window_icon.png"></a>
 </span>
