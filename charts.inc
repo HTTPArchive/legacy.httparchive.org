@@ -450,7 +450,7 @@ function formatChart($field, $hTrends, $aRunNames, $labels, $bJson=false) {
 
 
 function getSkip($num, $bNum = false) {
-	$skip = ( $num < 22 ? 1 : ( $num < 32 ? 2 : 3 ) );
+	$skip = ( $num < 22 ? 1 : ( $num < 32 ? 2 : ( $num < 42 ? 3 : ( $num < 52 ? 4 : 5 ) ) ) );
 
 	if ( $bNum ) {
 		return $skip;
