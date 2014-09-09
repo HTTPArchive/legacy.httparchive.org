@@ -1684,6 +1684,7 @@ $ghFieldUnits = array(
 					  "bytesFlash" => "kB",
 					  "bytesImg" => "kB",
 					  "bytesFont" => "kB",
+					  "bytesOther" => "kB",
 					  "perFlash" => "%",
 					  "perFonts" => "%",
 					  "perErrors" => "%",
