@@ -73,7 +73,7 @@ $gaCdfStats = array(
 					);
 
 
-function addStats($label, $slice, $device, $hStats=null) {
+function addStats($label, $slice, $device, $hStats=null, $crawlid=null) {
 	if ( getStatsData($label, $slice, $device) ) {
 		return true;
 	}
@@ -82,11 +82,11 @@ function addStats($label, $slice, $device, $hStats=null) {
 		$hStats = computeStats($label, $slice, $device);
 	}
 
-	return addStatsData($label, $slice, $device, $hStats);
+	return addStatsData($label, $slice, $device, $hStats, $crawlid);
 }
 
 
-function replaceStats($label, $slice=null, $device=null, $hStats=null) {
+function replaceStats($label, $slice=null, $device=null, $hStats=null, $crawlid=null) {
 	$device = ( $device ? $device : curDevice() );
 
 	if ( $slice ) {
@@ -94,7 +94,7 @@ function replaceStats($label, $slice=null, $device=null, $hStats=null) {
 			$hStats = computeStats($label, $slice, $device);
 		}
 		removeStats($label, $slice, $device);
-		addStatsData($label, $slice, $device, $hStats);
+		addStatsData($label, $slice, $device, $hStats, $crawlid);
 	}
 	else {
 		// If $slice is NOT provided, do ALL slices (eg, "All", "Top1000", "Top100").
@@ -102,7 +102,7 @@ function replaceStats($label, $slice=null, $device=null, $hStats=null) {
 		foreach ( $aSlices as $slice ) {
 			$hStats = computeStats($label, $slice, $device);
 			removeStats($label, $slice, $device);
-			addStatsData($label, $slice, $device, $hStats);
+			addStatsData($label, $slice, $device, $hStats, $crawlid);
 		}
 	}
 }
@@ -278,10 +278,13 @@ $gaTrendsGetLabel = array(
 
 
 // return a hash of values for a single stats record
-function addStatsData($label, $slice, $device, $hTuples) {
+function addStatsData($label, $slice, $device, $hTuples, $crawlid=null) {
 	$hTuples["label"] = $label;
 	$hTuples["slice"] = $slice;
 	$hTuples["device"] = $device;
+	if ( $crawlid ) {
+		$hTuples["crawlid"] = $crawlid;
+	}
 	$statstable = statsTable($label, $slice, $device);
 	$cmd = "replace into $statstable set " . hashImplode(", ", "=", $hTuples) . ";";
 
