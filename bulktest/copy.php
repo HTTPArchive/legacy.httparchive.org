@@ -82,7 +82,7 @@ if ( getStats($gLabel, "All", $device) ) {
 }
 else {
 	lprint("Computing stats for $gLabel $device...");
-	replaceStats($gLabel, null, $device);
+	replaceStats($gLabel, null, $device, null, $crawl['crawlid']);
 
 	if ( ! $gbMobile && ( $gStatsTableDesktop != $gStatsTableDev ) ) {
 		lprint("Copy stats to production...");
