@@ -123,9 +123,11 @@ function formatDumpfileItem($epoch, $browser, $url, $filesize, $table=null, $for
 <p>
 In addition to the HTTP Archive <a href="https://github.com/HTTPArchive/httparchive">source code</a> being open source,
 all of the data gathered is available as downloadable MySQL dumps.
-These dumps are also available in <a href="https://bigquery.cloud.google.com/">Google BigQuery</a> thanks to Ilya Grigorik. 
+These dumps are also available in <a href="https://bigquery.cloud.google.com/">Google BigQuery</a> thanks to <a href="https://twitter.com/igrigorik">Ilya Grigorik</a>. 
 For more information see Ilya's blog post <a href="https://www.igvita.com/2013/06/20/http-archive-bigquery-web-performance-answers/">HTTP Archive + BigQuery = Web Performance Answers</a> 
 and <a href="https://www.youtube.com/watch?v=TOFgDSqNRz4">video</a>.
+And checkout all the custom queries shared on <a href="http://bigqueri.es/c/http-archive">BigQueri.es</a>.
+</p>
 
 
 <h2>MySQL Dumps</h2>
