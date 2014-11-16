@@ -71,6 +71,9 @@ The <a href="https://github.com/HTTPArchive/httparchive">HTTP Archive code</a> i
 </td>
 <td id=rightarrow class=arrow></td>
 </table>
+<div>
+<a href="about.php#bigquery">Write your own custom queries!</a>
+</div>
 </center>
 
 <script type="text/javascript">
