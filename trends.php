@@ -36,6 +36,10 @@ $gTitle = "Trends";
 
 <?php echo uiHeader($gTitle); ?>
 
+<div style="float:right; margin-right: 10em;">
+<a href="about.php#bigquery">Write your own custom queries!</a>
+</div>
+
 <h1>Trends</h1>
 
 
