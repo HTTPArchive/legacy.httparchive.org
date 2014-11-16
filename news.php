@@ -39,6 +39,27 @@ DD { margin-left: 40px; font-size: 0.9em; }
 <?php echo uiHeader($gTitle); ?>
 <h1><?php echo $gTitle ?></h1>
 
+<!--
+Sep 10 2014
+	http://filamentgroup.com/lab/performance-rwd.html
+	http://arstechnica.com/information-technology/2014/09/how-a-new-html-element-will-make-the-web-faster/
+	http://www.sitepoint.com/5-grunt-tasks-improve-performance-website/
+	http://www.sitepoint.com/average-page-weights-increase-32-2013/
+	http://www.labnol.org/internet/tools/best-online-tools-for-webmasters-know-everything-about-websites/2744/
+	http://www.webperformancetoday.com/2014/05/21/stop-presses-average-web-page-actually-gotten-smaller-bigger/
+	http://www.webperformancetoday.com/2014/05/28/mobile-optimized-pages-bigger/
+	http://www.webperformancetoday.com/2012/05/24/average-web-page-size-1-mb/
+	http://www.smashingmagazine.com/2014/05/14/responsive-images-done-right-guide-picture-srcset/
+	http://www.smashingmagazine.com/2014/05/14/responsive-images-done-right-guide-picture-srcset/
+	http://money.cnn.com/2014/07/21/technology/innovationnation/google-webp/index.html
+	http://www.lifehacker.jp/2014/05/140502know_website.html
+	http://www.phpied.com/downloading-top-x-sites-data-with-zombiejs/
+	http://calendar.perfplanet.com/2012/progressive-jpegs-a-new-best-practice/
+	http://chimera.labs.oreilly.com/books/1230000000545/ch10.html#_hypertext_web_pages_and_web_applications
+	http://www.infoworld.com/t/adobe-flash/adobe-flash-insecure-outdated-and-here-stay-235898
+	http://www.html5rocks.com/en/mobile/high-dpi/
+	http://alistapart.com/article/one-step-ahead-improving-performance-with-prebrowsing
+-->
 <dl id=news>
   <dt> March 19, 2013
   <dd> Testing change: The default connection speed was increased from DSL (1.5 mbps) to Cable (5.0 mbps).
