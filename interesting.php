@@ -42,6 +42,10 @@ $gTitle = "Interesting Stats";
 
 <?php echo uiHeader($gTitle); ?>
 
+<div style="float:right; margin-right: 10em;">
+<a href="about.php#bigquery">Write your own custom queries!</a>
+</div>
+
 <h1>Interesting stats</h1>
 
 <p>
