@@ -135,6 +135,20 @@ is another variable that affects time measurements.
 in other browsers or locations or connection speeds. They are best used as a source of comparison.</p>
 
 
+<h2 id=bigquery>How do I use BigQuery to write custom queries over the data?</h2>
+
+<p>
+The HTTP Archive <a href="downloads.php">data dumps</a>
+are also available in <a href="https://bigquery.cloud.google.com/">Google BigQuery</a> thanks to <a href="https://twitter.com/igrigorik">Ilya Grigorik</a>. 
+This means you can create your own custom queries like 
+<a href="http://bigqueri.es/t/how-many-resources-return-last-modified-and-or-etag-values/407">How many resources return Last-Modified and/or ETag values?</a> and 
+<a href="http://bigqueri.es/t/what-is-the-distribution-of-1st-party-vs-3rd-party-resources/100/5">What is the distribution of 1st party vs 3rd party resources?</a>.
+For more information see Ilya's blog post <a href="https://www.igvita.com/2013/06/20/http-archive-bigquery-web-performance-answers/">HTTP Archive + BigQuery = Web Performance Answers</a> 
+and <a href="https://www.youtube.com/watch?v=TOFgDSqNRz4">video</a>.
+And checkout all the custom queries shared on <a href="http://bigqueri.es/c/http-archive">BigQueri.es</a>.
+<p>
+
+
 <h2 id=xfersize2012>Why are transfer sizes prior to Oct 1 2012 smaller?</h2>
 
 <p>
