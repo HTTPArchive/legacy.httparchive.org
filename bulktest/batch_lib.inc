@@ -259,7 +259,6 @@ function obtainXMLResult($statusid, $wptid) {
 // Fill the pagestable and requesttable with the info of the median run.
 function fillTables($divisor=NULL, $modulo=NULL) {
 	global $gErrBase;
-
 	$tests = obtainTestsWithCode(META_DONE, $divisor, $modulo);
 
 	if ( !IsEmptyQuery($tests) ) {
@@ -430,16 +429,16 @@ function importPage($page, $statusInfo) {
 	if ( array_key_exists('_doctype', $page) ) {
 		array_push($aTuples, "doctype = '" . mysql_real_escape_string($page->{ '_doctype' }) . "'");
 	}
-	if ( array_key_exists('_document_height', $page) ) {
+	if ( array_key_exists('_document_height', $page) && 0 < $page->{ '_document_height' } ) {
 		array_push($aTuples, "document_height = " . $page->{ '_document_height' });
 	}
-	if ( array_key_exists('_document_width', $page) ) {
+	if ( array_key_exists('_document_width', $page) && 0 < $page->{ '_document_width' } ) {
 		array_push($aTuples, "document_width = " . $page->{ '_document_width' });
 	}
-	if ( array_key_exists('_localstorage_size', $page) ) {
+	if ( array_key_exists('_localstorage_size', $page) && 0 < $page->{ '_localstorage_size' } ) {
 		array_push($aTuples, "localstorage_size = " . $page->{ '_localstorage_size' });
 	}
-	if ( array_key_exists('_sessionstorage_size', $page) ) {
+	if ( array_key_exists('_sessionstorage_size', $page) && 0 < $page->{ '_sessionstorage_size' } ) {
 		array_push($aTuples, "sessionstorage_size = " . $page->{ '_sessionstorage_size' });
 	}
 	if ( array_key_exists('_meta_viewport', $page) ) {
@@ -486,7 +485,7 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 			array_push($aTuples, "_cdn_provider = '" . mysql_real_escape_string($entry->{ '_cdn_provider' }) . "'");
 		}
 		if ( property_exists($entry, '_gzip_save') ) {
-			array_push($aTuples, "_gzip_save = " . $entry->{ '_gzip_save' });
+			array_push($aTuples, "_gzip_save = " . $entry->{ '_gzip_save' });  // amount response WOULD have been reduced if it had been gzipped
 		}
 
 		// REQUEST
