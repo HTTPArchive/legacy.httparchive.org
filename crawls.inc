@@ -157,12 +157,14 @@ function getArchive($label) {
 
 // Return the latest (most recent) crawl for an archive 
 // based on when the pages in that crawl were analyzed.
-function latestCrawl($archive=null, $beforeEpoch=null) {
+function latestCrawl($archive=null, $beforeEpoch=null, $bFinished=true) {
 	global $gArchive;
 	$archive = ( $archive ? $archive : $gArchive );
 	$device = curDevice();
 
-	$query = "select * from " . crawlsTable() . " where finishedDateTime is not null and archive = '$archive' and location='$device'" .
+	$query = "select * from " . crawlsTable() . " where " .
+		( $bFinished ? "finishedDateTime is not null and " : "" ) .
+		"archive = '$archive' and location='$device'" .
 		( $beforeEpoch ? " and startedDateTime <= $beforeEpoch" : "" ) .
 		" order by startedDateTime desc limit 1;";
 	$crawl = doRowQuery($query);
@@ -173,8 +175,8 @@ function latestCrawl($archive=null, $beforeEpoch=null) {
 
 // Return the latest (most recent) crawl for an archive 
 // based on when the pages in that crawl were analyzed.
-function latestCrawlId($archive=null, $beforeEpoch=null) {
-	return latestCrawl($archive, $beforeEpoch)['crawlid'];
+function latestCrawlId($archive=null, $beforeEpoch=null, $bFinished=true) {
+	return latestCrawl($archive, $beforeEpoch, $bFinished)['crawlid'];
 }
 
 
