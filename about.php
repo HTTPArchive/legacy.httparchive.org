@@ -98,7 +98,8 @@ and
 
 <h2 id=datagathered>How is the data gathered?</h2>
 
-<p>The list of URLs is fed to our private instance of <a href="http://webpagetest.org">WebPagetest</a>. 
+<p>The list of URLs is fed to our private instance of <a href="http://webpagetest.org">WebPagetest</a> 
+on the 1st and 15th of each month. 
 (Huge thanks to Pat Meenan!)</p>
 
 <p>The WebPagetest settings are:</p>
