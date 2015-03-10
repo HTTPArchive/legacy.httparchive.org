@@ -52,7 +52,11 @@ if ( $gbImportUrls ) {
 		lprint("Copy 'urls' rows to production...");
 		// We have to do this immediately BEFORE the mobile crawl kicks off.
 		// This is scary but the issue is we need to clear out all the previous ranks, optouts, others, etc. and use what's in urlsdev.
-		doSimpleCommand("delete from $gUrlsTableDesktop;");
+		//CVSNO doSimpleCommand("delete from $gUrlsTableDesktop;");
+		for ( $i = 0; $i <= 9; $i++ ) {
+			// break it up into smaller chunks of rows to delete CVSNO
+			doSimpleCommand("delete from $gUrlsTableDesktop where urlhash like '$i%';");
+		}
 		doSimpleCommand("insert into $gUrlsTableDesktop select * from $gUrlsTableDev;");
 	}
 }
@@ -91,7 +95,7 @@ else if ( $gbMobile ) {
 	loadUrlsFromDB($crawlid, $label, 5000, false);
 }
 else {
-	loadUrlsFromDB($crawlid, $label, 300000, true);
+	loadUrlsFromDB($crawlid, $label, 500000, true);
 }
 
 $numUrls = doSimpleQuery("select count(*) from $gStatusTable where crawlid=$crawlid;");
