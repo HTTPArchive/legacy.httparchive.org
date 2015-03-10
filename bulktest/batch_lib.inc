@@ -244,11 +244,12 @@ function obtainXMLResult($statusid, $wptid) {
 				}
 				else {
 					// There was an error parsing the meta XML result.
-					echo "ERROR: couldn't find median page view for wptid $wptid.\n";
+					dprint("ERROR: couldn't find median page view for wptid $wptid.\n");
 					setStatus($statusid, SUBMIT_DONE + $gErrBase);
 				}
 			} 
 			else {
+				dprint("ERROR: failed parsing $request: status = $status, runs = $runs\n");
 				setStatus($statusid, SUBMIT_DONE + $gErrBase);
 			}
 		}
@@ -258,7 +259,6 @@ function obtainXMLResult($statusid, $wptid) {
 
 // Fill the pagestable and requesttable with the info of the median run.
 function fillTables($divisor=NULL, $modulo=NULL) {
-	global $gErrBase;
 	$tests = obtainTestsWithCode(META_DONE, $divisor, $modulo);
 
 	if ( !IsEmptyQuery($tests) ) {
@@ -314,9 +314,6 @@ function importHarJson($json_text, $statusInfo) {
 	if ( 0 == $pagecount ) {
 		dprint("ERROR($gStatusTable statusid: $statusInfo[statusid]):: No pages found");
 		return false;
-	}
-	if ( 1 < $pagecount ) {
-		dprint("WARNING($gStatusTable statusid: $statusInfo[statusid]):: Only one page is expected per HAR file. This HAR file has " . count($pages) . " pages. Only the first page will be processed.\n");
 	}
 
 	// STEP 1: Create a partial "page" record so we get a pageid.
