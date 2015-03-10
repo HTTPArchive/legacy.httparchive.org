@@ -28,7 +28,7 @@ if ( ! tableExists($gStatusTable) ) {
 
 
 
-$maxPasses = 2; // We'll submit failed URLs no more than this number of times.
+$maxPasses = 3; // We'll submit failed URLs no more than this number of times.
 $labelFromRun = statusLabel();
 if ( ! $labelFromRun ) {
 	// there's no run to finish
