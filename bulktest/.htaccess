@@ -4,7 +4,7 @@ order allow,deny
 deny from all
 </FilesMatch>
 
-<FilesMatch "batch_report.php">
+<FilesMatch "batch_(report|errors).php">
 order allow,deny
 allow from all
 </FilesMatch>
