@@ -73,7 +73,7 @@ and provides a common data set from which to conduct web performance research.
 
 <?php
 // I want some URLs to point back to the main website (currently for adding/removing sites).
-$gMainUrl = ($gbMobile ? $gHAUrl : "" );
+$gMainUrl = ($gbDev ? "" : $gHAUrl );
 
 $gFAQ =<<<OUTPUT
 			   <h2 id=listofurls>How is the list of URLs generated?</h2>
