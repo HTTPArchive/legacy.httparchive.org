@@ -22,7 +22,6 @@ require_once("../status.inc");
 require_once("batch_lib.inc");
 require_once("bootstrap.inc");
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Start a new run
@@ -33,7 +32,7 @@ $gNumUrls = 0;
 $gUrlsFile = null;
 $gbUrlsFileSpecified = 0;
 $gSublabel = "";
-$gbImportUrls = ( $gbMobile ? 0 : 1 );
+$gbImportUrls = ( $gbDev ? 1 : 0 );
 $gLocation = "";
 $startedDateTime = time();
 
@@ -94,7 +93,13 @@ else if ( $gNumUrls ) {
 else if ( $gbMobile ) {
 	loadUrlsFromDB($crawlid, $label, 5000, false);
 }
-else {
+else if ( $gbChrome ) {
+	loadUrlsFromDB($crawlid, $label, 20, false);
+}
+else if ( $gbEmulation ) {
+	loadUrlsFromDB($crawlid, $label, 10, false);
+}
+else if ( $gbDev ) {
 	loadUrlsFromDB($crawlid, $label, 500000, true);
 }
 
