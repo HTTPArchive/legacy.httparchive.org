@@ -45,6 +45,20 @@ $gUrlsTableMobile = "urls";
 $gStatusTableMobile = $gStatusTable . "mobile";
 $gStatsTableMobile = $gStatsTable;  // share the data table - a first step toward a single DB
 
+// Chrome tables
+$gPagesTableChrome = $gPagesTable . "chrome";
+$gRequestsTableChrome = $gRequestsTable . "chrome";
+$gUrlsTableChrome = "urls";
+$gStatusTableChrome = $gStatusTable . "chrome";
+$gStatsTableChrome = $gStatsTable;  // share the data table - a first step toward a single DB
+
+// Emulation tables
+$gPagesTableEmulation = $gPagesTable . "emulation";
+$gRequestsTableEmulation = $gRequestsTable . "emulation";
+$gUrlsTableEmulation = "urls";
+$gStatusTableEmulation = $gStatusTable . "emulation";
+$gStatsTableEmulation = $gStatsTable;  // share the data table - a first step toward a single DB
+
 // Dev tables
 $gPagesTableDev = $gPagesTable . "dev";
 $gRequestsTableDev = $gRequestsTable . "dev";
@@ -73,6 +87,20 @@ else if ( $gbMobile ) {
 	$gStatusTable = $gStatusTableMobile;
 	$gStatsTable = $gStatsTableMobile;
 }
+else if ( $gbChrome ) {
+	// Use a chrome version of the database tables if "chrome" is in the path.
+	$gPagesTable = $gPagesTableChrome;
+	$gRequestsTable = $gRequestsTableChrome;
+	$gStatusTable = $gStatusTableChrome;
+	$gStatsTable = $gStatsTableChrome;
+}
+else if ( $gbEmulation ) {
+	// Use a emulation version of the database tables if "emulation" is in the path.
+	$gPagesTable = $gPagesTableEmulation;
+	$gRequestsTable = $gRequestsTableEmulation;
+	$gStatusTable = $gStatusTableEmulation;
+	$gStatsTable = $gStatsTableEmulation;
+}
 
 
 
@@ -86,7 +114,9 @@ function dateRange($bDefault = false) {
 	// the scope of data. BUT...this is a problem when we want to, for example, present the user with 
 	// a list of labels to choose from - we don't want that list of labels to be limited. 
 	// So in some places we use $dateRangeDefault to get the WHOLE range of data.
-	$dateRangeDefault = ( isPrivateInstance() ? "pageid >= 1" : ( $gbMobile ? "pageid >= 607" : "pageid >= 10281" ) );
+	$dateRangeDefault = ( isPrivateInstance() ? "pageid >= 1" : 
+						  ( $gbMobile ? "pageid >= 607" : 
+							( $gbDev ? "pageid >= 10281" : "pageid >= 1" ) ) );
 	if ( $bDefault ) {
 		return $dateRangeDefault;
 	}
@@ -111,7 +141,9 @@ function dateRangeCrawls($bDefault = false) {
 	// the scope of data. BUT...this is a problem when we want to, for example, present the user with 
 	// a list of labels to choose from - we don't want that list of labels to be limited. 
 	// So in some places we use $dateRangeDefault to get the WHOLE range of data.
-	$dateRangeDefault = ( isPrivateInstance() ? "minPageid >= 1" : ( $gbMobile ? "minPageid >= 607" : "minPageid >= 10281" ) );
+	$dateRangeDefault = ( isPrivateInstance() ? "minPageid >= 1" : 
+						  ( $gbMobile ? "minPageid >= 607" : 
+							( $gbDev ? "minPageid >= 10281" : "minPageid >= 1" ) ) );
 	if ( $bDefault ) {
 		return $dateRangeDefault;
 	}
@@ -135,6 +167,12 @@ function dbtable($table, $device="", $label="", $slice="") {
 	}
 	else if ( isDev() ) {
 		$table .= "dev";
+	}
+	else if ( $gbChrome ) {
+		$table .= "chrome";
+	}
+	else if ( $gbEmulation ) {
+		$table .= "emulation";
 	}
 
 	return $table;
