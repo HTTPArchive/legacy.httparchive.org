@@ -1,6 +1,8 @@
 gDesktopDir := /var/www/httparchive
 gMobileDir := /var/www/httparchive.mobile
 gDevDir := /var/www/httparchive.dev
+gChromeDir := /var/www/httparchive.chrome
+gEmulationDir := /var/www/httparchive.emulation
 
 # harviewer installation: http://code.google.com/p/harviewer/wiki/Installation
 # create "downloads" symlink back to /var/www/httparchive.dev/downloads
@@ -26,6 +28,36 @@ pushmobile :
 	cp -p lists/*.txt $(gMobileDir)/lists/.
 	mkdir -p $(gMobileDir)/harfiles-delme
 	ls -l $(gMobileDir)/har_to_pagespeed
+	echo "push .htaccess!"
+	echo "CVSNO: ln -s $(gDevDir)/harviewer/webapp harviewer"
+	echo "CVSNO: har_to_pagespeed and harfiles-delme"
+
+pushchrome :
+	cp -p *.php *.inc *.js *.css favicon.ico apple-*.png robots.txt $(gChromeDir)/.
+	/bin/rm $(gChromeDir)/admin.php
+	/bin/rm $(gChromeDir)/addsite.php
+	/bin/rm $(gChromeDir)/removesite.php
+	mkdir -p $(gChromeDir)/images
+	cp -p images/*.* $(gChromeDir)/images/.
+	mkdir -p $(gChromeDir)/lists
+	cp -p lists/*.txt $(gChromeDir)/lists/.
+	mkdir -p $(gChromeDir)/harfiles-delme
+	ls -l $(gChromeDir)/har_to_pagespeed
+	echo "push .htaccess!"
+	echo "CVSNO: ln -s $(gDevDir)/harviewer/webapp harviewer"
+	echo "CVSNO: har_to_pagespeed and harfiles-delme"
+
+pushemulation :
+	cp -p *.php *.inc *.js *.css favicon.ico apple-*.png robots.txt $(gEmulationDir)/.
+	/bin/rm $(gEmulationDir)/admin.php
+	/bin/rm $(gEmulationDir)/addsite.php
+	/bin/rm $(gEmulationDir)/removesite.php
+	mkdir -p $(gEmulationDir)/images
+	cp -p images/*.* $(gEmulationDir)/images/.
+	mkdir -p $(gEmulationDir)/lists
+	cp -p lists/*.txt $(gEmulationDir)/lists/.
+	mkdir -p $(gEmulationDir)/harfiles-delme
+	ls -l $(gEmulationDir)/har_to_pagespeed
 	echo "push .htaccess!"
 	echo "CVSNO: ln -s $(gDevDir)/harviewer/webapp harviewer"
 	echo "CVSNO: har_to_pagespeed and harfiles-delme"
