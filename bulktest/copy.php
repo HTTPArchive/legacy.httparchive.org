@@ -35,7 +35,7 @@ lprint("Run \"$gLabel\": min pageid = $minid, max pageid = $maxid");
 
 // copy the rows to production
 $pageidCond = "pageid >= $minid and pageid <= $maxid";
-if ( ! $gbMobile && ( $gPagesTableDesktop != $gPagesTableDev ) ) {
+if ( $gbDev && ( $gPagesTableDesktop != $gPagesTableDev ) ) {
 	$count = doSimpleQuery("select count(*) from $gPagesTableDesktop where $pageidCond;");
 	if ( $count ) {
 		lprint("Rows already copied.");
@@ -84,7 +84,7 @@ else {
 	lprint("Computing stats for $gLabel $device...");
 	replaceStats($gLabel, null, $device, null, $crawl['crawlid']);
 
-	if ( ! $gbMobile && ( $gStatsTableDesktop != $gStatsTableDev ) ) {
+	if ( $gbDev && ( $gStatsTableDesktop != $gStatsTableDev ) ) {
 		lprint("Copy stats to production...");
 		$cmd = "replace into $gStatsTableDesktop select * from $gStatsTableDev where label='$gLabel' and device='$device';";
 		doSimpleCommand($cmd);
@@ -95,8 +95,10 @@ else {
 
 
 // mysqldump files
-dumpCrawl($gLabel);
-dumpOther();
+if ( $gbDev || $gbMobile ) {
+	dumpCrawl($gLabel);
+	dumpOther();
+}
 
 
 cprint(date("G:i") . ": DONE copying latest run to production.");
