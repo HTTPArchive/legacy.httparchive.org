@@ -229,7 +229,7 @@ function randomPageid($crawl) {
 // TODO: This code assumes that ../downloads/ exists. Instead, it should be able to find the download directory.
 function dumpCrawl2($label, $archive=null, $location=null, $bMysql=true, $bCsv=true) {
 	// TODO - delete this code
-	global $gbMobile, $gPagesTableMobile, $gPagesTableDesktop, $gRequestsTableMobile, $gRequestsTableDesktop, $gStatsTableDesktop, $gCrawlsTable, $gUrlsTableDesktop;
+	global $gPagesTableMobile, $gPagesTableDesktop, $gRequestsTableMobile, $gRequestsTableDesktop, $gStatsTableDesktop, $gCrawlsTable, $gUrlsTableDesktop;
 	global $gMysqlUsername, $gMysqlPassword, $gMysqlServer, $gMysqlDb;
 
 	$crawl = getCrawl($label, $archive, $location);
