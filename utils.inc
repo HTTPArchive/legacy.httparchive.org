@@ -28,6 +28,8 @@ $gArchive = getParam("ar", "All");
 $curdir = getcwd(); // for efficiency
 $gbDev = ( FALSE !== strpos($curdir, $gDevDir) || strpos($curdir, "/trunk.httparchive.org") );
 $gbMobile = ( FALSE !== strpos($curdir, $gMobileDir) || strpos($curdir, "/mobile.httparchive.org") );
+$gbChrome = ( FALSE !== strpos($curdir, $gChromeDir) || strpos($curdir, "/chrome.httparchive.org") );
+$gbEmulation = ( FALSE !== strpos($curdir, $gEmulationDir) || strpos($curdir, "/emulation.httparchive.org") );
 
 
 // put this BELOW $gbDev - circular global dependencies :-(
@@ -1551,7 +1553,22 @@ function crawledUrls($pageid=null, $n=20) {
 
 
 function curDevice() {
-	return ( isMobile() ? "iphone4" : "IE8" );
+	global $gbDev, $gbMobile, $gbChrome, $gbEmulation;
+
+	if ( $gbDev ) {
+		return "IE8";
+	}
+	else if ( $gbMobile ) {
+		return "iphone4";
+	}
+	else if ( $gbChrome ) {
+		return "chrome";
+	}
+	else if ( $gbEmulation ) {
+		return "emulation";
+	}
+
+	return "device unknown";
 }
 
 
