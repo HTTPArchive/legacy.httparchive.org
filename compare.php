@@ -26,7 +26,7 @@ $run2 = getParam("r2", null);
 $slice2 = getParam("s2", null);
 
 function genForm($curLabel="", $curSlice="") {
-	global $gArchive, $gbMobile;
+	global $gArchive;
 	$selectRun = selectArchiveLabel($gArchive, $curLabel, true, false);
 	$selectSlice = selectSlice($curSlice);
 
