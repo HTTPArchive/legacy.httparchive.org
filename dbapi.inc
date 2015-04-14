@@ -52,12 +52,12 @@ $gUrlsTableChrome = "urls";
 $gStatusTableChrome = $gStatusTable . "chrome";
 $gStatsTableChrome = $gStatsTable;  // share the data table - a first step toward a single DB
 
-// Emulation tables
-$gPagesTableEmulation = $gPagesTable . "emulation";
-$gRequestsTableEmulation = $gRequestsTable . "emulation";
-$gUrlsTableEmulation = "urls";
-$gStatusTableEmulation = $gStatusTable . "emulation";
-$gStatsTableEmulation = $gStatsTable;  // share the data table - a first step toward a single DB
+// Android tables
+$gPagesTableAndroid = $gPagesTable . "android";
+$gRequestsTableAndroid = $gRequestsTable . "android";
+$gUrlsTableAndroid = "urls";
+$gStatusTableAndroid = $gStatusTable . "android";
+$gStatsTableAndroid = $gStatsTable;  // share the data table - a first step toward a single DB
 
 // Dev tables
 $gPagesTableDev = $gPagesTable . "dev";
@@ -94,12 +94,12 @@ else if ( $gbChrome ) {
 	$gStatusTable = $gStatusTableChrome;
 	$gStatsTable = $gStatsTableChrome;
 }
-else if ( $gbEmulation ) {
-	// Use a emulation version of the database tables if "emulation" is in the path.
-	$gPagesTable = $gPagesTableEmulation;
-	$gRequestsTable = $gRequestsTableEmulation;
-	$gStatusTable = $gStatusTableEmulation;
-	$gStatsTable = $gStatsTableEmulation;
+else if ( $gbAndroid ) {
+	// Use a android version of the database tables if "android" is in the path.
+	$gPagesTable = $gPagesTableAndroid;
+	$gRequestsTable = $gRequestsTableAndroid;
+	$gStatusTable = $gStatusTableAndroid;
+	$gStatsTable = $gStatsTableAndroid;
 }
 
 
@@ -108,7 +108,7 @@ else if ( $gbEmulation ) {
 // Sometimes the date range is affected by querystring params.
 // We also avoid old, undesired data with this.
 function dateRange($bDefault = false) {
-	global $gbMobile;
+	global $gbMobile, $gbDev;
 
 	// Here's the scoop: We use $dateRange as a nice global throughout most of our queries to limit
 	// the scope of data. BUT...this is a problem when we want to, for example, present the user with 
@@ -162,6 +162,8 @@ function dateRangeCrawls($bDefault = false) {
 
 
 function dbtable($table, $device="", $label="", $slice="") {
+	global $gbChrome, $gbAndroid;
+
 	if ( FALSE !== stripos($device, "iphone") ) {
 		$table .= "mobile";
 	}
@@ -171,8 +173,8 @@ function dbtable($table, $device="", $label="", $slice="") {
 	else if ( $gbChrome ) {
 		$table .= "chrome";
 	}
-	else if ( $gbEmulation ) {
-		$table .= "emulation";
+	else if ( $gbAndroid ) {
+		$table .= "android";
 	}
 
 	return $table;
