@@ -1562,7 +1562,7 @@ function curDevice() {
 		return "iphone4";
 	}
 	else if ( $gbChrome ) {
-		return "chrome";
+		return "California:Chrome";
 	}
 	else if ( $gbAndroid ) {
 		return "California:Chrome.3G";
