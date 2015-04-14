@@ -1568,7 +1568,7 @@ function curDevice() {
 		return "California:Chrome.3G";
 	}
 
-	return "device unknown";
+	return "IE8"; // the default for "httparchive.org" is IE8
 }
 
 
