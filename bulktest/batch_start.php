@@ -96,7 +96,7 @@ else if ( $gbMobile ) {
 else if ( $gbChrome ) {
 	loadUrlsFromDB($crawlid, $label, 20, false);
 }
-else if ( $gbEmulation ) {
+else if ( $gbAndroid ) {
 	loadUrlsFromDB($crawlid, $label, 10, false);
 }
 else if ( $gbDev ) {
