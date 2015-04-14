@@ -101,6 +101,6 @@ if ( $gbDev || $gbMobile ) {
 }
 
 
-cprint(date("G:i") . ": DONE copying latest run to production.");
+cprint(date("G:i") . ": DONE finalizing latest run.");
 
 ?>
