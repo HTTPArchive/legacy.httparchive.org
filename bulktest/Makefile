@@ -2,7 +2,7 @@ gDesktopDir := /var/www/httparchive
 gMobileDir := /var/www/httparchive.mobile
 gDevDir := /var/www/httparchive.dev
 gChromeDir := /var/www/httparchive.chrome
-gEmulationDir := /var/www/httparchive.emulation
+gAndroidDir := /var/www/httparchive.android
 
 # We also have bulktest under the mobile directory
 push :
@@ -14,6 +14,6 @@ pushmobile :
 pushchrome :
 	cp -p *.php *.inc .htaccess $(gChromeDir)/bulktest/.
 
-pushemulation :
-	cp -p *.php *.inc .htaccess $(gEmulationDir)/bulktest/.
+pushandroid :
+	cp -p *.php *.inc .htaccess $(gAndroidDir)/bulktest/.
 
