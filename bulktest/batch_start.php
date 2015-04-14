@@ -94,13 +94,13 @@ else if ( $gbMobile ) {
 	loadUrlsFromDB($crawlid, $label, 5000, false);
 }
 else if ( $gbChrome ) {
-	loadUrlsFromDB($crawlid, $label, 20, false);
+	loadUrlsFromDB($crawlid, $label, 5000, false);
 }
 else if ( $gbAndroid ) {
-	loadUrlsFromDB($crawlid, $label, 10, false);
+	loadUrlsFromDB($crawlid, $label, 5000, false);
 }
 else if ( $gbDev ) {
-	loadUrlsFromDB($crawlid, $label, 500000, true);
+	loadUrlsFromDB($crawlid, $label, 500000, true); // THIS IS THE ONLY CRAWL THAT UPDATES THE URLS!
 }
 
 $numUrls = doSimpleQuery("select count(*) from $gStatusTable where crawlid=$crawlid;");
