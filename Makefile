@@ -2,7 +2,7 @@ gDesktopDir := /var/www/httparchive
 gMobileDir := /var/www/httparchive.mobile
 gDevDir := /var/www/httparchive.dev
 gChromeDir := /var/www/httparchive.chrome
-gEmulationDir := /var/www/httparchive.emulation
+gAndroidDir := /var/www/httparchive.android
 
 # harviewer installation: http://code.google.com/p/harviewer/wiki/Installation
 # create "downloads" symlink back to /var/www/httparchive.dev/downloads
@@ -47,17 +47,17 @@ pushchrome :
 	echo "CVSNO: ln -s $(gDevDir)/harviewer/webapp harviewer"
 	echo "CVSNO: har_to_pagespeed and harfiles-delme"
 
-pushemulation :
-	cp -p *.php *.inc *.js *.css favicon.ico apple-*.png robots.txt $(gEmulationDir)/.
-	/bin/rm $(gEmulationDir)/admin.php
-	/bin/rm $(gEmulationDir)/addsite.php
-	/bin/rm $(gEmulationDir)/removesite.php
-	mkdir -p $(gEmulationDir)/images
-	cp -p images/*.* $(gEmulationDir)/images/.
-	mkdir -p $(gEmulationDir)/lists
-	cp -p lists/*.txt $(gEmulationDir)/lists/.
-	mkdir -p $(gEmulationDir)/harfiles-delme
-	ls -l $(gEmulationDir)/har_to_pagespeed
+pushandroid :
+	cp -p *.php *.inc *.js *.css favicon.ico apple-*.png robots.txt $(gAndroidDir)/.
+	/bin/rm $(gAndroidDir)/admin.php
+	/bin/rm $(gAndroidDir)/addsite.php
+	/bin/rm $(gAndroidDir)/removesite.php
+	mkdir -p $(gAndroidDir)/images
+	cp -p images/*.* $(gAndroidDir)/images/.
+	mkdir -p $(gAndroidDir)/lists
+	cp -p lists/*.txt $(gAndroidDir)/lists/.
+	mkdir -p $(gAndroidDir)/harfiles-delme
+	ls -l $(gAndroidDir)/har_to_pagespeed
 	echo "push .htaccess!"
 	echo "CVSNO: ln -s $(gDevDir)/harviewer/webapp harviewer"
 	echo "CVSNO: har_to_pagespeed and harfiles-delme"
