@@ -3,10 +3,18 @@ MAILTO=REPLACE
 0 9 15 * * cd /var/www/httparchive.dev/bulktest/ ; /usr/bin/php batch_start.php
 */30 * * * * cd /var/www/httparchive.dev/bulktest/ ; /usr/bin/php batch_process.php 2>> ./batch.log
 
-# Do mobile a little later after the URL list has been downloaded.
-0 10 1 * * cd /var/www/httparchive.mobile/bulktest/ ; /usr/bin/php batch_start.php
-0 10 15 * * cd /var/www/httparchive.mobile/bulktest/ ; /usr/bin/php batch_start.php
+# Do others a little later after the URL list has been downloaded.
+0 11 1 * * cd /var/www/httparchive.mobile/bulktest/ ; /usr/bin/php batch_start.php
+0 11 15 * * cd /var/www/httparchive.mobile/bulktest/ ; /usr/bin/php batch_start.php
 */30 * * * * cd /var/www/httparchive.mobile/bulktest/ ; /usr/bin/php batch_process.php 2>> ./batch.log
+
+0 11 1 * * cd /var/www/httparchive.android/bulktest/ ; /usr/bin/php batch_start.php
+0 11 15 * * cd /var/www/httparchive.android/bulktest/ ; /usr/bin/php batch_start.php
+*/30 * * * * cd /var/www/httparchive.android/bulktest/ ; /usr/bin/php batch_process.php 2>> ./batch.log
+
+0 11 1 * * cd /var/www/httparchive.chrome/bulktest/ ; /usr/bin/php batch_start.php
+0 11 15 * * cd /var/www/httparchive.chrome/bulktest/ ; /usr/bin/php batch_start.php
+*/30 * * * * cd /var/www/httparchive.chrome/bulktest/ ; /usr/bin/php batch_process.php 2>> ./batch.log
 
 # send me email if any URLs were added
 #0 5 * * * cd /var/www/httparchive.dev/bulktest/ ; /usr/bin/php urlchanges.php
