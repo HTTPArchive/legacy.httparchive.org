@@ -74,7 +74,7 @@ function setStatus($statusid, $status) {
 // Submit the unfinished tests to WPT
 function submitTest(&$record, $status) {
 	global $gStatusTable, $gErrBase;
-	global $video, $private, $runs, $docComplete, $fvonly, $mv, $wptApiKey, $gbNoScript, $gbMobile;
+	global $video, $private, $runs, $docComplete, $fvonly, $mv, $wptApiKey, $gbNoScript, $gbMobileEmul;
 
 	$wptServer = wptServer();
 	$request = $wptServer . 'runtest.php?f=xml&priority=6&url=' . urlencode($record['url']) . 
@@ -82,7 +82,7 @@ function submitTest(&$record, $status) {
 		( $private ? "&private=1" : "" ) .
 		( $video ? "&video=1" : "" ) .
 		"&web10=" . ( $docComplete ? "1" : "0" ) .
-		( $gbMobile ? "&mobile=1" : "" ) .
+		( $gbMobileEmul ? "&mobile=1" : "" ) .
 		"&fvonly=" . ( $fvonly ? "1" : "0" ) .
 		( $mv ? "&mv=1" : "" ) .
 		( $gbNoScript ? "&noscript=1" : "" ) .
