@@ -20,10 +20,12 @@ require_once("utils.inc");
 
 
 function genTitle($addl = "") {
-	global $gbMobile;
+	global $gbMobile, $gbAndroid, $gbChrome;
 
 	return "HTTP Archive " . 
 		( $gbMobile ? "Mobile " : "" ) . 
+		( $gbAndroid ? "Android " : "" ) . 
+		( $gbChrome ? "Chrome " : "" ) . 
 		( $addl ? " - $addl" : "" );
 }
 
@@ -143,7 +145,7 @@ OUTPUT;
 
 
 function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
-	global $gbMobile;
+	global $gbMobile, $gbAndroid, $gbChrome;
 
 	$navlinks = "";
 	if ( $bNavlinks ) {
@@ -169,10 +171,16 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
 </nav>';
 	}
 
-	$mobile = "";
+	$sublogo = "";
 	$version = "";
 	if ( $gbMobile ) {
-		$mobile = "<div class=mobilelabel>MOBILE</div>";
+		$sublogo = "<div class=mobilelabel>MOBILE</div>";
+	}
+	else if ( $gbAndroid ) {
+		$sublogo = "<div class=mobilelabel>ANDROID</div>";
+	}
+	else if ( $gbChrome ) {
+		$sublogo = "<div class=mobilelabel>CHROME</div>";
 	}
 
 	if ( $version ) {
@@ -183,7 +191,7 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
     <header>
 $version
 		<a href="index.php" id="logo" style="line-height: 0.7em;">HTTP Archive</a>
-		$mobile
+		$sublogo
 		$navlinks
 	</header>
 
