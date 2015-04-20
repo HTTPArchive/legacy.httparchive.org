@@ -94,7 +94,7 @@ else if ( $gbMobile ) {
 	loadUrlsFromDB($crawlid, $label, 5000, false);
 }
 else if ( $gbChrome ) {
-	loadUrlsFromDB($crawlid, $label, 5000, false);
+	loadUrlsFromDB($crawlid, $label, 500000, false);
 }
 else if ( $gbAndroid ) {
 	loadUrlsFromDB($crawlid, $label, 5000, false);
