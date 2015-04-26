@@ -526,6 +526,37 @@ May 29, 2014 - add new columns based on custom_metrics feature in WebPagetest
 June ?, 2014 - add crawlid to requests
   alter table requests add column crawlid int unsigned not null;
   //TODO create index crawlid on requests (crawlid);
+
+April 23, 2015 - add ext, type, format to requests, and various req & bytes columns to pages & stats.
+  alter table requests[] add column type varchar (32);
+  alter table requests[] add column ext varchar (8);
+  alter table requests[] add column format varchar (8);
+  alter table pages[] add column reqAudio int(4) unsigned not null;
+  alter table pages[] add column reqVideo int(4) unsigned not null;
+  alter table pages[] add column reqText int(4) unsigned not null;
+  alter table pages[] add column reqXml int(4) unsigned not null;
+  alter table pages[] add column reqWebp int(4) unsigned not null;
+  alter table pages[] add column reqSvg int(4) unsigned not null;
+  alter table pages[] add column bytesAudio int(10) unsigned not null;
+  alter table pages[] add column bytesVideo int(10) unsigned not null;
+  alter table pages[] add column bytesText int(10) unsigned not null;
+  alter table pages[] add column bytesXml int(10) unsigned not null;
+  alter table pages[] add column bytesWebp int(10) unsigned not null;
+  alter table pages[] add column bytesSvg int(10) unsigned not null;
+  alter table stats add column reqAudio float unsigned;
+  alter table stats add column bytesAudio int(10) unsigned;
+  alter table stats add column reqVideo float unsigned;
+  alter table stats add column bytesVideo int(10) unsigned;
+  alter table stats add column reqText float unsigned;
+  alter table stats add column bytesText int(10) unsigned;
+  alter table stats add column reqXml float unsigned;
+  alter table stats add column bytesXml int(10) unsigned;
+  alter table stats add column reqWebp float unsigned;
+  alter table stats add column bytesWebp int(10) unsigned;
+  alter table stats add column reqSvg float unsigned;
+  alter table stats add column bytesSvg int(10) unsigned;
+
+
 *******************************************************************************/
 function createTables() {
 	global $gPagesTable, $gRequestsTable, $gStatusTable, $gStatsTable, $gUrlsTable, $gUrlsChangeTable, $gSettingsTable, $gCdfTable;
@@ -609,6 +640,18 @@ function createTables() {
 			", num_scripts int(8) unsigned not null" .
 			", doctype varchar(255) not null" .
 			", meta_viewport varchar(255) not null" .
+			", reqAudio int(4) unsigned not null" .
+			", reqVideo int(4) unsigned not null" .
+			", reqText int(4) unsigned not null" .
+			", reqXml int(4) unsigned not null" .
+			", reqWebp int(4) unsigned not null" .
+			", reqSvg int(4) unsigned not null" .
+			", bytesAudio int(10) unsigned not null" .
+			", bytesVideo int(10) unsigned not null" .
+			", bytesText int(10) unsigned not null" .
+			", bytesXml int(10) unsigned not null" .
+			", bytesWebp int(10) unsigned not null" .
+			", bytesSvg int(10) unsigned not null" .
 
 			", primary key (pageid)" .
 			", index(urlhash)" .
@@ -791,6 +834,18 @@ function createTables() {
 			", sessionstorage_size int(10) unsigned not null" .
 			", num_iframes int(8) unsigned not null" .
 			", num_scripts int(8) unsigned not null" .
+			", reqAudio float unsigned" .
+			", bytesAudio int(10) unsigned" .
+			", reqVideo float unsigned" .
+			", bytesVideo int(10) unsigned" .
+			", reqText float unsigned" .
+			", bytesText int(10) unsigned" .
+			", reqXml float unsigned" .
+			", bytesXml int(10) unsigned" .
+			", reqWebp float unsigned" .
+			", bytesWebp int(10) unsigned" .
+			", reqSvg float unsigned" .
+			", bytesSvg int(10) unsigned" .
 
 			", primary key (label, slice, device)" .
 			") ENGINE MyISAM;";
@@ -910,6 +965,9 @@ function createRequestsTable($tablename, $aMergeTables=null) {
 		", _cdn_provider varchar(64)" .
 		", _gzip_save int(10) unsigned not null" .
 		", crawlid int unsigned not null" .
+		", type varchar (32)" .   // pretty mime type
+		", ext varchar (8)" .     // file extension, eg, .html
+		", format varchar (8)" .  // file format - svg, flash, etc.
 
 		", primary key (requestid)" .
 		", index(pageid)" .
