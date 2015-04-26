@@ -1,4 +1,11 @@
 <?php
+/*
+ * 
+ * NOTE! group_concat will only return a small number of characters by default (1024). 
+ * You might have to execute this command:
+ *     SET GLOBAL group_concat_max_len = 11000;
+ * 
+ */
 require_once("utils.inc");
 header('Content-Type: text/javascript'); 
 
