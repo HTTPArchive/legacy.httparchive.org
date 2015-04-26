@@ -62,6 +62,8 @@ pushandroid :
 	echo "CVSNO: ln -s $(gDevDir)/harviewer/webapp harviewer"
 	echo "CVSNO: har_to_pagespeed and harfiles-delme"
 
+pushall: push pushmobile pushchrome pushandroid
+
 pushmetrics :
 	mv /var/www/webpagetest/settings/custom_metrics/*.js /tmp/.
 	cp -p custom_metrics/*.js /var/www/webpagetest/settings/custom_metrics/.
