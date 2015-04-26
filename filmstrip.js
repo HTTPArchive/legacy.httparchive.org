@@ -69,7 +69,7 @@ for ( $i = 0; $i <= $maxFrame; $i += 100 ) {
 		$f = "0010";
 	}
 	$sTd .= "<td id=td$i class='$class' style='display: none;'><a target='_blank' href='$url$f.jpg'><img width=" .
-		( $gbMobile ? "93" : "200" ) . 
+		( $gbMobile || $gbAndroid ? "93" : "200" ) . 
 		" height=140 id='{$wptServer}thumbnail.php?test=$wptid&width=200&file=video_$wptrun/frame_$f.jpg'></a></td>";
 }
 ?>
