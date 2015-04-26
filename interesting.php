@@ -112,20 +112,20 @@ echo histogram($hCdf, "reqCSS", "CSS Requests per Page", "reqCSS", 2) . "\n";
 echo histogram($hCdf, "bytesCSS", "CSS Transfer Size per Page", "bytesCSS", 10*1024, 2) . "\n";
 echo histogram($hCdf, "reqImg", "Img Requests per Page", "reqImg", 20) . "\n";
 echo histogram($hCdf, "bytesImg", "Img Transfer Size per Page", "bytesImg", 400*1024, 2) . "\n";
+
 echo histogram($hCdf, "reqGif", "GIF Requests per Page", "reqGif", 5) . "\n";
 echo histogram($hCdf, "bytesGif", "GIF Transfer Size per Page", "bytesGif", 10*1024, 2) . "\n";
 echo histogram($hCdf, "reqJpg", "JPG Requests per Page", "reqJpg", 10) . "\n";
 echo histogram($hCdf, "bytesJpg", "JPG Transfer Size per Page", "bytesJpg", 200*1024, 2) . "\n";
 echo histogram($hCdf, "reqPng", "PNG Requests per Page", "reqPng", 5) . "\n";
 echo histogram($hCdf, "bytesPng", "PNG Transfer Size per Page", "bytesPng", 50*1024, 2) . "\n";
+echo histogram($hCdf, "reqWebp", "Webp Requests per Page", "reqWebp", 5) . "\n";
+echo histogram($hCdf, "bytesWebp", "Webp Transfer Size per Page", "bytesWebp", 5*1024, 2) . "\n";
+
 echo histogram($hCdf, "reqFont", "Font Requests per Page", "reqFont", 2) . "\n";
 echo histogram($hCdf, "bytesFont", "Font Transfer Size per Page", "bytesFont", 40*1024, 2) . "\n";
-echo histogram($hCdf, "reqFlash", "Flash Requests per Page", "reqFlash", 2) . "\n";
-echo histogram($hCdf, "bytesFlash", "Flash Transfer Size per Page", "bytesFlash", 50*1024) . "\n";
-//echo histogram($hCdf, "reqJson", "JSON Requests per Page", "reqJson", 5) . "\n";
-//echo histogram($hCdf, "bytesJson", "JSON Transfer Size per Page", "bytesJson", 1024) . "\n";
-echo histogram($hCdf, "reqOther", "Other Requests per Page", "reqOther", 2) . "\n";
-echo histogram($hCdf, "bytesOther", "Other Transfer Size per Page", "bytesOther", 5*1024) . "\n";
+echo histogram($hCdf, "reqVideo", "Video Requests per Page", "reqVideo", 2) . "\n";
+echo histogram($hCdf, "bytesVideo", "Video Transfer Size per Page", "bytesVideo", 50*1024) . "\n";
 ?>
 </div>
 
