@@ -335,7 +335,7 @@ function importPageMod($hPage) {
 	//tprint("after query", $t_CVSNO);
 	while ($row = mysql_fetch_assoc($result)) {
 		$reqUrl = $row['urlShort'];
-		$mimeType = prettyMimetype($row['mimeType'], $reqUrl);
+		$mimeType = prettyType($row['mimeType'], $reqUrl);
 		$respSize = intval($row['respSize']);
 		$hPage['reqTotal']++;
 		$hPage['bytesTotal'] += $respSize;
