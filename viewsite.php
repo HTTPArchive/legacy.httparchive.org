@@ -102,7 +102,7 @@ echo selectSiteLabel($url, $gLabel);
 <a href="<?php echo rankUrl($url) ?>">Alexa rank: <?php echo commaize( $gRank ) ?></a>
 <span style="margin-left: 3em;">view on 
 <?php
-if ( $gbMobile ) {
+if ( $gbMobile || $gbAndroid ) {
 	echo "<a href='http://httparchive.org/viewsite.php?u=$urlencoded'>desktop</a> or ";
 }
 else {
@@ -159,7 +159,7 @@ OUTPUT;
 OUTPUT;
 	}
 
-	$sBorder = ( $gbMobile ? "2px solid #E0E0E0" : "2px solid #E0E0E0" );
+	$sBorder = ( $gbMobile || $gbAndroid ? "2px solid #E0E0E0" : "2px solid #E0E0E0" );
 	echo <<<OUTPUT
 <section id="videoContainer">
 <div id="videoDiv">
@@ -296,7 +296,7 @@ $("#content").bind("onPreviewInit",
 <h2 id=pagespeed>PageSpeed</h2>
 
 <?php
-if ( ! $gbMobile ) {
+if ( ! $gbMobile && ! $gbAndroid && ! $gbChrome ) {
 	// NOT mobile
 	echo <<<OUTPUT
 <style>
