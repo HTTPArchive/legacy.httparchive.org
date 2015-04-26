@@ -24,32 +24,44 @@ $gPhpFile = ( "/index.php" == $_SERVER['PHP_SELF'] ? "interesting.php" : "" );
 function bytesContentTypeChart($hStats) {
 	$aVarValues = array();
 	$aVarNames = array();
-	$kb = formatSize($hStats['bytesHtml']);
-	if ( $kb ) {
-		$aVarValues[] = $kb;
-		$aVarNames[] = "HTML - $kb kB";
-	}
+
 	$kb = formatSize($hStats['bytesImg']);
 	if ( $kb ) {
 		$aVarValues[] = $kb;
 		$aVarNames[] = "Images - $kb kB";
 	}
-	$kb = formatSize($hStats['bytesJS']);
+
+	$kb = formatSize($hStats['bytesHtml']);
 	if ( $kb ) {
 		$aVarValues[] = $kb;
-		$aVarNames[] = "Scripts - $kb kB";
+		$aVarNames[] = "HTML - $kb kB";
 	}
+
 	$kb = formatSize($hStats['bytesCSS']);
 	if ( $kb ) {
 		$aVarValues[] = $kb;
 		$aVarNames[] = "Stylesheets - $kb kB";
 	}
-	$kb = formatSize($hStats['bytesFlash']);
+
+	$kb = formatSize($hStats['bytesJS']);
 	if ( $kb ) {
 		$aVarValues[] = $kb;
-		$aVarNames[] = "Flash - $kb kB";
+		$aVarNames[] = "Scripts - $kb kB";
 	}
-	$kb = formatSize($hStats['bytesJson'] + $hStats['bytesOther']);
+
+	$kb = formatSize($hStats['bytesFont']);
+	if ( $kb ) {
+		$aVarValues[] = $kb;
+		$aVarNames[] = "Fonts - $kb kB";
+	}
+
+	$kb = formatSize($hStats['bytesVideo']);
+	if ( $kb ) {
+		$aVarValues[] = $kb;
+		$aVarNames[] = "Video - $kb kB";
+	}
+
+	$kb = formatSize($hStats['bytesOther']);
 	if ( $kb ) {
 		$aVarValues[] = $kb;
 		$aVarNames[] = "Other - $kb kB";
@@ -69,11 +81,15 @@ function responseSizes($hStats) {
 	}
 	if ( 0 != $hStats['reqJpg'] ) {
 		$aVarValues[] = formatSize( $hStats['bytesJpg'] / $hStats['reqJpg'] );
-		$aVarNames[] = "JPEG";
+		$aVarNames[] = "JPG";
 	}
 	if ( 0 != $hStats['reqPng'] ) {
 		$aVarValues[] = formatSize( $hStats['bytesPng'] / $hStats['reqPng'] );
 		$aVarNames[] = "PNG";
+	}
+	if ( 0 != $hStats['reqWebp'] ) {
+		$aVarValues[] = formatSize( $hStats['bytesWebp'] / $hStats['reqWebp'] );
+		$aVarNames[] = "WebP";
 	}
 	if ( 0 != $hStats['reqHtml'] ) {
 		$aVarValues[] = formatSize( $hStats['bytesHtml'] / $hStats['reqHtml'] );
@@ -87,9 +103,9 @@ function responseSizes($hStats) {
 		$aVarValues[] = formatSize( $hStats['bytesCSS'] / $hStats['reqCSS'] );
 		$aVarNames[] = "CSS";
 	}
-	if ( 0 != $hStats['reqFlash'] ) {
-		$aVarValues[] = formatSize( $hStats['bytesFlash'] / $hStats['reqFlash'] );
-		$aVarNames[] = "Flash";
+	if ( 0 != $hStats['reqVideo'] ) {
+		$aVarValues[] = formatSize( $hStats['bytesVideo'] / $hStats['reqVideo'] );
+		$aVarNames[] = "Video";
 	}
 
 	if ( ! count($aVarValues) ) {
@@ -136,10 +152,11 @@ function popularImageFormats($hStats) {
 	$gif = round(100*$hStats['reqGif'] / $total);
 	$jpg = round(100*$hStats['reqJpg'] / $total);
 	$png = round(100*$hStats['reqPng'] / $total);
-	$other = 100 - ($gif+$jpg+$png);
+	$webp = round(100*$hStats['reqWebp'] / $total);
+	$other = 100 - ($gif+$jpg+$png+$webp);
 
-	$aVarNames = array("GIF $gif%", "JPEG $jpg%", "PNG $png%", "Other $other%");
-	$aVarValues = array($gif, $jpg, $png, $other);
+	$aVarNames = array("GIF $gif%", "JPG $jpg%", "PNG $png%", "WebP $webp%", "Other $other%");
+	$aVarValues = array($gif, $jpg, $png, $webp, $other);
 
 	return pieChart("Image Requests by Format", "imageformats", $aVarNames, $aVarValues);
 }
@@ -323,7 +340,7 @@ function correlationColumnChart($title, $id, $aNames, $aValues, $color="80C65A")
 function horizontalBarChart($title, $id, $aNames, $aValues, $color="80C65A", $min, $max, $xtitle = "", $bPercentage = false, $markSuffix = "") {
 	global $gPhpFile;
 
-	$height = ( count($aValues) > 7 ? 370 : ( count($aValues) > 5 ? 260 : 220 ) );
+	$height = ( count($aValues) > 9 ? 370 : ( count($aValues) > 7 ? 310 : ( count($aValues) > 5 ? 260 : 220 ) ) );
 
 	return "<a href='$gPhpFile#$id'><img width=640 height=$height id=$id class=chart src='http://chart.apis.google.com/chart?" .
 		( $bPercentage ? "chxp=0,20,40,60,80,100&chxl=0:|20%|40%|60%|80%|100%|1:|" : "chxl=1:|" ) .
