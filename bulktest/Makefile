@@ -17,3 +17,4 @@ pushchrome :
 pushandroid :
 	cp -p *.php *.inc .htaccess $(gAndroidDir)/bulktest/.
 
+pushall: pushmobile pushchrome pushandroid
