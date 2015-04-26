@@ -554,7 +554,12 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 		array_push($aTuples, "respSize = " . $content->{ 'size' });
 		$mimeType = mysql_real_escape_string($content->{ 'mimeType' });
 		array_push($aTuples, "mimeType = '$mimeType'");
-	
+		$ext = mysql_real_escape_string(getExt($url));
+		array_push($aTuples, "ext = '$ext'");
+		$type = prettyType($mimeType, $ext);
+		array_push($aTuples, "type = '$type'");
+		$format = getFormat($type, $mimeType, $ext);
+		array_push($aTuples, "format = '$format'");
 		$headers = $response->{ 'headers' };
 		$other = "";
 		$cookielen = 0;
@@ -667,7 +672,8 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 	$reqTotal = 0;
 	$hSize = array();
 	$hCount = array();
-	foreach(array("flash", "css", "image", "script", "html", "font", "other", "gif", "jpg", "png") as $type) {
+	// This is a list of all mime types AND file formats that we care about.
+	foreach(array("css", "image", "script", "html", "font", "other", "audio", "video", "text", "xml", "gif", "jpg", "png", "webp", "svg", "ico", "flash", "swf", "mp4", "flv", "f4v") as $type) {
 		// initialize the hashes
 		$hSize[$type] = 0;
 		$hCount[$type] = 0;
@@ -676,25 +682,20 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 	$maxageNull = $maxage0 = $maxage1 = $maxage30 = $maxage365 = $maxageMore = 0;
 	$bytesHtmlDoc = $numRedirects = $numErrors = $numGlibs = $numHttps = $numCompressed = $maxDomainReqs = 0;
 
-	$result = doQuery("select mimeType, urlShort, resp_content_type, respSize, expAge, firstHtml, status, resp_content_encoding, req_host from $gRequestsTable where pageid = $pageid;");
+	$result = doQuery("select type, format, urlShort, resp_content_type, respSize, expAge, firstHtml, status, resp_content_encoding, req_host from $gRequestsTable where pageid = $pageid;");
 	while ($row = mysql_fetch_assoc($result)) {
 		$url = $row['urlShort'];
-		$mimeType = prettyMimetype($row['mimeType'], $url);
+		$prettyType = $row['type'];
 		$respSize = intval($row['respSize']);
 		$reqTotal++;
 		$bytesTotal += $respSize;
-		$hCount[$mimeType]++;
-		$hSize[$mimeType] += $respSize;
+		$hCount[$prettyType]++;
+		$hSize[$prettyType] += $respSize;
 
-		if ( "image" === $mimeType ) {
-			$content_type = $row['resp_content_type'];
-			$imgformat = ( false !== stripos($content_type, "image/gif") ? "gif" : 
-						   ( false !== stripos($content_type, "image/jpg") || false !== stripos($content_type, "image/jpeg") ? "jpg" : 
-							 ( false !== stripos($content_type, "image/png") ? "png" : "" ) ) );
-			if ( $imgformat ) {
-				$hCount[$imgformat]++;
-				$hSize[$imgformat] += $respSize;
-			}
+		$format = $row['format'];
+		if ( $format && ("image" === $prettyType || "video" === $prettyType) ) {
+			$hCount[$format]++;
+			$hSize[$format] += $respSize;
 		}
 
 		// count unique domains (really hostnames)
@@ -773,6 +774,12 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 		", reqFlash = " . $hCount['flash'] . ", bytesFlash = " . $hSize['flash'] .
 		", reqFont = " . $hCount['font'] . ", bytesFont = " . $hSize['font'] .
 		", reqOther = " . $hCount['other'] . ", bytesOther = " . $hSize['other'] .
+		", reqAudio = " . $hCount['audio'] . ", bytesAudio = " . $hSize['audio'] .
+		", reqVideo = " . $hCount['video'] . ", bytesVideo = " . $hSize['video'] .
+		", reqText = " . $hCount['text'] . ", bytesText = " . $hSize['text'] .
+		", reqXml = " . $hCount['xml'] . ", bytesXml = " . $hSize['xml'] .
+		", reqWebp = " . $hCount['webp'] . ", bytesWebp = " . $hSize['webp'] .
+		", reqSvg = " . $hCount['svg'] . ", bytesSvg = " . $hSize['svg'] .
 		", numDomains = $numDomains" .
 		", maxageNull = $maxageNull" .
 		", maxage0 = $maxage0" .
@@ -903,29 +910,102 @@ function t_echoagg() {
 	}
 }
 
+
 // Parse out the pithy mime type from the long HTTP response header.
 // This is surprisingly accurate. I spent an hour grepping through the distinct resp_content_types
 // from a single run (Oct 15 2012) and the mistakes were very small - < 0.00001% off.
-function prettyMimetype($mimeType, $url) {
+function prettyType($mimeType, $ext) {
 	$mimeType = strtolower($mimeType);
 
-	// do most unique first
-	foreach(array("flash", "font", "css", "image", "script", "html") as $type) {  // we could add "json" here, but there are only 40K requests w/ "json" in the mimetype, and 200K with "json" in the URL
+	// Order by most unique first.
+	// Do NOT do html because "text/html" is often misused for other types. We catch it below.
+	foreach(array("font", "css", "image", "script", "video", "audio", "xml") as $type) {
 		if ( false !== strpos($mimeType, $type) ) {
 			return $type;
 		}
 	}
 
-	// some fonts don't have "font" in their mimeType (25% as of 12/2012)
-	if ( preg_match('/.*\.eot$/', $url) || preg_match('/.*\.eot\?/', $url) ||
-		 preg_match('/.*\.ttf$/', $url) || preg_match('/.*\.ttf\?/', $url) ||
-		 preg_match('/.*\.woff$/', $url) || preg_match('/.*\.woff\?/', $url) ||
-		 preg_match('/.*\.otf$/', $url) || preg_match('/.*\.otf\?/', $url) ) {
+	// Special cases I found by manually searching.
+	if ( false !== strpos($mimeType, "json") || "js" === $ext || "json" === $ext ) {
+		return "script";
+	}
+	else if ( "eot" === $ext || "ttf" === $ext || "woff" === $ext || "otf" === $ext ) {
 		return "font";
+	}
+	else if ( "png" === $ext || "gif" === $ext || "jpg" === $ext || "jpeg" === $ext || "webp" === $ext || "ico" === $ext || "svg" === $ext ) {
+		return "image";
+	}
+	else if ( "css" === $ext ) {
+		return "css";
+	}
+	else if ( "xml" === $ext ) {
+		return "xml";
+	}
+	else if ( false !== strpos($mimeType, "flash") || "mp4" === $ext || "swf" === $ext || "f4v" === $ext || "flv" === $ext ) {
+		return "video";
+	}
+	else if ( false !== strpos($mimeType, "html") || "html" === $ext || "htm" === $ext ) {
+		// Here is where we catch "text/html" mime type.
+		return "html";
+	}
+	else if ( false !== strpos($mimeType, "text") ) {
+		// Put "text" LAST because it's often misused so $ext should take precedence.
+		return "text";
 	}
 
 	return "other";
 }
+
+
+function getFormat($prettyType, $mimeType, $ext) {
+	if ( "image" === $prettyType ) {
+		// Order by most popular first.
+		foreach( array("jpg", "png", "gif", "webp", "svg", "ico") as $type) {
+			if ( false !== strpos($mimeType, $type) || $ext === $type ) {
+				return $type;
+			}
+		}
+
+		if ( false !== strpos($mimeType, "jpeg") || $ext === "jpeg" ) {
+			return "jpg";
+		}
+	}
+	if ( "video" === $prettyType ) {
+		// Order by most popular first.
+		foreach( array("flash", "swf", "mp4", "flv", "f4v") as $type) {
+			if ( false !== strpos($mimeType, $type) || $ext === $type ) {
+				return $type;
+			}
+		}
+	}
+
+	return "";
+}
+
+
+function getExt($ext) {
+	$iQ = strpos($ext, "?");
+	if ( $iQ ) {
+		$ext = substr($ext, 0, $iQ);
+	}
+
+	$ext = substr($ext, strrpos($ext, "/")+1);
+
+	$iDot = strrpos($ext, ".");
+	if ( FALSE === $iDot ) {
+		$ext = "";
+	}
+	else {
+		$ext = substr($ext, $iDot+1);
+		if ( strlen($ext) > 5 ) {
+			// This technique can find VERY long strings that are not file extensions. Try to weed those out.
+			$ext = "";
+		}
+	}
+
+	return $ext;
+}
+
 
 function lockFilename($device, $proc="uber") { // CVSNO - go back and remove $device from all callers
 	// The file used as a file lock to coordinate the interaction of processes.
