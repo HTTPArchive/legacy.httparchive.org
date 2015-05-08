@@ -1,7 +1,5 @@
 <?php
 /*
-Copyright 2010 Google Inc.
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -24,6 +22,8 @@ $gMysqlPassword = "REPLACE";
 $gDesktopDir = "/var/www/httparchive";
 $gMobileDir = "/var/www/httparchive.mobile";
 $gDevDir = "/var/www/httparchive.dev";
+$gChromeDir = "/var/www/httparchive.chrome";
+$gAndroidDir = "/var/www/httparchive.android";
 
 $gHAUrl = "http://httparchive.org/";
 $gHAMUrl = "http://mobile.httparchive.org/";
