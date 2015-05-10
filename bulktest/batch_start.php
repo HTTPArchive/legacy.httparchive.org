@@ -37,7 +37,14 @@ $gLocation = "";
 $startedDateTime = time();
 
 parseParams();
-checkForBatchRun();    // exit if there's already a batch run going
+
+// do NOT start a new crawl if the current crawl is still running.
+$latestCrawl = latestCrawl(null, null, false);
+if ( ! $latestCrawl['finishedDateTime'] ) {
+	cprint("Can not start a new crawl because the latest crawl (\"{$latestCrawl['label']}\") has not finished.");
+	exit();
+}
+
 createTables();        // Create all the tables if they are not there.
 if ( file_exists("batch.log") ) unlink("batch.log");   // remove log file
 
@@ -48,20 +55,21 @@ if ( $gbImportUrls ) {
 	require_once("importurls.php");
 
 	if ( ! $gbMobile && ( $gPagesTableDesktop != $gPagesTableDev ) ) {
-		lprint("Copy 'urls' rows to production...");
+		lprint("Copy 'urls' rows to production");
 		// We have to do this immediately BEFORE the mobile crawl kicks off.
 		// This is scary but the issue is we need to clear out all the previous ranks, optouts, others, etc. and use what's in urlsdev.
-		//CVSNO doSimpleCommand("delete from $gUrlsTableDesktop;");
-		for ( $i = 0; $i <= 9; $i++ ) {
-			// break it up into smaller chunks of rows to delete CVSNO
-			doSimpleCommand("delete from $gUrlsTableDesktop where urlhash like '$i%';");
+		for ( $i = 0; $i <= 70000; $i += 1000 ) {
+			doSimpleCommand("delete from $gUrlsTableDesktop where urlhash <= $i;");
+			lprint(".");
 		}
 		doSimpleCommand("insert into $gUrlsTableDesktop select * from $gUrlsTableDev;");
+		lprint("done.\n");
 	}
 }
 
 
 // Empty the status table
+lprint("Clear status table...\n");
 removeAllStatusData();
 
 // START THE CRAWL
@@ -82,8 +90,9 @@ createCrawl(array(
 				  ));
 $crawl = getCrawl($label, $gArchive, $locations[0]);
 $crawlid = $crawl['crawlid'];
+lprint("Created crawl $crawlid.\n");
 
-
+lprint("Load URLs...");
 if ( $gUrlsFile && $gbUrlsFileSpecified ) {  // we set $gUrlsFile in importurls.php, so need a boolean to indicate if it was specified
 	loadUrlsFromFile($crawlid, $label, $gUrlsFile);
 }
@@ -94,7 +103,7 @@ else if ( $gbMobile ) {
 	loadUrlsFromDB($crawlid, $label, 5000, false);
 }
 else if ( $gbChrome ) {
-	loadUrlsFromDB($crawlid, $label, 500000, false);
+	loadUrlsFromDB($crawlid, $label, 500000, true);
 }
 else if ( $gbAndroid ) {
 	loadUrlsFromDB($crawlid, $label, 5000, false);
@@ -105,6 +114,8 @@ else if ( $gbDev ) {
 
 $numUrls = doSimpleQuery("select count(*) from $gStatusTable where crawlid=$crawlid;");
 updateCrawlFromId($crawlid, array( "numUrls" => $numUrls ));
+lprint("done.\n");
+
 cprint("DONE submitting batch run");
 
 
@@ -147,26 +158,6 @@ function loadUrl($crawlid, $label, $url, $rank=NULL) {
 
 	foreach ( $locations as $location ) {
 		addStatusData($url, $location, $crawlid, $label, $rank);
-	}
-}
-
-
-// exit if there's already a batch run going
-function checkForBatchRun() {
-	global $locations;
-
-	// A file lock to guarantee there is only one instance running.
-	$fp = fopen(lockFilename($locations[0], "ALL"), "w+");
-
-	if ( !flock($fp, LOCK_EX | LOCK_NB) ) {
-		$pid = getPid("php batch_process.php");
-		if ( 0 < $pid ) {
-			cprint("There's already a batch_process.php process running: $pid\nYou'll have to edit batch_start.php or kill that process yourself.");
-			exit();
-			// TODO - I guess the previous logic was to kill batch_process if batch_start was ever called.
-			// That scares me. It's too easy to type the wrong thing.
-			// killProcessAndChildren($pid);
-		}
 	}
 }
 
