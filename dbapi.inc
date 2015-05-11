@@ -543,18 +543,18 @@ April 23, 2015 - add ext, type, format to requests, and various req & bytes colu
   alter table pages[] add column bytesXml int(10) unsigned not null;
   alter table pages[] add column bytesWebp int(10) unsigned not null;
   alter table pages[] add column bytesSvg int(10) unsigned not null;
-  alter table stats add column reqAudio float unsigned;
-  alter table stats add column bytesAudio int(10) unsigned;
-  alter table stats add column reqVideo float unsigned;
-  alter table stats add column bytesVideo int(10) unsigned;
-  alter table stats add column reqText float unsigned;
-  alter table stats add column bytesText int(10) unsigned;
-  alter table stats add column reqXml float unsigned;
-  alter table stats add column bytesXml int(10) unsigned;
-  alter table stats add column reqWebp float unsigned;
-  alter table stats add column bytesWebp int(10) unsigned;
-  alter table stats add column reqSvg float unsigned;
-  alter table stats add column bytesSvg int(10) unsigned;
+  alter table stats[dev] add column reqAudio float unsigned;
+  alter table stats[dev] add column bytesAudio int(10) unsigned;
+  alter table stats[dev] add column reqVideo float unsigned;
+  alter table stats[dev] add column bytesVideo int(10) unsigned;
+  alter table stats[dev] add column reqText float unsigned;
+  alter table stats[dev] add column bytesText int(10) unsigned;
+  alter table stats[dev] add column reqXml float unsigned;
+  alter table stats[dev] add column bytesXml int(10) unsigned;
+  alter table stats[dev] add column reqWebp float unsigned;
+  alter table stats[dev] add column bytesWebp int(10) unsigned;
+  alter table stats[dev] add column reqSvg float unsigned;
+  alter table stats[dev] add column bytesSvg int(10) unsigned;
 
 
 *******************************************************************************/
