@@ -46,7 +46,6 @@ if ( ! $latestCrawl['finishedDateTime'] ) {
 }
 
 createTables();        // Create all the tables if they are not there.
-if ( file_exists("batch.log") ) unlink("batch.log");   // remove log file
 
 
 // Update the list of URLs from Alexa:
