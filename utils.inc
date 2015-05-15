@@ -1552,19 +1552,19 @@ function crawledUrls($pageid=null, $n=20) {
 }
 
 
-function curDevice() {
+function curDevice($crawlname=null) {
 	global $gbDev, $gbMobile, $gbChrome, $gbAndroid;
 
-	if ( $gbDev ) {
+	if ( "dev" === $crawlname || ( !$crawlname && $gbDev ) ) {
 		return "IE8";
 	}
-	else if ( $gbMobile ) {
+	else if ( "mobile" === $crawlname || ( !$crawlname && $gbMobile ) ) {
 		return "iphone4";
 	}
-	else if ( $gbChrome ) {
+	else if ( "chrome" === $crawlname || ( !$crawlname && $gbChrome ) ) {
 		return "California:Chrome";
 	}
-	else if ( $gbAndroid ) {
+	else if ( "android" === $crawlname || ( !$crawlname && $gbAndroid ) ) {
 		return "California:Chrome.3G";
 	}
 
