@@ -229,9 +229,6 @@ The charts from the <a href="trends.php">Trends</a> and <a href="interesting.php
   <dd> This chart shows the total number of URLs archived during each crawl. 
 This chart is important because the number of URLs (sample size) can affect the metrics being gathered.
 
-  <dt id=renderStart> <a href="trends.php#onLoad">Load Time</a>
-  <dd> This chart plots the average window.onload time in milliseconds.
-
   <dt id=reqTotal> <a href="trends.php#renderStart">Start Render Time</a>
   <dd> Start render is the time at which something was first displayed to the screen.
 
@@ -283,11 +280,6 @@ Note that if the response is compressed, the transfer size is smaller than the o
   <dt id=_connections> <a href="trends.php#_connections">TCP Connections</a>
   <dd> This chart shows the average number of TCP connections that were opened during page load. 
 Crawls before May 15 2014 will show zero for this stat.
-
-  <dt id=SpeedIndex> <a href="trends.php#SpeedIndex">Speed Index</a>
-  <dd> This chart shows the average Speed Index value across all websites. 
-<a href="https://sites.google.com/a/webpagetest.org/docs/using-webpagetest/metrics/speed-index">Speed Index</a> measures how quickly the page is rendered. 
-Lower values are better.
 
   <dt id=PageSpeed> <a href="trends.php#PageSpeed">PageSpeed Score</a>
   <dd> <a href="https://developers.google.com/speed/pagespeed/">PageSpeed</a> is a performance analysis tool that grades websites on
