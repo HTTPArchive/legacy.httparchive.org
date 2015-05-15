@@ -67,15 +67,15 @@ if ( $gbImportUrls ) {
 		$cmd = "insert into $gUrlsTableDesktop select * from $gUrlsTableDev;";
 		cprint("About to copy urls: $cmd");
 		doSimpleCommand($cmd);
-		lprint("done.\n");
-		cprint("done.\n");
+		lprint("done.");
+		cprint("done.");
 	}
 }
 
 
 // Empty the status table
-lprint("Clear status table...\n");
-cprint("Clear status table...\n");
+lprint("Clear status table...");
+cprint("Clear status table...");
 removeAllStatusData();
 
 // START THE CRAWL
@@ -96,8 +96,8 @@ createCrawl(array(
 				  ));
 $crawl = getCrawl($label, $gArchive, $locations[0]);
 $crawlid = $crawl['crawlid'];
-lprint("Created crawl $crawlid.\n");
-cprint("Created crawl $crawlid.\n");
+lprint("Created crawl $crawlid.");
+cprint("Created crawl $crawlid.");
 
 lprint("Load URLs...");
 cprint("Load URLs...");
@@ -122,8 +122,8 @@ else if ( $gbDev ) {
 
 $numUrls = doSimpleQuery("select count(*) from $gStatusTable where crawlid=$crawlid;");
 updateCrawlFromId($crawlid, array( "numUrls" => $numUrls ));
-lprint("done.\n");
-cprint("done.\n");
+lprint("done.");
+cprint("done.");
 
 lprint("DONE submitting batch run");
 cprint("DONE submitting batch run");
