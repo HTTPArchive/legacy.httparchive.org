@@ -43,8 +43,8 @@ foreach( $aCrawlnames as $crawlname ) {
 	}
 	else {
 		$numUrls = $crawl['numUrls'];
-		if ( ( ("dev" === $crawlname || "chrome" === $crawlname) && $numStatus ===  $numUrls ) ||
-			 ( ("mobile" === $crawlname || "android" === $crawlname) && $numStatus === $numUrls ) ) {
+		if ( ( ("dev" === $crawlname || "chrome" === $crawlname) && $numStatus !== $numUrls ) ||
+			 ( ("mobile" === $crawlname || "android" === $crawlname) && $numStatus !== $numUrls ) ) {
 			$sProblems .= "    Only $numUrls URLs (instead of $numStatus) have been set for the $crawlname crawl \"$label\".\n";
 		}
 	}
