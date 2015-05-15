@@ -41,6 +41,7 @@ parseParams();
 // do NOT start a new crawl if the current crawl is still running.
 $latestCrawl = latestCrawl(null, null, false);
 if ( ! $latestCrawl['finishedDateTime'] ) {
+	lprint("Can not start a new crawl because the latest crawl (\"{$latestCrawl['label']}\") has not finished.");
 	cprint("Can not start a new crawl because the latest crawl (\"{$latestCrawl['label']}\") has not finished.");
 	exit();
 }
@@ -55,20 +56,26 @@ if ( $gbImportUrls ) {
 
 	if ( ! $gbMobile && ( $gPagesTableDesktop != $gPagesTableDev ) ) {
 		lprint("Copy 'urls' rows to production");
+		cprint("Copy 'urls' rows to production");
 		// We have to do this immediately BEFORE the mobile crawl kicks off.
 		// This is scary but the issue is we need to clear out all the previous ranks, optouts, others, etc. and use what's in urlsdev.
 		for ( $i = 0; $i <= 70000; $i += 1000 ) {
-			doSimpleCommand("delete from $gUrlsTableDesktop where urlhash <= $i;");
-			lprint(".");
+			$cmd = "delete from $gUrlsTableDesktop where urlhash <= $i;";
+			cprint("About to delete urls: $cmd");
+			doSimpleCommand();
 		}
-		doSimpleCommand("insert into $gUrlsTableDesktop select * from $gUrlsTableDev;");
+		$cmd = "insert into $gUrlsTableDesktop select * from $gUrlsTableDev;";
+		cprint("About to copy urls: $cmd");
+		doSimpleCommand($cmd);
 		lprint("done.\n");
+		cprint("done.\n");
 	}
 }
 
 
 // Empty the status table
 lprint("Clear status table...\n");
+cprint("Clear status table...\n");
 removeAllStatusData();
 
 // START THE CRAWL
@@ -90,8 +97,10 @@ createCrawl(array(
 $crawl = getCrawl($label, $gArchive, $locations[0]);
 $crawlid = $crawl['crawlid'];
 lprint("Created crawl $crawlid.\n");
+cprint("Created crawl $crawlid.\n");
 
 lprint("Load URLs...");
+cprint("Load URLs...");
 if ( $gUrlsFile && $gbUrlsFileSpecified ) {  // we set $gUrlsFile in importurls.php, so need a boolean to indicate if it was specified
 	loadUrlsFromFile($crawlid, $label, $gUrlsFile);
 }
@@ -114,7 +123,9 @@ else if ( $gbDev ) {
 $numUrls = doSimpleQuery("select count(*) from $gStatusTable where crawlid=$crawlid;");
 updateCrawlFromId($crawlid, array( "numUrls" => $numUrls ));
 lprint("done.\n");
+cprint("done.\n");
 
+lprint("DONE submitting batch run");
 cprint("DONE submitting batch run");
 
 
