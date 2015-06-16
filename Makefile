@@ -4,7 +4,7 @@ gDevDir := /var/www/httparchive.dev
 gChromeDir := /var/www/httparchive.chrome
 gAndroidDir := /var/www/httparchive.android
 
-# harviewer installation: http://code.google.com/p/harviewer/wiki/Installation
+# harviewer installation: http://code.google.com/p/harviewer/wiki/Installation 
 # create "downloads" symlink back to /var/www/httparchive.dev/downloads
 
 push :
