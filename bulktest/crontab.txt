@@ -20,6 +20,8 @@ MAILTO=REPLACE
 MAILTO=REPLACE
 0 12 1 * * cd /var/www/httparchive.dev/bulktest ; /usr/bin/php batch_check.php
 0 12 15 * * cd /var/www/httparchive.dev/bulktest ; /usr/bin/php batch_check.php
+25 * * * * cd /var/www/httparchive.chrome/bulktest/ ; /usr/bin/php batch_monitor.php
+55 * * * * cd /var/www/httparchive.chrome/bulktest/ ; /usr/bin/php batch_monitor.php
 
 # Hourly archive pass to archive data to the Internet Archive data store
 MAILTO=REPLACE
