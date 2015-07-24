@@ -258,12 +258,12 @@ function obtainXMLResult($statusid, $wptid) {
 				}
 				else {
 					// There was an error parsing the meta XML result.
-					dprint("ERROR: couldn't find median page view for wptid $wptid.\n");
+					dprint("ERROR: couldn't find median page view for wptid $wptid.");
 					setStatus($statusid, SUBMIT_DONE + $gErrBase);
 				}
 			} 
 			else {
-				dprint("ERROR: failed parsing $request: status = $status, runs = $runs\n");
+				dprint("ERROR: failed parsing $request: status = $status, runs = $runs");
 				setStatus($statusid, SUBMIT_DONE + $gErrBase);
 			}
 		}
