@@ -47,7 +47,7 @@ while ( $crawl = mysql_fetch_assoc($result) ) {
 	$sProblems = "";
 	// If we're far enough into the crawl and the error rate is high.
 	$perDone = round( 100 * $done / $totalUrls );
-	$perFailed = round( 100 * $failedTests / $done );
+	$perFailed = ( $done ? round( 100 * $failedTests / $done : 0 );
 	if ( $gPerDone < $perDone && $gPerFailed < $perFailed ) {
 		$sProblems .= "    WARNING: Failure rate too high: $perDone% URLs completed with $perFailed% failed (threshold set at $gPerFailed%).\n";
 	}
