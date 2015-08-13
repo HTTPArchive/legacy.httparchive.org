@@ -27,7 +27,7 @@ if ( isEmptyQuery($result) ) {
 
 // Check each current crawl.
 $gPerDone = 20;   // percentage of URLs completed to consider the crawl far enough to evaluate for errors
-$gPerFailed = 10; // acceptable failure rate
+$gPerFailed = 15; // acceptable failure rate
 $gFirstDays = 10; // max days to finish the first pass
 $gTotalDays = 13; // max days to finish the crawl
 
@@ -47,7 +47,7 @@ while ( $crawl = mysql_fetch_assoc($result) ) {
 	$sProblems = "";
 	// If we're far enough into the crawl and the error rate is high.
 	$perDone = round( 100 * $done / $totalUrls );
-	$perFailed = ( $done ? round( 100 * $failedTests / $done : 0 );
+	$perFailed = ( $done ? round(100 * $failedTests / $done) : 0 );
 	if ( $gPerDone < $perDone && $gPerFailed < $perFailed ) {
 		$sProblems .= "    WARNING: Failure rate too high: $perDone% URLs completed with $perFailed% failed (threshold set at $gPerFailed%).\n";
 	}
