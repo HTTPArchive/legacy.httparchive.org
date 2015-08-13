@@ -1565,7 +1565,7 @@ function curDevice($crawlname=null) {
 		return "California:Chrome";
 	}
 	else if ( "android" === $crawlname || ( !$crawlname && $gbAndroid ) ) {
-		return "California:Chrome.3G";
+		return "California2:Chrome.3G";
 	}
 
 	return "IE8"; // the default for "httparchive.org" is IE8
