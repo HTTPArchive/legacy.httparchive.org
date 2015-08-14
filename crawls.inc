@@ -147,14 +147,6 @@ function archiveLabels($archive=null, $bEpoch = false, $format = "n/j/y", $bAll=
 }
 
 
-// return the archive for a given label
-function getArchive($label) {
-	global $gPagesTable;
-
-	return doSimpleQuery("select archive from $gPagesTable where label = '$label' limit 1;");
-}
-
-
 // Return the latest (most recent) crawl for an archive 
 // based on when the pages in that crawl were analyzed.
 function latestCrawl($archive=null, $beforeEpoch=null, $bFinished=true) {
@@ -229,7 +221,6 @@ function randomPageid($crawl) {
 // TODO: This code assumes that ../downloads/ exists. Instead, it should be able to find the download directory.
 function dumpCrawl2($label, $archive=null, $location=null, $bMysql=true, $bCsv=true) {
 	// TODO - delete this code
-	global $gPagesTableMobile, $gPagesTableDesktop, $gRequestsTableMobile, $gRequestsTableDesktop, $gStatsTableDesktop, $gCrawlsTable, $gUrlsTableDesktop;
 	global $gMysqlUsername, $gMysqlPassword, $gMysqlServer, $gMysqlDb;
 
 	$crawl = getCrawl($label, $archive, $location);
