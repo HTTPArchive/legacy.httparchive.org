@@ -1405,15 +1405,15 @@ function wptHarFileUrl($wptid, $wptrun, $bCached=0) {
 
 // Return HTML to create a select list of archive labels (eg, "Oct 2010", "Nov 2010").
 function selectArchiveLabel($archive, $curLabel, $bReverse=true, $bOnchage = true, $id="sellabel") {
-	global $gPagesTable;
-	$dateRange = dateRange(true);
+	global $gCrawlsTable;
+	$dateRange = dateRangeCrawls(true);
 
 	$sSelect = "<select" .
 		( $id ? " id='$id' name='$id'" : "" ) .
 		( $bOnchage ? " onchange='document.location=\"?a=$archive&l=\"+escape(this.options[this.selectedIndex].value)'" : "" ) .
 		">\n";
 
-	$query = "select label from $gPagesTable where $dateRange and archive = '$archive' group by label order by startedDateTime " . 
+	$query = "select label from $gCrawlsTable where $dateRange and archive = '$archive' group by label order by crawlId " . 
 		( $bReverse ? "desc" : "asc" ) . ";";
 	$result = doQuery($query);
 	while ($row = mysql_fetch_assoc($result)) {
