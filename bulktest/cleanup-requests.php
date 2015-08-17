@@ -1,0 +1,73 @@
+<?php
+/*
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+// This file is currently meant to be run manually every month or so.
+// The purpose is to free up disk space taken up by rows in the 
+// "requests" and "requestsdev" tables. We do NOT need these rows for
+// any part of the UI, and all of the requests are archived in a dump
+// file for each crawl. I'm too nervous to delete the rows automatically
+// as part of the crawl process. Instead, once everything looks okay,
+// I run this script manually.
+
+require_once("bootstrap.inc");
+require_once("../utils.inc");
+
+$now = time();
+
+$gbActuallyDoit = false;
+if ( array_key_exists(1, $argv) ) {
+	if ( "DOIT" == $argv[1] ) {
+		$gbActuallyDoit = true;
+	}
+	else {
+		echo "Do 'php cleanup-requests.php DOIT' to actually delete the rows.\n";
+	}
+}
+
+$gSkipRuns = 2;  // how many runs we want to skip and leave their requests intact
+cleanupRequests("IE8", "requestsdev");
+cleanupRequests("IE8", "requests");
+cleanupRequests("California:Chrome", "requestschrome");
+
+
+function cleanupRequests($location, $table) {
+	global $gSkipRuns, $gbActuallyDoit;
+
+	$query = "select * from crawls where location = '$location' and finishedDateTime is not null order by crawlid desc limit " . ($gSkipRuns+1) . ";";
+	$results = doQuery($query);
+	mysql_data_seek($results, $gSkipRuns);
+	$row = mysql_fetch_assoc($results);
+	if ( $gbActuallyDoit ) {
+		$nUnfinished = doSimpleQuery("select count(*) from crawls where location = '$location' and finishedDateTime is null;");
+		if ( 0 < $nUnfinished ) {
+			echo "SORRY! There is an unfinished crawl for location '$location'. Skipping the cleanup while the crawl is running.\n";
+			return;
+		}
+
+		// Actually delete rows and optimize the table.
+		echo "Delete requests from \"$table\" table starting with crawl \"{$row['label']}\" crawlid={$row['crawlid']} minPageid={$row['minPageid']} maxPageid={$row['maxPageid']}...\n";
+		$cmd = "delete from $table where crawlid <= {$row['crawlid']};";
+		echo "$cmd\n";
+		doSimpleCommand($cmd);
+		echo "DONE\nOptimize table \"$table\"...\n";
+		doSimpleCommand("optimize table $table;");
+		echo "DONE\n";
+	}
+	else {
+		echo "WOULD delete requests from \"$table\" table starting with crawl \"{$row['label']}\" crawlid={$row['crawlid']} minPageid={$row['minPageid']} maxPageid={$row['maxPageid']}...\n";
+	}
+}
+
+?>
