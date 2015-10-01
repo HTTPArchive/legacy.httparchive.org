@@ -201,7 +201,7 @@ OUTPUT;
 
 function uiFooter() {
 	return <<<OUTPUT
-<footer style="text-align: center;">
+<footer style="text-align: center; margin-left: 8em; margin-right: 8em;">
 <a href="about.php#sponsors">sponsors</a>: 
 <a title="Google" href="http://www.google.com/">Google</a>,
 <a title="Mozilla" href="http://www.mozilla.org/firefox">Mozilla</a>,
@@ -213,8 +213,9 @@ function uiFooter() {
 <a title="Torbit" href="http://torbit.com/">Torbit</a>,
 <a title="Instart Logic" href="http://instartlogic.com/">Instart Logic</a>,
 <a title="Catchpoint Systems" href="http://www.catchpoint.com/">Catchpoint Systems</a>,
+<a title="Fastly" href="http://bit.ly/1nWd1oL">Fastly</a>,
 and
-<a title="Fastly" href="http://bit.ly/1nWd1oL">Fastly</a>.
+<a title="SOASTA mPulse" href="https://www.soasta.com/mpulse/sign-up/">SOASTA mPulse</a>.
 <br>
 powered by <a href="http://www.webpagetest.org">WebPagetest</a>
 </footer>
