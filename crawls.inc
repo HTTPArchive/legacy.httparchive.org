@@ -314,7 +314,7 @@ function dumpCrawl($label, $archive=null, $location=null) {
 // Dump the other "meta" tables not specific to a crawl.
 // TODO: This code assumes that ../downloads/ exists. Instead, it should be able to find the download directory.
 function dumpOther() {
-	global $gbMobile, $gPagesTableMobile, $gPagesTableDesktop, $gRequestsTableMobile, $gRequestsTableDesktop, $gStatsTableDesktop, $gCrawlsTable, $gUrlsTableDesktop;
+	global $gbDev, $gPagesTableMobile, $gPagesTableDesktop, $gRequestsTableMobile, $gRequestsTableDesktop, $gStatsTableDesktop, $gCrawlsTable, $gUrlsTableDesktop;
 	global $gMysqlUsername, $gMysqlPassword, $gMysqlServer, $gMysqlDb;
 
 	// stats mysql dump - create this after all crawls both desktop & mobile
@@ -332,7 +332,7 @@ function dumpOther() {
 	lprint("...mysqldump file created: $dumpfile.gz");
 
 	// schema & urls dumps - only create these for desktop
-	if ( ! $gbMobile ) {
+	if ( $gbDev ) {
 		// schema mysql dump
 		$dumpfile = "../downloads/httparchive_schema.sql";
 		lprint("Creating mysqldump file $dumpfile ...");
@@ -574,7 +574,8 @@ function dumpfileName2($tablename, $format="") {
 // $table is either "pages" or "requests"
 // $format is "" or "csv"
 function dumpfileName($label, $table="", $format="") {
-	global $gbMobile;
+	global $gbMobile, $gbAndroid, $gbChrome;
+	$crawlType = ( $gbMobile ? "mobile_" : ( $gbChrome ? "chrome_" : ( $gbAndroid ? "android_" : "" ) ) );
 
 	$downloadsDir;
 	if ( file_exists("./downloads") ) {
@@ -587,8 +588,8 @@ function dumpfileName($label, $table="", $format="") {
 		tprint("ERROR: Can't find downloads directory.");
 		exit(1);
 	}
-		
-	$dumpfile = "$downloadsDir/httparchive_" . ( $gbMobile ? "mobile_" : "" ) . str_replace(" ", "_", $label) . 
+
+	$dumpfile = "$downloadsDir/httparchive_$crawlType" . str_replace(" ", "_", $label) . 
 		( $table ? "_$table" : "" ) . ( $format ? ".$format" : "" );
 	//CVSNO - use this function up above wherever there's a TODO
 
