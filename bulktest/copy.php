@@ -18,6 +18,7 @@ limitations under the License.
 require_once("../settings.inc");
 require_once("../utils.inc");
 
+
 // $gParamLabel is a hack to allow for require(copy.php)
 $gLabel = ( isset($gParamLabel) ? $gParamLabel : $argv[1] );
 if ( !$gLabel ) {
@@ -95,7 +96,7 @@ else {
 
 
 // mysqldump files
-if ( $gbDev || $gbMobile ) {
+if ( $gbDev || $gbMobile || $gbChrome || $gbAndroid ) {
 	dumpCrawl($gLabel);
 	dumpOther();
 }
