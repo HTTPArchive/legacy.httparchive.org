@@ -91,6 +91,10 @@ function responseSizes($hStats) {
 		$aVarValues[] = formatSize( $hStats['bytesWebp'] / $hStats['reqWebp'] );
 		$aVarNames[] = "WebP";
 	}
+	if ( 0 != $hStats['reqSvg'] ) {
+		$aVarValues[] = formatSize( $hStats['bytesSvg'] / $hStats['reqSvg'] );
+		$aVarNames[] = "SVG";
+	}
 	if ( 0 != $hStats['reqHtml'] ) {
 		$aVarValues[] = formatSize( $hStats['bytesHtml'] / $hStats['reqHtml'] );
 		$aVarNames[] = "HTML";
@@ -153,10 +157,11 @@ function popularImageFormats($hStats) {
 	$jpg = round(100*$hStats['reqJpg'] / $total);
 	$png = round(100*$hStats['reqPng'] / $total);
 	$webp = round(100*$hStats['reqWebp'] / $total);
-	$other = 100 - ($gif+$jpg+$png+$webp);
+	$svg = round(100*$hStats['reqSvg'] / $total);
+	$other = 100 - ($gif+$jpg+$png+$webp+$svg);
 
-	$aVarNames = array("GIF $gif%", "JPG $jpg%", "PNG $png%", "WebP $webp%", "Other $other%");
-	$aVarValues = array($gif, $jpg, $png, $webp, $other);
+	$aVarNames = array("GIF $gif%", "JPG $jpg%", "PNG $png%", "WebP $webp%", "SVG $svg%", "Other $other%");
+	$aVarValues = array($gif, $jpg, $png, $webp, $svg, $other);
 
 	return pieChart("Image Requests by Format", "imageformats", $aVarNames, $aVarValues);
 }
