@@ -461,6 +461,15 @@ function importPage($page, $statusInfo) {
 	if ( array_key_exists('_num_scripts', $page) ) {
 		array_push($aTuples, "num_scripts = " . $page->{ '_num_scripts' });
 	}
+	if ( array_key_exists('_num_scripts_sync', $page) ) {
+		array_push($aTuples, "num_scripts_sync = " . $page->{ '_num_scripts_sync' });
+	}
+	if ( array_key_exists('_num_scripts_async', $page) ) {
+		array_push($aTuples, "num_scripts_async = " . $page->{ '_num_scripts_async' });
+	}
+	if ( array_key_exists('_usertiming', $page) ) {
+		array_push($aTuples, "usertiming = " . $page->{ '_usertiming' });
+	}
 
 	$cmd = "INSERT INTO $gPagesTable SET " . implode(", ", $aTuples) . ";";
 	t_mark('importPage: insert into pages');
