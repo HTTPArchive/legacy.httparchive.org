@@ -31,6 +31,8 @@ function listFiles($hFiles) {
 			$sHtml .= "  <li> $label: " .
 				( array_key_exists('IE', $hFiles[$epoch]) ? "<br>&nbsp;&nbsp;" . $hFiles[$epoch]['IE'] : "" ) .
 				( array_key_exists('iPhone', $hFiles[$epoch]) ? "<br>&nbsp;&nbsp;" . $hFiles[$epoch]['iPhone'] : "" ) .
+				( array_key_exists('Chrome', $hFiles[$epoch]) ? "<br>&nbsp;&nbsp;" . $hFiles[$epoch]['Chrome'] : "" ) .
+				( array_key_exists('Android', $hFiles[$epoch]) ? "<br>&nbsp;&nbsp;" . $hFiles[$epoch]['Android'] : "" ) .
 				"\n";
 		}
 	}
@@ -84,7 +86,9 @@ function addFile(&$hFiles, $filename, $url, $size) {
 			$hFiles[$epoch] = array();
 		}
 
-        $browser = ( strpos($filename, "_mobile_") ? 'iPhone' : 'IE' );
+        $browser = ( strpos($filename, "_mobile_") ? 'iPhone' : 
+					 ( strpos($filename, "_chrome_") ? 'Chrome' :
+					   ( strpos($filename, "_android_") ? 'Android' : 'IE' ) ) );
 		if ( strpos($filename, "_requests.csv") ) {
 			// There should be 4 files: _pages.gz, _pages.csv.gz, _requests.gz, _requests.csv.gz
 			// If we see _requests.csv we assume the other 3 exist and format accordingly and
@@ -164,7 +168,7 @@ These files define the schema and the meta-level tables:
 
 
 <p>
-There's a download file for each crawl for desktop ("IE") and mobile ("iPhone"):
+There's a download file for each crawl for desktop ("IE") and mobile ("iPhone"), and more recently for desktop Chrome ("Chrome") and Android via Chrome emulation ("Android"):
 </p>
 <ul class=indent>
 <?php echo listFiles($ghFiles) ?>
