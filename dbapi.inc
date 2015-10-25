@@ -556,6 +556,12 @@ April 23, 2015 - add ext, type, format to requests, and various req & bytes colu
   alter table stats[dev] add column reqSvg float unsigned;
   alter table stats[dev] add column bytesSvg int(10) unsigned;
 
+May 29, 2014 - add new columns for custom_metrics to pages[dev, mobile, chrome, android]:
+             - allow null so we can see if script is failing - not sure if this will cause problems
+  alter table pages add column num_scripts_async int(8) unsigned, 
+                    add column num_scripts_sync int(8) unsigned, 
+                    add column usertiming int(8) unsigned;
+
 
 *******************************************************************************/
 function createTables() {
@@ -652,6 +658,9 @@ function createTables() {
 			", bytesXml int(10) unsigned not null" .
 			", bytesWebp int(10) unsigned not null" .
 			", bytesSvg int(10) unsigned not null" .
+			", num_scripts_async int(8) unsigned" .
+			", num_scripts_sync int(8) unsigned" .
+			", usertiming int(8) unsigned" .
 
 			", primary key (pageid)" .
 			", index(urlhash)" .
@@ -846,6 +855,9 @@ function createTables() {
 			", bytesWebp int(10) unsigned" .
 			", reqSvg float unsigned" .
 			", bytesSvg int(10) unsigned" .
+			", num_scripts_sync int(8) unsigned not null" .
+			", num_scripts_async int(8) unsigned not null" .
+			", usertiming int(8) unsigned not null" .
 
 			", primary key (label, slice, device)" .
 			") ENGINE MyISAM;";
