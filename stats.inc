@@ -82,6 +82,9 @@ $gaCdfStats = array(
 					"sessionstorage_size",
 					"num_iframes",
 					"num_scripts",
+					"num_scripts_async",
+					"num_scripts_sync",
+					"usertiming"
 					);
 
 
@@ -243,6 +246,9 @@ $gaTrendsCompute = array(
 					  "ROUND(AVG(sessionstorage_size)) as sessionstorage_size",
 					  "ROUND(AVG(num_iframes)) as num_iframes",
 					  "ROUND(AVG(num_scripts)) as num_scripts",
+					  "ROUND(AVG(num_scripts_async)) as num_scripts_async",
+					  "ROUND(AVG(num_scripts_sync)) as num_scripts_sync",
+					  "ROUND(AVG(usertiming)) as usertiming"
 					  );
 
 
@@ -267,6 +273,9 @@ $gaTrendsGet = array(
 					 "avg_dom_depth",
 					 "num_iframes",
 					 "num_scripts",
+					 "num_scripts_async",
+					 "num_scripts_sync",
+					 "usertiming",
 
 					 "ROUND(reqTotal) as reqTotal",       // if there are A LOT of requests, do ROUND
 					 "ROUND(reqHtml, 1) as reqHtml",   // if there are A FEW requests, show a float
