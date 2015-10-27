@@ -264,7 +264,7 @@ function dumpCrawl2($label, $archive=null, $location=null, $bMysql=true, $bCsv=t
 // Create the Mysql dump files for a crawl.
 // TODO: This code assumes that ../downloads/ exists. Instead, it should be able to find the download directory.
 function dumpCrawl($label, $archive=null, $location=null) {
-	global $gbMobile, $gPagesTableMobile, $gPagesTableDesktop, $gRequestsTableMobile, $gRequestsTableDesktop, $gStatsTableDesktop, $gCrawlsTable, $gUrlsTableDesktop;
+	global $gbDev, $gPagesTable, $gPagesTableDesktop, $gRequestsTable, $gRequestsTableDesktop, $gStatsTableDesktop, $gCrawlsTable, $gUrlsTableDesktop;
 	global $gMysqlUsername, $gMysqlPassword, $gMysqlServer, $gMysqlDb;
 
 	$crawl = getCrawl($label, $archive, $location);
@@ -276,7 +276,7 @@ function dumpCrawl($label, $archive=null, $location=null) {
 
 	// pages
 	// We have to EXPLICITLY specify the Desktop table because we do NOT want the dump file to point to a DEV table.
-	$pagesTable = ( $gbMobile ? $gPagesTableMobile : $gPagesTableDesktop );
+	$pagesTable = ( $gbDev ? $gPagesTableDesktop : $gPagesTable );
 	$dumpfile = dumpfileName($label, "pages");
 	$cmd = "mysqldump --where='$pageidCond' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $pagesTable | gzip > $dumpfile.gz";
 	exec($cmd);
@@ -295,7 +295,7 @@ function dumpCrawl($label, $archive=null, $location=null) {
 	lprint("...mysqldump file created: $dumpfile.gz");
 
 	// requests
-	$requestsTable = ( $gbMobile ? $gRequestsTableMobile : $gRequestsTableDesktop );
+	$requestsTable = ( $gbDev ? $gRequestsTableDesktop : $gRequestsTable );
 	$dumpfile = dumpfileName($label, "requests");
 	$cmd = "mysqldump --where='$pageidCond' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $requestsTable | gzip > $dumpfile.gz";
 	exec($cmd);
