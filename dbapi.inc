@@ -562,6 +562,9 @@ May 29, 2014 - add new columns for custom_metrics to pages[dev, mobile, chrome, 
                     add column num_scripts_sync int(8) unsigned, 
                     add column usertiming int(8) unsigned;
 
+  alter table stats add column num_scripts_async int(8) unsigned not null, 
+                    add column num_scripts_sync int(8) unsigned not null, 
+                    add column usertiming int(8) unsigned not null;
 
 *******************************************************************************/
 function createTables() {
