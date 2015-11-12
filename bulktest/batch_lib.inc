@@ -946,7 +946,7 @@ function prettyType($mimeType, $ext) {
 	if ( false !== strpos($mimeType, "json") || "js" === $ext || "json" === $ext ) {
 		return "script";
 	}
-	else if ( "eot" === $ext || "ttf" === $ext || "woff" === $ext || "otf" === $ext ) {
+	else if ( "eot" === $ext || "ttf" === $ext || "woff" === $ext || "woff2" === $ext || "otf" === $ext ) {
 		return "font";
 	}
 	else if ( "png" === $ext || "gif" === $ext || "jpg" === $ext || "jpeg" === $ext || "webp" === $ext || "ico" === $ext || "svg" === $ext ) {
