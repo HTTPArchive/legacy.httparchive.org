@@ -501,10 +501,10 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 		$startedDateTime = strtotime($entry->{ 'startedDateTime' }); // we use this below for expAge calculation
 		array_push($aTuples, "startedDateTime = $startedDateTime");
 		array_push($aTuples, "time = " . $entry->{ 'time' });
-		if ( property_exists($entry, '_cdn_provider') ) {
+		if ( property_exists($entry, '_cdn_provider') && null !== $entry->{'_cdn_provider'} ) {
 			array_push($aTuples, "_cdn_provider = '" . mysql_real_escape_string($entry->{ '_cdn_provider' }) . "'");
 		}
-		if ( property_exists($entry, '_gzip_save') ) {
+		if ( property_exists($entry, '_gzip_save') && null !== $entry->{'_gzip_save'} ) {
 			array_push($aTuples, "_gzip_save = " . $entry->{ '_gzip_save' });  // amount response WOULD have been reduced if it had been gzipped
 		}
 
@@ -561,7 +561,7 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 		$status = $response->{ 'status' };
 		array_push($aTuples, "status = $status");
 		array_push($aTuples, "respHttpVersion = '" . $response->{ 'httpVersion' } . "'");
-		if ( property_exists($response, 'url') ) {
+		if ( property_exists($response, 'url') && null !== $response->{'url'} ) {
 			array_push($aTuples, "redirectUrl = '" . mysql_real_escape_string($response->{ 'url' }) . "'");
 		}
 		$respHeadersSize = $response->{ 'headersSize' };
