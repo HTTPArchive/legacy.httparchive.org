@@ -490,6 +490,7 @@ function updateStats($label, $slice, $device) {
 		// TODO - We don't try to update these for now.
 		//$hStats += computeCorrelations($label, $slice, $device, $sliceCond, "onLoad");
 		//$hStats += computeCorrelations($label, $slice, $device, $sliceCond, "renderStart");
+		//$hStats += computeCorrelations($label, $slice, $device, $sliceCond, "SpeedIndex");
 		computeOther($label, $slice, $device, $sliceCond, $hStats);
 		computeCdfForCrawl($label);
         $hStats = array_merge($hStats, $newStats); // $newStats will overwrite $hStats for duplicate keys
@@ -507,6 +508,7 @@ function computeStats($label, $slice, $device) {
 	$hStats += computeTrendStats($label, $slice, $device, $sliceCond);
 	$hStats += computeCorrelations($label, $slice, $device, $sliceCond, "onLoad");
 	$hStats += computeCorrelations($label, $slice, $device, $sliceCond, "renderStart");
+	$hStats += computeCorrelations($label, $slice, $device, $sliceCond, "SpeedIndex");
 	$hStats += computeOther($label, $slice, $device, $sliceCond);
 	computeCdfForCrawl($label);
 
