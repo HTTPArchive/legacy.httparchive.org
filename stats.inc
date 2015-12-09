@@ -535,7 +535,7 @@ function computeCorrelations($label, $slice, $device, $sliceCond, $var1) {
 
 	// TODO - make this more flexible
 	$hCC = array(); // hash key is the CC *VALUE*
-	$aVars = array("SpeedIndex", "reqTotal", "reqHtml", "reqJS", "reqCSS", "reqImg", "reqGif", "reqJpg", "reqPng", "reqFont", "reqFlash", "reqOther", "bytesTotal", "bytesHtml", "bytesJS", "bytesCSS", "bytesImg", "bytesGif", "bytesJpg", "bytesPng", "bytesFont", "bytesFlash", "bytesOther", "bytesHtmlDoc", "numDomains", "maxDomainReqs", "numRedirects", "numErrors", "numHttps", "numCompressed", "numDomElements", "maxage0");
+	$aVars = array("SpeedIndex", "num_scripts_async", "num_scripts_sync", "num_scripts", "(num_scripts_sync+reqCss)", "(num_scripts_async+reqCss)", "(num_scripts+reqCss)", "(reqJS+reqCss)", "reqTotal", "reqHtml", "reqJS", "reqCSS", "reqImg", "reqGif", "reqJpg", "reqPng", "reqFont", "reqFlash", "reqOther", "bytesTotal", "bytesHtml", "bytesJS", "bytesCSS", "bytesImg", "bytesGif", "bytesJpg", "bytesPng", "bytesFont", "bytesFlash", "bytesOther", "bytesHtmlDoc", "numDomains", "maxDomainReqs", "numRedirects", "numErrors", "numHttps", "numCompressed", "numDomElements", "maxage0");
 	foreach ($aVars as $var2) {
 		// from http://www.freeopenbook.com/mysqlcookbook/mysqlckbk-chp-13-sect-6.html
 		$cmd = "SELECT @n := COUNT($var1) AS n, @sumX := SUM($var2) AS 'sumX', @sumXX := SUM($var2*$var2) AS 'sumXX', @sumY := SUM($var1) AS 'sumY', @sumYY := SUM($var1*$var1) AS 'sumYY', @sumXY := SUM($var2*$var1) AS 'sumXY' FROM $pagesTable where $sliceCond and $var2 is not null and $var2 > 0;";
