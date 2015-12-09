@@ -556,7 +556,7 @@ April 23, 2015 - add ext, type, format to requests, and various req & bytes colu
   alter table stats[dev] add column reqSvg float unsigned;
   alter table stats[dev] add column bytesSvg int(10) unsigned;
 
-May 29, 2014 - add new columns for custom_metrics to pages[dev, mobile, chrome, android]:
+May 29, 2015 - add new columns for custom_metrics to pages[dev, mobile, chrome, android]:
              - allow null so we can see if script is failing - not sure if this will cause problems
   alter table pages add column num_scripts_async int(8) unsigned, 
                     add column num_scripts_sync int(8) unsigned, 
@@ -565,6 +565,18 @@ May 29, 2014 - add new columns for custom_metrics to pages[dev, mobile, chrome, 
   alter table stats add column num_scripts_async int(8) unsigned not null, 
                     add column num_scripts_sync int(8) unsigned not null, 
                     add column usertiming int(8) unsigned not null;
+
+Dec 9, 2015 - add new columns for SpeedIndex correlations
+  alter table stats add column SpeedIndexccf1 varchar (32),
+                    add column SpeedIndexccv1 float unsigned,
+                    add column SpeedIndexccf2 varchar (32),
+                    add column SpeedIndexccv2 float unsigned,
+                    add column SpeedIndexccf3 varchar (32),
+                    add column SpeedIndexccv3 float unsigned,
+                    add column SpeedIndexccf4 varchar (32),
+                    add column SpeedIndexccv4 float unsigned,
+                    add column SpeedIndexccf5 varchar (32),
+                    add column SpeedIndexccv5 float unsigned;
 
 *******************************************************************************/
 function createTables() {
@@ -861,6 +873,17 @@ function createTables() {
 			", num_scripts_sync int(8) unsigned not null" .
 			", num_scripts_async int(8) unsigned not null" .
 			", usertiming int(8) unsigned not null" .
+
+			", SpeedIndexccf1 varchar (32)" .
+			", SpeedIndexccv1 float unsigned" .
+			", SpeedIndexccf2 varchar (32)" .
+			", SpeedIndexccv2 float unsigned" .
+			", SpeedIndexccf3 varchar (32)" .
+			", SpeedIndexccv3 float unsigned" .
+			", SpeedIndexccf4 varchar (32)" .
+			", SpeedIndexccv4 float unsigned" .
+			", SpeedIndexccf5 varchar (32)" .
+			", SpeedIndexccv5 float unsigned" .
 
 			", primary key (label, slice, device)" .
 			") ENGINE MyISAM;";
