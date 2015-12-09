@@ -99,8 +99,9 @@ echo histogram($hCdf, "num_scripts", "Script Tags per Page", "numscripts", 10) .
 echo percentByProtocol($hStats) . "\n";
 echo requestErrors($hStats) . "\n";
 
-echo correlationChart($hStats, "onLoad") . "\n";
+echo correlationChart($hStats, "SpeedIndex") . "\n";
 echo correlationChart($hStats, "renderStart") . "\n";
+echo correlationChart($hStats, "onLoad") . "\n";
 
 echo histogram($hCdf, "reqTotal", "Total Requests per Page", "reqTotal", 25) . "\n";
 echo histogram($hCdf, "bytesTotal", "Total Transfer Size per Page", "bytesTotal", 1024*1024) . "\n";
