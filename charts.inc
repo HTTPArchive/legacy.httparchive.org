@@ -445,7 +445,7 @@ function formatChart($field, $hTrends, $aRunNames, $labels, $bJson=false) {
 	$skip = getSkip(count($aRunNames));
 	$fieldVals = fieldValues($field, $hTrends, $aRunNames, $min, $max);
 
-	if ( strpos("x|perFlash|perFonts|PageSpeed|perGlibs|maxage0|perErrors|perRedirects|perHttps|perCompressed|perCdn|", "|$field|") ) {
+	if ( strpos("x|perFlash|perFonts|perGlibs|maxage0|perErrors|perRedirects|perHttps|perCompressed|perCdn|", "|$field|") ) {
 		$max = 100;
 	}
 
