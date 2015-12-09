@@ -200,7 +200,7 @@ function requestErrors($hStats) {
 }
 
 
-// $var1 is "onLoad" or "renderStart"
+// $var1 is "onLoad" or "renderStart" or "SpeedIndex"
 function correlationChart($hStats, $var1) {
 	global $ghColumnTitles;
 
@@ -208,12 +208,16 @@ function correlationChart($hStats, $var1) {
 	$aValues = array();
 	for ( $i = 1; $i <= 5; $i++ ) {
 		$field = $hStats["{$var1}ccf$i"];
+		if ( ! $field ) {
+			// bail - no data
+			return "";
+		}
 		$aNames[] = ( array_key_exists($field, $ghColumnTitles) ? $ghColumnTitles[$field] : $field );
 		$aValues[] = $hStats["{$var1}ccv$i"];
 	}
 
-	$title = "Highest Correlation to " . ( "onLoad" == $var1 ? "Load" : "Render" ) . " Time";
-	$color = ( "onLoad" == $var1 ? "80C65A" : "7777CC" );
+	$title = "Highest Correlation to " . ( "onLoad" == $var1 ? "Load Time" : ( "renderStart" == $var1 ? "Render Time" : $var1 ) );
+	$color = ( "onLoad" == $var1 ? "80C65A" : ( "renderStart" == $var1 ? "7777CC" : "3B356A" ) );
 
 	return correlationColumnChart($title, $var1, $aNames, $aValues, $color);
 }
