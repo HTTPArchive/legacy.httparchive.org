@@ -169,6 +169,13 @@ $ghColumnTitles = array (
 						 "num_scripts" => "Script Tags",
 						 "doctype" => "Doctype",
 						 "meta_viewport" => "Meta Viewport",
+						 "num_scripts_sync" => "Sync JS",
+						 "num_scripts_async" => "Async JS",
+						 "num_scripts" => "Main JS",
+						 "(num_scripts_sync+reqCss)" => "CSS & Sync JS",
+						 "(num_scripts_async+reqCss)" => "CSS & Async JS",
+						 "(num_scripts+reqCss)" => "CSS & Main JS",
+						 "(reqJS+reqCss)" => "CSS & JS",
 						 );
 
 
