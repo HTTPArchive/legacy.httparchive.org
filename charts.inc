@@ -217,7 +217,7 @@ function correlationChart($hStats, $var1) {
 	}
 
 	$title = "Highest Correlation to " . ( "onLoad" == $var1 ? "Load Time" : ( "renderStart" == $var1 ? "Render Time" : $var1 ) );
-	$color = ( "onLoad" == $var1 ? "80C65A" : ( "renderStart" == $var1 ? "7777CC" : "3B356A" ) );
+	$color = fieldColor($var1);
 
 	return correlationColumnChart($title, $var1, $aNames, $aValues, $color);
 }
