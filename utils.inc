@@ -1420,7 +1420,8 @@ function selectArchiveLabel($archive, $curLabel, $bReverse=true, $bOnchage = tru
 		( $bOnchage ? " onchange='document.location=\"?a=$archive&l=\"+escape(this.options[this.selectedIndex].value)'" : "" ) .
 		">\n";
 
-	$query = "select label from $gCrawlsTable where $dateRange and archive = '$archive' group by label order by crawlId " . 
+	$device = curDevice();
+	$query = "select label from $gCrawlsTable where $dateRange and archive = '$archive' and location='$device' group by label order by crawlId " . 
 		( $bReverse ? "desc" : "asc" ) . ";";
 	$result = doQuery($query);
 	while ($row = mysql_fetch_assoc($result)) {
@@ -1572,6 +1573,7 @@ function curDevice($crawlname=null) {
 		return "California:Chrome";
 	}
 	else if ( "android" === $crawlname || ( !$crawlname && $gbAndroid ) ) {
+		// temporary Nexus 5 real devices from Pat: return "nexus5%3ANexus+5+-+Chrome.3G";
 		return "California2:Chrome.3G";
 	}
 
