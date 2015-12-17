@@ -40,7 +40,7 @@ parseParams();
 
 // do NOT start a new crawl if the current crawl is still running.
 $latestCrawl = latestCrawl(null, null, false);
-if ( ! $latestCrawl['finishedDateTime'] ) {
+if ( $latestCrawl && ! $latestCrawl['finishedDateTime'] ) {
 	lprint("Can not start a new crawl because the latest crawl (\"{$latestCrawl['label']}\") has not finished.");
 	cprint("Can not start a new crawl because the latest crawl (\"{$latestCrawl['label']}\") has not finished.");
 	exit();
