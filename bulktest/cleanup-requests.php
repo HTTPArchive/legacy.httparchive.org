@@ -57,7 +57,7 @@ function cleanupRequests($location, $table) {
 		}
 
 		// Actually delete rows and optimize the table.
-		echo "Delete requests from \"$table\" table starting with crawl \"{$row['label']}\" crawlid={$row['crawlid']} minPageid={$row['minPageid']} maxPageid={$row['maxPageid']}...\n";
+		echo "Delete requests from \"$table\" table starting with crawl \"{$row['label']}\" crawlid={$row['crawlid']} minPageid={$row['minPageid']} maxPageid={$row['maxPageid']} and earlier...\n";
 		$cmd = "delete from $table where crawlid <= {$row['crawlid']};";
 		echo "$cmd\n";
 		doSimpleCommand($cmd);
@@ -66,7 +66,7 @@ function cleanupRequests($location, $table) {
 		echo "DONE\n";
 	}
 	else {
-		echo "WOULD delete requests from \"$table\" table starting with crawl \"{$row['label']}\" crawlid={$row['crawlid']} minPageid={$row['minPageid']} maxPageid={$row['maxPageid']}...\n";
+		echo "WOULD delete requests from \"$table\" table starting with crawl \"{$row['label']}\" crawlid={$row['crawlid']} minPageid={$row['minPageid']} maxPageid={$row['maxPageid']} and earlier...\n";
 	}
 }
 
