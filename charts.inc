@@ -402,15 +402,15 @@ function cdf($hStats, $column, $title, $id, $binMultiple=1, $minPercent=1, $colo
 // TRENDS
 // 
 ////////////////////////////////////////////////////////////////////////////////
-function format2LineChart($field, $field2, $hTrends, $aRunNames, $labels, $sUnits2="", $bSame = false, $footnote = "", $sUnits1="") {
+function format2LineChart($field, $field2, $hTrends, $aRunNames, $labels, $sUnits2="", $percentile="", $bSame = false, $footnote = "", $sUnits1="") {
 	$color = fieldColor($field);
 	$suffix = fieldUnits($field);
 	$color2 = fieldColor($field2);
 	$suffix2 = fieldUnits($field2);
 
-	$fieldVals = fieldValues($field, $hTrends, $aRunNames, $min, $max, false);
+	$fieldVals = fieldValues($field, $hTrends, $aRunNames, $min, $max, false, $percentile);
 	$max = intval(intval($max)*1.5);  // this is a hack specific to the bytes & requests charts
-	$fieldVals2 = fieldValues($field2, $hTrends, $aRunNames, $min2, $max2, false);
+	$fieldVals2 = fieldValues($field2, $hTrends, $aRunNames, $min2, $max2, false, $percentile);
 	if ( $bSame ) {
 		// make both scales the same
 		$max = $max2 = max($max, $max2);
@@ -443,11 +443,11 @@ function format2LineChart($field, $field2, $hTrends, $aRunNames, $labels, $sUnit
 }
 
 
-function formatChart($field, $hTrends, $aRunNames, $labels, $bJson=false) {
+function formatChart($field, $hTrends, $aRunNames, $labels, $percentile="", $bJson=false) {
 	$color = fieldColor($field);
 	$suffix = fieldUnits($field);
 	$skip = getSkip(count($aRunNames));
-	$fieldVals = fieldValues($field, $hTrends, $aRunNames, $min, $max);
+	$fieldVals = fieldValues($field, $hTrends, $aRunNames, $min, $max, true, $percentile);
 
 	if ( strpos("x|perFlash|perFonts|perGlibs|maxage0|perErrors|perRedirects|perHttps|perCompressed|perCdn|", "|$field|") ) {
 		$max = 100;
@@ -505,10 +505,13 @@ function getLabels($aLabels, $bSkip = true) {
 }
 
 
-function fieldValues($field, $hTrends, $aRunNames, &$min, &$max, $bZero = true) {
-	$percentile = ( "numurls" === $field ? "" : getParam("per", "") );
+function fieldValues($field, $hTrends, $aRunNames, &$min, &$max, $bZero = true, $percentile="") {
 	$aValues = array();
 	foreach($aRunNames as $run) {
+		// Here's the rub: We have A LOT of code that relies on the field name being preserved.
+		// For example, colors and chart titles associated with "reqTotal".
+		// So we want to preserve the field name throughout the code, and append the 
+		// $percentile at the last minute when we actually access the data.
 		$aValues[] = ( array_key_exists($run, $hTrends) ? $hTrends[$run][$field . $percentile] : "_" );
 	}
 
