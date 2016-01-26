@@ -32,7 +32,7 @@ if ( array_key_exists(1, $argv) ) {
 		$gbActuallyDoit = true;
 	}
 	else {
-		echo "Do 'php cleanup-requests.php DOIT' to actually delete the rows.\n";
+		cprint("Do 'php cleanup-requests.php DOIT' to actually delete the rows.");
 	}
 }
 
@@ -52,21 +52,21 @@ function cleanupRequests($location, $table) {
 	if ( $gbActuallyDoit ) {
 		$nUnfinished = doSimpleQuery("select count(*) from crawls where location = '$location' and finishedDateTime is null;");
 		if ( 0 < $nUnfinished ) {
-			echo "SORRY! There is an unfinished crawl for location '$location'. Skipping the cleanup while the crawl is running.\n";
+			cprint("SORRY! There is an unfinished crawl for location '$location'. Skipping the cleanup while the crawl is running.");
 			return;
 		}
 
 		// Actually delete rows and optimize the table.
-		echo "Delete requests from \"$table\" table starting with crawl \"{$row['label']}\" crawlid={$row['crawlid']} minPageid={$row['minPageid']} maxPageid={$row['maxPageid']} and earlier...\n";
+		cprint("Delete requests from \"$table\" table starting with crawl \"{$row['label']}\" crawlid={$row['crawlid']} minPageid={$row['minPageid']} maxPageid={$row['maxPageid']} and earlier...");
 		$cmd = "delete from $table where crawlid <= {$row['crawlid']};";
-		echo "$cmd\n";
+		cprint("$cmd");
 		doSimpleCommand($cmd);
-		echo "DONE\nOptimize table \"$table\"...\n";
+		cprint("DONE\nOptimize table \"$table\"...");
 		doSimpleCommand("optimize table $table;");
-		echo "DONE\n";
+		cprint("DONE");
 	}
 	else {
-		echo "WOULD delete requests from \"$table\" table starting with crawl \"{$row['label']}\" crawlid={$row['crawlid']} minPageid={$row['minPageid']} maxPageid={$row['maxPageid']} and earlier...\n";
+		cprint("WOULD delete requests from \"$table\" table starting with crawl \"{$row['label']}\" crawlid={$row['crawlid']} minPageid={$row['minPageid']} maxPageid={$row['maxPageid']} and earlier...");
 	}
 }
 
