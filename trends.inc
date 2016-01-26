@@ -25,6 +25,7 @@ require_once("charts.inc");
 
 <?php
 $device = curDevice();
+$gPercentile = getParam("per", ""); // hidden feature: add "&per95" to the URL to see 95th percentile value for SOME trending charts (not: urls, percent charts like percent with GLibs)
 $hTrends = getTrends($gSlice, $device, $gUrl);
 
 // Create a chart for each field.
@@ -40,34 +41,34 @@ if ( "url" != $gSlice ) {
 
 // Time is too inconsistent. Only show it if the backdoor querystring param is present:
 if ( array_key_exists("plt", $_GET) ) {
-	echo format2LineChart('renderStart', 'onLoad', $hTrends, $aRunNames, $labels, "(ms)", true, "<div style='margin-left: 2em; font-size:0.9em;'>* Based on limited, synthetic data. See <a href='http://dev.httparchive.org/about.php#accuracy'>FAQ</a> for known biases.</div>", "(ms)");
+	echo format2LineChart("renderStart", "onLoad", $hTrends, $aRunNames, $labels, "(ms)", $gPercentile, true, "<div style='margin-left: 2em; font-size:0.9em;'>* Based on limited, synthetic data. See <a href='http://dev.httparchive.org/about.php#accuracy'>FAQ</a> for known biases.</div>", "(ms)");
 }
 
-echo format2LineChart('reqTotal', 'bytesTotal', $hTrends, $aRunNames, $labels, "(kB)", false);
-echo format2LineChart('reqHtml', 'bytesHtml', $hTrends, $aRunNames, $labels, "(kB)", false);
-echo format2LineChart('reqJS', 'bytesJS', $hTrends, $aRunNames, $labels, "(kB)", false);
-echo format2LineChart('reqCSS', 'bytesCSS', $hTrends, $aRunNames, $labels, "(kB)", false);
-echo format2LineChart('reqImg', 'bytesImg', $hTrends, $aRunNames, $labels, "(kB)", false);
+echo format2LineChart("reqTotal", "bytesTotal", $hTrends, $aRunNames, $labels, "(kB)", $gPercentile);
+echo format2LineChart("reqHtml", "bytesHtml", $hTrends, $aRunNames, $labels, "(kB)", $gPercentile);
+echo format2LineChart("reqJS", "bytesJS", $hTrends, $aRunNames, $labels, "(kB)", $gPercentile);
+echo format2LineChart("reqCSS", "bytesCSS", $hTrends, $aRunNames, $labels, "(kB)", $gPercentile);
+echo format2LineChart("reqImg", "bytesImg", $hTrends, $aRunNames, $labels, "(kB)", $gPercentile);
 if ( ! $gbMobile ) {
-	echo format2LineChart('reqFlash', 'bytesFlash', $hTrends, $aRunNames, $labels, "(kB)", false);
+	echo format2LineChart("reqFlash", "bytesFlash", $hTrends, $aRunNames, $labels, "(kB)", $gPercentile);
 }
-echo format2LineChart('reqFont', 'bytesFont', $hTrends, $aRunNames, $labels, "(kB)", false);
-echo format2LineChart('reqOther', 'bytesOther', $hTrends, $aRunNames, $labels, "(kB)", false);
+echo format2LineChart("reqFont", "bytesFont", $hTrends, $aRunNames, $labels, "(kB)", $gPercentile);
+echo format2LineChart("reqOther", "bytesOther", $hTrends, $aRunNames, $labels, "(kB)", $gPercentile);
 
 if ( ! $gbMobile ) {
-	echo formatChart('_connections', $hTrends, $aRunNames, $labels);
+	echo formatChart("_connections", $hTrends, $aRunNames, $labels, $gPercentile);
 }
 
 if ( $gbMobile || $gbAndroid || $gbChrome ) {
 	// we don't have numDomElements on these devices :-(
-	echo formatChart('bytesHtmlDoc', $hTrends, $aRunNames, $labels, "(kB)");
+	echo formatChart("bytesHtmlDoc", $hTrends, $aRunNames, $labels, $gPercentile);
 }
 else {
-	echo format2LineChart('numDomElements', 'bytesHtmlDoc', $hTrends, $aRunNames, $labels, "(kB)");
+	echo format2LineChart("numDomElements", "bytesHtmlDoc", $hTrends, $aRunNames, $labels, "(kB)", $gPercentile);
 }
-echo format2LineChart('maxDomainReqs', 'numDomains', $hTrends, $aRunNames, $labels);
+echo format2LineChart("maxDomainReqs", "numDomains", $hTrends, $aRunNames, $labels);
 
-echo formatChart("maxage0", $hTrends, $aRunNames, $labels);
+echo formatChart("maxage0", $hTrends, $aRunNames, $labels, $gPercentile);
 
 if ( "url" != $gSlice ) {
 	// TODO - This hardcoded list of DB fields must be synced with the list in getTrendsData().
@@ -78,7 +79,6 @@ if ( "url" != $gSlice ) {
 		echo formatChart($field, $hTrends, $aRunNames, $labels);
 	}
 }
-
 
 ?>
 
