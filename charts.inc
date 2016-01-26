@@ -506,9 +506,10 @@ function getLabels($aLabels, $bSkip = true) {
 
 
 function fieldValues($field, $hTrends, $aRunNames, &$min, &$max, $bZero = true) {
+	$percentile = ( "numurls" === $field ? "" : getParam("per", "") );
 	$aValues = array();
 	foreach($aRunNames as $run) {
-		$aValues[] = ( array_key_exists($run, $hTrends) ? $hTrends[$run][$field] : "_" );
+		$aValues[] = ( array_key_exists($run, $hTrends) ? $hTrends[$run][$field . $percentile] : "_" );
 	}
 
 	if ( "maxageNull" === $field || "maxage0" === $field ) {
