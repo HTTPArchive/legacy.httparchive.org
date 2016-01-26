@@ -384,7 +384,7 @@ function getStatsDataForUrl($label, $slice, $device, $url) {
 // Returns a hash where the key is the label (run name, eg, "Oct 1 2011").
 // The value for each key is another hash of all the trends data fields. 
 function getTrendsData($slice, $device) {
-	global $gaTrendsGet, $gaTrendsGetLabel, $gCdfTable, $gCrawlsTable;
+	global $gaTrendsGet, $gaTrendsGetLabel, $gCdfTable, $gCrawlsTable, $gPercentile;
 
 	$statsTable = statsTable(NULL, $slice, $device);
 
@@ -403,9 +403,8 @@ function getTrendsData($slice, $device) {
 	mysql_free_result($result);
 
 	// add CDF data 
-	$percentile = getParam("per", "");
-	if ( $percentile ) {
-		$query = "select crawls.crawlid as crawlid, label, stat, percentile$percentile as value from $gCdfTable as cdf, $gCrawlsTable as crawls where cdf.crawlid=crawls.crawlid and slice='$slice' and location='$device';";
+	if ( $gPercentile ) {
+		$query = "select crawls.crawlid as crawlid, label, stat, percentile$gPercentile as value from $gCdfTable as cdf, $gCrawlsTable as crawls where cdf.crawlid=crawls.crawlid and slice='$slice' and location='$device';";
 		$result = doQuery($query);
 		while ( $row = mysql_fetch_assoc($result) ) {
 			// We're adding keys like "reqTotal50" to $hTrends:
@@ -414,7 +413,7 @@ function getTrendsData($slice, $device) {
 			$value = $row['value'];
 			// We need the units to match between these CDF stats and the stats in the "pages" table,
 			// so we have to convert bytes to KB here.
-			$hTrends[$label]["$stat$percentile"] = ( 0 === strpos($stat, "bytes") ? round($value/1024) : $value );
+			$hTrends[$label]["$stat$gPercentile"] = ( 0 === strpos($stat, "bytes") ? round($value/1024) : $value );
 		}
 		mysql_free_result($result);
 	}
