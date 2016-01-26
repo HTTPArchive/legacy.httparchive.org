@@ -74,6 +74,7 @@ $gaCdfStats = array(
 					"gzipTotal",
 					"gzipSavings",
 					"_connections",
+					"maxage0",
 					"avg_dom_depth",
 					"document_height",
 					"document_width",
@@ -401,19 +402,22 @@ function getTrendsData($slice, $device) {
 	}
 	mysql_free_result($result);
 
-	// add CDF data
-	/* TODO
-	$query = "select crawls.crawlid as crawlid, label, stat, percentile50, percentile95 from $gCdfTable as cdf, $gCrawlsTable as crawls where cdf.crawlid=crawls.crawlid and slice='$slice' and location='$device';";
-	$result = doQuery($query);
-	while ( $row = mysql_fetch_assoc($result) ) {
-		// We're adding keys like "reqTotal50" and "reqTotal95" to $hTrends:
-		$label = $row['label'];
-		$stat = $row['stat'];
-		$hTrends[$label]["{$stat}50"] = $row['percentile50'];
-		$hTrends[$label]["{$stat}95"] = $row['percentile95'];
+	// add CDF data 
+	$percentile = getParam("per", "");
+	if ( $percentile ) {
+		$query = "select crawls.crawlid as crawlid, label, stat, percentile$percentile as value from $gCdfTable as cdf, $gCrawlsTable as crawls where cdf.crawlid=crawls.crawlid and slice='$slice' and location='$device';";
+		$result = doQuery($query);
+		while ( $row = mysql_fetch_assoc($result) ) {
+			// We're adding keys like "reqTotal50" to $hTrends:
+			$label = $row['label'];
+			$stat = $row['stat'];
+			$value = $row['value'];
+			// We need the units to match between these CDF stats and the stats in the "pages" table,
+			// so we have to convert bytes to KB here.
+			$hTrends[$label]["$stat$percentile"] = ( 0 === strpos($stat, "bytes") ? round($value/1024) : $value );
+		}
+		mysql_free_result($result);
 	}
-	mysql_free_result($result);
-	*/
 
 	return $hTrends;
 }
