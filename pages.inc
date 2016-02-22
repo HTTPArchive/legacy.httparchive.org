@@ -38,11 +38,14 @@ function pageData($pageid, $url = null, $label = null, $urlhash = null) {
 }
 
 
-function getPage($url, $crawlid) {
+function getPage($url, $crawlid, $pagesTable="") {
 	global $gPagesTable, $gUrlsTable;
 
+	if ( ! $pagesTable ) {
+		$pagesTable = $gPagesTable;
+	}
 	$urlhash = doSimpleQuery("select urlhash from $gUrlsTable where urlOrig = '$url';");
-	return doRowQuery("select * from $gPagesTable where urlhash=$urlhash and url='$url' and crawlid=$crawlid limit 1;");
+	return doRowQuery("select * from $pagesTable where urlhash=$urlhash and url='$url' and crawlid=$crawlid limit 1;");
 }
 
 
