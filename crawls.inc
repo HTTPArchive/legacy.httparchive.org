@@ -1,7 +1,5 @@
 <?php
 /*
-Copyright 2010 Google Inc.
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -208,6 +206,28 @@ function randomPageid($crawl) {
 	// order the pages and then offset into the list to the random page
 	$query = "select pageid from pages where pageid >= {$crawl['minPageid']} and pageid <= {$crawl['maxPageid']} order by pageid asc limit $offset, 1;";
 	return doSimpleQuery($query);
+}
+
+
+function getPagesTable($crawl) {
+	global $gPagesTable, $gPagesTableMobile, $gPagesTableChrome, $gPagesTableAndroid;
+
+	$location = $crawl['location'];
+
+	if ( "California2:Chrome.3G" === $location ) {
+		return $gPagesTableAndroid;
+	}
+	else if ( "iphone4" === $location ) {
+		return $gPagesTableMobile;
+	}
+	else if ( "California:Chrome" === $location ) {
+		return $gPagesTableChrome;
+	}
+	else if ( "IE8" === $location ) {
+		return $gPagesTable;
+	}
+
+	return "";
 }
 
 
