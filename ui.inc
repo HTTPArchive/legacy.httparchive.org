@@ -156,6 +156,7 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
   <li> <a id="trendsnav" href="trends.php">Trends</a>
   <li> <a id="statsnav" href="interesting.php">Stats</a>
   <li><a id="websitesnav" href="websites.php">Websites</a>
+  <li><a id="discussnav" href="https://discuss.httparchive.org/">Discuss</a>
   <li id="aboutnav" onmouseover="document.getElementById(\'aboutdropdown\').style.display=\'block\';" onmouseout="document.getElementById(\'aboutdropdown\').style.display=\'none\';"><a href="about.php">About</a>
     <ul id="aboutdropdown">
  	  <li><a href="about.php#mission">Mission</a></li>
