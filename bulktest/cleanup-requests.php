@@ -37,10 +37,14 @@ if ( array_key_exists(1, $argv) ) {
 }
 
 $gSkipRuns = 2;  // how many runs we want to skip and leave their requests intact
+echo exec("df -h .") . "\n";
 cleanupRequests("IE8", "requestsdev");
+echo exec("df -h .") . "\n";
 cleanupRequests("IE8", "requests");
+echo exec("df -h .") . "\n";
 cleanupRequests("California:Chrome", "requestschrome");
-
+echo exec("df -h .") . "\n";
+echo "DONE\n\n";
 
 function cleanupRequests($location, $table) {
 	global $gSkipRuns, $gbActuallyDoit;
@@ -61,9 +65,9 @@ function cleanupRequests($location, $table) {
 		$cmd = "delete from $table where crawlid <= {$row['crawlid']};";
 		cprint("$cmd");
 		doSimpleCommand($cmd);
-		cprint("DONE\nOptimize table \"$table\"...");
+		cprint("\nOptimize table \"$table\"...");
 		doSimpleCommand("optimize table $table;");
-		cprint("DONE");
+		cprint("Done with table \"$table\".");
 	}
 	else {
 		cprint("WOULD delete requests from \"$table\" table starting with crawl \"{$row['label']}\" crawlid={$row['crawlid']} minPageid={$row['minPageid']} maxPageid={$row['maxPageid']} and earlier...");
