@@ -26,10 +26,13 @@ $gArchive = getParam("ar", "All");
 // Later I hope it'll make it easier to identify where we need to incorporate a date
 // range by searching for this variable.
 $curdir = getcwd(); // for efficiency
+$gbDesktop = ( FALSE !== strpos($curdir, $gDesktopDir) || strpos($curdir, "/httparchive.org") );
 $gbDev = ( FALSE !== strpos($curdir, $gDevDir) || strpos($curdir, "/trunk.httparchive.org") );
 $gbMobile = ( FALSE !== strpos($curdir, $gMobileDir) || strpos($curdir, "/mobile.httparchive.org") );
 $gbChrome = ( FALSE !== strpos($curdir, $gChromeDir) || strpos($curdir, "/chrome.httparchive.org") );
 $gbAndroid = ( FALSE !== strpos($curdir, $gAndroidDir) || strpos($curdir, "/android.httparchive.org") );
+$gbIE = ( FALSE !== strpos($curdir, $gIEDir) || strpos($curdir, "/ie.httparchive.org") );
+$gbIphone = ( FALSE !== strpos($curdir, $gIphoneDir) || strpos($curdir, "/iphone.httparchive.org") );
 
 
 // put this BELOW $gbDev - circular global dependencies :-(
