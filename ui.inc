@@ -145,7 +145,7 @@ OUTPUT;
 
 
 function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
-	global $gbMobile, $gbAndroid, $gbChrome;
+	global $gbMobile, $gbAndroid, $gbChrome, $gbDev, $gbDesktop;
 
 	$navlinks = "";
 	if ( $bNavlinks ) {
@@ -172,25 +172,20 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
 </nav>';
 	}
 
-	$sublogo = "";
-	$version = "";
-	if ( $gbMobile ) {
-		$sublogo = "<div class=mobilelabel>MOBILE</div>";
+	$sSelected = "style='border: 1px solid;'";
+	$sublogo = "<div class=sublogo>" .
+		"<a href=" . ( $gbDesktop ? "'/' $sSelected" : "'//httparchive.org'" ) . ">DESKTOP</a>" .
+		"<a href=" . ( $gbMobile ? "'/' $sSelected" : "'//mobile.httparchive.org'" ) . ">MOBILE</a>";
+	if ( $gbIE ) {
+		$sublogo .= " | IE";
 	}
-	else if ( $gbAndroid ) {
-		$sublogo = "<div class=mobilelabel>ANDROID</div>";
+	else if ( $gbIphone ) {
+		$sublogo = " | iPhone";
 	}
-	else if ( $gbChrome ) {
-		$sublogo = "<div class=mobilelabel>CHROME</div>";
-	}
-
-	if ( $version ) {
-		$version = "<div style='position: absolute; width: 211px; top: 20px; text-align: right;'>$version</div>";
-	}
+	$sublogo .= "</div>";
 
 	return <<<OUTPUT
     <header>
-$version
 		<a href="index.php" id="logo" style="line-height: 0.7em;">HTTP Archive</a>
 		$sublogo
 		$navlinks

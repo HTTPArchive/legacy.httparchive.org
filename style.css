@@ -101,13 +101,17 @@ input.customColToggleButton {
 	background: #FFF;
 }
 
-.mobilelabel {
-	float:left;
-	margin-top: 75px;
-	margin-left: 8px;
-	color: black;
-	font-style: italic;
+.sublogo {
+	position: absolute;
+	left: 425px;
+	margin-top: 16px;
+	color: #999;
 	font-size: 1.5em; }
+.sublogo A {
+	padding: 2px 5px;
+	color: #999;
+	margin-right: 10px;
+}
 nav {
 	display: block;
 	position: absolute;
