@@ -45,12 +45,43 @@ $gUrlsTableMobile = "urls";
 $gStatusTableMobile = $gStatusTable . "mobile";
 $gStatsTableMobile = $gStatsTable;  // share the data table - a first step toward a single DB
 
+/*CVSNOSWITCH
+// Desktop tables
+$gPagesTableDesktop = $gPagesTable . "chrome";
+$gRequestsTableDesktop = $gRequestsTable . "chrome";
+$gStatusTableDesktop = $gStatusTable . "chrome";
+$gUrlsTableDesktop = "urls";
+$gStatsTableDesktop = $gStatsTable;
+$gUrlsChangeTableDesktop = $gUrlsChangeTable;
+
+// Mobile tables
+$gPagesTableMobile = $gPagesTable . "android";
+$gRequestsTableMobile = $gRequestsTable . "android";
+$gUrlsTableMobile = "urls";
+$gStatusTableMobile = $gStatusTable . "android";
+$gStatsTableMobile = $gStatsTable;  // share the data table - a first step toward a single DB
+*/
+
 // Chrome tables
 $gPagesTableChrome = $gPagesTable . "chrome";
 $gRequestsTableChrome = $gRequestsTable . "chrome";
 $gUrlsTableChrome = "urls";
 $gStatusTableChrome = $gStatusTable . "chrome";
 $gStatsTableChrome = $gStatsTable;  // share the data table - a first step toward a single DB
+
+// Android tables
+$gPagesTableAndroid = $gPagesTable . "android";
+$gRequestsTableAndroid = $gRequestsTable . "android";
+$gUrlsTableAndroid = "urls";
+$gStatusTableAndroid = $gStatusTable . "android";
+$gStatsTableAndroid = $gStatsTable;  // share the data table - a first step toward a single DB
+
+// Iphone tables
+$gPagesTableIphone = $gPagesTable . "mobile";
+$gRequestsTableIphone = $gRequestsTable . "mobile";
+$gUrlsTableIphone = "urls";
+$gStatusTableIphone = $gStatusTable . "mobile";
+$gStatsTableIphone = $gStatsTable;  // share the data table - a first step toward a single DB
 
 // Android tables
 $gPagesTableAndroid = $gPagesTable . "android";
@@ -100,6 +131,16 @@ else if ( $gbAndroid ) {
 	$gRequestsTable = $gRequestsTableAndroid;
 	$gStatusTable = $gStatusTableAndroid;
 	$gStatsTable = $gStatsTableAndroid;
+}
+else if ( $gbIphone ) {
+	// Use a iphone version of the database tables if "iphone" is in the path.
+	$gPagesTable = $gPagesTableIphone;
+	$gRequestsTable = $gRequestsTableIphone;
+	$gStatusTable = $gStatusTableIphone;
+	$gStatsTable = $gStatsTableIphone;
+}
+else if ( $gbIE ) {
+	// default table names point to IE data
 }
 
 
@@ -162,7 +203,7 @@ function dateRangeCrawls($bDefault = false) {
 
 
 function dbtable($table, $device="", $label="", $slice="") {
-	global $gbChrome, $gbAndroid;
+	global $gbChrome, $gbAndroid, $gbIE, $gbIphone;
 
 	if ( FALSE !== stripos($device, "iphone") ) {
 		$table .= "mobile";
@@ -175,6 +216,12 @@ function dbtable($table, $device="", $label="", $slice="") {
 	}
 	else if ( $gbAndroid ) {
 		$table .= "android";
+	}
+	else if ( $gbIE ) {
+		$table .= "";
+	}
+	else if ( $gbIphone ) {
+		$table .= "iphone";
 	}
 
 	return $table;
