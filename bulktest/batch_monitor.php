@@ -27,7 +27,7 @@ if ( isEmptyQuery($result) ) {
 
 // Check each current crawl.
 $gPerDone = 20;   // percentage of URLs completed to consider the crawl far enough to evaluate for errors
-$gPerFailed = 15; // acceptable failure rate
+$gPerFailed = 20; // acceptable failure rate
 $gFirstDays = 10; // max days to finish the first pass
 $gTotalDays = 13; // max days to finish the crawl
 
