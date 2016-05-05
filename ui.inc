@@ -145,7 +145,7 @@ OUTPUT;
 
 
 function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
-	global $gbMobile, $gbAndroid, $gbChrome, $gbDev, $gbDesktop;
+	global $gbMobile, $gbAndroid, $gbChrome, $gbDev, $gbDesktop, $gbIE, $gbIphone;
 
 	$navlinks = "";
 	if ( $bNavlinks ) {
@@ -176,12 +176,20 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
 	$sublogo = "<div class=sublogo>" .
 		"<a href=" . ( $gbDesktop ? "'/' $sSelected" : "'//httparchive.org'" ) . ">DESKTOP</a>" .
 		"<a href=" . ( $gbMobile ? "'/' $sSelected" : "'//mobile.httparchive.org'" ) . ">MOBILE</a>";
+	if ( $gbChrome ) {
+		$sublogo .= "<a href='/' $sSelected>Chrome</a>";
+	}
+	else if ( $gbAndroid ) {
+		$sublogo .= "<a href='/' $sSelected>Android</a>";
+	}
+	/* CVSNOSWITCH
 	if ( $gbIE ) {
 		$sublogo .= " | IE";
 	}
 	else if ( $gbIphone ) {
 		$sublogo = " | iPhone";
 	}
+	*/
 	$sublogo .= "</div>";
 
 	return <<<OUTPUT
@@ -210,8 +218,9 @@ function uiFooter() {
 <a title="Instart Logic" href="http://instartlogic.com/">Instart Logic</a>,
 <a title="Catchpoint Systems" href="http://www.catchpoint.com/">Catchpoint Systems</a>,
 <a title="Fastly" href="http://bit.ly/1nWd1oL">Fastly</a>,
+<a title="SOASTA mPulse" href="https://www.soasta.com/mpulse/sign-up/">SOASTA mPulse</a>,
 and
-<a title="SOASTA mPulse" href="https://www.soasta.com/mpulse/sign-up/">SOASTA mPulse</a>.
+<a title="Hosting Facts" href="https://hostingfacts.com/">Hosting Facts</a>.
 <br>
 powered by <a href="http://www.webpagetest.org">WebPagetest</a>
 </footer>
