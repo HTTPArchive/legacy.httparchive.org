@@ -3,6 +3,8 @@ gMobileDir := /var/www/httparchive.mobile
 gDevDir := /var/www/httparchive.dev
 gChromeDir := /var/www/httparchive.chrome
 gAndroidDir := /var/www/httparchive.android
+gIphoneDir := /var/www/httparchive.iphone
+gIeDir := /var/www/httparchive.ie
 
 # harviewer installation: http://code.google.com/p/harviewer/wiki/Installation 
 # create "downloads" symlink back to /var/www/httparchive.dev/downloads
@@ -62,7 +64,37 @@ pushandroid :
 	echo "CVSNO: ln -s $(gDevDir)/harviewer harviewer"
 	echo "CVSNO: har_to_pagespeed and harfiles-delme"
 
-pushall: push pushmobile pushchrome pushandroid
+pushiphone :
+	cp -p *.php *.inc *.js *.css favicon.ico apple-*.png robots.txt $(gIphoneDir)/.
+	/bin/rm $(gIphoneDir)/admin.php
+	/bin/rm $(gIphoneDir)/addsite.php
+	/bin/rm $(gIphoneDir)/removesite.php
+	mkdir -p $(gIphoneDir)/images
+	cp -p images/*.* $(gIphoneDir)/images/.
+	mkdir -p $(gIphoneDir)/lists
+	cp -p lists/*.txt $(gIphoneDir)/lists/.
+	mkdir -p $(gIphoneDir)/harfiles-delme
+	ls -l $(gIphoneDir)/har_to_pagespeed
+	echo "push .htaccess!"
+	echo "CVSNO: ln -s $(gDevDir)/harviewer harviewer"
+	echo "CVSNO: har_to_pagespeed and harfiles-delme"
+
+pushie :
+	cp -p *.php *.inc *.js *.css favicon.ico apple-*.png robots.txt $(gIeDir)/.
+	/bin/rm $(gIeDir)/admin.php
+	/bin/rm $(gIeDir)/addsite.php
+	/bin/rm $(gIeDir)/removesite.php
+	mkdir -p $(gIeDir)/images
+	cp -p images/*.* $(gIeDir)/images/.
+	mkdir -p $(gIeDir)/lists
+	cp -p lists/*.txt $(gIeDir)/lists/.
+	mkdir -p $(gIeDir)/harfiles-delme
+	ls -l $(gIeDir)/har_to_pagespeed
+	echo "push .htaccess!"
+	echo "CVSNO: ln -s $(gDevDir)/harviewer harviewer"
+	echo "CVSNO: har_to_pagespeed and harfiles-delme"
+
+pushall: push pushmobile pushchrome pushandroid pushiphone pushie
 
 pushmetrics :
 	mv /var/www/webpagetest/settings/custom_metrics/*.js /tmp/.
