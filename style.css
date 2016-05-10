@@ -103,11 +103,12 @@ input.customColToggleButton {
 
 .sublogo {
 	position: absolute;
-	left: 425px;
+	left: 416px;
 	margin-top: 16px;
 	color: #999;
 	font-size: 1.5em; }
 .sublogo A {
+	border: 1px solid transparent;
 	padding: 2px 5px;
 	color: #999;
 	margin-right: 10px;
