@@ -1,7 +1,5 @@
 <?php 
 /*
-Copyright 2010 Google Inc.
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -102,7 +100,7 @@ echo selectSiteLabel($url, $gLabel);
 <a href="<?php echo rankUrl($url) ?>">Alexa rank: <?php echo commaize( $gRank ) ?></a>
 <span style="margin-left: 3em;">view on 
 <?php
-if ( $gbMobile || $gbAndroid ) {
+if ( $gbMobile || $gbAndroid || $gbIphone ) {
 	echo "<a href='http://httparchive.org/viewsite.php?u=$urlencoded'>desktop</a> or ";
 }
 else {
@@ -159,7 +157,7 @@ OUTPUT;
 OUTPUT;
 	}
 
-	$sBorder = ( $gbMobile || $gbAndroid ? "2px solid #E0E0E0" : "2px solid #E0E0E0" );
+	$sBorder = ( $gbMobile || $gbAndroid || $gbIphone ? "2px solid #E0E0E0" : "2px solid #E0E0E0" );
 	echo <<<OUTPUT
 <section id="videoContainer">
 <div id="videoDiv">
@@ -296,7 +294,7 @@ $("#content").bind("onPreviewInit",
 <h2 id=pagespeed>PageSpeed</h2>
 
 <?php
-if ( ! $gbMobile && ! $gbAndroid && ! $gbChrome ) {
+if ( ! $gbMobile && ! $gbAndroid && ! $gbIphone && ! $gbChrome ) {
 	// NOT mobile
 	echo <<<OUTPUT
 <style>
