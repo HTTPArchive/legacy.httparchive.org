@@ -19,15 +19,13 @@ $gMysqlDb = "REPLACE";
 $gMysqlUsername = "REPLACE";
 $gMysqlPassword = "REPLACE";
 
-$gDesktopDir = "/var/www/httparchive";
-$gMobileDir = "/var/www/httparchive.mobile";
-//CVSNOSWITCH $gDesktopDir = "/var/www/httparchive.chrome";
-//CVSNOSWITCH $gMobileDir = "/var/www/httparchive.android";
-$gDevDir = "/var/www/httparchive.dev";
-$gChromeDir = "/var/www/httparchive.chrome";
-$gAndroidDir = "/var/www/httparchive.android";
-$gIphoneDir = "/var/www/httparchive.mobile";
-$gIEDir = "/var/www/httparchive";
+$gDesktopDir = "/var/www/httparchive/";
+$gMobileDir = "/var/www/httparchive.mobile/";
+$gDevDir = "/var/www/httparchive.dev/";
+$gChromeDir = "/var/www/httparchive.chrome/";
+$gAndroidDir = "/var/www/httparchive.android/";
+$gIphoneDir = "/var/www/httparchive.mobile/";
+$gIEDir = "/var/www/httparchive/";
 
 $gHAUrl = "http://httparchive.org/";
 $gHAMUrl = "http://mobile.httparchive.org/";
