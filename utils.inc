@@ -25,7 +25,7 @@ $gArchive = getParam("ar", "All");
 // For now I just want to exclude the early runs with only ~1500 URLs vs today's 15K URLS.
 // Later I hope it'll make it easier to identify where we need to incorporate a date
 // range by searching for this variable.
-$curdir = getcwd(); // for efficiency
+$curdir = getcwd() . "/"; // for efficiency
 $gbDesktop = ( FALSE !== strpos($curdir, $gDesktopDir) || strpos($curdir, "/httparchive.org") );
 $gbDev = ( FALSE !== strpos($curdir, $gDevDir) || strpos($curdir, "/trunk.httparchive.org") );
 $gbMobile = ( FALSE !== strpos($curdir, $gMobileDir) || strpos($curdir, "/mobile.httparchive.org") );
