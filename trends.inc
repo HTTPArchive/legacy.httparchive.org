@@ -59,7 +59,7 @@ if ( ! $gbMobile ) {
 	echo formatChart("_connections", $hTrends, $aRunNames, $labels, $gPercentile);
 }
 
-if ( $gbMobile || $gbAndroid || $gbChrome ) {
+if ( $gbMobile || $gbAndroid || $gbIphone || $gbChrome ) {
 	// we don't have numDomElements on these devices :-(
 	echo formatChart("bytesHtmlDoc", $hTrends, $aRunNames, $labels, $gPercentile);
 }
