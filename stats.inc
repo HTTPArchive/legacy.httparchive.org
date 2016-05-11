@@ -328,7 +328,7 @@ function addStatsData($label, $slice, $device, $hTuples, $crawlid=null) {
 // return a hash of values for a single stats record
 function getStatsData($label, $slice, $device) {
 	$statstable = statsTable($label, $slice, $device);
-	$query = "select * from $statstable where label='$label' and slice='$slice' and device='$device';";
+	$query = "select * from $statstable where label='$label' and slice='$slice' and " . deviceWhere($device) . ";";
 	$row = doRowQuery($query);
 
 	return $row;
@@ -393,7 +393,7 @@ function getTrendsData($slice, $device) {
 		", numurls" .
 		", " . implode(", ", $gaTrendsGet) .
 		", " . implode(", ", $gaTrendsGetLabel) .
-		" from $statsTable where slice='$slice' and device='$device';";
+		" from $statsTable where slice='$slice' and " . deviceWhere($device)  . ";";
 
 	$result = doQuery($query);
 	$hTrends = array();
@@ -816,5 +816,4 @@ function computeCdf($crawl, $slice) {
 		doSimpleCommand($cmd);
 	}
 }
-
 ?>
