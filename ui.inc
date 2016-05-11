@@ -1,7 +1,5 @@
 <?php
 /*
-Copyright 2010 Google Inc.
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -20,12 +18,14 @@ require_once("utils.inc");
 
 
 function genTitle($addl = "") {
-	global $gbMobile, $gbAndroid, $gbChrome;
+	global $gbMobile, $gbAndroid, $gbChrome, $gbIe, $gbIphone;
 
 	return "HTTP Archive " . 
 		( $gbMobile ? "Mobile " : "" ) . 
 		( $gbAndroid ? "Android " : "" ) . 
 		( $gbChrome ? "Chrome " : "" ) . 
+		( $gbIphone ? "iPhone " : "" ) . 
+		( $gbIe ? "IE " : "" ) . 
 		( $addl ? " - $addl" : "" );
 }
 
@@ -182,14 +182,12 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
 	else if ( $gbAndroid ) {
 		$sublogo .= "<a href='/' $sSelected>Android</a>";
 	}
-	/* CVSNOSWITCH
-	if ( $gbIE ) {
-		$sublogo .= " | IE";
+	else if ( $gbIe ) {
+		$sublogo .= "<a href='/' $sSelected>IE</a>";
 	}
 	else if ( $gbIphone ) {
-		$sublogo = " | iPhone";
+		$sublogo .= "<a href='/' $sSelected>iPhone</a>";
 	}
-	*/
 	$sublogo .= "</div>";
 
 	return <<<OUTPUT
