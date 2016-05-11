@@ -30,7 +30,7 @@ function getCrawl($label, $archive=null, $location=null) {
 	$location = ( $location ? $location : curDevice() );
 	$crawlsTable = crawlsTable();
 
-	$query = "select * from $crawlsTable where label = '$label' and archive = '$archive' and location = '$location';";
+	$query = "select * from $crawlsTable where label = '$label' and archive = '$archive' and " . deviceWhere($location, "location") . ";";
 	return doRowQuery($query);
 }
 
@@ -55,7 +55,7 @@ function createCrawl($hTuples) {
 function updateCrawl($label, $archive, $location, $hTuples) {
 	$crawlsTable = crawlsTable();
 	$now = time();
-	$cmd = "update $crawlsTable set " . hashImplode(", ", "=", $hTuples) . ", timeOfLastChange = $now where label='$label' and archive='$archive' and location='$location';";
+	$cmd = "update $crawlsTable set " . hashImplode(", ", "=", $hTuples) . ", timeOfLastChange = $now where label='$label' and archive='$archive' and " . deviceWhere($location, "location") . ";";
 	doSimpleCommand($cmd);
 	return true;
 }
@@ -122,7 +122,7 @@ function archiveLabels($archive=null, $bEpoch = false, $format = "n/j/y", $bAll=
 	$device = curDevice();
 
 	// use the crawls table
-	$query = "select label, startedDateTime as epoch, crawlid from $gCrawlsTable where $dateRange and archive = '$archive' and location='$device' order by epoch asc;";
+	$query = "select label, startedDateTime as epoch, crawlid from $gCrawlsTable where $dateRange and archive = '$archive' and " . deviceWhere($device, "location") . " order by epoch asc;";
 	$result = doQuery($query);
 
 	$aLabels = array();
@@ -154,7 +154,7 @@ function latestCrawl($archive=null, $beforeEpoch=null, $bFinished=true) {
 
 	$query = "select * from " . crawlsTable() . " where " .
 		( $bFinished ? "finishedDateTime is not null and " : "" ) .
-		"archive = '$archive' and location='$device'" .
+		"archive = '$archive' and " . deviceWhere($device, "location") .
 		( $beforeEpoch ? " and startedDateTime <= $beforeEpoch" : "" ) .
 		" order by startedDateTime desc limit 1;";
 	$crawl = doRowQuery($query);
@@ -177,7 +177,7 @@ function latestLabel($archive=null, $beforeEpoch=null) {
 	$archive = ( $archive ? $archive : $gArchive );
 	$device = curDevice();
 
-	$query = "select label from " . crawlsTable() . " where finishedDateTime is not null and archive = '$archive' and location='$device'" .
+	$query = "select label from " . crawlsTable() . " where finishedDateTime is not null and archive = '$archive' and " . deviceWhere($device, "location") .
 		( $beforeEpoch ? " and startedDateTime <= $beforeEpoch" : "" ) .
 		" order by startedDateTime desc limit 1;";
 	$label = doSimpleQuery($query);
@@ -210,21 +210,21 @@ function randomPageid($crawl) {
 
 
 function getPagesTable($crawl) {
-	global $gPagesTable, $gPagesTableMobile, $gPagesTableChrome, $gPagesTableAndroid;
+	global $gPagesTable, $gPagesTableMobile, $gPagesTableChrome, $gPagesTableAndroid, $gPagesTableIphone, $gPagesTableIe;
 
 	$location = $crawl['location'];
 
 	if ( "California2:Chrome.3G" === $location ) {
-		return $gPagesTableAndroid;
-	}
-	else if ( "iphone4" === $location ) {
 		return $gPagesTableMobile;
 	}
+	else if ( "iphone4" === $location ) {
+		return $gPagesTableIphone;
+	}
 	else if ( "California:Chrome" === $location ) {
-		return $gPagesTableChrome;
+		return $gPagesTable;
 	}
 	else if ( "IE8" === $location ) {
-		return $gPagesTable;
+		return $gPagesTableIe;
 	}
 
 	return "";
@@ -594,8 +594,8 @@ function dumpfileName2($tablename, $format="") {
 // $table is either "pages" or "requests"
 // $format is "" or "csv"
 function dumpfileName($label, $table="", $format="") {
-	global $gbMobile, $gbAndroid, $gbChrome;
-	$crawlType = ( $gbMobile ? "mobile_" : ( $gbChrome ? "chrome_" : ( $gbAndroid ? "android_" : "" ) ) );
+	global $gbMobile, $gbAndroid, $gbChrome, $gbIphone, $gbIe;
+	$crawlType = ( $gbMobile ? "mobile_" : ( $gbIe ? "ie_" : ( $gbIphone ? "iphone_" : "" ) ) );
 
 	$downloadsDir;
 	if ( file_exists("./downloads") ) {
