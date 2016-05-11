@@ -34,9 +34,9 @@ $gTotalDays = 13; // max days to finish the crawl
 while ( $crawl = mysql_fetch_assoc($result) ) {
 	// Find the DB table suffix that corresponds to this crawl.
 	$location = $crawl['location'];
-	$suffix = ( "California:Chrome.3G" === $location ? "android" :
-				( "California:Chrome" === $location ? "chrome" :
-				  ( "iphone4" === $location ? "mobile" : "dev" ) ) );
+	$suffix = ( "iphone4" === $location ? "iphone" :
+				( "IE8" === $location ? "ie" :
+				  ( "California:Chrome.3G" === $location ? "mobile" : "dev" ) ) );
 
 	$statusTable = "status" . $suffix;
 	$totalUrls = countTestsWithCode(-1, $statusTable);
