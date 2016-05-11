@@ -1,7 +1,5 @@
 <?php
 /*
-Copyright 2010 Google Inc.
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -1424,7 +1422,7 @@ function selectArchiveLabel($archive, $curLabel, $bReverse=true, $bOnchage = tru
 		">\n";
 
 	$device = curDevice();
-	$query = "select label from $gCrawlsTable where $dateRange and archive = '$archive' and location='$device' group by label order by crawlId " . 
+	$query = "select label from $gCrawlsTable where $dateRange and archive = '$archive' and " . deviceWhere($device, "location") . " group by label order by crawlId " . 
 		( $bReverse ? "desc" : "asc" ) . ";";
 	$result = doQuery($query);
 	while ($row = mysql_fetch_assoc($result)) {
@@ -1564,23 +1562,28 @@ function crawledUrls($pageid=null, $n=20) {
 
 
 function curDevice($crawlname=null) {
-	global $gbDev, $gbMobile, $gbChrome, $gbAndroid;
+	global $gbDev, $gbMobile, $gbChrome, $gbAndroid, $gbIphone, $gbIe;
 
-	if ( "dev" === $crawlname || ( !$crawlname && $gbDev ) ) {
-		return "IE8";
-	}
-	else if ( "mobile" === $crawlname || ( !$crawlname && $gbMobile ) ) {
-		return "iphone4";
-	}
-	else if ( "chrome" === $crawlname || ( !$crawlname && $gbChrome ) ) {
+	if ( "chrome" === $crawlname || ( !$crawlname && $gbChrome ) ) {
 		return "California:Chrome";
 	}
 	else if ( "android" === $crawlname || ( !$crawlname && $gbAndroid ) ) {
-		// temporary Nexus 5 real devices from Pat: return "nexus5%3ANexus+5+-+Chrome.3G";
+		return "California2:Chrome.3G";
+	}
+	else if ( "iphone" === $crawlname || ( !$crawlname && $gbIphone ) ) {
+		return "iphone4";
+	}
+	else if ( "ie" === $crawlname || ( !$crawlname && $gbIe ) ) {
+		return "IE8";
+	}
+	if ( "dev" === $crawlname || ( !$crawlname && $gbDev ) ) {
+		return "California:Chrome";
+	}
+	else if ( "mobile" === $crawlname || ( !$crawlname && $gbMobile ) ) {
 		return "California2:Chrome.3G";
 	}
 
-	return "IE8"; // the default for "httparchive.org" is IE8
+	return "California:Chrome"; // the default for "httparchive.org"
 }
 
 
@@ -1986,5 +1989,35 @@ function hashImplode( $glue, $separator, $hash, $quote="'" ) {
         $aTuples[] = ( is_numeric($val) ? "{$key}{$separator}{$val}" : "{$key}{$separator}{$quote}{$val}{$quote}" );
     }
     return implode( $glue, $aTuples );
+}
+
+
+// Return true if epoch is before the day we switched **CRAWLS**.
+// We call the official switch March 1 2016, but actually we switched 
+// the crawls after May 10 2016.
+function preSwitchCrawls($epoch) {
+	return ( $epoch <= 1462835114 );
+}
+
+
+
+
+// BIG HACK: We used to query the "stats" table using the current device (eg, "iphone4" or "California2:Chrome.3G").
+// But when we did the switchover (March 2016) we then want to gather stats from the earlier device AND the later device.
+// This function builds that more complex where condition for the "stats" table.
+function deviceWhere($device, $field="device") {
+	global $gbDev, $gbMobile, $gbChrome, $gbAndroid, $gbIphone, $gbIe, $gCrawlsTable;
+
+	// We ONLY need to make a more complex where condition if we are 
+	// currently generic "mobile" or "desktop" (or "dev").
+	if ( $gbChrome || $gbIe || $gbAndroid || $gbIphone ) {
+		return "$field='$device'";
+	}
+	else if ( $gbMobile ) {
+		return "(($field='iphone4' and crawlid<=405) OR ($field='California2:Chrome.3G' and crawlid>=408))";
+	}
+	else {
+		return "(($field='IE8' and crawlid<=403) OR ($field='California2:Chrome' and crawlid>=410))";
+	}
 }
 ?>
