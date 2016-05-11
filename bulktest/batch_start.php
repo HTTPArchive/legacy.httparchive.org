@@ -116,6 +116,12 @@ else if ( $gbChrome ) {
 else if ( $gbAndroid ) {
 	loadUrlsFromDB($crawlid, $label, 5000, false);
 }
+else if ( $gbIe ) {
+	loadUrlsFromDB($crawlid, $label, 500000, true);
+}
+else if ( $gbIphone ) {
+	loadUrlsFromDB($crawlid, $label, 5000, false);
+}
 else if ( $gbDev ) {
 	loadUrlsFromDB($crawlid, $label, 500000, true); // THIS IS THE ONLY CRAWL THAT UPDATES THE URLS!
 }
