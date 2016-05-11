@@ -1,7 +1,5 @@
 <?php
 /*
-Copyright 2010 Google Inc.
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -28,7 +26,7 @@ $gAggCounts = array();
 $video = true;
 $private = false;
 $docComplete = false; // &web10 WPT param
-$gbMobileEmul = ( $gbAndroid ? 1 : 0 ); // WPT param for whether we should use mobile emulation
+$gbMobileEmul = ( $gbAndroid || $gbMobile ? 1 : 0 ); // WPT param for whether we should use mobile emulation
 $fvonly = true;
 $runs = 3;
 $mv = 1;  // only save video for Median run
