@@ -29,10 +29,10 @@ function listFiles($hFiles) {
 		$crawl = getCrawl($label);
 		if ( "All" === $crawl['archive'] ) {
 			$sHtml .= "  <li> $label: " .
-				( array_key_exists('IE', $hFiles[$epoch]) ? "<br>&nbsp;&nbsp;" . $hFiles[$epoch]['IE'] : "" ) .
-				( array_key_exists('iPhone', $hFiles[$epoch]) ? "<br>&nbsp;&nbsp;" . $hFiles[$epoch]['iPhone'] : "" ) .
 				( array_key_exists('Chrome', $hFiles[$epoch]) ? "<br>&nbsp;&nbsp;" . $hFiles[$epoch]['Chrome'] : "" ) .
 				( array_key_exists('Android', $hFiles[$epoch]) ? "<br>&nbsp;&nbsp;" . $hFiles[$epoch]['Android'] : "" ) .
+				( array_key_exists('IE', $hFiles[$epoch]) ? "<br>&nbsp;&nbsp;" . $hFiles[$epoch]['IE'] : "" ) .
+				( array_key_exists('iPhone', $hFiles[$epoch]) ? "<br>&nbsp;&nbsp;" . $hFiles[$epoch]['iPhone'] : "" ) .
 				"\n";
 		}
 	}
@@ -86,9 +86,11 @@ function addFile(&$hFiles, $filename, $url, $size) {
 			$hFiles[$epoch] = array();
 		}
 
-        $browser = ( strpos($filename, "_mobile_") ? 'iPhone' : 
+        $browser = ( strpos($filename, "_iphone_") ? 'iPhone' : 
 					 ( strpos($filename, "_chrome_") ? 'Chrome' :
-					   ( strpos($filename, "_android_") ? 'Android' : 'IE' ) ) );
+					   ( strpos($filename, "_android_") ? 'Android' :
+						 ( strpos($filename, "_ie_") ? 'IE' : 
+						   ( strpos($filename, "_mobile_") ? (preSwitchCrawls($epoch) ? 'iPhone' : 'Android') : (preSwitchCrawls($epoch) ? 'IE' : 'Chrome') ) ) ) ) );
 		if ( strpos($filename, "_requests.csv") ) {
 			// There should be 4 files: _pages.gz, _pages.csv.gz, _requests.gz, _requests.csv.gz
 			// If we see _requests.csv we assume the other 3 exist and format accordingly and
@@ -168,7 +170,7 @@ These files define the schema and the meta-level tables:
 
 
 <p>
-There's a download file for each crawl for desktop ("IE") and mobile ("iPhone"), and more recently for desktop Chrome ("Chrome") and Android via Chrome emulation ("Android"):
+There's a download file for each type of crawl:
 </p>
 <ul class=indent>
 <?php echo listFiles($ghFiles) ?>
