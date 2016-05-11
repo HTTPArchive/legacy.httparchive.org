@@ -19,7 +19,7 @@ require_once("bootstrap.inc");
 
 $date = getdate();
 $label = substr($date['month'], 0, 3) . " " . $date['mday'] . " " . $date['year'];
-$aCrawlnames = array("dev", "mobile", "android", "chrome");
+$aCrawlnames = array("dev", "mobile", "android", "chrome", "ie", "iphone");
 foreach( $aCrawlnames as $crawlname ) {
 	$sProblems = "";
 
@@ -30,8 +30,8 @@ foreach( $aCrawlnames as $crawlname ) {
 	}
 	// TODO - It's unfortunate that the 500K and 5K URL counts are hardwired. 
 	// Check slight less than the full # of URLs since some URLs have opted out.
-	else if ( ( ("dev" === $crawlname || "chrome" === $crawlname) && 490000 > $numStatus ) ||
-			  ( ("mobile" === $crawlname || "android" === $crawlname) && 4900 > $numStatus ) ) {
+	else if ( ( ("dev" === $crawlname || "chrome" === $crawlname || "ie" === $crawlname) && 490000 > $numStatus ) ||
+			  ( ("mobile" === $crawlname || "android" === $crawlname || "iphone" === $crawlname) && 4900 > $numStatus ) ) {
 		$sProblems .= "    Only $numStatus URLs have been queued up in the status$crawlname table for crawl \"$label\".\n";
 	}
 
@@ -43,8 +43,8 @@ foreach( $aCrawlnames as $crawlname ) {
 	}
 	else {
 		$numUrls = $crawl['numUrls'];
-		if ( ( ("dev" === $crawlname || "chrome" === $crawlname) && $numStatus !== $numUrls ) ||
-			 ( ("mobile" === $crawlname || "android" === $crawlname) && $numStatus !== $numUrls ) ) {
+		if ( ( ("dev" === $crawlname || "chrome" === $crawlname || "ie" === $crawlname) && $numStatus !== $numUrls ) ||
+			 ( ("mobile" === $crawlname || "android" === $crawlname || "iphone" === $crawlname) && $numStatus !== $numUrls ) ) {
 			$sProblems .= "    Only $numUrls URLs (instead of $numStatus) have been set for the $crawlname crawl \"$label\".\n";
 		}
 	}
