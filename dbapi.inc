@@ -1,7 +1,5 @@
 <?php
 /*
-Copyright 2010 Google Inc.
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -45,23 +43,6 @@ $gUrlsTableMobile = "urls";
 $gStatusTableMobile = $gStatusTable . "mobile";
 $gStatsTableMobile = $gStatsTable;  // share the data table - a first step toward a single DB
 
-/*CVSNOSWITCH
-// Desktop tables
-$gPagesTableDesktop = $gPagesTable . "chrome";
-$gRequestsTableDesktop = $gRequestsTable . "chrome";
-$gStatusTableDesktop = $gStatusTable . "chrome";
-$gUrlsTableDesktop = "urls";
-$gStatsTableDesktop = $gStatsTable;
-$gUrlsChangeTableDesktop = $gUrlsChangeTable;
-
-// Mobile tables
-$gPagesTableMobile = $gPagesTable . "android";
-$gRequestsTableMobile = $gRequestsTable . "android";
-$gUrlsTableMobile = "urls";
-$gStatusTableMobile = $gStatusTable . "android";
-$gStatsTableMobile = $gStatsTable;  // share the data table - a first step toward a single DB
-*/
-
 // Chrome tables
 $gPagesTableChrome = $gPagesTable . "chrome";
 $gRequestsTableChrome = $gRequestsTable . "chrome";
@@ -77,18 +58,18 @@ $gStatusTableAndroid = $gStatusTable . "android";
 $gStatsTableAndroid = $gStatsTable;  // share the data table - a first step toward a single DB
 
 // Iphone tables
-$gPagesTableIphone = $gPagesTable . "mobile";
-$gRequestsTableIphone = $gRequestsTable . "mobile";
+$gPagesTableIphone = $gPagesTable . "iphone";
+$gRequestsTableIphone = $gRequestsTable . "iphone";
 $gUrlsTableIphone = "urls";
-$gStatusTableIphone = $gStatusTable . "mobile";
+$gStatusTableIphone = $gStatusTable . "iphone";
 $gStatsTableIphone = $gStatsTable;  // share the data table - a first step toward a single DB
 
-// Android tables
-$gPagesTableAndroid = $gPagesTable . "android";
-$gRequestsTableAndroid = $gRequestsTable . "android";
-$gUrlsTableAndroid = "urls";
-$gStatusTableAndroid = $gStatusTable . "android";
-$gStatsTableAndroid = $gStatsTable;  // share the data table - a first step toward a single DB
+// IE tables
+$gPagesTableIe = $gPagesTable . "ie";
+$gRequestsTableIe = $gRequestsTable . "ie";
+$gUrlsTableIe = "urls";
+$gStatusTableIe = $gStatusTable . "ie";
+$gStatsTableIe = $gStatsTable;  // share the data table - a first step toward a single DB
 
 // Dev tables
 $gPagesTableDev = $gPagesTable . "dev";
@@ -140,7 +121,11 @@ else if ( $gbIphone ) {
 	$gStatsTable = $gStatsTableIphone;
 }
 else if ( $gbIE ) {
-	// default table names point to IE data
+	// Use a iphone version of the database tables if "iphone" is in the path.
+	$gPagesTable = $gPagesTableIe;
+	$gRequestsTable = $gRequestsTableIe;
+	$gStatusTable = $gStatusTableIe;
+	$gStatsTable = $gStatsTableIe;
 }
 
 
@@ -203,9 +188,9 @@ function dateRangeCrawls($bDefault = false) {
 
 
 function dbtable($table, $device="", $label="", $slice="") {
-	global $gbChrome, $gbAndroid, $gbIE, $gbIphone;
+	global $gbChrome, $gbAndroid, $gbIe, $gbIphone;
 
-	if ( FALSE !== stripos($device, "iphone") ) {
+	if ( FALSE !== stripos($device, "android") ) {
 		$table .= "mobile";
 	}
 	else if ( isDev() ) {
@@ -218,7 +203,7 @@ function dbtable($table, $device="", $label="", $slice="") {
 		$table .= "android";
 	}
 	else if ( $gbIE ) {
-		$table .= "";
+		$table .= "ie";
 	}
 	else if ( $gbIphone ) {
 		$table .= "iphone";
