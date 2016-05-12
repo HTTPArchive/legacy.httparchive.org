@@ -120,7 +120,7 @@ else if ( $gbIphone ) {
 	$gStatusTable = $gStatusTableIphone;
 	$gStatsTable = $gStatsTableIphone;
 }
-else if ( $gbIE ) {
+else if ( $gbIe ) {
 	// Use a iphone version of the database tables if "iphone" is in the path.
 	$gPagesTable = $gPagesTableIe;
 	$gRequestsTable = $gRequestsTableIe;
@@ -202,7 +202,7 @@ function dbtable($table, $device="", $label="", $slice="") {
 	else if ( $gbAndroid ) {
 		$table .= "android";
 	}
-	else if ( $gbIE ) {
+	else if ( $gbIe ) {
 		$table .= "ie";
 	}
 	else if ( $gbIphone ) {
