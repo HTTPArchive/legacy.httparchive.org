@@ -19,7 +19,7 @@ require_once("bootstrap.inc");
 
 $date = getdate();
 $label = substr($date['month'], 0, 3) . " " . $date['mday'] . " " . $date['year'];
-$aCrawlnames = array("dev", "mobile", "android", "chrome", "ie", "iphone");
+$aCrawlnames = array("dev", "mobile", "ie", "iphone");
 foreach( $aCrawlnames as $crawlname ) {
 	$sProblems = "";
 
