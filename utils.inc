@@ -29,7 +29,7 @@ $gbDev = ( FALSE !== strpos($curdir, $gDevDir) || strpos($curdir, "/trunk.httpar
 $gbMobile = ( FALSE !== strpos($curdir, $gMobileDir) || strpos($curdir, "/mobile.httparchive.org") );
 $gbChrome = ( FALSE !== strpos($curdir, $gChromeDir) || strpos($curdir, "/chrome.httparchive.org") );
 $gbAndroid = ( FALSE !== strpos($curdir, $gAndroidDir) || strpos($curdir, "/android.httparchive.org") );
-$gbIE = ( FALSE !== strpos($curdir, $gIEDir) || strpos($curdir, "/ie.httparchive.org") );
+$gbIe = ( FALSE !== strpos($curdir, $gIEDir) || strpos($curdir, "/ie.httparchive.org") );
 $gbIphone = ( FALSE !== strpos($curdir, $gIphoneDir) || strpos($curdir, "/iphone.httparchive.org") );
 
 
@@ -2017,7 +2017,7 @@ function deviceWhere($device, $field="device") {
 		return "(($field='iphone4' and crawlid<=405) OR ($field='California2:Chrome.3G' and crawlid>=408))";
 	}
 	else {
-		return "(($field='IE8' and crawlid<=403) OR ($field='California2:Chrome' and crawlid>=410))";
+		return "(($field='IE8' and crawlid<=403) OR ($field='California:Chrome' and crawlid>=410))";
 	}
 }
 ?>
