@@ -1,7 +1,5 @@
 <?php 
 /*
-Copyright 2010 Google Inc.
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -535,9 +533,7 @@ The HTTP Archive is possible through the support of these sponsors:
 <a title="New Relic" href="http://www.newrelic.com/">New Relic</a>,
 <a title="O'Reilly Media" href="http://oreilly.com/">O&#8217;Reilly Media</a>,
 <a href="http://www.etsy.com/">Etsy</a>,
-<a title="Radware" href="http://www.radware.com/">Radware</a>,
-<a title="dynaTrace Software" href="http://www.dynatrace.com/">dynaTrace Software</a>,
-<a title="Torbit" href="http://torbit.com/">Torbit</a>,
+<a title="dynaTrace Software" href="http://www.dynatrace.com/">dynaTrace</a>,
 <a title="Instart Logic" href="http://instartlogic.com/">Instart Logic</a>,
 <a title="Catchpoint Systems" href="http://www.catchpoint.com/">Catchpoint Systems</a>,
 <a title="Fastly" href="http://bit.ly/1nWd1oL">Fastly</a>,
@@ -557,9 +553,7 @@ and
 <a class=image-link style="" title="New Relic" href="http://www.newrelic.com/"><img class="alignnone" title="New Relic" src="/images/newrelic.gif" alt="" width="120" height="22" /></a> 
 <a class=image-link style="" title="O'Reilly Media" href="http://oreilly.com/"><img class="alignnone" title="O'Reilly Media" src="/images/oreilly.gif" alt="" width="155" height="35" /></a>
 <a class=image-link style="" title="Etsy" href="http://www.etsy.com/"><img class="alignnone" src="/images/etsy.png" alt="" width="106" height="61" /></a> 
-<a class=image-link style="" title="Radware" href="http://www.radware.com/"><img class="alignnone" title="Radware" src="/images/radware.jpg" alt="" width="150" height="49" /></a> 
 <a class=image-link style="" title="dynaTrace Software" href="http://www.dynatrace.com/"><img class="alignnone" title="dynaTrace Software" src="/images/dynatrace.gif" alt="" width="120" height="31" /></a>
-<a class=image-link style="" title="Torbit" href="http://torbit.com/"><img class="alignnone" title="Torbit" src="/images/torbit_120.png" alt="" width="120" height="25" /></a>
 <a class=image-link style="" title="Instart Logic" href="http://instartlogic.com/"><img class="alignnone" title="Instart Logic" src="/images/Instart_Logic_Logo_150px-width.jpg" alt="" width=150 height=44 /></a>
 <a class=image-link style="" title="Catchpoint Systems" href="http://www.catchpoint.com/"><img class="alignnone" title="Catchpoint Systems" src="/images/cp-logo-150px.png" alt="" width="150" height="150" /></a>
 <a class=image-link style="" title="Fastly" href="http://bit.ly/1nWd1oL"><img class="alignnone" title="Fastly" src="/images/fastly_logo_115x115.png" alt="" width="115" height="115" /></a>
