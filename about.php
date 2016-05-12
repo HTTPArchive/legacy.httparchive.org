@@ -547,7 +547,7 @@ and
 #imagelogos IMG { vertical-align: middle; }
 </style>
 
-<div id=imagelogos style='width: 800px'>
+<div id=imagelogos style='width: 700px'>
 <a class=image-link style="" title="Google" href="http://www.google.com/"><img class="alignnone" title="Google" src="/images/google.gif" alt="" width="120" height="40" /></a> 
 <a class=image-link style="" title="Mozilla" href="http://www.mozilla.org/firefox"><img class="alignnone" title="Mozilla" src="/images/mozilla.png" alt="" width="145" height="100" /></a> 
 <a class=image-link style="" title="New Relic" href="http://www.newrelic.com/"><img class="alignnone" title="New Relic" src="/images/newrelic.gif" alt="" width="120" height="22" /></a> 
