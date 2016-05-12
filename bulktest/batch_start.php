@@ -110,12 +110,6 @@ else if ( $gNumUrls ) {
 else if ( $gbMobile ) {
 	loadUrlsFromDB($crawlid, $label, 5000, false);
 }
-else if ( $gbChrome ) {
-	loadUrlsFromDB($crawlid, $label, 500000, true);
-}
-else if ( $gbAndroid ) {
-	loadUrlsFromDB($crawlid, $label, 5000, false);
-}
 else if ( $gbIe ) {
 	loadUrlsFromDB($crawlid, $label, 500000, true);
 }
