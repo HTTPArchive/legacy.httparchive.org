@@ -145,7 +145,7 @@ OUTPUT;
 
 
 function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
-	global $gbMobile, $gbAndroid, $gbChrome, $gbDev, $gbDesktop, $gbIE, $gbIphone;
+	global $gbMobile, $gbAndroid, $gbChrome, $gbDev, $gbDesktop, $gbIe, $gbIphone;
 
 	$navlinks = "";
 	if ( $bNavlinks ) {
