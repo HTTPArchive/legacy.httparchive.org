@@ -24,8 +24,8 @@ $gMobileDir = "/var/www/httparchive.mobile/";
 $gDevDir = "/var/www/httparchive.dev/";
 $gChromeDir = "/var/www/httparchive.chrome/";
 $gAndroidDir = "/var/www/httparchive.android/";
-$gIphoneDir = "/var/www/httparchive.mobile/";
-$gIEDir = "/var/www/httparchive/";
+$gIphoneDir = "/var/www/httparchive.iphone/";
+$gIEDir = "/var/www/httparchive.ie/";
 
 $gHAUrl = "http://httparchive.org/";
 $gHAMUrl = "http://mobile.httparchive.org/";
