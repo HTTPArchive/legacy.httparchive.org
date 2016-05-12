@@ -476,7 +476,7 @@ function formatChart($field, $hTrends, $aRunNames, $labels, $percentile="", $bJs
 
 
 function getSkip($num, $bNum = false) {
-	$skip = ( $num < 22 ? 1 : ( $num < 32 ? 2 : ( $num < 42 ? 3 : ( $num < 52 ? 4 : 5 ) ) ) );
+	$skip = ( $num < 22 ? 1 : ( $num < 32 ? 2 : ( $num < 42 ? 3 : ( $num < 52 ? 4 : ( $num < 104 ? 5 : 12 ) ) ) ) );
 
 	if ( $bNum ) {
 		return $skip;
