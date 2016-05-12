@@ -79,20 +79,11 @@ $gFAQ =<<<OUTPUT
 			   <h2 id=listofurls>How is the list of URLs generated?</h2>
 
 <p>
-Starting in November 2011, the list of URLs is based solely on the <a href="http://www.alexa.com/topsites">Alexa Top 1,000,000 Sites</a>
+The list of URLs is based on the <a href="http://www.alexa.com/topsites">Alexa Top 1,000,000 Sites</a>
 (<a href="http://s3.amazonaws.com/alexa-static/top-1m.csv.zip">zip</a>).
 Use the <a href="urls.php">HTTP Archive URLs</a> page to see the list of the top 10,000 URLs used in the most recent crawl.
 </p>
 
-<p>Prior to November 2011 there were 18K URLs analyzed based on the union of the following lists:
-<a href="lists/Alexa%20500.txt">Alexa 500</a> (<a href="http://www.alexa.com/topsites/global">source</a>),
-<a href="lists/Alexa%20US%20500.txt">Alexa US 500</a> (<a href="http://www.alexa.com/topsites/countries/US">source</a>),
-<a href="lists/Alexa10K.txt">Alexa 10,000</a> (<a href="http://www.alexa.com/topsites">source</a>, <a href="http://s3.amazonaws.com/alexa-static/top-1m.csv.zip">zip</a>),
-<a href="lists/Fortune%20500.txt">Fortune 500</a> (<a href="http://money.cnn.com/magazines/fortune/fortune500/2010/full_list/">source</a>),
-<a href="lists/Global%20500.txt">Global 500</a> (<a href="http://money.cnn.com/magazines/fortune/global500/2010/full_list/">source</a>),
-and
-<a href="lists/Quantcast10K.txt">Quantcast10K</a> (<a href="http://www.quantcast.com/top-sites-1">source</a>).
-</p>
 
 
 
@@ -102,16 +93,18 @@ and
 on the 1st and 15th of each month. 
 (Huge thanks to Pat Meenan!)</p>
 
-<p>The WebPagetest settings are:</p>
-<ul class=indent>
-  <li> <strong>Internet Explorer 9</strong> (was IE8 until October 15, 2012) and iPhone4
-  <li> the test agents are located in Redwood City, CA
-  <li> the default WebPagetest connection speed is used
-  <li> empty cache ("first view")
-</ul>
+<p>
+As of March 1 2016, the tests are performed on Chrome for desktop and emulated Android (on Chrome) for mobile. 
+Prior to that, IE 8&amp;9 were used for desktop, and iPhone was used for mobile.
+</p>
 
-<p>Each URL is loaded 3 times. The data from the median run (based on load time) is collected via a <a href="#harfile">HAR file</a>.
-The HTTP Archive collects these HAR files, parses them, and populates our database with the relevant information.</p>
+<p>
+The test agents are located in the <a href="http://isc.org/">Internet Systems Consortium</a> data center in Redwood City, CA.
+Each URL is loaded 3 times with an empty cache ("first view"). 
+The data from the median run (based on load time) is collected via a <a href="#harfile">HAR file</a>.
+The HTTP Archive collects these HAR files, parses them, and populates our database with the relevant information.
+The data is also available in <a href="#bigquery">Big Query</a>.
+</p>
 
 
 
@@ -165,6 +158,8 @@ This resulted in more HTTP requests being recorded with a subsequent bump in tra
 <h2 id=testchanges>What changes have been made to the test environment that might affect the data?</h2>
 The following test configuration changes could affect results:
 <ul class=indent>
+  <li> <strong>March 1 2016</strong> - We switched from IE9 to Chrome for desktop, and from real iPhones to 
+emulated Android (on Chrome) for mobile.
   <li> <strong>Nov 15 2013 and Dec 1 2013</strong> - 
 Normally we use IE9 as our test agent, but sometime around Nov 15 2013 our test agents started auto-updating to IE11. 
 In the Nov 15 2013 crawl about 7.5% of websites were tested with IE11. 
@@ -196,7 +191,7 @@ Switch from IE8 to IE9.
 			   <h2 id=limitations>What are the limitations of this testing methodology (using lists)?</h2>
 
 <p>
-The HTTP Archive examines each URL in the list, but does not crawl the website other pages.
+The HTTP Archive examines each URL in the list, but does not crawl the website's other pages.
 Although this list of websites
 is well known, the entire website doesn't necessarily map well to a single URL.</p>
 
@@ -512,8 +507,11 @@ Screenshots are not shown for websites flagged as adult only.
 
 
 			   <h2 id=who>Who created the HTTP Archive?</h2>
-<p>Steve Souders created the HTTP Archive. 
+<p>Steve Souders created the HTTP Archive in 2010.
 It's built on the shoulders of Pat Meenan's <a href="http://www.webpagetest.org">WebPagetest</a> system.
+<?php
+// Ilya Grigori took over the project in June of 2016.
+?>
 Several folks on Google's Make the Web Faster team chipped in.
 I've received patches from several individuals including 
 <a href="http://www.jonathanklein.net">Jonathan Klein</a>,
@@ -526,11 +524,6 @@ I've received patches from several individuals including
  and Mike Pfirrmann.
 Guy Leech helped early on with the design.
 More recently, <a href="https://twitter.com/#!/stephenhay">Stephen Hay</a> created the new logo.
-</p>
-
-<p>The <a href="http://mobile.httparchive.org/">HTTP Archive Mobile</a> test framework uses
-<a href="http://code.google.com/p/mobitest-agent/">Mobitest</a> from <a href="https://blogs.akamai.com/2012/03/open-sourcing-mobitest.html">Blaze.io &amp; Akamai</a>
-with much help from <a href="https://twitter.com/guypod">Guy (Guypo) Podjarny</a>.
 </p>
 
 
@@ -584,6 +577,7 @@ The HTTP Archive is part of the Internet Archive, a 501(c)(3) non-profit.
 Donations in support of the HTTP Archive can be made through the Internet Archive's 
 <a href="http://www.archive.org/donate/index.php">donation page</a>.
 Make sure to send a follow-up email to <a href="mailto:donations@archive.org">donations@archive.org</a> designating your donation to the "HTTP Archive".
+<a href='http://groups.google.com/group/httparchive/topics'>Contact us</a> for more information and to get your logo added to this page.
 </p>
 
 			   <h2 id=contact>Who do I contact for more information?</h2>
