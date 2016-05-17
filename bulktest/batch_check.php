@@ -37,7 +37,7 @@ foreach( $aCrawlnames as $crawlname ) {
 
 	// check that the crawl exists and has the right number of URLs
 	$device = curDevice($crawlname);
-	$crawl = getCrawl($label, null, $device);
+	$crawl = getCrawl($label, null, $device, true);
 	if ( ! $crawl ) {
 		$sProblems .= "    Could not find the crawl for \"$label\".\n";
 	}
