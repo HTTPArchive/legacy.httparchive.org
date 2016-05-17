@@ -165,7 +165,7 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
  	  <li><a href="urls.php">URLs</a></li>
  	  <li><a href="https://github.com/HTTPArchive/httparchive">Source Code</a></li>
  	  <li><a href="https://github.com/HTTPArchive/httparchive/issues">Bugs</a></li>
- 	  <li><a href="http://groups.google.com/group/httparchive/topics">Contact Us</a></li>
+ 	  <li><a href="https://discuss.httparchive.org/">Contact Us</a></li>
  	</ul>
   </li>
 </ul>
