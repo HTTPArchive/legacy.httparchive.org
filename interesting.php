@@ -52,6 +52,15 @@ Got a stat you'd like to see?
 <span style="margin-left: 20px;">New feature: <a href="compare.php">Compare two runs</a></span>
 </p>
 
+<?php
+if ( $gbDev || $gbDesktop ) {
+	echo "<p style='font-weight: bold; color: #800; margin-bottom: 1em;'>NOTE: Test agents switched from IE 9 to Chrome as of March 1 2016.</p>\n";
+}
+else if ( $gbMobile ) {
+	echo "<p style='font-weight: bold; color: #800; margin-bottom: 1em;'>NOTE: Test agents switched from iPhone 4 to emulated Android as of March 1 2016.</p>\n";
+}
+?>
+
 <div style="float: left; margin-right: 20px;">
 <form>
 	<label>Choose a run:</label>
