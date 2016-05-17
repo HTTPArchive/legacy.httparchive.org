@@ -41,7 +41,7 @@ LI.sublist { margin-bottom: 0; }
   <li> <a href="urls.php">URLs</a>
   <li> <a href="https://github.com/HTTPArchive/httparchive">Source code</a>
   <li> <a href="https://github.com/HTTPArchive/httparchive/issues">Bugs</a> (<a href="http://code.google.com/p/httparchive/issues/list">old</a>)
-  <li> <a href="http://groups.google.com/group/httparchive/topics">Contact us</a>
+  <li> <a href="https://discuss.httparchive.org/">Contact us</a>
 </ul>
 
 
@@ -571,11 +571,11 @@ The HTTP Archive is part of the Internet Archive, a 501(c)(3) non-profit.
 Donations in support of the HTTP Archive can be made through the Internet Archive's 
 <a href="http://www.archive.org/donate/index.php">donation page</a>.
 Make sure to send a follow-up email to <a href="mailto:donations@archive.org">donations@archive.org</a> designating your donation to the "HTTP Archive".
-<a href='http://groups.google.com/group/httparchive/topics'>Contact us</a> for more information and to get your logo added to this page.
+<a href='https://discuss.httparchive.org/'>Contact us</a> for more information and to get your logo added to this page.
 </p>
 
 			   <h2 id=contact>Who do I contact for more information?</h2>
-					 <p>Please go to the <a href='http://groups.google.com/group/httparchive/topics'>HTTP Archive discussion list</a> and submit a post.</p>
+					 <p>Please go to <a href='https://discuss.httparchive.org/'>Discuss HTTP Archive</a> and start a new topic.</p>
 
 OUTPUT;
 
