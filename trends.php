@@ -41,6 +41,15 @@ $gTitle = "Trends";
 <h1>Trends</h1>
 
 
+<?php
+if ( $gbDev || $gbDesktop ) {
+	echo "<p style='font-weight: bold; color: #800; margin-bottom: 0.5em;'>NOTE: Test agents switched from IE 9 to Chrome as of March 1 2016.</p>\n";
+}
+else if ( $gbMobile ) {
+	echo "<p style='font-weight: bold; color: #800; margin-bottom: 0.5em;'>NOTE: Test agents switched from iPhone 4 to emulated Android as of March 1 2016.</p>\n";
+}
+?>
+
 <form>
 <div>
 	<label>Choose URLs:</label>
@@ -56,6 +65,7 @@ echo selectSlice($gSlice, "", "s");
 <input style="margin-left: 1em;" class=button type=submit value="Submit">
 </div>
 </form>
+
 
 <?php
 $gUrl = NULL; // TODO - get rid of this
