@@ -24,13 +24,14 @@ require_once("requests.inc");
 ////////////////////////////////////////////////////////////////////////////////
 
 // Return a hash corresponding to the specified crawl. Return FALSE if not found.
-function getCrawl($label, $archive=null, $location=null) {
+function getCrawl($label, $archive=null, $location=null, $bDontChangeLocation=null) {
 	global $gArchive;
 	$archive = ( $archive ? $archive : $gArchive );
 	$location = ( $location ? $location : curDevice() );
 	$crawlsTable = crawlsTable();
 
-	$query = "select * from $crawlsTable where label = '$label' and archive = '$archive' and " . deviceWhere($location, "location") . ";";
+	$query = "select * from $crawlsTable where label = '$label' and archive = '$archive' and " . 
+		( $bDontChangeLocation ? "location='$location'" : deviceWhere($location, "location") ) . ";";
 	return doRowQuery($query);
 }
 
