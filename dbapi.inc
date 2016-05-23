@@ -188,9 +188,9 @@ function dateRangeCrawls($bDefault = false) {
 
 
 function dbtable($table, $device="", $label="", $slice="") {
-	global $gbChrome, $gbAndroid, $gbIe, $gbIphone;
+	global $gbChrome, $gbAndroid, $gbIe, $gbIphone, $gbMobile;
 
-	if ( FALSE !== stripos($device, "android") ) {
+	if ( FALSE !== stripos($device, "android") || $gbMobile ) {
 		$table .= "mobile";
 	}
 	else if ( isDev() ) {
