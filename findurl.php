@@ -21,8 +21,16 @@ $term = strtolower($term); // always search lower case (esp. a problem on iOS)
 // First, get all the urlhashes from the "urls" table that match the search term.
 // We CAN'T do ordering here because hashes are shared by multiple URLs,
 // and all we're transferring from here are the hashes.
-$query = "select group_concat(urlhash) from $gUrlsTable where (urlOrig like '%$term%' or urlFixed like '%$term%');";
-$sUrlhashes = doSimpleQuery($query);
+// This doesn't work because ORDER BY doesn't work and so we miss the most popular urlhashes.
+// $query = "select group_concat(urlhash order by rank asc) from $gUrlsTable where (urlOrig like '%$term%' or urlFixed like '%$term%');";
+$query = "select distinct(urlhash) from $gUrlsTable where (urlOrig like '%$term%' or urlFixed like '%$term%') order by rank asc;";
+$result = doQuery($query);
+$sUrlhashes = "";
+while ( $row = mysql_fetch_assoc($result) ) {
+	$sUrlhashes .= $row['urlhash'] . ",";
+}
+mysql_free_result($result);
+
 
 // It's possible the list ends in "," which is bad (eg, if urlhash is null).
 if ( "," === substr($sUrlhashes, -1) ) {
