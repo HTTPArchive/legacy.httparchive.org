@@ -106,7 +106,7 @@ else if ( $gNumUrls ) {
 	loadUrlsFromDb($crawlid, $label, $gNumUrls, false);
 }
 else if ( $gbMobile ) {
-	loadUrlsFromDB($crawlid, $label, 100000, false);
+	loadUrlsFromDB($crawlid, $label, 500000, false);
 }
 else if ( $gbDev ) {
 	loadUrlsFromDB($crawlid, $label, 500000, true); // THIS IS THE ONLY CRAWL THAT UPDATES THE URLS!

@@ -31,7 +31,7 @@ foreach( $aCrawlnames as $crawlname ) {
 	// TODO - It's unfortunate that the 500K and 5K URL counts are hardwired. 
 	// Check slight less than the full # of URLs since some URLs have opted out.
 	else if ( ( "dev" === $crawlname && 490000 > $numStatus ) ||
-			  ( "mobile" === $crawlname && 95000 > $numStatus ) ) {
+			  ( "mobile" === $crawlname && 490000 > $numStatus ) ) {
 		$sProblems .= "    Only $numStatus URLs have been queued up in the status$crawlname table for crawl \"$label\".\n";
 	}
 
