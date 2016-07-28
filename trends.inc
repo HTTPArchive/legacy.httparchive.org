@@ -28,7 +28,7 @@ $hTrends = getTrends($gSlice, $device, $gUrl);
 
 // Create a chart for each field.
 $aRunNames = archiveLabels($gArchive, false);
-$aAxisLabels = archiveLabels($gArchive, true, "n/j");
+$aAxisLabels = archiveLabels($gArchive, true, "n/y");
 $labels = getLabels($aAxisLabels); 
 
 if ( "url" != $gSlice ) {
