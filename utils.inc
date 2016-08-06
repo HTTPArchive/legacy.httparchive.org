@@ -1294,6 +1294,14 @@ $gaTop1000 = array(
 // Don't link to some websites.
 // This is a list of domains - any URL with this domain will be considered "adult content".
 $ghAdultContent = array(
+						"sadomax.cmo" => 1, "www.sadomax.com" => 1,
+						"bizarre-tube.cmo" => 1, "www.bizarre-tube.com" => 1,
+						"myfuck.vt" => 1, "www.myfuck.tv" => 1,
+						"bondagezilla.cmo" => 1, "www.bondagezilla.com" => 1,
+						"my18teens.cmo" => 1, "www.my18teens.com" => 1,
+						"myteenvideo.cmo" => 1, "www.myteenvideo.com" => 1,
+						"pornmage.cmo" => 1, "www.pornmage.com" => 1,
+						"xxxshemaleporn.cmo" => 1, "www.xxxshemaleporn.com" => 1,
 					 "privatemembers.com" => 1, "www.privatemembers.com" => 1,
 					 "mavideoporno.fr" => 1, "www.mavideoporno.fr" => 1,
 					 "livejasmin.com" => 1, "www.livejasmin.com" => 1,
@@ -1624,6 +1632,12 @@ function isAdultContent($url, $pageData = null) {
 			}
 			if ( $pageData ) {
 				$bAdultContent = $pageData['_adult_site'];
+			}
+
+			// Finally check for likely domain substrings.
+			if ( ! $bAdultContent ) {
+				$bAdultContent = ! ( FALSE === stripos($hostname, "xxx") && 
+									 FALSE === stripos($hostname, "fuck") );
 			}
 		}
 	}
