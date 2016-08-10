@@ -68,6 +68,7 @@ $wptrun = $pageData['wptrun'];
 $onLoad = $pageData['onLoad'];
 $renderStart = $pageData['renderStart'];
 $gRank = rank($url, $gPageid);
+$gIsAdult = isAdultContent($url, $pageData);
 
 $wptServer = wptServer();
 $harfileWptUrl = wptHarFileUrl($wptid, $wptrun, 0);
@@ -126,7 +127,7 @@ echo selectSiteLabel($url, $gLabel, "undefined", false, true);
 
 	<ul class=quicklinks>
 		<li><a href="#top">Top of page</a></li>
-		<li><a href="#filmstrip">Filmstrip</a></li>
+		<?php echo ($gIsAdult ? '' : '<li><a href="#filmstrip">Filmstrip</a></li>') ?>
 		<li><a href="#sitestats">Stats</a></li>
 		<li><a href="#trends">Trends</a></li>
 		<li><a href="#waterfall">Waterfall</a></li>
@@ -135,12 +136,11 @@ echo selectSiteLabel($url, $gLabel, "undefined", false, true);
 		<li><a href="#cdns">CDNs</a></li>
 		<li><a href="#downloads">Downloads</a></li>
 	</ul>
-
-<h2 id=filmstrip>Filmstrip, Video</h2>
-
 <?php 
 // Build a table that has empty cells to be filled in later.
-if ( ! isAdultContent($url, $pageData) ) {
+if ( !$gIsAdult ) {
+
+  echo "<h2 id=filmstrip>Filmstrip, Video</h2>";
 
 	if ( $gbMobile ) {
 		// right now Blaze.io only does 1 FPS
@@ -228,14 +228,14 @@ filmstripjs.src = "filmstrip.js?pageid=$gPageid";
 document.getElementsByTagName('head')[0].appendChild(filmstripjs);
 </script>
 
-OUTPUT;
-}
-?>
-
 <ul class=horizlist>
   <li> <a href="<?php echo $wptServer ?>video/compare.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0">WPT filmstrip</a>
   <li> <a href="<?php echo $wptServer ?>video/create.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0&id=<?php echo $wptid ?>.<?php echo $wptrun ?>.0">watch video</a>
 </ul>
+
+OUTPUT;
+}
+?>
 
 
 <h2 id=sitestats>Stats</h2>
@@ -591,7 +591,8 @@ foreach($aResources as $resource) {
 	$iRow++;
 	$sRow = "<tr" . ( $iRow % 2 == 0 ? " class=odd" : "" ) . ">";
 	$sRow .= "<td class='tdnum '>$iRow</td> ";
-	$sRow .= "<td class='nobr ' style='font-size: 0.9em;'><a href='" . $resource['url'] . "'>" . shortenUrl($resource['url']) . "</a></td> ";
+	$sRow .= "<td class='nobr ' style='font-size: 0.9em;'>".
+		 ($gIsAdult ? shortenUrl($resource['url']) : "<a href='" . $resource['url'] . "'>" . shortenUrl($resource['url']) . "</a>") . " </td> ";
 	for ( $i = 0; $i < $len; $i++ ) {
 		$column = $columns[$i];
 		if ( ('Req#' != $column['name']) && ('URL' != $column['name'])){
