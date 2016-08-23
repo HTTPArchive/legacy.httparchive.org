@@ -229,8 +229,8 @@ document.getElementsByTagName('head')[0].appendChild(filmstripjs);
 </script>
 
 <ul class=horizlist>
-  <li> <a href="<?php echo $wptServer ?>video/compare.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0">WPT filmstrip</a>
-  <li> <a href="<?php echo $wptServer ?>video/create.php?tests=<?php echo $wptid ?>-r:<?php echo $wptrun ?>-c:0&id=<?php echo $wptid ?>.<?php echo $wptrun ?>.0">watch video</a>
+  <li> <a href="{$wptServer}video/compare.php?tests={$wptid}-r:{$wptrun}-c:0">WPT filmstrip</a>
+  <li> <a href="{$wptServer}video/create.php?tests={$wptid}-r:{$wptrun}-c:0&id=$wptid.$wptrun.0">watch video</a>
 </ul>
 
 OUTPUT;
