@@ -60,7 +60,7 @@ if ( $gbImportUrls ) {
 		for ( $i = 0; $i <= 70000; $i += 1000 ) {
 			$cmd = "delete from $gUrlsTableDesktop where urlhash <= $i;";
 			cprint("About to delete urls: $cmd");
-			doSimpleCommand();
+			doSimpleCommand($cmd);
 		}
 		$cmd = "insert into $gUrlsTableDesktop select * from $gUrlsTableDev;";
 		cprint("About to copy urls: $cmd");
