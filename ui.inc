@@ -64,6 +64,7 @@ _gaq.push(['_trackPageLoadTime']);
 	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
 </script>
+<script src="//cdn.speedcurve.com/js/lux.js?id=37921102" async></script>
 
 OUTPUT;
 	}
