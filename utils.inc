@@ -1717,6 +1717,8 @@ $ghFieldColors = array(
 					   "sessionstorage_size" => "007099",
 					   "num_iframes" => "007099",
 					   "num_scripts" => "007099",
+					   "num_scripts_sync" => "DD3333",
+					   "num_scripts_async" => "CC3377",
 					   "doctype" => "007099",
 					   "meta_viewport" => "007099",
 					   );
