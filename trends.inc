@@ -31,6 +31,7 @@ $aRunNames = archiveLabels($gArchive, false);
 $aAxisLabels = archiveLabels($gArchive, true, "n/y");
 $labels = getLabels($aAxisLabels); 
 
+
 if ( "url" != $gSlice ) {
 	// show URLs first so people can see if they're doing intersection or not
 	// but don't show it if we're only looking at a single URL
@@ -45,6 +46,7 @@ if ( array_key_exists("plt", $_GET) ) {
 echo format2LineChart("reqTotal", "bytesTotal", $hTrends, $aRunNames, $labels, "(kB)", $gPercentile);
 echo format2LineChart("reqHtml", "bytesHtml", $hTrends, $aRunNames, $labels, "(kB)", $gPercentile);
 echo format2LineChart("reqJS", "bytesJS", $hTrends, $aRunNames, $labels, "(kB)", $gPercentile);
+echo format2LineChart('num_scripts_async', 'num_scripts_sync', $hTrends, $aRunNames, $labels, "", "", true);
 echo format2LineChart("reqCSS", "bytesCSS", $hTrends, $aRunNames, $labels, "(kB)", $gPercentile);
 echo format2LineChart("reqImg", "bytesImg", $hTrends, $aRunNames, $labels, "(kB)", $gPercentile);
 if ( ! $gbMobile ) {
