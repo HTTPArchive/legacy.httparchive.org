@@ -15,9 +15,7 @@ function addThirdParty(name, version) {
 		return;
 	}
 
-	if (version) {
-		name += '@' + version;
-	}
+	name += '@' + (version || 'null');
 
 	thirdParties.push(name);
 }
