@@ -43,4 +43,4 @@ OR
 
 	`String date = "Dec_1_2016";`
 
-The first approach standardizes the data in Google Storage but that alone takes 5-6 hours, despite the -m option to enable multithreading, in addition to the ~hour of backfilling. The second approach is super hacky but it’s just as fast as a regular backfill. TODO: Bake the hackiness into the script with parameters so that the BigQuery date can differ from the Storage date.
+The first approach standardizes the data in Google Storage but that alone takes 5-6 hours, despite the -m option to enable multithreading, in addition to the ~hour of backfilling. The second approach is super hacky but it's just as fast as a regular backfill. TODO: Bake the hackiness into the script with parameters so that the BigQuery date can differ from the Storage date.
