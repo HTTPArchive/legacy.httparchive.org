@@ -32,9 +32,9 @@ function addThirdParty(name, version) {
 		return;
 	}
 
-	if (version) {
-		name += '@' + (version || 'null');
-	}
+	name = name.replace('@', '\@');
+	version = version && version.replace('@', '\@);
+	name += '@' + (version || 'null');
 
 	thirdParties.push(name);
 }
@@ -42,10 +42,10 @@ function addThirdParty(name, version) {
 `;
 const OUTPUT_FOOT = `
 Object.entries(\${LIBRARY_DETECTOR_VAR}).forEach(([name, lib]) => {
-  const result = lib.test(window);
-  if (result) {
-    addThirdParty(name, result.version);
-  }
+	const result = lib.test(window);
+	if (result) {
+		addThirdParty(name, result.version);
+	}
 });
 
 return JSON.stringify(thirdParties);
