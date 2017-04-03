@@ -28,10 +28,7 @@ function addThirdParty(name, version) {
 var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
 
     'GWT': {
-        icon: 'gwt',
-        url: 'http://www.gwtproject.org/',
         test: function(win) {
-            // pretty complicated, many possible tell tales
             var doc = win.document,
                 hasHistFrame = doc.getElementById('__gwt_historyFrame'),
                 hasGwtUid = doc.gwt_uid,
@@ -40,17 +37,12 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
                 hasModules = win.__gwt_activeModules,
                 hasJsonP = win.__gwt_jsonp__,
                 hasRootWinApp = win.__gwt_scriptsLoaded || win.__gwt_stylesLoaded || win.__gwt_activeModules;
-
-            // use the many possible indicators
             if(hasHistFrame || hasGwtUid || hasBodyListener || hasBodyEventBits || hasModules || hasJsonP || hasRootWinApp) {
-
-                // carefully look at frames, but only if certain is GWT frame
                 var frames = doc.getElementsByTagName('iframe'),
                     gwtVersion = 'unknown';
                 for(var n=0; n<frames.length; n++) {
-                    // catch security access errors
                     try {
-                        var hasNegativeTabIndex = frames[n].tabIndex < 0; // on for GWT
+                        var hasNegativeTabIndex = frames[n].tabIndex < 0;
                         if(hasNegativeTabIndex && frames[n].contentWindow && frames[n].contentWindow.$gwt_version) {
                             gwtVersion = frames[n].contentWindow.$gwt_version;
                             break;
@@ -70,8 +62,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Ink': {
-        icon: 'ink',
-        url: 'http://ink.sapo.pt/',
         test: function(win) {
             if (win.Ink && win.Ink.createModule) {
                 return { version: 'unknown' };
@@ -81,8 +71,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Vaadin': {
-        icon: 'vaadin',
-        url: 'http://vaadin.com/home',
         test: function(win) {
             if (win.vaadin && win.vaadin.registerWidgetset) {
                 return { version: 'unknown' };
@@ -92,9 +80,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Bootstrap': {
-        icon: 'bootstrap',
-        url: 'http://getbootstrap.com/',
-        // look for a function Boostrap has added to jQuery - regex for BS 2 & 3
         test: function(win) {
             var jQueryAvailable = win.$ && win.$.fn,
                 RE_PREFIX_V2 = '\\$this\\.data\\((?:\'|")',
@@ -109,15 +94,12 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
 
                 bootstrapComponents.some(function(component) {
                     if(win.$.fn[component]) {
-                        // Bootstrap >= 3.2.0 detection
                         if(win.$.fn[component].Constructor && win.$.fn[component].Constructor.VERSION) {
                             bootstrapVersion = win.$.fn[component].Constructor.VERSION;
                             return true;
-                        // Bootstrap >= 2.0.0 and <= 3.1.0 detection
                         } else if(new RegExp(RE_PREFIX_V3 + component).test(win.$.fn[component].toString())) {
                             bootstrapVersion = '>= 3.0.0 & <= 3.1.1';
                             return true;
-                        // Bootstrap < 3.1.0 detection
                         } else if(new RegExp(RE_PREFIX_V2 + component).test(win.$.fn[component].toString())) {
                             bootstrapVersion = '>= 2.0.0 & <= 2.3.2';
                             return true;
@@ -137,8 +119,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Zurb': {
-        icon: 'zurb',
-        url: 'http://foundation.zurb.com/',
         test: function(win) {
             if(win.Foundation && win.Foundation.version) {
                 return { version: win.Foundation.version };
@@ -148,8 +128,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Polymer': {
-        icon: 'polymer',
-        url: 'http://www.polymer-project.org/',
         test: function(win) {
             if(win.Polymer && win.Polymer.version) {
                 return { version: win.Polymer.version };
@@ -159,8 +137,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Highcharts': {
-        icon: 'highcharts',
-        url: 'http://www.highcharts.com',
         test: function(win) {
             if(win.Highcharts && win.Highcharts.version) {
                 return { version: win.Highcharts.version };
@@ -170,8 +146,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'InfoVis': {
-        icon: 'jit',
-        url: 'http://philogb.github.com/jit/',
         test: function(win) {
             if(win.$jit && win.$jit.version) {
                 return { version: win.$jit.version };
@@ -181,8 +155,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'FlotCharts': {
-        icon: 'icon_48',
-        url: 'http://www.flotcharts.org/',
         test: function(win) {
             if(win.$ && win.$.plot && win.$.plot.version) {
                 return { version: win.$.plot.version };
@@ -192,30 +164,24 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Blackbird': {
-        icon: 'blackbird',
-        url: 'http://www.gscottolson.com/blackbirdjs/',
         test: function(win) {
             if(win.log && win.log.warn) {
-                return { version: "N/A"}; // no version info
+                return { version: "N/A"};
             }
             return false;
         }
     },
 
     'CreateJS': {
-        icon: 'createjs',
-        url: 'http://createjs.com/#!/CreateJS',
         test: function(win) {
             if(win.Stage || win.Shape || win.Container) {
-                return { version: "N/A"}; // no version info available
+                return { version: "N/A"};
             }
             return false;
         }
     },
 
     'Google Maps': {
-        icon: 'gmaps',
-        url: 'https://developers.google.com/maps/',
         test: function(win) {
             if (win.google && win.google.maps && win.google.maps.version) {
                 return { version: win.google.maps.version };
@@ -225,8 +191,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'jQuery': {
-        icon: 'jquery',
-        url: 'http://jquery.com',
         test: function(win) {
             var jq = win.jQuery || win.$ || win.$jq || win.$j;
             if(jq && jq.fn && jq.fn.jquery) {
@@ -237,8 +201,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'jQuery UI': {
-        icon: 'jquery_ui',
-        url: 'http://jqueryui.com',
         test: function(win) {
             var jq = win.jQuery || win.$ || win.$jq || win.$j;
             if(jq && jq.fn && jq.fn.jquery && jq.ui) {
@@ -251,8 +213,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Dojo': {
-        icon: 'dojo',
-        url: 'http://dojotoolkit.org',
         test: function(win) {
             if(win.dojo && win.dojo.version) {
                 return { version: win.dojo.version.toString(), details: 'Details: '+(win.dijit ? 'Uses Dijit' : 'none') };
@@ -262,8 +222,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Prototype': {
-        icon: 'prototype',
-        url: 'http://prototypejs.org',
         test: function(win) {
             if(win.Prototype && win.Prototype.Version) {
                 return { version: win.Prototype.Version };
@@ -273,8 +231,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Scriptaculous': {
-        icon: 'scriptaculous',
-        url: 'http://script.aculo.us',
         test: function(win) {
             if(win.Scriptaculous && win.Scriptaculous.Version) {
                 return { version: win.Scriptaculous.Version };
@@ -284,8 +240,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'MooTools': {
-        icon: 'mootools',
-        url: 'http://mootools.net',
         test: function(win) {
             if(win.MooTools && win.MooTools.version) {
                 return { version: win.MooTools.version };
@@ -295,8 +249,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Spry': {
-        icon: 'spry',
-        url: 'http://labs.adobe.com/technologies/spry',
         test: function(win) {
             if (win.Spry && win.Spry.Data) {
                 return { version: '' };
@@ -306,8 +258,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'YUI 2': {
-        icon: 'yui',
-        url: 'http://developer.yahoo.com/yui/2/',
         test: function(win) {
             if (win.YAHOO && win.YAHOO.VERSION) {
                 return { version: win.YAHOO.VERSION };
@@ -317,8 +267,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'YUI 3': {
-        icon: 'yui3',
-        url: 'http://yuilibrary.com/',
         test: function(win) {
             if (win.YUI && win.YUI.Env && win.YUI.version) {
                 return { version: win.YUI.version };
@@ -328,8 +276,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Qooxdoo': {
-        icon: 'qooxdoo',
-        url: 'http://qooxdoo.org',
         test: function(win) {
             if(win.qx && win.qx.Bootstrap) {
                 return { version: '' };
@@ -339,8 +285,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Ext JS': {
-        icon: 'extjs',
-        url: 'http://www.sencha.com/products/extjs',
         test: function(win) {
             if(win.Ext && win.Ext.version) {
                 return { version: win.Ext.version };
@@ -353,8 +297,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'base2': {
-        icon: 'base2',
-        url: 'http://code.google.com/p/base2',
         test: function(win) {
             if(win.base2 && win.base2.version) {
                 return { version: win.base2.version };
@@ -364,8 +306,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Closure Library': {
-        icon: 'closure',
-        url: 'https://developers.google.com/closure/library',
         test: function(win) {
             if(win.goog && win.goog.provide) {
                 return { version: '' };
@@ -375,8 +315,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Rapha&euml;l': {
-        icon: 'raphael',
-        url: 'http://dmitrybaranovskiy.github.io/raphael',
         test: function(win) {
             if (win.Raphael && win.Raphael.circle) {
                 return { version: win.Raphael.version };
@@ -386,8 +324,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'React': {
-        icon: 'react',
-        url: 'http://facebook.github.io/react/',
         test: function(win) {
             if (win.React && win.React.createClass) {
                 return { version: win.React.version };
@@ -397,8 +333,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Modernizr': {
-        icon: 'modernizr',
-        url: 'http://www.modernizr.com',
         test: function(win) {
             if (win.Modernizr && win.Modernizr.addTest) {
                 return { version: win.Modernizr._version };
@@ -408,8 +342,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Processing.js': {
-        icon: 'processingjs',
-        url: 'http://processingjs.org',
         test: function(win) {
             if(win.Processing && win.Processing.box) {
                 return { version: Processing.version };
@@ -419,8 +351,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Backbone': {
-        icon: 'backbone',
-        url: 'http://backbonejs.org/',
         test: function(win) {
             if (win.Backbone && win.Backbone.Model.extend) {
                 return {version: win.Backbone.VERSION};
@@ -430,10 +360,7 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Leaflet': {
-        icon: 'leaflet',
-        url: 'http://leafletjs.com',
         test: function(win) {
-            // Leaflet 3.1 uses L.Marker and L.VERSION; later versions use L.marker and L.version
             if (win.L && win.L.GeoJSON && (win.L.marker || win.L.Marker)) {
                 return { version: win.L.version || win.L.VERSION || null };
             }
@@ -442,8 +369,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Mapbox': {
-        icon: 'mapbox',
-        url: 'http://mapbox.com',
         test: function(win) {
             if (win.L && win.L.mapbox && win.L.mapbox.geocoder) {
                 return { version: win.L.mapbox.VERSION };
@@ -453,8 +378,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Lo-Dash': {
-        icon: 'lodash',
-        url: 'http://lodash.com/',
         test: function(win) {
             var _ = typeof (_ = win._) == 'function' && _,
                 chain = typeof (chain = _ && _.chain) == 'function' && chain,
@@ -468,8 +391,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Underscore': {
-        icon: 'underscore',
-        url: 'http://underscorejs.org/',
         test: function(win) {
             if (win._ && win._.VERSION && typeof win._.tap === 'function' &&
                 !d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests['Lo-Dash'].test(win)) {
@@ -480,8 +401,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Sammy': {
-        icon: 'sammy',
-        url: 'http://sammyjs.org',
         test: function(win) {
             if (win.Sammy && win.Sammy.VERSION && win.Sammy.Application.curry) {
                 return {version: win.Sammy.VERSION};
@@ -491,8 +410,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Rico': {
-        icon: 'rico',
-        url: 'http://openrico.sourceforge.net/examples/index.html',
         test:  function(win) {
             if (win.Rico && win.Rico.Version) {
                 return {version: win.Rico.Version};
@@ -502,8 +419,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'MochiKit': {
-        icon: 'mochikit',
-        url: 'https://mochi.github.io/mochikit/',
         test: function(win) {
             if (win.MochiKit && win.MochiKit.Base.module) {
                 return {version: MochiKit.VERSION};
@@ -513,8 +428,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'gRapha&euml;l': {
-        icon: 'graphael',
-        url: 'http://g.raphaeljs.com',
         test: function(win) {
             if (win.Raphael && win.Raphael.fn.g) {
                 return {version: ''};
@@ -524,8 +437,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Glow': {
-        icon: 'glow',
-        url: 'http://www.bbc.co.uk/glow',
         test: function(win) {
             if (win.gloader) {
                 return {version: ''};
@@ -541,10 +452,7 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Socket.IO': {
-        icon: 'socketio', // currently has no icon
-        url: 'http://socket.io',
         test: function(win) {
-            // version 0.6.2 uses only io.Socket; more recent versions also have io.sockets
             if (win.io && (win.io.sockets || win.io.Socket) && win.io.version) {
                 return {version: win.io.version};
             }
@@ -553,8 +461,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Mustache': {
-        icon: 'mustache',
-        url: 'http://mustache.github.com',
         test: function(win) {
             if (win.Mustache && win.Mustache.to_html) {
                 return {version: win.Mustache.version};
@@ -564,8 +470,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Fabric.js': {
-        icon: 'icon_48', // currently has no icon
-        url: 'http://fabricjs.com/',
         test: function(win) {
             if (win.fabric && win.fabric.util) {
                 return {version: win.fabric.version};
@@ -575,8 +479,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'FuseJS': {
-        icon: 'fusejs',
-        url: 'http://kiro.me/projects/fuse.html',
         test: function(win) {
             if (win.fuse && win.fuse.version) {
                 return {version: win.fuse.version};
@@ -586,8 +488,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Tween.js': {
-        icon: 'icon_48', // currently has no icon
-        url: 'https://github.com/sole/tween.js',
         test: function(win) {
             if (win.TWEEN && win.TWEEN.Easing) {
                 return {version: ''};
@@ -597,8 +497,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'SproutCore': {
-       icon: 'sproutcore',
-       url: 'http://www.sproutcore.com',
        test: function(win) {
            if (win.SC && win.SC.Application) {
                return {version: ''};
@@ -608,8 +506,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Zepto.js': {
-       icon: 'zepto',
-       url: 'http://zeptojs.com',
        test: function(win) {
            if (win.Zepto && win.Zepto.fn) {
                return {version: ''};
@@ -619,8 +515,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'three.js': {
-       icon: 'icon_48', // currently has no icon
-       url: 'http://threejs.org/',
        test: function(win) {
            if (win.THREE && win.THREE.REVISION) {
                return {version: 'r' + win.THREE.REVISION};
@@ -633,8 +527,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'PhiloGL': {
-       icon: 'philogl',
-       url: 'http://www.senchalabs.org/philogl/',
        test: function(win) {
            if (win.PhiloGL && win.PhiloGL.Camera) {
                return {version: win.PhiloGL.version};
@@ -644,8 +536,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'CamanJS': {
-        icon: 'camanjs',
-        url: 'http://camanjs.com/',
         test: function(win) {
             if (win.Caman && win.Caman.version) {
                 return {version: win.Caman.version.release};
@@ -655,8 +545,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'yepnope': {
-        icon: 'yepnope',
-        url: 'http://yepnopejs.com/',
         test: function(win) {
             if (win.yepnope) {
                 return {version: ''};
@@ -666,8 +554,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'LABjs': {
-        icon: 'icon_48',
-        url: 'http://labjs.com/',
         test: function(win) {
             if (win.$LAB) {
                 return {version: ''};
@@ -677,8 +563,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Head JS': {
-        icon: 'headjs',
-        url: 'http://headjs.com/',
         test: function(win) {
             if (win.head && win.head.js) {
                 return {version: ''};
@@ -688,8 +572,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'ControlJS': {
-        icon: 'icon_48',
-        url: 'http://stevesouders.com/controljs/',
         test: function(win) {
             if (win.CJS && win.CJS.start) {
                 return {version: ''};
@@ -699,8 +581,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'RequireJS': {
-        icon: 'requirejs',
-        url: 'http://requirejs.org/',
         test: function(win) {
             var req = win.require || win.requirejs;
             if (req && (req.load || (req.s && req.s.contexts && req.s.contexts._ && (req.s.contexts._.loaded || req.s.contexts._.load)))) {
@@ -711,8 +591,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'RightJS': {
-        icon: 'rightjs',
-        url: 'http://rightjs.org/',
         test: function(win) {
             if (win.RightJS && win.RightJS.isNode) {
                 return {version: win.RightJS.version};
@@ -722,8 +600,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'jQuery Tools': {
-       icon: 'jquerytools',
-       url: 'http://jquerytools.github.io/',
        test: function(win) {
             var jq = win.jQuery || win.$;
             if(jq && jq.tools) {
@@ -734,8 +610,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Pusher': {
-       icon: 'pusher',
-       url: 'http://pusher.com/docs/pusher_js/',
        test: function(win) {
             if(win.Pusher && win.Pusher.Channel) {
                return { version: win.Pusher.VERSION };
@@ -745,8 +619,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Paper.js': {
-       icon: 'paperjs',
-       url: 'http://paperjs.org/',
        test: function(win) {
             if(win.paper && win.paper.Point) {
                return { version: win.paper.version };
@@ -756,8 +628,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Swiffy': {
-       icon: 'icon_48',
-       url: 'http://www.google.com/doubleclick/studio/swiffy/',
        test: function(win) {
             if(win.swiffy) {
                return { version: '' };
@@ -767,8 +637,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Move': {
-       icon: 'move',
-       url: 'https://github.com/rsms/move',
        test: function(win) {
             if(win.move && win.move.compile) {
                return { version: win.move.version() };
@@ -778,8 +646,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'AmplifyJS': {
-       icon: 'amplifyjs',
-       url: 'http://amplifyjs.com/',
        test: function(win) {
             if(win.amplify && win.amplify.publish) {
                return { version: '' };
@@ -789,8 +655,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Popcorn.js': {
-       icon: 'popcornjs',
-       url: 'http://popcornjs.org/',
        test: function(win) {
             if (win.Popcorn && win.Popcorn.Events) {
                return { version: win.Popcorn.version };
@@ -800,8 +664,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'D3': {
-        icon: 'd3',
-        url: 'http://d3js.org',
         test: function(win) {
             if (win.d3 && win.d3.select) {
                 return { version: win.d3.version };
@@ -811,8 +673,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Handlebars': {
-        icon: 'handlebars',
-        url: 'http://handlebarsjs.com/',
         test: function(win) {
             if(win.Handlebars && win.Handlebars.compile) {
                 return { version: win.Handlebars.VERSION };
@@ -822,8 +682,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Knockout': {
-        icon: 'knockout',
-        url: 'http://knockoutjs.com/',
         test: function(win) {
             if (win.ko && win.ko.applyBindings) {
                 return { version: win.ko.version };
@@ -833,8 +691,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Spine': {
-        icon: 'icon_48',
-        url: 'http://spinejs.com/',
         test: function(win) {
             if (win.Spine && win.Spine.Controller) {
                 return {version: win.Spine.version};
@@ -844,8 +700,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'jQuery Mobile': {
-        icon: 'jquery_mobile',
-        url: 'http://jquerymobile.com/',
         test: function(win) {
             var jq = win.jQuery || win.$ || win.$jq || win.$j;
             if(jq && jq.fn && jq.fn.jquery && jq.mobile) {
@@ -856,8 +710,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'WebFont Loader': {
-        icon: 'icon_48',
-        url: 'https://github.com/typekit/webfontloader',
         test: function(win) {
             if(win.WebFont && win.WebFont.load) {
                 return { version: "N/A" };
@@ -867,8 +719,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Angular': {
-        icon: 'angular',
-        url: 'https://angular.io/',
         test: function(win) {
             var ng = win.document.querySelector('[ng-version]');
             if (ng && ng.getAttribute('ng-version')) {
@@ -879,8 +729,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'AngularJS': {
-        icon: 'angularjs',
-        url: 'http://angularjs.org',
         test: function(win) {
             var ng = win.angular;
             if(ng && ng.version && ng.version.full) {
@@ -891,8 +739,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Ember.js': {
-        icon: 'emberjs',
-        url: 'http://emberjs.com/',
         test: function(win) {
             var ember = win.Ember || win.Em;
             if (ember && ember.VERSION) {
@@ -903,12 +749,9 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Hammer.js': {
-        icon: 'hammerjs',
-        url: 'http://eightmedia.github.io/hammer.js/',
         test: function(win) {
             var hammer = win.Hammer;
             if(hammer && hammer.Pinch) {
-                // Hammer.VERSION available in 1.0.10+
                 return { version: hammer.VERSION || "&lt; 1.0.10" };
             }
             return false;
@@ -916,8 +759,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Visibility.js': {
-        icon: 'icon_48',
-        url: 'https://github.com/ai/visibilityjs',
         test: function(win) {
             var visibility = win.Visibility;
             if(visibility && visibility.every) {
@@ -928,8 +769,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'Velocity.js': {
-        icon: 'icon_48',
-        url: 'http://velocityjs.org/',
         test: function(win) {
             var jq = win.jQuery || win.$,
                 velocity = jq ? jq.Velocity : win.Velocity;
@@ -947,8 +786,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     },
 
     'IfVisible.js': {
-        icon: 'icon_48',
-        url: 'http://serkanyersen.github.io/ifvisible.js/',
         test: function(win) {
             var iv = win.ifvisible;
             if(iv && iv.__ceGUID === "ifvisible.object.event.identifier") {
@@ -958,20 +795,15 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
         }
     },
     'Pixi.js': {
-        icon: 'pixi',
-        url: 'https://github.com/GoodBoyDigital/pixi.js',
         test: function(win) {
             var px = win.PIXI;
             if(px && px.WebGLRenderer && px.VERSION) {
-                // version 4.4.3 returns simply "4.4.3"; version 1.5.2 returns "v1.5.2"
                 return { version: px.VERSION.replace('v', '') || null };
             }
             return false;
         }
     },
     'DC.js': {
-        icon: 'icon_48',
-        url: 'http://dc-js.github.io/dc.js/',
         test: function(win) {
             var dc = win.dc;
             if(dc && dc.version && dc.registerChart) {
@@ -981,8 +813,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
         }
     },
     'Greensock JS': {
-        icon: 'greensock',
-        url: 'https://github.com/greensock/GreenSock-JS',
         test: function(win) {
             var gs = win.TweenMax || win.TweenLite ;
             if(gs && gs.version) {
@@ -992,8 +822,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
         }
     },
     'FastClick': {
-        icon: 'fastclick',
-        url: 'https://github.com/ftlabs/fastclick',
         test: function(win) {
             if(win.FastClick && win.FastClick.notNeeded) {
                 return { version: 'N/A' }
@@ -1002,8 +830,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
         }
     },
     'Isotope': {
-        icon: 'isotope',
-        url: 'http://isotope.metafizzy.co/',
         test: function(win) {
             var iso = win.Isotope || (win.$ != null && win.$.Isotope);
             if(iso) {
@@ -1013,8 +839,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
         }
     },
     'Marionette': {
-        icon: 'marionette',
-        url: 'http://marionettejs.com/',
         test: function(win) {
             if(win.Marionette && win.Marionette.Application) {
                 return { version: win.Marionette.VERSION };
@@ -1023,8 +847,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
         }
     },
     'Can': {
-        icon: 'icon_48',
-        url: 'http://canjs.com/',
         test: function (win) {
             if (win.can && win.can.Construct) {
                 return { version: win.can.VERSION };
@@ -1033,8 +855,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
         }
     },
     'Vue': {
-        icon: 'vue',
-        url: 'http://vuejs.org/',
         test: function(win) {
             if (win.Vue && win.Vue.nextTick) {
                 return { version: win.Vue.version || 'N/A' };
@@ -1043,8 +863,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
         }
     },
     'Two': {
-        icon: 'two',
-        url: 'https://jonobr1.github.io/two.js',
         test: function(win) {
             if (win.Two && win.Two.Utils) {
                 return { version: win.Two.Version };
@@ -1053,8 +871,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
         }
     },
     'Brewser': {
-        icon: 'brewser',
-        url: 'http://handcraftedldn.github.io/brewser/',
         test: function(win) {
             if(win.BREWSER && win.BREWSER.ua) {
                 return { version: BREWSER.VERSION };
@@ -1063,8 +879,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
         }
     },
     'Material Design Lite': {
-    	icon: 'mdl',
-    	url: 'http://www.getmdl.io/',
     	test: function(win) {
     		if(win.componentHandler && win.componentHandler.upgradeElement) {
     			return { version: 'N/A'};
@@ -1073,8 +887,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
     	}
     },
     'Kendo UI': {
-        icon: 'kendoui',
-        url: 'https://github.com/telerik/kendo-ui-core',
         test: function(win) {
             if (win.kendo && win.kendo.View && win.kendo.View.extend) {
                 return {version: win.kendo.version};
@@ -1083,8 +895,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
         }
     },
     'Matter.js': {
-        icon: 'matter-js',
-        url: 'http://brm.io/matter-js/',
         test: function(win) {
             if (win.Matter && win.Matter.Engine) {
                 return {version: 'N/A'};
@@ -1093,8 +903,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
         }
     },
     'Riot': {
-        icon: 'riot',
-        url: 'http://riotjs.com/',
         test: function(win) {
             if (win.riot && win.riot.mixin) {
                 return { version: win.riot.version };
@@ -1103,8 +911,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
         }
     },
     'Sea.js': {
-        icon: 'icon_48',
-        url: 'http://seajs.org/',
         test: function(win) {
             if(win.seajs && win.seajs.use) {
                 return { version: win.seajs.version };
@@ -1113,19 +919,14 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
         }
     },
     'Moment.js': {
-        icon: 'momentjs',
-        url: 'http://momentjs.com/',
         test: function(win) {
             if(win.moment && (win.moment.isMoment || win.moment.lang)) {
-                // version 1.0.0 has neither "isMoment" nor "version"
                 return { version: win.moment.version || null };
             }
             return false;
         }
     },
     'Moment Timezone': {
-        icon: 'momentjs',
-        url: 'http://momentjs.com/timezone/',
         test: function(win) {
             if (win.moment && win.moment.tz) {
                 return { version: win.moment.tz.version || null };
@@ -1134,8 +935,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
         }
     },
     'ScrollMagic': {
-        icon: 'scrollmagic',
-        url: 'http://scrollmagic.io/',
         test: function(win) {
             if (win.ScrollMagic && win.ScrollMagic.Controller) {
                 return {version: ScrollMagic.version};                
@@ -1144,22 +943,16 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
         }
     },
     'SWFObject': {
-        icon: 'icon_48', // currently has no icon
-        url: 'https://github.com/swfobject/swfobject',
         test: function(win) {
             if (win.swfobject && win.swfobject.embedSWF) {
-                // 2.x - exact version only for 2.3
                 return { version: win.swfobject.version || null };
             } else if(win.deconcept && win.deconcept.SWFObject) {
-                // 1.x
                 return { version: null };
             }
             return false;
         }
     },
     'FlexSlider': {
-        icon: 'icon_48', // currently has no icon
-        url: 'https://woocommerce.com/flexslider/',
         test: function(win) {
             var jq = win.jQuery || win.$ || win.$jq || win.$j;
             if (jq && jq.fn && jq.fn.jquery && jq.flexslider){
@@ -1169,8 +962,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
         }
     },
     'SPF': {
-        icon: 'icon_48', // currently has no icon
-        url: 'https://youtube.github.io/spfjs/',
         test: function(win) {
             if (win.spf && win.spf.init) {
                 return { version: null };
@@ -1179,8 +970,6 @@ var d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests = {
         }
     },
     'Numeral.js': {
-        icon: 'icon_48', // currently has no icon
-        url: 'http://numeraljs.com/',
         test: function(win) {
             if (win.numeral && win.isNumeral) {
                 return { version: win.numeral.version || null };

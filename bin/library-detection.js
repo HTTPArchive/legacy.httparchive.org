@@ -86,6 +86,11 @@ getLibraryDetectorMain().then(main => {
     console.log(`Library Detector source code written to ${TMP_FILE}.`);
   });
 
+  // Strip out unused library props.
+  main = main.replace(/\s+(icon|url):.*/g, '');
+  // Strip out comments.
+  main = main.replace(/\s+\/\/.*/g, '');
+
   // Update references to the library detector variable.
   const head = OUTPUT_HEAD.replace('${LIBRARY_DETECTOR_VAR}', varName);
   const foot = OUTPUT_FOOT.replace('${LIBRARY_DETECTOR_VAR}', varName);
