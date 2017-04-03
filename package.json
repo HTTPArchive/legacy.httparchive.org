@@ -1,0 +1,23 @@
+{
+  "name": "httparchive",
+  "version": "1.0.0",
+  "description": "A permanent repository of web performance information such as size of pages, failed requests, and technologies utilized.",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "custom-metrics": "node bin/genthirdpartymetrics.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/HTTPArchive/httparchive"
+  },
+  "author": "Steve Souders",
+  "bugs": {
+    "url": "https://github.com/HTTPArchive/httparchive/issues"
+  },
+  "devDependencies": {
+    "fs-promise": "^2.0.2",
+    "node-fetch": "~1.6.3"
+  }
+}
