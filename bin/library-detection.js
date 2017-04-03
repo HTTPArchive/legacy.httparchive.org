@@ -90,6 +90,8 @@ getLibraryDetectorMain().then(main => {
   main = main.replace(/\s+(icon|url):.*/g, '');
   // Strip out comments.
   main = main.replace(/\s+\/\/.*/g, '');
+  // Collapse whitespace.
+  main = main.replace(/\s+/g, ' ');
 
   // Update references to the library detector variable.
   const head = OUTPUT_HEAD.replace('${LIBRARY_DETECTOR_VAR}', varName);
