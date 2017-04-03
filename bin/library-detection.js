@@ -32,8 +32,8 @@ function addThirdParty(name, version) {
 		return;
 	}
 
-	name = name.replace('@', '\@');
-	version = version && version.replace('@', '\@);
+	name = name.replace('@', '\\@');
+	version = version && version.replace('@', '\\@');
 	name += '@' + (version || 'null');
 
 	thirdParties.push(name);
