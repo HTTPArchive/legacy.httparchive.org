@@ -6,7 +6,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "custom-metrics": "node bin/genthirdpartymetrics.js"
+    "custom-metrics": "node bin/library-detection.js"
   },
   "repository": {
     "type": "git",
