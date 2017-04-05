@@ -23,26 +23,20 @@ const OUTPUT_HEAD = `/**
  * Built on https://github.com/johnmichel/Library-Detector-for-Chrome.
  *
  * Outputs JSON-serialized list of library-version pairs.
- *     e.g.: \`[{name: "a", version: "1.0"},{name: "b", version: "null"}]\`
+ *     e.g.: \`[{name: "a", version: "1.0"},{name: "b", version: null}]\`
  */
-var thirdParties = [];
-
-function addThirdParty(name, version='null') {
-	if (!name) {
-		return;
-	}
-
-	thirdParties.push({name, version});
-}
-
 `;
 const OUTPUT_FOOT = `
 
+const thirdParties = [];
 Object.entries(\${LIBRARY_DETECTOR_VAR}).forEach(([name, lib]) => {
 	const result = lib.test(window);
-	if (result) {
-		addThirdParty(name, result.version);
+	if (!result) {
+		return;
 	}
+
+	const version = result.version || null;
+	thirdParties.push({name, version});
 });
 
 return JSON.stringify(thirdParties);
