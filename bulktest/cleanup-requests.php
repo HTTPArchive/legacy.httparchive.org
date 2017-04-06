@@ -38,12 +38,12 @@ if ( array_key_exists(1, $argv) ) {
 
 $gSkipRuns = 2;  // how many runs we want to skip and leave their requests intact
 echo exec("df -h .") . "\n";
-cleanupRequests("IE8", "requestsdev");
-echo exec("df -h .") . "\n";
-cleanupRequests("IE8", "requests");
-echo exec("df -h .") . "\n";
+
+cleanupRequests("IE8", "requestsie");
 cleanupRequests("California:Chrome", "requestschrome");
-echo exec("df -h .") . "\n";
+cleanupRequests("California:Chrome", "requestsdev");
+cleanupRequests("California:Chrome", "requests");
+
 echo "DONE\n\n";
 
 function cleanupRequests($location, $table) {
@@ -53,6 +53,11 @@ function cleanupRequests($location, $table) {
 	$results = doQuery($query);
 	mysql_data_seek($results, $gSkipRuns);
 	$row = mysql_fetch_assoc($results);
+
+	// How many rows would be deleted?
+	$numRows = doSimpleQuery("select count(*) from $table where crawlid <= {$row['crawlid']};");
+	cprint("$numRows rows to be deleted.\n");
+
 	if ( $gbActuallyDoit ) {
 		$nUnfinished = doSimpleQuery("select count(*) from crawls where location = '$location' and finishedDateTime is null;");
 		if ( 0 < $nUnfinished ) {
@@ -72,6 +77,8 @@ function cleanupRequests($location, $table) {
 	else {
 		cprint("WOULD delete requests from \"$table\" table starting with crawl \"{$row['label']}\" crawlid={$row['crawlid']} minPageid={$row['minPageid']} maxPageid={$row['maxPageid']} and earlier...");
 	}
+
+	echo exec("df -h .") . "\n";
 }
 
 ?>
