@@ -1,0 +1,8 @@
+<?php
+require_once("../utils.inc");
+
+// Substitute your WPT API key below and rename this file to `wptkey.inc.php`.
+$wptApiKey =  'YOUR_WPT_API_KEY';
+
+?>
+
