@@ -6,7 +6,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "custom-metrics": "node bin/library-detector.js"
+    "custom-metrics": "./bin/custom-metrics.sh"
   },
   "repository": {
     "type": "git",

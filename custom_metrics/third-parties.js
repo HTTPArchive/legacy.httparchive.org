@@ -7,6 +7,7 @@
  * Look for common library aliases on the global scope.
  * If available, detect libraries' versions.
  * Built on https://github.com/johnmichel/Library-Detector-for-Chrome.
+ * See https://github.com/johnmichel/Library-Detector-for-Chrome/blob/master/LICENSE.
  *
  * Outputs JSON-serialized list of library-version pairs.
  *     e.g.: `[{name: "a", version: "1.0"},{name: "b", version: null}]`
