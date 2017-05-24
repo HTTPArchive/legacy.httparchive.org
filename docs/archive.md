@@ -2,8 +2,8 @@
 
 When the crawls are complete, the data is archived to several places:
 
-- Internet Archive (sql)
-- HTTP Archive (sql, csv)
+- Internet Archive (sqldump)
+- HTTP Archive (sqldump, csv)
 - Google Storage (har)
 - BigQuery (har)
 
