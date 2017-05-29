@@ -39,15 +39,10 @@ if ( array_key_exists(1, $argv) ) {
 $gSkipRuns = 2;  // how many runs we want to skip and leave their requests intact
 echo exec("df -h .") . "\n";
 
-cleanupRequests("IE8", "requestsie");
-cleanupRequests("IE8", "requestsmobile");
 cleanupRequests("IE8", "requestsmobiledev");
-cleanupRequests("iphone4", "requestsmobile");
 cleanupRequests("iphone4", "requestsmobiledev");
-cleanupRequests("California:Chrome", "requestschrome");
 cleanupRequests("California:Chrome", "requestsdev");
 cleanupRequests("California:Chrome", "requests");
-cleanupRequests("California2:Chrome.3G", "requestschrome");
 cleanupRequests("California2:Chrome.3G", "requestsdev");
 cleanupRequests("California2:Chrome.3G", "requests");
 
