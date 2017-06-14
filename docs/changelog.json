@@ -43,5 +43,15 @@
         "date": 1456808400000,
         "title": "Change agents from IE to Chrome",
         "desc": "As of March 1 2016, the tests are performed on Chrome for desktop and emulated Android (on Chrome) for mobile. Prior to that, IE 8&9 were used for desktop, and iPhone was used for mobile."
+    },
+    {
+        "date": 1483246800000,
+        "title": "Desktop data loss",
+        "desc": "See https://github.com/HTTPArchive/httparchive/issues/74"
+    },
+    {
+        "date": 1493611200000,
+        "title": "Switch to Linux test agents",
+        "desc": "See https://github.com/HTTPArchive/httparchive/issues/98"
     }
 ]
