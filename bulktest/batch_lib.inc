@@ -661,9 +661,8 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 			$bFirstReq = 1;
 			$firstUrl = $url;
 		}
-		if ( ! $firstHtmlUrl && 200 == $status ) {
+		if ( ! $firstHtmlUrl && 200 == $status && $type == 'html' ) {
 			// This is the first URL found associated with the page that's HTML.
-			// We could check that mimeType like "%html%", but some HTML responses have the wrong content-type.
 			$bFirstHtml = 1;
 			$firstHtmlUrl = $url;
 		}
