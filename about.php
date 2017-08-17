@@ -133,11 +133,11 @@ in other browsers or locations or connection speeds. They are best used as a sou
 The HTTP Archive <a href="downloads.php">data dumps</a>
 are also available in <a href="https://bigquery.cloud.google.com/">Google BigQuery</a> thanks to <a href="https://twitter.com/igrigorik">Ilya Grigorik</a>. 
 This means you can create your own custom queries like 
-<a href="http://bigqueri.es/t/how-many-resources-return-last-modified-and-or-etag-values/407">How many resources return Last-Modified and/or ETag values?</a> and 
-<a href="http://bigqueri.es/t/what-is-the-distribution-of-1st-party-vs-3rd-party-resources/100/5">What is the distribution of 1st party vs 3rd party resources?</a>.
+<a href="https://discuss.httparchive.org/t/how-many-resources-return-last-modified-and-or-etag-values/407">How many resources return Last-Modified and/or ETag values?</a> and 
+<a href="https://discuss.httparchive.org/t/what-is-the-distribution-of-1st-party-vs-3rd-party-resources/100/5">What is the distribution of 1st party vs 3rd party resources?</a>.
 For more information see Ilya's blog post <a href="https://www.igvita.com/2013/06/20/http-archive-bigquery-web-performance-answers/">HTTP Archive + BigQuery = Web Performance Answers</a> 
 and <a href="https://www.youtube.com/watch?v=TOFgDSqNRz4">video</a>.
-And checkout all the custom queries shared on <a href="http://bigqueri.es/c/http-archive">BigQueri.es</a>.
+And checkout all the custom queries shared on <a href="https://discuss.httparchive.org/c/analysis">discuss.httparchive.org</a>.
 <p>
 
 
