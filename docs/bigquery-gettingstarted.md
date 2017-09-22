@@ -1,6 +1,6 @@
 # Getting Started Accessing the HTTP Archive with BigQuery
 
-The HTTP Archive is open source and the [raw data is available to download](http://httparchive.org/downloads.php).   If you want, you can download all of the data, process it locally and query it as much as you want.   However, that would require alot of effort to set up.   Google BigQuery makes this much easier, since the data is already loaded and can be easily queried. And because of the processing power behind BigQuery, even some of the most complex queries you write will run extremely fast. 
+The HTTP Archive is open source and the [raw data is available to download](http://httparchive.org/downloads.php).   If you want, you can download all of the data, process it locally and query it as much as you want.   However, that would require a lot of effort to set up.   Google BigQuery makes this much easier, since the data is already loaded and can be easily queried. And because of the processing power behind BigQuery, even some of the most complex queries you write will run extremely fast. 
 
 This document is an update to [Ilya Grigorik's 2013 introduction](https://www.igvita.com/2013/06/20/http-archive-bigquery-web-performance-answers/), and will walk you through everything you need to get started accessing BigQuery and analyzing the data.
 
@@ -8,25 +8,23 @@ This document is an update to [Ilya Grigorik's 2013 introduction](https://www.ig
 
 In order to access the HTTP Archive via BigQuery, you'll need a Google account.  To document this process for new visitors, this example uses a new Google account that has never logged into any Google Cloud services.
 
-1. Navigate to the BigQuery QuickStart page - https://cloud.google.com/bigquery/quickstart-web-ui
-2. Click on the [Sign In](https://accounts.google.com/Login) link to log into your Google account.
-3. Once logged in, go to the [Projects Page](https://console.cloud.google.com/start).  If this is your first time accessing Google Cloud, you may be prompted to accept the ToS.
-4. Click on the `Create an empty project` link.   This will take you to a New Project page.
-5. Give your project a name and then click the `Create` button.
+1. Navigate to the [Google Cloud Projects Page](https://console.cloud.google.com/start) and log in with your Google account if prompted.  If this is your first time accessing Google Cloud, you may be prompted to accept the ToS.
+2. Click on the `Create an empty project` link.   This will take you to a New Project page.
+3. Give your project a name and then click the `Create` button.
 ![Create a Project](images/04_create_a_project.jpg)
-6. *Optional* Enable Billing by clicking on the Billing menu item and adding your billing information.   
-    Note:  BigQuery has a [free tier](https://cloud.google.com/bigquery/pricing) that you can use to get started without enabling billing. At the time of this writing, the free tier allows 10GB of storage and 1TB of data processing per month.
-7. Navigate to the [Big Query console](https://bigquery.cloud.google.com)
+4. *Optional* Enable Billing by clicking on the Billing menu item and adding your billing information.   
+    Note:  BigQuery has a [free tier](https://cloud.google.com/bigquery/pricing) that you can use to get started without enabling billing. At the time of this writing, the free tier allows 10GB of storage and 1TB of data processing per month. Google also provides a [$300 credit for new accounts](https://cloud.google.com/free/docs/frequently-asked-questions#free-trial).
+5. Navigate to the [Big Query console](https://bigquery.cloud.google.com)
 ![BigQuery Console](images/07_bigquery_console.jpg)
-8. In order to add the HTTP Archive tables to your project, click on the dropdown menu next to your project name.   Then follow the example below to select "Display Project" and manually enter "httparchive"
+6. In order to add the HTTP Archive tables to your project, click on the dropdown menu next to your project name.   Then follow the example below to select "Display Project" and manually enter "httparchive"
 ![Add HTTP Archive to BigQuery](images/08_adding_httparchive_to_bigquery.jpg)
-9. At this point you should see the httparchive tables in your BigQuery dashboard.   If you expand the httparchive project, you'll see folders for har, runs, scratchspace and urls. In the next section, we'll explore the structure of these tables so you can start digging in!
+7. At this point you should see the httparchive tables in your BigQuery dashboard.   If you expand the httparchive project, you'll see folders for har, runs, scratchspace and urls. In the next section, we'll explore the structure of these tables so you can start digging in!
 ![Setup Complete](images/09_setup_complete.jpg)
 
 ## Understanding how the tables are structured
 So, now you have access! But what do you have access to?
 
-Most of the analysis we do is using tables in the httparchive.runs and httparchive.har folders. If you expand httparchive.runs, you'll notice that there are tables for `pages`, `requests`, `pages_mobile` and `requests_mobile`. There are sets of these tables for each HTTP Archive run dating back since 2010. And scrolling to the bottom of the folder, you'll notice that there are views that start with `latest_`. These contain the most recent data that is loaded.
+Most of the analysis we do is using tables in the httparchive.runs and httparchive.har datasets. If you expand httparchive.runs, you'll notice that there are tables for `pages`, `requests`, `pages_mobile` and `requests_mobile`. There are sets of these tables for each HTTP Archive run dating back since 2010. And scrolling to the bottom of the dataset, you'll notice that there are SQL views that start with `latest_`. The `latest_` views contain the most recent data, but can only be used with Legacy SQL (see below for difference between Legacy and Standard SQL)
 ![HTTP Archive Runs Tables](images/httparchive_runs_tables.jpg)
 
 In order to understand what each of these tables contain, you can click on the table name and view the details. For example, after clicking on the 2017_08_15_pages table you can see the schema. Clicking `Details` tells you some information about the table, such as it's size and the number of rows. Clicking `Preview` shows an example of some data from the table.
@@ -35,46 +33,46 @@ In order to understand what each of these tables contain, you can click on the t
 
 Some of the types of tables you'll find useful when getting started are:
 ### httparchive.runs Tables:
-* yyyy_mm_dd_pages:
+* yyyy_mm_dd_pages and yyyy_mm_dd_pages_mobile:
     * Each row contains details about a single page including timings, # of requests, types of requests and sizes.
-    * Information about the page load such # of domains, redirects, errors, https requests, etc
-    * Summary of different caching parameters
-    * CDN indicator
-    * Each page URL is associated with a "pageid"
-* yyyy_mm_dd_requests:
+    * Information about the page load such # of domains, redirects, errors, https requests, etc.
+    * Summary of different caching parameters.
+    * CDN indicator.
+    * Each page URL is associated with a "pageid".
+* yyyy_mm_dd_requests and yyyy_mm_dd_requests_mobile:
     * Every single object loaded by all of the pages.
     * Each object has a requestid and a pageid.  The pageid can be used to JOIN the _pages table.
-    * Information about the object, and how it was loaded
-    * Contains some response headers for each object
-    * These tables are very large (47GB as of Aug 2017)
-* yyyy_mm_dd_pages_mobile and yyyy_mm_dd_requests_mobile:
-    * Same as above, buf for mobile pages.
- 
+    * Information about the object, and how it was loaded.
+    * Contains some response headers for each object.
+    * These tables are very large (yyyy_mm_dd_requests is 47GB as of Aug 2017).
+    
 ### httparchive.har Tables:
-* yyyy_mm_dd_chrome_pages:
-    * HAR extract for each page url
-    * Table contains a url and a JSON-encoded HAR file for the document.
-    * These tables are large (~3GB as of Aug 2017)
-* yyyy_mm_dd_chrome_requests:
-    * HAR extract for each resource
-    * Table contains a document url, resource url and a JSON-encoded HAR extract for each resource
-    * These tables are very large (~168GB as of Aug 2017)
-* yyyy_mm_dd_chrome_requests_bodies:
-    * HAR extract containing response bodies for each request
-    * Table contains a document url, resource url and a JSON-encoded HAR extract containing the first 2MB of each response body.   
-    * payloads are truncated a 2MB, and there is a column to indicate whether they payload was truncated.
-    * These tables are very large (~760GB as of Aug 2017)
-* yyyy_mm_dd_chrome_lighthouse:
-    * Results from a [Lighthouse](https://developers.google.com/web/tools/lighthouse/) audit of a page
-    * Table contains a url, an a JSON-encoded copy of the lighthouse report.
-* yyyy_mm_dd_android_pages yyyy_mm_dd_android_requests yyyy_mm_dd_android_requests_bodies yyyy_mm_dd_android_lighthouse:
-    * Same as chrome tables above, but for mobile pages captured by an emulated mobile device.
 
+The HTTP Archive stores detailed information about each page load in [HAR (HTTP Archive) files](https://en.wikipedia.org/wiki/.har). Each HAR file is JSON formatted and contains detailed performance data about a web page.  The [specification for this format](https://w3c.github.io/web-performance/specs/HAR/Overview.html) is produced by the Web Performance Working Group of the W3C. The HTTP Archive splits each HAR files into multiple BigQuery tables, which are described below.
+
+* yyyy_mm_dd_chrome_pages and yyyy_mm_dd_android_pages:
+    * HAR extract for each page url.
+    * Table contains a url and a JSON-encoded HAR file for the document.
+    * These tables are large (~3GB as of Aug 2017).
+* yyyy_mm_dd_chrome_requests and yyyy_mm_dd_android_requests:
+    * HAR extract for each resource.
+    * Table contains a document url, resource url and a JSON-encoded HAR extract for each resource.
+    * These tables are very large (yyyy_mm_dd_chrome_requests is 168GB as of Aug 2017).
+* yyyy_mm_dd_chrome_requests_bodies and yyyy_mm_dd_android_requests_bodies:
+    * HAR extract containing response bodies for each request.
+    * Table contains a document url, resource url and a JSON-encoded HAR extract containing the first 2MB of each response body.   
+    * Payloads are truncated at 2MB, and there is a column to indicate whether the payload was truncated.
+    * These tables are very large (yyyy_mm_dd_chrome_requests_bodies is 760GB as of Aug 2017).
+* yyyy_mm_dd_android_lighthouse and yyyy_mm_dd_chrome_lighthouse:
+    * Results from a [Lighthouse](https://developers.google.com/web/tools/lighthouse/) audit of a page.
+    * Table contains a url, and a JSON-encoded copy of the lighthouse report.
+    * Lighthouse only runs on mobile pages. The chrome_lighthouse table contains null data and can be ignored. 
+    
 
 ## Useful Links for BigQuery SQL Reference
 BigQuery supports two SQL dialects: standard SQL and legacy SQL.  Legacy SQL is a non-standard SQL dialect that BigQuery started out using.   Standard SQL is a a SQL2011 compliant dialect that has many more features and functions.  Standard SQL is the preferred dialect for querying data via BigQuery, but both are supported.
 
-[Documentation of Standard SQL](https://cloud.google.com/bigquery/docs/reference/standard-sql/)
+[Documentation for Standard SQL](https://cloud.google.com/bigquery/docs/reference/standard-sql/)
 
 [Documentation for Legacy SQL](https://cloud.google.com/bigquery/docs/reference/legacy-sql)
 
