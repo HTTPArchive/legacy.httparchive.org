@@ -76,7 +76,7 @@ BigQuery supports two SQL dialects: standard SQL and legacy SQL.  Legacy SQL is 
 
 [Documentation for Legacy SQL](https://cloud.google.com/bigquery/docs/reference/legacy-sql)
 
-If you have existing Legacy SQL that you are trying to migrate to Standard SQL, then you may want to read the ![migration guide.](https://cloud.google.com/bigquery/docs/reference/standard-sql/migrating-from-legacy-sql)
+If you have existing Legacy SQL that you are trying to migrate to Standard SQL, then you may want to read the [migration guide.](https://cloud.google.com/bigquery/docs/reference/standard-sql/migrating-from-legacy-sql)
 
 When you are ready to start writing queries, make sure that the SQL dialect option selected matches what you are writing your query in.   The current default is Legacy SQL, but de-selecting this will switch to Standard SQL
 ![SQL Dialect](images/standard_or_legacy_sql.jpg)
