@@ -511,7 +511,7 @@ It's built on the shoulders of Pat Meenan's <a href="http://www.webpagetest.org"
 // Ilya Grigori took over the project in June of 2016.
 ?>
 Several folks on Google's Make the Web Faster team chipped in.
-I've received patches from several individuals including 
+We've received patches from several individuals including 
 <a href="http://www.jonathanklein.net">Jonathan Klein</a>,
 <a href="http://yusuketsutsumi.com">Yusuke Tsutsumi</a>,
 <a href="http://www.ioncannon.net/">Carson McDonald</a>, 
@@ -521,8 +521,13 @@ I've received patches from several individuals including
 <a href="http://6a68.net/">Jared Hirsch</a>,
  and Mike Pfirrmann.
 Guy Leech helped early on with the design.
-More recently, <a href="https://twitter.com/#!/stephenhay">Stephen Hay</a> created the new logo.
+Many thanks to <a href="https://twitter.com/#!/stephenhay">Stephen Hay</a> who created the logo.
 </p>
+<p>
+In March 2017, <a href="https://twitter.com/igrigorik">Ilya Grigorik</a>, <a href="https://twitter.com/patmeenan">Pat Meenan</a>, and 
+<a href="https://twitter.com/rick_viscomi">Rick Viscomi</a> assumed <a href="https://www.stevesouders.com/blog/2017/04/12/http-archive-new-leadership/">leadership of the project</a>.
+</p>
+
 
 
 			   <h2 id=sponsors>Who sponsors the HTTP Archive?</h2>
