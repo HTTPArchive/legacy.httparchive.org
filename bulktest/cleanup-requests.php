@@ -36,15 +36,13 @@ if ( array_key_exists(1, $argv) ) {
 	}
 }
 
-$gSkipRuns = 2;  // how many runs we want to skip and leave their requests intact
+$gSkipRuns = 1;  // how many runs we want to skip and leave their requests intact
 echo exec("df -h .") . "\n";
 
-cleanupRequests("IE8", "requestsmobiledev");
-cleanupRequests("iphone4", "requestsmobiledev");
 cleanupRequests("California:Chrome", "requestsdev");
 cleanupRequests("California:Chrome", "requests");
-cleanupRequests("California2:Chrome.3G", "requestsdev");
-cleanupRequests("California2:Chrome.3G", "requests");
+cleanupRequests("California2:Chrome.3G", "requestsmobiledev");
+cleanupRequests("California2:Chrome.3G", "requestsmobile");
 
 echo "DONE\n\n";
 
@@ -55,10 +53,6 @@ function cleanupRequests($location, $table) {
 	$results = doQuery($query);
 	mysql_data_seek($results, $gSkipRuns);
 	$row = mysql_fetch_assoc($results);
-
-	// How many rows would be deleted?
-	$numRows = doSimpleQuery("select count(*) from $table where crawlid <= {$row['crawlid']};");
-	cprint("$numRows rows to be deleted.\n");
 
 	if ( $gbActuallyDoit ) {
 		$nUnfinished = doSimpleQuery("select count(*) from crawls where location = '$location' and finishedDateTime is null;");
@@ -72,11 +66,15 @@ function cleanupRequests($location, $table) {
 		$cmd = "delete from $table where crawlid <= {$row['crawlid']};";
 		cprint("$cmd");
 		doSimpleCommand($cmd);
-		cprint("\nOptimize table \"$table\"...");
+		cprint("Optimize table \"$table\"...");
 		doSimpleCommand("optimize table $table;");
 		cprint("Done with table \"$table\".");
 	}
 	else {
+    // How many rows would be deleted?
+    $numRows = doSimpleQuery("select count(*) from $table where crawlid <= {$row['crawlid']};");
+    cprint("$numRows rows to be deleted for $location in $table.");
+
 		cprint("WOULD delete requests from \"$table\" table starting with crawl \"{$row['label']}\" crawlid={$row['crawlid']} minPageid={$row['minPageid']} maxPageid={$row['maxPageid']} and earlier...");
 	}
 
