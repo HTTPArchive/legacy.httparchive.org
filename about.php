@@ -577,9 +577,7 @@ and
 			   <h2 id=donate>How do I make a donation to support the HTTP Archive?</h2>
 <p>
 The HTTP Archive is part of the Internet Archive, a 501(c)(3) non-profit.
-Donations in support of the HTTP Archive can be made through the Internet Archive's 
-<a href="http://www.archive.org/donate/index.php">donation page</a>.
-Make sure to send a follow-up email to <a href="mailto:donations@archive.org">donations@archive.org</a> designating your donation to the "HTTP Archive".
+Donations in support of the HTTP Archive can be made through the Internet Archive.
 <a href='https://discuss.httparchive.org/'>Contact us</a> for more information and to get your logo added to this page.
 </p>
 
