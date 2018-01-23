@@ -544,8 +544,9 @@ The HTTP Archive is possible through the support of these sponsors:
 <a title="Fastly" href="http://bit.ly/1nWd1oL">Fastly</a>,
 <a title="SOASTA mPulse" href="https://www.soasta.com/mpulse/sign-up/">SOASTA mPulse</a>,
 <a title="Hosting Facts" href="https://hostingfacts.com/">Hosting Facts</a>,
+<a title="TheBestVPN" href="https://thebestvpn.com/">TheBestVPN</a>,
 and
-<a title="TheBestVPN" href="https://thebestvpn.com/">TheBestVPN</a>.
+<a title="Akamai" href="https://www.akamai.com/">Akamai</a>.
 </p>
 
 <style>
@@ -566,6 +567,7 @@ and
 <a class=image-link style="" title="SOASTA mPulse" href="https://www.soasta.com/mpulse/sign-up/"><img class="alignnone" title="SOASTA mPulse" src="/images/soasta_logo.png" alt="" width="150" /></a>
 <a class=image-link style="" title="Hosting Facts" href="https://hostingfacts.com/"><img class="alignnone" title="Hosting Facts" src="/images/250pxHostingFactsLogo.png" alt="" width="150" /></a>
 <a class=image-link style="" title="TheBestVPN" href="https://thebestvpn.com/"><img class="alignnone" title="TheBestVPN" src="/images/thebestvpn.png" alt="" width="150" /></a>
+<a class=image-link style="" title="Akamai" href="https://www.akamai.com/"><img class="alignnone" title="Akamai" src="/images/akamai.png" alt="" width="150" /></a>
 <!--
 -->
 </div>
