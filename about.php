@@ -578,7 +578,7 @@ and
 <p>
 The HTTP Archive is part of the Internet Archive, a 501(c)(3) non-profit.
 Donations in support of the HTTP Archive can be made through the Internet Archive.
-<a href='https://discuss.httparchive.org/'>Contact us</a> for more information and to get your logo added to this page.
+<a href='mailto:donations@httparchive.org'>Contact us</a> for more information and to get your logo added to this page.
 </p>
 
 			   <h2 id=contact>Who do I contact for more information?</h2>
