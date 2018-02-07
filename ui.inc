@@ -216,8 +216,11 @@ function uiFooter() {
 <a title="Catchpoint Systems" href="http://www.catchpoint.com/">Catchpoint Systems</a>,
 <a title="Fastly" href="http://bit.ly/1nWd1oL">Fastly</a>,
 <a title="SOASTA mPulse" href="https://www.soasta.com/mpulse/sign-up/">SOASTA mPulse</a>,
+<a title="Hosting Facts" href="https://hostingfacts.com/">Hosting Facts</a>,
+<a title="TheBestVPN" href="https://thebestvpn.com/">TheBestVPN</a>,
 and
-<a title="Hosting Facts" href="https://hostingfacts.com/">Hosting Facts</a>.
+<a title="Akamai" href="https://www.akamai.com/">Akamai</a>
+.
 <br>
 powered by <a href="http://www.webpagetest.org">WebPagetest</a>
 </footer>
