@@ -7,6 +7,9 @@ The `changelog.json` file chronicles significant changes to the test environment
 * `date`: the Unix timestamp of the event date (at midnight)
 * `title`: brief description of the event
 * `desc`: full description of the event
+* `more`: (optional) array of objects with keys/values representing anchor text/URLs
+
+Use the `more` property when a change has additional info to be displayed in a "See also" type of UX.
 
 Use [this helper script](https://gist.github.com/rviscomi/0ed73516c2022a80167c09216b9f8f9a) to append events to the changelog:
 
