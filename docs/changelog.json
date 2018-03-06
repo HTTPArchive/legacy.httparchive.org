@@ -47,12 +47,22 @@
     {
         "date": 1483246800000,
         "title": "Desktop data loss",
-        "desc": "See https://github.com/HTTPArchive/httparchive/issues/74"
+        "desc": "",
+        "more": [
+            {
+                "#74": "https://github.com/HTTPArchive/httparchive/issues/74"
+            }
+        ]
     },
     {
         "date": 1493611200000,
         "title": "Switch to Linux test agents",
-        "desc": "See https://github.com/HTTPArchive/httparchive/issues/98"
+        "desc": "",
+        "more": [
+            {
+                "#98": "https://github.com/HTTPArchive/httparchive/issues/98"
+            }
+        ]
     },
     {
         "date": 1496289600000,
