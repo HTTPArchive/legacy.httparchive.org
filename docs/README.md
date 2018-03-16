@@ -30,7 +30,7 @@ class HAChangelog {
 
     sort() {
         this.changelog = this.changelog.sort((a, b) => {
-            return a.date > b.date;
+            return a.date - b.date;
         });
     }
 
