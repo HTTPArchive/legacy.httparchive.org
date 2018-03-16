@@ -1,10 +1,5 @@
 [
     {
-        "date": 1372046400000,
-        "title": "Mobile speed decreased to 3G",
-        "desc": "The default connection speed for mobile was decreased to an emulated 3G network."
-    },
-    {
         "date": 1331784000000,
         "title": "Change agents from IE 8 to IE 9",
         "desc": "Switch from IE 8 to IE 9."
@@ -33,6 +28,11 @@
         "date": 1363665600000,
         "title": "Desktop speed increased to Cable",
         "desc": "The default connection speed was increased from DSL (1.5 mbps) to Cable (5.0 mbps). This only affects IE (not iPhone)."
+    },
+    {
+        "date": 1372046400000,
+        "title": "Mobile speed decreased to 3G",
+        "desc": "The default connection speed for mobile was decreased to an emulated 3G network."
     },
     {
         "date": 1384491600000,
