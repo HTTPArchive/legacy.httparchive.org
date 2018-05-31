@@ -24,7 +24,7 @@ $gStep = getParam('step', ( $gbMobile ? 1000 : 1000 ));  // time interval to ste
 $gW = getParam('w', ($gbMobile ? 50 : 100)); // normal dimensions are 138x200 or 90x200
 // mobile images are 200x300, IE are 200x138
 $gH = round( ($gbMobile ? 300 : 138)*$gW/200 );
-$wptServer = wptServer();
+$wptServer = wptServer(false);
 ?>
 <!doctype html>
 <html>

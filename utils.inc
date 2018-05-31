@@ -1408,9 +1408,9 @@ function isPrivateInstance() {
 }
 
 
-function wptServer() {
+function wptServer($includeProtocol=true) {
 	global $gWPTUrl;
-	return $gWPTUrl;
+	return $includeProtocol ? "http:" . $gWPTUrl : $gWPTUrl;
 }
 
 
@@ -1448,7 +1448,7 @@ function selectArchiveLabel($archive, $curLabel, $bReverse=true, $bOnchage = tru
 // Return HTML to create a select list of archive labels (eg, "Oct 2010", "Nov 2010").
 //   $onchange is a string of JS that is stuffed between quotes.
 //   $bNext means the label AFTER $curLabel should be marked "selected"
-function selectSiteLabel($url, $curLabel="", $onchange, $bChrono=false, $bNext=false) {
+function selectSiteLabel($url, $curLabel="", $onchange=null, $bChrono=false, $bNext=false) {
 	global $gPagesTable;
 
 	$aLabels = archiveLabelsForUrl($url, $bChrono);
@@ -1457,6 +1457,7 @@ function selectSiteLabel($url, $curLabel="", $onchange, $bChrono=false, $bNext=f
 		  : "'document.location=\"?u=" . urlencode($url) . "&l=\" + escape(this.options[this.selectedIndex].value)'" ) .
 		">\n";
 
+	$prevLabel = null;
 	foreach($aLabels as $label) {
 		$sSelect .= "  <option value='$label'" . 
 			( ($label === $curLabel && !$bNext) || ($prevLabel === $curLabel && $bNext) ? " selected" : "" ) . 
@@ -1952,15 +1953,14 @@ function purgePage($pageid) {
 // Helper function to safely get QueryString (and POST) parameters.
 function getParam($name, $default="") {
 	global $gMysqlServer, $gMysqlUsername, $gMysqlPassword;
-	$link = getDBConnection();
 
 	if ( array_key_exists($name, $_GET) ) {
 		$link = mysqli_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword);
-		return mysqli_real_escape_string($link, $_GET[$name], $link);
+		return mysqli_real_escape_string($link, $_GET[$name]);
 	}
 	else if ( array_key_exists($name, $_POST) ) {
 		$link = mysqli_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword);
-		return mysqli_real_escape_string($link, $_POST[$name], $link);
+		return mysqli_real_escape_string($link, $_POST[$name]);
 	}
 
 	return $default;

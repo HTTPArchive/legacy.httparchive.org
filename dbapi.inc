@@ -161,7 +161,7 @@ function dateRange($bDefault = false) {
 
 
 function dateRangeCrawls($bDefault = false) {
-	global $gbMobile;
+	global $gbMobile, $gbDev;
 
 	// Here's the scoop: We use $dateRange as a nice global throughout most of our queries to limit
 	// the scope of data. BUT...this is a problem when we want to, for example, present the user with 

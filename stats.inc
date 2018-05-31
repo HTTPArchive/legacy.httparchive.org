@@ -341,7 +341,7 @@ function getCdfData($label, $slice, $device) {
 	$query = "select * from $gCdfTable where crawlid={$crawl['crawlid']} and slice='$slice';";
 	$result2 = doQuery($query);
 	$hCdf = array();
-	while ( $row2 = mysqli_fetch_array($result2, MYSQL_NUM) ) {
+	while ( $row2 = mysqli_fetch_array($result2, MYSQLI_NUM) ) {
 		// This is rickety. We assume the columns are returned in a certain order. 
 		$stat = $row2[2];
 		$hCdf["cdf_$stat"] = implode(",", array_slice($row2, 3));

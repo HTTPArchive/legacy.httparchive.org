@@ -12,7 +12,7 @@ if ( ! $gNumUrls || ! $gLabel1 ) {
 }
 $gLabel2 = getParam('l2');
 $gCallback = getParam('callback');
-$wptServer = wptServer();
+$wptServer = wptServer(false);
 $msMax = 0;
 
 // Find the topmost URLs in both crawls:
