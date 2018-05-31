@@ -20,7 +20,7 @@ $wptServer = wptServer();
 $query = "select url, wptid, wptrun, onLoad, renderStart from $gPagesTable where pageid='$gPageid';";
 
 $result = doQuery($query);
-$row = mysql_fetch_assoc($result);
+$row = mysqli_fetch_assoc($result);
 $url = $row['url'];
 $wptid = $row['wptid'];
 $wptrun = $row['wptrun'];

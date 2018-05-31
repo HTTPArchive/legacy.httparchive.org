@@ -1433,11 +1433,11 @@ function selectArchiveLabel($archive, $curLabel, $bReverse=true, $bOnchage = tru
 	$query = "select label from $gCrawlsTable where $dateRange and archive = '$archive' and " . deviceWhere($device, "location") . " group by label order by crawlId " . 
 		( $bReverse ? "desc" : "asc" ) . ";";
 	$result = doQuery($query);
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		$label = $row['label'];
 		$sSelect .= "  <option value='$label'" . ( $curLabel == $label ? " selected" : "" ) . "> $label\n";
 	}
-	mysql_free_result($result);
+	mysqli_free_result($result);
 
 	$sSelect .= "</select>\n";
 
@@ -1486,11 +1486,11 @@ function archiveLabelsForUrl($url, $bChrono=false, $archive=null) {
 		$query = "select label from $gPagesTable where urlhash=$urlhash and $dateRange and archive='$archive' and url = '$url' group by label order by startedDateTime " . 
 			( $bChrono ? "asc" : "desc" ) . ";";
 		$result = doQuery($query);
-		while ($row = mysql_fetch_assoc($result)) {
+		while ($row = mysqli_fetch_assoc($result)) {
 			$label = $row['label'];
 			array_push($aLabels, $label);
 		}
-		mysql_free_result($result);
+		mysqli_free_result($result);
 	}
 
 	return $aLabels;
@@ -1557,13 +1557,13 @@ function crawledUrls($pageid=null, $n=20) {
 		"order by pageid desc limit $n;";
 	$result = doQuery($query);
 	$aUrls = array();
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		if ( $row['url'] ) {
 			// There's a race condition where the pageid is created but there's no URL.
 			$aUrls[] = array( $row['pageid'], $row['createDate'], $row['url'] );
 		}
 	}
-	mysql_free_result($result);
+	mysqli_free_result($result);
 
 	return $aUrls;
 }
@@ -1952,14 +1952,15 @@ function purgePage($pageid) {
 // Helper function to safely get QueryString (and POST) parameters.
 function getParam($name, $default="") {
 	global $gMysqlServer, $gMysqlUsername, $gMysqlPassword;
+	$link = getDBConnection();
 
 	if ( array_key_exists($name, $_GET) ) {
-		$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
-		return mysql_real_escape_string($_GET[$name], $link);
+		$link = mysqli_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword);
+		return mysqli_real_escape_string($link, $_GET[$name], $link);
 	}
 	else if ( array_key_exists($name, $_POST) ) {
-		$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
-		return mysql_real_escape_string($_POST[$name], $link);
+		$link = mysqli_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword);
+		return mysqli_real_escape_string($link, $_POST[$name], $link);
 	}
 
 	return $default;

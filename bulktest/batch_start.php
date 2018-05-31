@@ -145,7 +145,7 @@ function loadUrlsFromDB($crawlid, $label, $numUrls, $bOther=false) {
 	$query = "select urlOrig, urlFixed, rank from $gUrlsTable where (rank <= $numUrls" . ( $bOther ? " OR other=true" : "" ) . ")" .
 		" and optout=false order by rank asc;";
 	$result = doQuery($query);
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		$urlOrig = $row['urlOrig'];
 		$urlFixed = $row['urlFixed'];
 		loadUrl($crawlid, $label, ( $urlFixed ? $urlFixed : $urlOrig ), $row['rank']);

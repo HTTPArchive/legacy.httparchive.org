@@ -77,11 +77,11 @@ INPUT { padding: 0; margin: 0; }
 <?php
 $query = "select rank, urlOrig, urlFixed from $gUrlsTable where rank >= $gStart and rank <= $gEnd order by rank asc;";
 $result = doQuery($query);
-while ($row = mysql_fetch_assoc($result)) {
+while ($row = mysqli_fetch_assoc($result)) {
 	$url = ( $row['urlFixed'] ? $row['urlFixed'] : $row['urlOrig'] );
 	echo ( $gbNums ? $row['rank'] . "," : "" ) . "<a href='$url'>$url</a>\n";
 }
-mysql_free_result($result);
+mysqli_free_result($result);
 ?>
 </pre>
 

@@ -262,10 +262,10 @@ function sliceCond($label, $slice, $device, $url = "") {
 				$query = "select pageid from $pagesTable where $sliceCond and url in ('" . implode("','", $urls) . "');";
 				$result = doQuery($query);
 				$aPageids = array();
-				while ( $row = mysql_fetch_assoc($result) ) {
+				while ( $row = mysqli_fetch_assoc($result) ) {
 					$aPageids[] = $row['pageid'];
 				}
-				mysql_free_result($result);
+				mysqli_free_result($result);
 				$sliceCond = "pageid in (" . implode(",", $aPageids) . ")";
 			}
 			else {
@@ -308,12 +308,12 @@ function doSimpleCommand($cmd, $link = null) {
 		$link = getDBConnection();
 	}
 
-	if ( mysql_select_db($gMysqlDb) ) {
+	if ( mysqli_select_db($link, $gMysqlDb) ) {
 		//dprint("doSimpleCommand: $cmd");
-		$result = mysql_query($cmd, $link);
-		//mysql_close($link); // the findCorrelation code relies on the link not being closed
+		$result = mysqli_query($link, $cmd);
+		//mysqli_close($link); // the findCorrelation code relies on the link not being closed
 		if ( ! $result ) {
-			dprint("ERROR in doSimpleCommand: '" . mysql_error() . "' for command: " . $cmd);
+			dprint("ERROR in doSimpleCommand: '" . mysqli_error($link) . "' for command: " . $cmd);
 		}
 	}
 }
@@ -326,12 +326,12 @@ function doQuery($query, $link = null) {
 		$link = getDBConnection();
 	}
 
-	if ( mysql_select_db($gMysqlDb) ) {
+	if ( mysqli_select_db($link, $gMysqlDb) ) {
 		//dprint("doQuery: $query");
-		$result = mysql_query($query, $link);
-		//mysql_close($link); // the findCorrelation code relies on the link not being closed
+		$result = mysqli_query($link, $query);
+		//mysqli_close($link); // the findCorrelation code relies on the link not being closed
 		if ( FALSE === $result ) {
-			dprint("ERROR in doQuery: '" . mysql_error() . "' for query: " . $query);
+			dprint("ERROR in doQuery: '" . mysqli_error($link) . "' for query: " . $query);
 		}
 		return $result;
 	}
@@ -345,8 +345,8 @@ function doRowQuery($query, $link = null) {
 	$row = NULL;
 	$result = doQuery($query, $link);
 	if ( $result ) {
-		$row = mysql_fetch_assoc($result);
-		mysql_free_result($result);
+		$row = mysqli_fetch_assoc($result);
+		mysqli_free_result($result);
 	}
 
 	return $row;
@@ -359,12 +359,12 @@ function doSimpleQuery($query, $link = null) {
 	$result = doQuery($query, $link);
 
 	if ( $result ) {
-		$row = mysql_fetch_assoc($result);
+		$row = mysqli_fetch_assoc($result);
 		if ( $row ) {
 			$aKeys = array_keys($row);
 			$value = $row[$aKeys[0]];
 		}
-		mysql_free_result($result);
+		mysqli_free_result($result);
 	}
 
 	return $value;
@@ -383,16 +383,16 @@ function doLastInsertId($cmd, $link = null) {
 	}
 
 	$last_insert_id = null;
-	if ( mysql_select_db($gMysqlDb) ) {
+	if ( mysqli_select_db($link, $gMysqlDb) ) {
 		//dprint("doSimpleCommand: $cmd");
-		$result = mysql_query($cmd, $link);
-		//mysql_close($link); // the findCorrelation code relies on the link not being closed
+		$result = mysqli_query($link, $cmd);
+		//mysqli_close($link); // the findCorrelation code relies on the link not being closed
 		if ( ! $result ) {
-			dprint("ERROR in doSimpleCommand: '" . mysql_error() . "' for command: " . $cmd);
+			dprint("ERROR in doSimpleCommand: '" . mysqli_error($link) . "' for command: " . $cmd);
 		}
 		else {
-			$last_result = mysql_query("select last_insert_id()", $link);
-			$row = mysql_fetch_array($last_result);
+			$last_result = mysqli_query($link, "select last_insert_id()");
+			$row = mysqli_fetch_array($last_result);
 			$last_insert_id = $row[0];
 		}
 	}
@@ -406,10 +406,10 @@ function getDBConnection() {
 	global $gDBConnection, $gMysqlServer, $gMysqlUsername, $gMysqlPassword;
 
 	// CVSNO - figure out why forking processes screws up this global variable & how to fix (mysql_ing?)
-	return mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
+	return mysqli_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword);
 
 	if ( ! $gDBConnection ) {
-		$gDBConnection = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
+		$gDBConnection = mysqli_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword);
 	}
 
 	return $gDBConnection;
@@ -1113,7 +1113,7 @@ function db_upgrade_mergeTables($table) {
 	// In the case of mobile we'll have to create the merge tables.
 	$query = "select crawlid, label, location from crawls where archive = 'All' order by crawlid asc;";
 	$result = doQuery($query);
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		$crawlid = $row['crawlid'];
 		$label = $row['label'];
 		$location = $row['location'];
@@ -1133,7 +1133,7 @@ function db_upgrade_mergeTables($table) {
 		tprint("done $requeststable - $label\n");
 		tprint("CVSNO - exiting!"); exit(); //CVSNO
 	}
-	mysql_free_result($result);
+	mysqli_free_result($result);
 }
 
 

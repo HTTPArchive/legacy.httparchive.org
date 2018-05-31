@@ -315,7 +315,7 @@ $result = doQuery($query);
 $i = 0;
 $imgs1 = "";
 $imgs2 = "";
-while ($row = mysql_fetch_assoc($result)) {
+while ($row = mysqli_fetch_assoc($result)) {
 	$url = $row['url'];
 	$minid = $row['minid'];
 	$maxid = $row['maxid'];
@@ -329,7 +329,7 @@ while ($row = mysql_fetch_assoc($result)) {
 		}
 	}
 }
-mysql_free_result($result);
+mysqli_free_result($result);
 
 function getImgHtml($pageid, $url) {
 	global $gH, $gW, $gbMobile;

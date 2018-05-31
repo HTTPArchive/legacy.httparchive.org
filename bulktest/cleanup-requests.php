@@ -51,8 +51,8 @@ function cleanupRequests($location, $table) {
 
 	$query = "select * from crawls where location = '$location' and finishedDateTime is not null order by crawlid desc limit " . ($gSkipRuns+1) . ";";
 	$results = doQuery($query);
-	mysql_data_seek($results, $gSkipRuns);
-	$row = mysql_fetch_assoc($results);
+	mysqli_data_seek($results, $gSkipRuns);
+	$row = mysqli_fetch_assoc($results);
 
 	if ( $gbActuallyDoit ) {
 		$nUnfinished = doSimpleQuery("select count(*) from crawls where location = '$location' and finishedDateTime is null;");
