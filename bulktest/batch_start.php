@@ -91,9 +91,7 @@ createCrawl(array(
 				  "fvonly" => $fvonly,
 				  "runs" => $runs,
 				  "startedDateTime" => $startedDateTime,
-					"passes" => 0,
-					'minPageid' => 0,
-					'maxPageid' => 0
+					"passes" => 0
 				  ));
 $crawl = getCrawl($label, $gArchive, $locations[0]);
 $crawlid = $crawl['crawlid'];
