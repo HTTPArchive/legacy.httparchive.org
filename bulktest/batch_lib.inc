@@ -1028,7 +1028,7 @@ function getExt($ext) {
 
 function lockFilename($device, $proc="uber") { // CVSNO - go back and remove $device from all callers
 	// The file used as a file lock to coordinate the interaction of processes.
-	$lockFile = "./httparchive_batch_lock_{$proc}.txt";
+	$lockFile = __DIR__ . "/httparchive_batch_lock_{$proc}.txt";
 	return $lockFile;
 }
 

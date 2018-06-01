@@ -30,7 +30,8 @@ $gNumUrls = 0;
 $gUrlsFile = null;
 $gbUrlsFileSpecified = 0;
 $gSublabel = "";
-$gbImportUrls = ( $gbDev ? 1 : 0 );
+//$gbImportUrls = ( $gbDev ? 1 : 0 );
+$gbImportUrls = 0;
 $gLocation = "";
 $startedDateTime = time();
 
@@ -86,16 +87,21 @@ createCrawl(array(
 				  "archive" => $gArchive,
 				  "location" => $locations[0],
 				  "video" => $video,
-				  "docComplete" => $docComplete,
+				  "docComplete" => 0,
 				  "fvonly" => $fvonly,
 				  "runs" => $runs,
 				  "startedDateTime" => $startedDateTime,
-				  "passes" => 0
+					"passes" => 0,
+					'minPageid' => 0,
+					'maxPageid' => 0
 				  ));
 $crawl = getCrawl($label, $gArchive, $locations[0]);
 $crawlid = $crawl['crawlid'];
 lprint("Created crawl $crawlid.");
 cprint("Created crawl $crawlid.");
+if (!isset($crawlid) || !strlen($crawlid)) {
+	exit();
+}
 
 lprint("Load URLs...");
 cprint("Load URLs...");

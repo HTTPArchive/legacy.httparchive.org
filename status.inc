@@ -30,7 +30,7 @@ function addStatusData($url, $loc, $crawlid, $label, $rank=NULL) {
 		"' , location = '" . mysqli_real_escape_string($link, $loc) . 
 		"', crawlid = $crawlid, archive = '$gArchive', label = '$label'" . 
 		( $rank ? ", rank = $rank" : "" ) .
-		", status = '" . NOT_STARTED . "', timeofLastChange = '$now';";
+		", status = '" . NOT_STARTED . "', attempts = 0, timeofLastChange = '$now';";
 	doSimpleCommand($cmd);
 }
 
