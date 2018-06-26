@@ -90,12 +90,16 @@ function submitTest(&$record, $status) {
 	global $video, $private, $runs, $docComplete, $fvonly, $mv, $wptApiKey, $gbNoScript, $gbMobileEmul;
 
 	$wptServer = wptServer();
-	$request = $wptServer . 'runtest.php?f=xml&priority=6&url=' . urlencode($record['url']) . 
-		"&location={$record['location']}&runs=$runs" .
+	$location = $record['location'];
+	if ($location == 'California:Chrome.3G') {
+		$location = 'California:Chrome.4G';
+	}
+	$request = $wptServer . 'runtest.php?f=xml&priority=6&timeline=1&url=' . urlencode($record['url']) . 
+		"&location=$location&runs=$runs" .
 		( $private ? "&private=1" : "" ) .
 		( $video ? "&video=1" : "" ) .
 		"&web10=" . ( $docComplete ? "1" : "0" ) .
-		( $gbMobileEmul ? "&mobile=1" : "" ) .
+		( $gbMobileEmul ? "&mobile=1&lighthouse=1" : "" ) .
 		"&fvonly=" . ( $fvonly ? "1" : "0" ) .
 		( $mv ? "&mv=1" : "" ) .
 		( $gbNoScript ? "&noscript=1" : "" ) .
