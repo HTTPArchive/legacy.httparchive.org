@@ -1408,9 +1408,9 @@ function isPrivateInstance() {
 }
 
 
-function wptServer() {
+function wptServer($includeProtocol=true) {
 	global $gWPTUrl;
-	return $gWPTUrl;
+	return $includeProtocol ? "http:" . $gWPTUrl : $gWPTUrl;
 }
 
 
@@ -1433,11 +1433,11 @@ function selectArchiveLabel($archive, $curLabel, $bReverse=true, $bOnchage = tru
 	$query = "select label from $gCrawlsTable where $dateRange and archive = '$archive' and " . deviceWhere($device, "location") . " group by label order by crawlId " . 
 		( $bReverse ? "desc" : "asc" ) . ";";
 	$result = doQuery($query);
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		$label = $row['label'];
 		$sSelect .= "  <option value='$label'" . ( $curLabel == $label ? " selected" : "" ) . "> $label\n";
 	}
-	mysql_free_result($result);
+	mysqli_free_result($result);
 
 	$sSelect .= "</select>\n";
 
@@ -1448,7 +1448,7 @@ function selectArchiveLabel($archive, $curLabel, $bReverse=true, $bOnchage = tru
 // Return HTML to create a select list of archive labels (eg, "Oct 2010", "Nov 2010").
 //   $onchange is a string of JS that is stuffed between quotes.
 //   $bNext means the label AFTER $curLabel should be marked "selected"
-function selectSiteLabel($url, $curLabel="", $onchange, $bChrono=false, $bNext=false) {
+function selectSiteLabel($url, $curLabel="", $onchange=null, $bChrono=false, $bNext=false) {
 	global $gPagesTable;
 
 	$aLabels = archiveLabelsForUrl($url, $bChrono);
@@ -1457,6 +1457,7 @@ function selectSiteLabel($url, $curLabel="", $onchange, $bChrono=false, $bNext=f
 		  : "'document.location=\"?u=" . urlencode($url) . "&l=\" + escape(this.options[this.selectedIndex].value)'" ) .
 		">\n";
 
+	$prevLabel = null;
 	foreach($aLabels as $label) {
 		$sSelect .= "  <option value='$label'" . 
 			( ($label === $curLabel && !$bNext) || ($prevLabel === $curLabel && $bNext) ? " selected" : "" ) . 
@@ -1486,11 +1487,11 @@ function archiveLabelsForUrl($url, $bChrono=false, $archive=null) {
 		$query = "select label from $gPagesTable where urlhash=$urlhash and $dateRange and archive='$archive' and url = '$url' group by label order by startedDateTime " . 
 			( $bChrono ? "asc" : "desc" ) . ";";
 		$result = doQuery($query);
-		while ($row = mysql_fetch_assoc($result)) {
+		while ($row = mysqli_fetch_assoc($result)) {
 			$label = $row['label'];
 			array_push($aLabels, $label);
 		}
-		mysql_free_result($result);
+		mysqli_free_result($result);
 	}
 
 	return $aLabels;
@@ -1557,13 +1558,13 @@ function crawledUrls($pageid=null, $n=20) {
 		"order by pageid desc limit $n;";
 	$result = doQuery($query);
 	$aUrls = array();
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		if ( $row['url'] ) {
 			// There's a race condition where the pageid is created but there's no URL.
 			$aUrls[] = array( $row['pageid'], $row['createDate'], $row['url'] );
 		}
 	}
-	mysql_free_result($result);
+	mysqli_free_result($result);
 
 	return $aUrls;
 }
@@ -1954,12 +1955,12 @@ function getParam($name, $default="") {
 	global $gMysqlServer, $gMysqlUsername, $gMysqlPassword;
 
 	if ( array_key_exists($name, $_GET) ) {
-		$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
-		return mysql_real_escape_string($_GET[$name], $link);
+		$link = mysqli_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword);
+		return mysqli_real_escape_string($link, $_GET[$name]);
 	}
 	else if ( array_key_exists($name, $_POST) ) {
-		$link = mysql_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword, $new_link=true);
-		return mysql_real_escape_string($_POST[$name], $link);
+		$link = mysqli_connect($gMysqlServer, $gMysqlUsername, $gMysqlPassword);
+		return mysqli_real_escape_string($link, $_POST[$name]);
 	}
 
 	return $default;

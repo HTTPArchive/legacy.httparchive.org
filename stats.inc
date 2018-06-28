@@ -341,12 +341,12 @@ function getCdfData($label, $slice, $device) {
 	$query = "select * from $gCdfTable where crawlid={$crawl['crawlid']} and slice='$slice';";
 	$result2 = doQuery($query);
 	$hCdf = array();
-	while ( $row2 = mysql_fetch_array($result2, MYSQL_NUM) ) {
+	while ( $row2 = mysqli_fetch_array($result2, MYSQLI_NUM) ) {
 		// This is rickety. We assume the columns are returned in a certain order. 
 		$stat = $row2[2];
 		$hCdf["cdf_$stat"] = implode(",", array_slice($row2, 3));
 	}
-	mysql_free_result($result2);
+	mysqli_free_result($result2);
 
 	return $hCdf;
 }
@@ -395,16 +395,16 @@ function getTrendsData($slice, $device) {
 
 	$result = doQuery($query);
 	$hTrends = array();
-	while ( $row = mysql_fetch_assoc($result) ) {
+	while ( $row = mysqli_fetch_assoc($result) ) {
 		$hTrends[$row['label']] = $row;
 	}
-	mysql_free_result($result);
+	mysqli_free_result($result);
 
 	// add CDF data 
 	if ( $gPercentile ) {
 		$query = "select crawls.crawlid as crawlid, label, stat, percentile$gPercentile as value from $gCdfTable as cdf, $gCrawlsTable as crawls where cdf.crawlid=crawls.crawlid and slice='$slice' and location='$device';";
 		$result = doQuery($query);
-		while ( $row = mysql_fetch_assoc($result) ) {
+		while ( $row = mysqli_fetch_assoc($result) ) {
 			// We're adding keys like "reqTotal50" to $hTrends:
 			$label = $row['label'];
 			$stat = $row['stat'];
@@ -413,7 +413,7 @@ function getTrendsData($slice, $device) {
 			// so we have to convert bytes to KB here.
 			$hTrends[$label]["$stat$gPercentile"] = ( 0 === strpos($stat, "bytes") ? round($value/1024) : $value );
 		}
-		mysql_free_result($result);
+		mysqli_free_result($result);
 	}
 
 	return $hTrends;
@@ -439,10 +439,10 @@ function getTrendsDataForUrl($url, $device) {
 	$result = doQuery($query);
 
 	$hTrends = array();
-	while ( $row = mysql_fetch_assoc($result) ) {
+	while ( $row = mysqli_fetch_assoc($result) ) {
 		$hTrends[$row['label']] = $row;
 	}
-	mysql_free_result($result);
+	mysqli_free_result($result);
 
 	return $hTrends;
 }
@@ -673,14 +673,14 @@ function updateCrawlExpAge($label) {
 	if ( $crawl ) {
 		$query = "select requestid, expAge, resp_cache_control, resp_expires, resp_date, startedDateTime from $gRequestsTable where pageid >= {$crawl['minPageid']} and pageid <= {$crawl['maxPageid']};";
 		$result = doQuery($query);
-		while ($row = mysql_fetch_assoc($result)) {
+		while ($row = mysqli_fetch_assoc($result)) {
 			$newExpAge = computeRequestExpAge($row['resp_cache_control'], $row['resp_expires'], $row['resp_date'], $row['startedDateTime']);
 			if ( $newExpAge != $row['expAge'] ) {
 				$cmd = "update $gRequestsTable set expAge = $newExpAge where requestid = {$row['requestid']};";
 				doSimpleCommand($cmd);
 			}
 		}
-		mysql_free_result($result);
+		mysqli_free_result($result);
 	}
 }
 
@@ -714,10 +714,10 @@ function computeRequestExpAge($cc, $resp_expires, $resp_date, $startedDateTime) 
 function updateCrawlMaxage($label) {
 	global $gPagesTable;
 	$result = doQuery("select pageid from $gPagesTable where label='$label';");
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		updatePageMaxage($row['pageid']);
 	}
-	mysql_free_result($result);
+	mysqli_free_result($result);
 }
 
 
@@ -728,7 +728,7 @@ function updatePageMaxage($pageid) {
 	$result = doQuery("select expAge from $gRequestsTable where pageid = $pageid;");
 
 	$maxageNull = $maxage0 = $maxage1 = $maxage30 = $maxage365 = $maxageMore = 0;
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		// count expiration windows
 		$expAge = $row['expAge'];
 		$daySecs = 24*60*60;
@@ -751,7 +751,7 @@ function updatePageMaxage($pageid) {
 			$maxageMore++;
 		}
 	}
-	mysql_free_result($result);
+	mysqli_free_result($result);
 
 	$cmd = "UPDATE $gPagesTable SET " .
 		" maxageNull = $maxageNull" .
@@ -792,7 +792,7 @@ function computeCdf($crawl, $slice) {
 	foreach ( $gaCdfStats as $stat ) {
 		$query = "select $stat from $gPagesTable where $sliceCond order by $stat asc;";
 		$result = doQuery($query);
-		$nRows = mysql_num_rows($result);
+		$nRows = mysqli_num_rows($result);
 		if ( $nRows != $numUrls ) {
 			echo "WARNING: Row count differs for \"$stat\" for slice \"$slice\": should be $numUrls but only $nRows rows found.\n  $query\n\n";
 		}
@@ -802,13 +802,13 @@ function computeCdf($crawl, $slice) {
 			// skip to the Nth row in the results that corresponds to this percentile
 			// TODO - if N is between rows we should really take an average of the two adjacent values
 			$limit = ceil($i * $nRows / 100) - 1;
-			mysql_data_seek($result, $limit);
-			if ( $row = mysql_fetch_array($result) ) {
+			mysqli_data_seek($result, $limit);
+			if ( $row = mysqli_fetch_array($result) ) {
 				$val = ( $row[0] ? $row[0] : "0" );
 				array_push($aTuples, "percentile$i = $val");
 			}
 		}
-		mysql_free_result($result);
+		mysqli_free_result($result);
 
 		$cmd = "REPLACE INTO $gCdfTable SET crawlid=$crawlid, slice='$slice', stat='$stat', " . implode(", ", $aTuples) . ";";
 		doSimpleCommand($cmd);

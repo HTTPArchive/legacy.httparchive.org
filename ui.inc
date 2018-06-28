@@ -126,7 +126,7 @@ function doCommand(cmd) {
 	}
 }
 
-loadScript("http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js");
+loadScript("//ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js");
 </script>
 
 <!--[if lt IE 9]>
@@ -175,7 +175,7 @@ function uiHeader($title = "HTTP Archive", $bNavlinks = true, $extraNav='') {
 
 	$sSelected = "style='border: 1px solid;'";
 	$sublogo = "<div class=sublogo>" .
-		"<a href=" . ( $gbDesktop ? "'/' $sSelected" : "'//httparchive.org'" ) . ">DESKTOP</a>" .
+		"<a href=" . ( $gbDesktop ? "'/' $sSelected" : "'//legacy.httparchive.org'" ) . ">DESKTOP</a>" .
 		"<a href=" . ( $gbMobile ? "'/' $sSelected" : "'//mobile.httparchive.org'" ) . ">MOBILE</a>";
 	if ( $gbChrome ) {
 		$sublogo .= "<a href='/' $sSelected>Chrome</a>";

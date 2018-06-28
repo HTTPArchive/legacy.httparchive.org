@@ -27,7 +27,7 @@ require_once("../utils.inc");
 $result = doQuery("select urlid, domain, rank from $gUrlsTable where url is null;");
 $xtotal = $xdiff = $x300 = $xfixed = $xnotfixed = 0; // CVSNO
 $stotal = $sdiff = $s300 = $sfixed = $snotfixed = ""; // CVSNO
-while ($row = mysql_fetch_assoc($result)) {
+while ($row = mysqli_fetch_assoc($result)) {
 	/*
 	if ( $xtotal >= 100 ) {
 		break; // CVSNO
@@ -96,7 +96,7 @@ while ($row = mysql_fetch_assoc($result)) {
 
 	doSimpleCommand("update $gUrlsTable set url='$urlDerived' where urlid=$urlid;");
 }
-mysql_free_result($result);
+mysqli_free_result($result);
 
 echo <<<OUTPUT
 xtotal = $xtotal

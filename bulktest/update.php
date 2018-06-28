@@ -115,7 +115,7 @@ if ( $numExpage < ($maxPageid - $minPageid) * 20 ) {
 	$result = doQuery($query);
 	tprint("  done with query");
 	$iExpage = 0;
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		$iExpage++;
 		$requestid = $row['requestid'];
 		$cc = $row['resp_cache_control'];
@@ -148,7 +148,7 @@ if ( $numExpage < ($maxPageid - $minPageid) * 20 ) {
 			tprint("    finished " . ($iExpage/1000) . "K");
 		}
 	}
-	mysql_free_result($result);
+	mysqli_free_result($result);
 }
 tprint("...done checking expAge.");
 
@@ -162,7 +162,7 @@ $query = "select * from $pagesTable where $pageidCond" . ( $tmpPageid ? " and pa
 $result = doQuery($query);
 $iPages = 0;
 // use one link to make it faster?
-while ($row = mysql_fetch_assoc($result)) {
+while ($row = mysqli_fetch_assoc($result)) {
 	importPageMod($row);
 	$iPages++;
 	if ( 0 === ( $iPages % 1000 ) ) {
@@ -333,7 +333,7 @@ function importPageMod($hPage) {
 
 	$result = doQuery("select mimeType, urlShort, resp_content_type, respSize, expAge, firstHtml, status, resp_content_encoding, req_host from $requestsTable where pageid = $pageid;");
 	//tprint("after query", $t_CVSNO);
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		$reqUrl = $row['urlShort'];
 		$mimeType = prettyType($row['mimeType'], $reqUrl);
 		$respSize = intval($row['respSize']);
@@ -388,7 +388,7 @@ function importPageMod($hPage) {
 
 		if ( "gzip" == $row['resp_content_encoding'] || "deflate" == $row['resp_content_encoding'] ) { $hPage['numCompressed']++; }
 	}
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	$hPage['numDomains'] = count(array_keys($hDomains));
 	foreach (array_keys($hDomains) as $domain) {
 		$hPage['maxDomainReqs'] = max($hPage['maxDomainReqs'], $hDomains[$domain]);

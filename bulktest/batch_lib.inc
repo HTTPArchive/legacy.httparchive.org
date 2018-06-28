@@ -67,7 +67,7 @@ function obtainTestsWithCode($status, $divisor=NULL, $modulo=NULL) {
 function isEmptyQuery($resource) {
 	// Deal with the result from doQuery()
 	if ( NULL != $resource ) {
-		$num_row = mysql_num_rows($resource);
+		$num_row = mysqli_num_rows($resource);
 		if ( $num_row && 0 < $num_row )
 			return false;
 	}
@@ -90,12 +90,18 @@ function submitTest(&$record, $status) {
 	global $video, $private, $runs, $docComplete, $fvonly, $mv, $wptApiKey, $gbNoScript, $gbMobileEmul;
 
 	$wptServer = wptServer();
-	$request = $wptServer . 'runtest.php?f=xml&priority=6&url=' . urlencode($record['url']) . 
-		"&location={$record['location']}&runs=$runs" .
+	$location = $record['location'];
+	/*
+	if ($location == 'California:Chrome.3G') {
+		$location = 'California:Chrome.4G';
+	}
+	*/
+	$request = $wptServer . 'runtest.php?f=xml&priority=6&timeline=1&url=' . urlencode($record['url']) . 
+		"&location=$location&runs=$runs" .
 		( $private ? "&private=1" : "" ) .
 		( $video ? "&video=1" : "" ) .
 		"&web10=" . ( $docComplete ? "1" : "0" ) .
-		( $gbMobileEmul ? "&mobile=1" : "" ) .
+		( $gbMobileEmul ? "&mobile=1&lighthouse=1" : "" ) .
 		"&fvonly=" . ( $fvonly ? "1" : "0" ) .
 		( $mv ? "&mv=1" : "" ) .
 		( $gbNoScript ? "&noscript=1" : "" ) .
@@ -134,7 +140,7 @@ function submitTest(&$record, $status) {
 function submitBatch() {
 	$unsubmitTests = obtainTestsWithCode(NOT_STARTED);
 	if ( !isEmptyQuery($unsubmitTests) ) {
-		while ($row = mysql_fetch_assoc($unsubmitTests)) {
+		while ($row = mysqli_fetch_assoc($unsubmitTests)) {
 			submitTest($row, 0);
 		}
 	}
@@ -159,7 +165,7 @@ function checkWPTStatus() {
 
 	if ( $result ) {
 		$nNoResult = 0;
-		while ( $row = mysql_fetch_assoc($result) ) {
+		while ( $row = mysqli_fetch_assoc($result) ) {
 			$request = $wptServer . "testStatus.php?f=xml&test=" . $row['wptid'];
 			$doc = new DOMDocument();
 			if ( $doc ) {
@@ -218,7 +224,7 @@ function parseXMLResult($doc, &$result) {
 function obtainXMLResults($divisor=NULL, $modulo=NULL) {
 	$tests = obtainTestsWithCode(SUBMIT_DONE, $divisor, $modulo);
 	if ( !isEmptyQuery($tests) ) {
-		while ( $row = mysql_fetch_assoc($tests) ) {
+		while ( $row = mysqli_fetch_assoc($tests) ) {
 			obtainXMLResult($row['statusid'], $row['wptid']);
 		}
 	}
@@ -277,7 +283,7 @@ function fillTables($divisor=NULL, $modulo=NULL) {
 
 	if ( !IsEmptyQuery($tests) ) {
 		$totalParsed = 0;
-		while ($statusInfo = mysql_fetch_assoc($tests)) {
+		while ($statusInfo = mysqli_fetch_assoc($tests)) {
 			t_mark('importWptResults');
 			//tprint("parse proc # " . (1+$modulo) . ", statusid = " . $statusInfo['statusid'] . ", total = $totalParsed");
 			$status = importWptResults($statusInfo);
@@ -371,6 +377,7 @@ function importPage($page, $statusInfo) {
 	$archive = $statusInfo['archive'];
 	$label = $statusInfo['label'];
 	$crawlid = $statusInfo['crawlid'];
+	$link = getDBConnection();
 	if ( ! $label || ! $crawlid ) {
 		dprint("ERROR: 'label' or 'crawlid' was null in importPage");
 		return null;
@@ -386,12 +393,12 @@ function importPage($page, $statusInfo) {
 	array_push($aTuples, "createDate = $now");
 	$startedDateTime = strtotime($page->{ 'startedDateTime' });
 	array_push($aTuples, "startedDateTime = $startedDateTime");
-	array_push($aTuples, "archive = '" . mysql_real_escape_string($archive) . "'");
-	array_push($aTuples, "label = '" . mysql_real_escape_string($label) . "'");
+	array_push($aTuples, "archive = '" . mysqli_real_escape_string($link, $archive) . "'");
+	array_push($aTuples, "label = '" . mysqli_real_escape_string($link, $label) . "'");
 	array_push($aTuples, "crawlid = $crawlid");
-	array_push($aTuples, "url = '" . mysql_real_escape_string($url) . "'");
+	array_push($aTuples, "url = '" . mysqli_real_escape_string($link, $url) . "'");
 	array_push($aTuples, "urlhash = " . getUrlhashFunc($url));
-	array_push($aTuples, "urlShort = '" . mysql_real_escape_string($urlShort) . "'");
+	array_push($aTuples, "urlShort = '" . mysqli_real_escape_string($link, $urlShort) . "'");
 	if ( array_key_exists('_TTFB', $page) && $page->{'_TTFB'} ) {
 		array_push($aTuples, "TTFB = " . $page->{'_TTFB'});
 	}
@@ -417,7 +424,7 @@ function importPage($page, $statusInfo) {
 		array_push($aTuples, "onContentLoaded = " . $page->{'_domContentLoadedEventStart'});
 	}
 	if ( array_key_exists('_base_page_cdn', $page) && $page->{'_base_page_cdn'} ) {
-		array_push($aTuples, "cdn = '" . mysql_real_escape_string($page->{'_base_page_cdn'}) . "'");
+		array_push($aTuples, "cdn = '" . mysqli_real_escape_string($link, $page->{'_base_page_cdn'}) . "'");
 	}
 	if ( array_key_exists('_SpeedIndex', $page) && $page->{'_SpeedIndex'} ) {
 		array_push($aTuples, "SpeedIndex = " . $page->{'_SpeedIndex'});
@@ -438,7 +445,7 @@ function importPage($page, $statusInfo) {
 		array_push($aTuples, "avg_dom_depth = " . $page->{ '_avg_dom_depth' });
 	}
 	if ( array_key_exists('_doctype', $page) ) {
-		array_push($aTuples, "doctype = '" . mysql_real_escape_string($page->{ '_doctype' }) . "'");
+		array_push($aTuples, "doctype = '" . mysqli_real_escape_string($link, $page->{ '_doctype' }) . "'");
 	}
 	if ( array_key_exists('_document_height', $page) && 0 < $page->{ '_document_height' } ) {
 		array_push($aTuples, "document_height = " . $page->{ '_document_height' });
@@ -453,7 +460,7 @@ function importPage($page, $statusInfo) {
 		array_push($aTuples, "sessionstorage_size = " . $page->{ '_sessionstorage_size' });
 	}
 	if ( array_key_exists('_meta_viewport', $page) ) {
-		array_push($aTuples, "meta_viewport = '" . mysql_real_escape_string($page->{ '_meta_viewport' }) . "'");
+		array_push($aTuples, "meta_viewport = '" . mysqli_real_escape_string($link, $page->{ '_meta_viewport' }) . "'");
 	}
 	if ( array_key_exists('_num_iframes', $page) ) {
 		array_push($aTuples, "num_iframes = " . $page->{ '_num_iframes' });
@@ -493,6 +500,7 @@ function importPage($page, $statusInfo) {
 function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUrl) {
 	global $gPagesTable, $gRequestsTable;
 	global $ghReqHeaders, $ghRespHeaders;
+	$link = getDBConnection();
 	for ( $i = 0; $i < count($entries); $i++ ) {
 		$entry = $entries[$i];
 		$aTuples = array();
@@ -502,7 +510,7 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 		array_push($aTuples, "startedDateTime = $startedDateTime");
 		array_push($aTuples, "time = " . $entry->{ 'time' });
 		if ( property_exists($entry, '_cdn_provider') && null !== $entry->{'_cdn_provider'} ) {
-			array_push($aTuples, "_cdn_provider = '" . mysql_real_escape_string($entry->{ '_cdn_provider' }) . "'");
+			array_push($aTuples, "_cdn_provider = '" . mysqli_real_escape_string($link, $entry->{ '_cdn_provider' }) . "'");
 		}
 		if ( property_exists($entry, '_gzip_save') && null !== $entry->{'_gzip_save'} ) {
 			array_push($aTuples, "_gzip_save = " . $entry->{ '_gzip_save' });  // amount response WOULD have been reduced if it had been gzipped
@@ -513,9 +521,9 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 		array_push($aTuples, "method = '" . $request->{ 'method' } . "'");
 		array_push($aTuples, "reqHttpVersion = '" . $request->{ 'httpVersion' } . "'");
 		$url = $request->{ 'url' };
-		array_push($aTuples, "url = '" . mysql_real_escape_string($url) . "'");
+		array_push($aTuples, "url = '" . mysqli_real_escape_string($link, $url) . "'");
 		$urlShort = substr($url, 0, 255);
-		array_push($aTuples, "urlShort = '" . mysql_real_escape_string($urlShort) . "'");
+		array_push($aTuples, "urlShort = '" . mysqli_real_escape_string($link, $urlShort) . "'");
 		$reqHeadersSize = $request->{ 'headersSize' };
 		if ( $reqHeadersSize && 0 < $reqHeadersSize ) {
 			array_push($aTuples, "reqHeadersSize = $reqHeadersSize");
@@ -550,7 +558,7 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 			}
 		}
 		if ( $other ) {
-			array_push($aTuples, "reqOtherHeaders = '" . mysql_real_escape_string($other) . "'");
+			array_push($aTuples, "reqOtherHeaders = '" . mysqli_real_escape_string($link, $other) . "'");
 		}
 		if ( $cookielen ) {
 			array_push($aTuples, "reqCookieLen = $cookielen");
@@ -562,7 +570,7 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 		array_push($aTuples, "status = $status");
 		array_push($aTuples, "respHttpVersion = '" . $response->{ 'httpVersion' } . "'");
 		if ( property_exists($response, 'url') && null !== $response->{'url'} ) {
-			array_push($aTuples, "redirectUrl = '" . mysql_real_escape_string($response->{ 'url' }) . "'");
+			array_push($aTuples, "redirectUrl = '" . mysqli_real_escape_string($link, $response->{ 'url' }) . "'");
 		}
 		$respHeadersSize = $response->{ 'headersSize' };
 		if ( $respHeadersSize && 0 < $respHeadersSize ) {
@@ -574,9 +582,9 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 		}
 		$content = $response->{ 'content' };
 		array_push($aTuples, "respSize = " . $content->{ 'size' });
-		$mimeType = mysql_real_escape_string($content->{ 'mimeType' });
+		$mimeType = mysqli_real_escape_string($link, $content->{ 'mimeType' });
 		array_push($aTuples, "mimeType = '$mimeType'");
-		$ext = mysql_real_escape_string(getExt($url));
+		$ext = mysqli_real_escape_string($link, getExt($url));
 		array_push($aTuples, "ext = '$ext'");
 		$type = prettyType($mimeType, $ext);
 		array_push($aTuples, "type = '$type'");
@@ -606,7 +614,7 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 			}
 		}
 		if ( $other ) {
-			array_push($aTuples, "respOtherHeaders = '" . mysql_real_escape_string($other) . "'");
+			array_push($aTuples, "respOtherHeaders = '" . mysqli_real_escape_string($link, $other) . "'");
 		}
 		if ( $cookielen ) {
 			array_push($aTuples, "respCookieLen = $cookielen");
@@ -637,7 +645,7 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 		$aHeaders = array_keys($hHeaders);
 		for ( $h = 0; $h < count($aHeaders); $h++ ) {
 			$header = $aHeaders[$h];
-			array_push($aTuples, "$header = '" . mysql_real_escape_string($hHeaders[$header]) . "'");
+			array_push($aTuples, "$header = '" . mysqli_real_escape_string($link, $hHeaders[$header]) . "'");
 		}
 
 		// CUSTOM RULES
@@ -677,6 +685,7 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 // Collect all the aggregate stats for a single website.
 function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 	global $gPagesTable, $gRequestsTable, $gUrlsTable;
+	$link = getDBConnection();
 
 	// CVSNO - move this error checking to the point before this function is called
 	if ( ! $firstUrl ) {
@@ -704,7 +713,7 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 	$bytesHtmlDoc = $numRedirects = $numErrors = $numGlibs = $numHttps = $numCompressed = $maxDomainReqs = 0;
 
 	$result = doQuery("select type, format, urlShort, resp_content_type, respSize, expAge, firstHtml, status, resp_content_encoding, req_host from $gRequestsTable where pageid = $pageid;");
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		$url = $row['urlShort'];
 		$prettyType = $row['type'];
 		$respSize = intval($row['respSize']);
@@ -778,7 +787,7 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 			$numCompressed++;
 		}
 	}
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	$numDomains = count(array_keys($hDomains));
 	foreach (array_keys($hDomains) as $domain) {
 		$maxDomainReqs = max($maxDomainReqs, $hDomains[$domain]);
@@ -815,7 +824,7 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 		", numHttps = $numHttps" .
 		", numCompressed = $numCompressed" .
 		", maxDomainReqs = $maxDomainReqs" .
-		", wptid = " . "'" . mysql_real_escape_string($statusInfo['wptid']) . "'" . 
+		", wptid = " . "'" . mysqli_real_escape_string($link, $statusInfo['wptid']) . "'" . 
 		", wptrun = " . $statusInfo['medianRun'] . 
 		( $statusInfo['rank'] ? ", rank = " . $statusInfo['rank'] : "" ) .
 		" where pageid = $pageid;";
@@ -1025,7 +1034,7 @@ function getExt($ext) {
 
 function lockFilename($device, $proc="uber") { // CVSNO - go back and remove $device from all callers
 	// The file used as a file lock to coordinate the interaction of processes.
-	$lockFile = "./httparchive_batch_lock_{$proc}.txt";
+	$lockFile = __DIR__ . "/httparchive_batch_lock_{$proc}.txt";
 	return $lockFile;
 }
 

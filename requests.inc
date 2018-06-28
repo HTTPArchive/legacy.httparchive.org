@@ -98,11 +98,11 @@ function getRequestsFromTableDEPRECATED($pageid) {
 	$result = doQuery($query);
 	$aReqs = array();
 	if ( $result ) {
-		while ( $req = mysql_fetch_assoc($result) ) {
+		while ( $req = mysqli_fetch_assoc($result) ) {
 			array_push($aReqs, $req);
 		}
 	}
-	mysql_free_result($result);
+	mysqli_free_result($result);
 
 	return $aReqs;
 }

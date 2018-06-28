@@ -12,8 +12,8 @@ $wptid = getParam('wptid');
 $wptrun = getParam('wptrun');
 $gPageid = getParam('pageid');
 
-$wptServer = wptServer();
-$xmlurl = "{$wptServer}xmlResult.php?test=$wptid";
+$wptServer = wptServer(false);
+$xmlurl = "http:{$wptServer}xmlResult.php?test=$wptid";
 $xmlstr = fetchUrl($xmlurl);
 $xml = new SimpleXMLElement($xmlstr);
 $frames = $xml->data->run[($wptrun - 1)]->firstView->videoFrames;

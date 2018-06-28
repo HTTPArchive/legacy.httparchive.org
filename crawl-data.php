@@ -58,10 +58,10 @@ if ( $crawl["finishedDateTime"] ) {
 	$crawl["pages"] = array();
 	$query = "select pageid, wptid, wptrun from $gPagesTable where crawlid = ${crawl['crawlid']} order by pageid asc;";
 	$result = doQuery($query);
-	while ( $row = mysql_fetch_row($result) ) {
+	while ( $row = mysqli_fetch_row($result) ) {
 		array_push($crawl["pages"], $row);
 	}
-	mysql_free_result($result);
+	mysqli_free_result($result);
 }
 
 $response = json_encode($crawl);

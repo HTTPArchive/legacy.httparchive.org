@@ -25,8 +25,9 @@ require_once("dbapi.inc");
 function addStatusData($url, $loc, $crawlid, $label, $rank=NULL) {
 	global $gStatusTable, $gArchive;
 	$now = time();
-	$cmd = "REPLACE INTO $gStatusTable SET url = '" . mysql_real_escape_string($url) . 
-		"' , location = '" . mysql_real_escape_string($loc) . 
+	$link = getDBConnection();
+	$cmd = "REPLACE INTO $gStatusTable SET url = '" . mysqli_real_escape_string($link, $url) . 
+		"' , location = '" . mysqli_real_escape_string($link, $loc) . 
 		"', crawlid = $crawlid, archive = '$gArchive', label = '$label'" . 
 		( $rank ? ", rank = $rank" : "" ) .
 		", status = '" . NOT_STARTED . "', timeofLastChange = '$now';";

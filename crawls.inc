@@ -127,7 +127,7 @@ function archiveLabels($archive=null, $bEpoch = false, $format = "n/j/y", $bAll=
 	$result = doQuery($query);
 
 	$aLabels = array();
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		$label = $row['label'];
 		$epoch = $row['epoch'];
 		if ( $bEpoch ) {
@@ -140,7 +140,7 @@ function archiveLabels($archive=null, $bEpoch = false, $format = "n/j/y", $bAll=
 			array_push($aLabels, $label);
 		}
 	}
-	mysql_free_result($result);
+	mysqli_free_result($result);
 
 	return $aLabels;
 }

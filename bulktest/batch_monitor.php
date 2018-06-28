@@ -31,7 +31,7 @@ $gPerFailed = 20; // acceptable failure rate
 $gFirstDays = 10; // max days to finish the first pass
 $gTotalDays = 13; // max days to finish the crawl
 
-while ( $crawl = mysql_fetch_assoc($result) ) {
+while ( $crawl = mysqli_fetch_assoc($result) ) {
 	// Find the DB table suffix that corresponds to this crawl.
 	$location = $crawl['location'];
 	$suffix = ( "iphone4" === $location ? "iphone" :

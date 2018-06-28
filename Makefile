@@ -97,5 +97,5 @@ pushie :
 pushall: push pushmobile pushchrome pushandroid pushiphone pushie
 
 pushmetrics :
-	mv /var/www/webpagetest/settings/custom_metrics/*.js /tmp/.
-	cp -p custom_metrics/*.js /var/www/webpagetest/settings/custom_metrics/.
+	mv /var/www/webpagetest/www/settings/custom_metrics/*.js /tmp/.
+	cp -p custom_metrics/*.js /var/www/webpagetest/www/settings/custom_metrics/.
