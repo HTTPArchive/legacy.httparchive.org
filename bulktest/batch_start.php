@@ -30,7 +30,8 @@ $gNumUrls = 0;
 $gUrlsFile = null;
 $gbUrlsFileSpecified = 0;
 $gSublabel = "";
-$gbImportUrls = ( $gbDev ? 1 : 0 );
+//$gbImportUrls = ( $gbDev ? 1 : 0 );
+$gbImportUrls = 0;
 $gLocation = "";
 $startedDateTime = time();
 
@@ -86,16 +87,19 @@ createCrawl(array(
 				  "archive" => $gArchive,
 				  "location" => $locations[0],
 				  "video" => $video,
-				  "docComplete" => $docComplete,
+				  "docComplete" => 0,
 				  "fvonly" => $fvonly,
 				  "runs" => $runs,
 				  "startedDateTime" => $startedDateTime,
-				  "passes" => 0
+					"passes" => 0
 				  ));
 $crawl = getCrawl($label, $gArchive, $locations[0]);
 $crawlid = $crawl['crawlid'];
 lprint("Created crawl $crawlid.");
 cprint("Created crawl $crawlid.");
+if (!isset($crawlid) || !strlen($crawlid)) {
+	exit();
+}
 
 lprint("Load URLs...");
 cprint("Load URLs...");
@@ -145,7 +149,7 @@ function loadUrlsFromDB($crawlid, $label, $numUrls, $bOther=false) {
 	$query = "select urlOrig, urlFixed, rank from $gUrlsTable where (rank <= $numUrls" . ( $bOther ? " OR other=true" : "" ) . ")" .
 		" and optout=false order by rank asc;";
 	$result = doQuery($query);
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		$urlOrig = $row['urlOrig'];
 		$urlFixed = $row['urlFixed'];
 		loadUrl($crawlid, $label, ( $urlFixed ? $urlFixed : $urlOrig ), $row['rank']);
