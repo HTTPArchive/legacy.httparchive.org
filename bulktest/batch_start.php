@@ -107,13 +107,13 @@ if ( $gUrlsFile && $gbUrlsFileSpecified ) {  // we set $gUrlsFile in importurls.
 	loadUrlsFromFile($crawlid, $label, $gUrlsFile);
 }
 else if ( $gNumUrls ) {
-	loadUrlsFromDb($crawlid, $label, $gNumUrls, false);
+	loadUrlsFromDB($crawlid, $label, $gNumUrls);
 }
 else if ( $gbMobile ) {
-	loadUrlsFromDB($crawlid, $label, 500000, false);
+	loadUrlsFromDB($crawlid, $label, 1500000);
 }
 else if ( $gbDev ) {
-	loadUrlsFromDB($crawlid, $label, 500000, true); // THIS IS THE ONLY CRAWL THAT UPDATES THE URLS!
+	loadUrlsFromDB($crawlid, $label, 1500000);
 }
 
 $numUrls = doSimpleQuery("select count(*) from $gStatusTable where crawlid=$crawlid;");
@@ -144,10 +144,10 @@ function loadUrlsFromFile($crawlid, $label, $file=NULL) {
 
 
 // Load the URLs in urls.txt file into status table.
-function loadUrlsFromDB($crawlid, $label, $numUrls, $bOther=false) {
+function loadUrlsFromDB($crawlid, $label, $numUrls) {
 	global $gUrlsTable;
-	$query = "select urlOrig, urlFixed, rank from $gUrlsTable where (rank <= $numUrls" . ( $bOther ? " OR other=true" : "" ) . ")" .
-		" and optout=false order by rank asc;";
+	$query = "select urlOrig, urlFixed, rank from $gUrlsTable where optout=false " .
+		"order by rank asc limit $numUrls;";
 	$result = doQuery($query);
 	while ($row = mysqli_fetch_assoc($result)) {
 		$urlOrig = $row['urlOrig'];
