@@ -227,7 +227,7 @@ function pieChart($title, $id, $aNames, $aValues, $color="", $legend = "") {
 	global $gPhpFile;
 
 	$color = ( $color ? $color : pickColor($title) );
-	return "<a href='$gPhpFile#$id'><img width=400 height=225 id=$id class=chart src='http://chart.googleapis.com/chart?chs=400x225&cht=p&chco=$color&chd=t:" .
+	return "<a href='$gPhpFile#$id'><img width=400 height=225 id=$id class=chart src='//chart.googleapis.com/chart?chs=400x225&cht=p&chco=$color&chd=t:" .
 		implode(",", $aValues) .
 		chdsMinmax($aValues, true) .
 		( $legend ? "&chdlp=b&chdl=$legend" : "" ) .
@@ -255,8 +255,11 @@ function chdsMinmax($aValues, $bZero = false) {
 
 // $minPercent is the value at which we only show one bin then stop
 function histogram($hStats, $column, $title, $id, $binMultiple=1, $minPercent=1, $color="") {
+	if (!isset($hStats["cdf_$column"])) {
+		return "<!-- $column data not available for this crawl -->";
+	}
 	$aVals = explode(",", $hStats["cdf_$column"]);
-	if ( 0 == $aVals[98] ) {
+	if ( !isset($aVals[98]) || 0 == $aVals[98] ) {
 		return "<!-- $column data not available for this crawl -->";
 	}
 	$hHist = array();
@@ -323,7 +326,7 @@ function percentageColumnChart($title, $id, $aNames, $aValues, $color="") {
 	$colsp = round(0.25*($width-60) / $n);
 	$color = ( $color ? $color : pickColor($title) );
 
-	return "<a href='$gPhpFile#$id'><img width=$width height=225 id=$id class=chart src='http://chart.googleapis.com/chart" .
+	return "<a href='$gPhpFile#$id'><img width=$width height=225 id=$id class=chart src='//chart.googleapis.com/chart" .
 		"?chxl=0:|20%25|40%25|60%25|80%25|100%25|1:|" . urlencode(implode("|", $aNames)) .     // axis labels
 		"&chm=N**%,676767,0,,12,,::4" .
 		"&chxp=0,20,40,60,80,100" . 
@@ -338,7 +341,7 @@ function percentageColumnChart($title, $id, $aNames, $aValues, $color="") {
 function correlationColumnChart($title, $id, $aNames, $aValues, $color="80C65A") {
 	global $gPhpFile;
 
-	return "<a href='$gPhpFile#$id'><img width=500 height=225 id=$id class=chart src='http://chart.googleapis.com/chart?chxl=1:|" .
+	return "<a href='$gPhpFile#$id'><img width=500 height=225 id=$id class=chart src='//chart.googleapis.com/chart?chxl=1:|" .
 		str_replace("Requests", "Reqs", str_replace("Transfer", "Xfer", urlencode(implode("|", $aNames)))) .
 		"&chxr=0,0,1&chxs=1,676767,11.5,0,lt,67676700&chxtc=1,5&chxt=y,x&chbh=60,30,30&chs=500x225&cht=bvg&chco=$color&chds=0,1&chd=t:" .
 		implode(",", $aValues) .
@@ -351,7 +354,7 @@ function horizontalBarChart($title, $id, $aNames, $aValues, $color="80C65A", $mi
 
 	$height = ( count($aValues) > 9 ? 370 : ( count($aValues) > 7 ? 310 : ( count($aValues) > 5 ? 260 : 220 ) ) );
 
-	return "<a href='$gPhpFile#$id'><img width=640 height=$height id=$id class=chart src='http://chart.googleapis.com/chart?" .
+	return "<a href='$gPhpFile#$id'><img width=640 height=$height id=$id class=chart src='//chart.googleapis.com/chart?" .
 		( $bPercentage ? "chxp=0,20,40,60,80,100&chxl=0:|20%|40%|60%|80%|100%|1:|" : "chxl=1:|" ) .
 		urlencode(implode("|", array_reverse($aNames))) .
 		( $xtitle ? "&chdlp=b&chdl=$xtitle" : "" ) .
@@ -381,7 +384,7 @@ function cdf($hStats, $column, $title, $id, $binMultiple=1, $minPercent=1, $colo
 	}
 
 	$color = pickColor($title);
-	$url = "http://chart.googleapis.com/chart" .
+	$url = "//chart.googleapis.com/chart" .
 		"?chxt=x,y" .     // visible axes
 		"&chs=600x300" .  // size
 		"&cht=lxy" .      // chart type
@@ -419,7 +422,7 @@ function format2LineChart($field, $field2, $hTrends, $aRunNames, $labels, $sUnit
 	$step = ( $max > 10000 ? 2000 : ( $max > 1500 ? 500 : ( $max > 200 ? 100 : ( $max > 100 ? 20 : 10 ) ) ) );
 	$step2 = ( $max2 > 10000 ? 2000 : ( $max2 > 1500 ? 500 : ( $max2 > 200 ? 100 : ( $max2 > 100 ? 20 : 10 ) ) ) );
 	$skip = getSkip(count($aRunNames));
-	$url = "http://chart.googleapis.com/chart" .
+	$url = "//chart.googleapis.com/chart" .
 		"?chd=t:-1|$fieldVals|-1|$fieldVals2" .
 		"&chxl=0:|$labels" .
 		"&chxt=x,y,r" .
@@ -465,7 +468,7 @@ function formatChart($field, $hTrends, $aRunNames, $labels, $percentile="", $bJs
 		return $hSeries;
 	}
 	else {
-		$url = "http://chart.googleapis.com/chart" .
+		$url = "//chart.googleapis.com/chart" .
 			"?chd=t:-1|$fieldVals" . 
 			"&chxl=0:|$labels&chxt=x&chs=600x300&cht=lxy&chco=$color" .
 			"&chxs=0,676767,11.5,0,lt,676767&chxtc=0,8&chm=N" . ( $suffix ? "**+$suffix" : "" ) .

@@ -26,10 +26,10 @@ $term = strtolower($term); // always search lower case (esp. a problem on iOS)
 $query = "select distinct(urlhash) from $gUrlsTable where (urlOrig like '%$term%' or urlFixed like '%$term%') order by rank asc;";
 $result = doQuery($query);
 $sUrlhashes = "";
-while ( $row = mysql_fetch_assoc($result) ) {
+while ( $row = mysqli_fetch_assoc($result) ) {
 	$sUrlhashes .= $row['urlhash'] . ",";
 }
-mysql_free_result($result);
+mysqli_free_result($result);
 
 
 // It's possible the list ends in "," which is bad (eg, if urlhash is null).
@@ -49,16 +49,16 @@ if ( "," === substr($sUrlhashes, -1) ) {
 $query = "select url, urlhash, max(pageid) as pageid, min(rank is null) as brank, min(rank) as rank from $gPagesTable " .
 	"where " . dateRange(true) . " and archive='$gArchive' and urlhash in ($sUrlhashes) and urlShort like '%$term%' group by url order by brank, rank asc limit $maxLimit;";
 $result = doQuery($query);
-$numUrls = mysql_num_rows($result);
+$numUrls = mysqli_num_rows($result);
 
 // Only return $maxResults results.
 // If there are more results, return a message with the remaining number.
 $aSites = array();
-while ( count($aSites) < $maxResults && $row = mysql_fetch_assoc($result) ) {
+while ( count($aSites) < $maxResults && $row = mysqli_fetch_assoc($result) ) {
 	$url = $row['url'];
 	array_push($aSites, array("label" => $url, "value" => $url, "data-urlhash" => $row['urlhash'], "data-pageid" => $row['pageid']));
 }
-mysql_free_result($result);
+mysqli_free_result($result);
 
 if ( $numUrls > count($aSites) ) {
 	$remaining = $numUrls - count($aSites);

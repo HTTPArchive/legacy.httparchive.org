@@ -16,11 +16,11 @@ limitations under the License.
 require_once("utils.inc");
 
 $gPageid = getParam('pageid');
-$wptServer = wptServer();
+$wptServer = wptServer(false);
 $query = "select url, wptid, wptrun, onLoad, renderStart from $gPagesTable where pageid='$gPageid';";
 
 $result = doQuery($query);
-$row = mysql_fetch_assoc($result);
+$row = mysqli_fetch_assoc($result);
 $url = $row['url'];
 $wptid = $row['wptid'];
 $wptrun = $row['wptrun'];
@@ -28,7 +28,7 @@ $onLoad = $row['onLoad'];
 $interval = ( $gbMobile ? 1000 : ( $onLoad > 15000 ? 5000 : ( $onLoad > 4000 ? 1000 : ( $onLoad > 1000 ? 500 : 100 ) ) ) );
 $renderStart = $row['renderStart'];
 
-$xmlurl = "{$wptServer}xmlResult.php?test=$wptid";
+$xmlurl = "http:{$wptServer}xmlResult.php?test=$wptid";
 $xmlstr = fetchUrl($xmlurl);
 $xml = new SimpleXMLElement($xmlstr);
 $frames = $xml->data->run[($wptrun - 1)]->firstView->videoFrames;

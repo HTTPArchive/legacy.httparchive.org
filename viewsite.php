@@ -70,7 +70,7 @@ $renderStart = $pageData['renderStart'];
 $gRank = rank($url, $gPageid);
 $gIsAdult = isAdultContent($url, $pageData);
 
-$wptServer = wptServer();
+$wptServer = wptServer(false);
 $harfileWptUrl = wptHarFileUrl($wptid, $wptrun, 0);
 ?>
 <!doctype html>
@@ -102,7 +102,7 @@ echo selectSiteLabel($url, $gLabel);
 <span style="margin-left: 3em;">view on 
 <?php
 if ( $gbMobile || $gbAndroid || $gbIphone ) {
-	echo "<a href='http://httparchive.org/viewsite.php?u=$urlencoded'>desktop</a> or ";
+	echo "<a href='http://legacy.httparchive.org/viewsite.php?u=$urlencoded'>desktop</a> or ";
 }
 else {
 	if ( $gRank <= 5000 ) { // TODO - This is terribly hardwired.

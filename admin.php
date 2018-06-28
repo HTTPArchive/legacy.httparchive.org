@@ -102,7 +102,7 @@ function addUrlToForm($url, $action, $createDate, $bSimilar=true) {
 		$nSim = 3;
 		$query = "select urlOrig, urlFixed, rank, other from $gUrlsTable where urlOrig like '%.$sld%' or urlOrig like '%/$sld%' or urlFixed like '%.$sld%' or urlFixed like '%/$sld%' order by rank asc limit $nSim;";
 		$result = doQuery($query);
-		while ($row = mysql_fetch_assoc($result)) {
+		while ($row = mysqli_fetch_assoc($result)) {
 			$iSimilar++;
 			if ( $iSimilar <= $nSim ) {
 				$urlsim = ( $row['urlFixed'] ? $row['urlFixed'] : $row['urlOrig'] );
@@ -128,7 +128,7 @@ function addUrlToForm($url, $action, $createDate, $bSimilar=true) {
 				}
 			}
 		}
-		mysql_free_result($result);
+		mysqli_free_result($result);
 		if ( $iSimilar > $nSim ) {
 			$sSimilar .= "<br>" . ($iSimilar - $nSim) . " more...";
 		}
@@ -154,7 +154,7 @@ if ( $result != -1 ) {
 	$i = 0;
 	$giUrl = 1;
 	$maxUrls = 8;
-	while ( $row = mysql_fetch_assoc($result) ){
+	while ( $row = mysqli_fetch_assoc($result) ){
 		$i++;
 		if ( $i > $maxUrls ) {
 			// we'll just count the number of URLs via $i
@@ -163,7 +163,7 @@ if ( $result != -1 ) {
 
 		echo addUrlToForm($row['url'], $row['action'], $row['createDate'], $gbSimilar);
 	}
-	mysql_free_result($result);
+	mysqli_free_result($result);
 
 	echo "<tr><td align=right colspan=5><input class=button type=submit value='Submit'></td></tr>\n</table>" .
 		"<input type=hidden name=sim value='$gbSimilar'></form>\n";

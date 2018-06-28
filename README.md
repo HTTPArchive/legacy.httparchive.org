@@ -1,3 +1,5 @@
+!! Important: This repository is deprecated. Please see [HTTPArchive/httparchive.org](https://github.com/HTTPArchive/httparchive.org) for the latest development !!
+
 # The HTTP Archive tracks how the Web is built
 
 This repo contains the source code powering the [HTTP

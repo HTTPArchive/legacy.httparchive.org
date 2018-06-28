@@ -22,7 +22,7 @@ function reportTests($code)
     if ( !IsEmptyQuery($tests) ) 
     {
         echo "Status Code $code:\r\n";
-        while ($row = mysql_fetch_assoc($tests)) 
+        while ($row = mysqli_fetch_assoc($tests)) 
             echo "{$row['wptid']} - {$row['url']}\r\n";
         echo "\r\n\r\n";
     }

@@ -1,3 +1,6 @@
 bulktest/wptkey.inc.php
 node_modules/
 tmp/
+downloads/
+harviewer/
+*.log

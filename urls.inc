@@ -190,10 +190,10 @@ function removeUrlData($url) {
 
 	$result = doQuery("select pageid from $gPagesTable where url='$url';");
 	$aPageids = array();
-	while ( $row = mysql_fetch_assoc($result) ) {
+	while ( $row = mysqli_fetch_assoc($result) ) {
 		$aPageids[] = $row['pageid'];
 	}
-	mysql_free_result($result);
+	mysqli_free_result($result);
 
 	$sPageids = implode(",", $aPageids);
 	if ( $sPageids ) {
