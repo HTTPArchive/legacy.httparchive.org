@@ -91,11 +91,9 @@ function submitTest(&$record, $status) {
 
 	$wptServer = wptServer();
 	$location = $record['location'];
-	/*
 	if ($location == 'California:Chrome.3G') {
 		$location = 'California:Chrome.4G';
 	}
-	*/
 	$request = $wptServer . 'runtest.php?f=xml&priority=6&timeline=1&url=' . urlencode($record['url']) . 
 		"&location=$location&runs=$runs" .
 		( $private ? "&private=1" : "" ) .
