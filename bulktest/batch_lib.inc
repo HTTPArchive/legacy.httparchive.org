@@ -184,7 +184,7 @@ function checkWPTStatus() {
 					}
 					else {
 						$nNoResult++;
-						if ( $nNoResult > 200 ) {
+						if ( $nNoResult > 2000 ) {
 							// Quick bail:
 							// If we've exhausted all the completed results we do NOT want
 							// to continue checking EVERY remaining test. So instead we bail
