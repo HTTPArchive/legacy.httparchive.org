@@ -965,7 +965,7 @@ function prettyType($mimeType, $ext) {
 		return "xml";
 	}
     //Video extensions mp4, webm, ts, m4v, m4s, m4v, mov, ogv
-	else if ( false !== strpos($mimeType, "flash") || (true === strpos($mimeType, "webm") || (true === strpos($mimeType, "mp4") || (true === strpos($mimeType, "flv"))
+	else if ( false !== strpos($mimeType, "flash") || (false !== strpos($mimeType, "webm") || (false !== strpos($mimeType, "mp4") || (false !== strpos($mimeType, "flv"))
          "mp4" === $ext || "webm" === $ext || "ts" == $ext || "m4v" === $ext || "m4s" === $ext || "mov" === $ext || "ogv" === $ext ||
          "swf" === $ext || "f4v" === $ext || "flv" === $ext ) {
 		return "video";
