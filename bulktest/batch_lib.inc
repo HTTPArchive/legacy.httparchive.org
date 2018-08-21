@@ -36,7 +36,7 @@ for ( $i = 1; $i <= $gNumParse; $i++ ) {
 $gbRepeatView = false; // Currently you have to MANUALLY change this to true if you want to look at "Repeat View".
 
 // Obtain the tests with specified status code
-// $divisor and $modulo let us split the job across multiple processes, 
+// $divisor and $modulo let us split the job across multiple processes,
 // eg, you could have 3 processes ($divisor=3) where proc 1 is modulo 0 ($modulo=0), proc 2 is 1 ($modulo=1), and proc 3 is 2 ($modulo=2)
 function obtainTestsWithCode($status, $divisor=NULL, $modulo=NULL) {
 	global $gStatusTable;
@@ -94,7 +94,7 @@ function submitTest(&$record, $status) {
 	if ($location == 'California:Chrome.3G') {
 		$location = 'California:Chrome.4G';
 	}
-	$request = $wptServer . 'runtest.php?f=xml&priority=6&timeline=1&url=' . urlencode($record['url']) . 
+	$request = $wptServer . 'runtest.php?f=xml&priority=6&timeline=1&url=' . urlencode($record['url']) .
 		"&location=$location&runs=$runs" .
 		( $private ? "&private=1" : "" ) .
 		( $video ? "&video=1" : "" ) .
@@ -121,7 +121,7 @@ function submitTest(&$record, $status) {
 				$cmd .= ", wptid = '$id', wptRetCode = $code WHERE statusid = $statusid;";
 				doSimpleCommand($cmd);
 				setStatus($statusid, SUBMITTED);
-			} 
+			}
 			else {
 				$cmd .= ", wptRetCode = $code WHERE statusid = $record[statusid];";
 				doSimpleCommand($cmd);
@@ -177,7 +177,7 @@ function checkWPTStatus() {
 					if ( 200 == $code ) {
 						$nNoResult = 0; // reset
 						setStatus($row['statusid'], SUBMIT_DONE);
-					} 
+					}
 					elseif ( 400 <= $code ) {
 						$nNoResult = 0; // reset
 						setStatus($row['statusid'], SUBMITTED + $gErrBase);
@@ -193,7 +193,7 @@ function checkWPTStatus() {
 						}
 					}
 				}
-			}	
+			}
 		}
 	}
 }
@@ -258,14 +258,14 @@ function obtainXMLResult($statusid, $wptid) {
 					// CVSNO - remove pagespeed, etc. columns from status table
 					$cmd = "UPDATE $gStatusTable SET medianRun = $medianRun WHERE statusid=$statusid;";
 					doSimpleCommand($cmd);
-					setStatus($statusid, META_DONE); 
+					setStatus($statusid, META_DONE);
 				}
 				else {
 					// There was an error parsing the meta XML result.
 					dprint("ERROR: couldn't find median page view for wptid $wptid.");
 					setStatus($statusid, SUBMIT_DONE + $gErrBase);
 				}
-			} 
+			}
 			else {
 				dprint("ERROR: failed parsing $request: status = $status, runs = $runs");
 				setStatus($statusid, SUBMIT_DONE + $gErrBase);
@@ -482,10 +482,10 @@ function importPage($page, $statusInfo) {
 	t_aggregate('importPage: insert into pages');
 
 	if ( ! $pageid ) {
-		// There was no inserted row. This is likely a duplicate entry error. 
+		// There was no inserted row. This is likely a duplicate entry error.
 		// We used to REPLACE these records but that is less desirable because
-		// it takes longer, creates orphaned rows in the requests table, and 
-		// requires more code. There's no conclusion which is better - the initial 
+		// it takes longer, creates orphaned rows in the requests table, and
+		// requires more code. There's no conclusion which is better - the initial
 		// one or the one we're doing now. So let's just keep the initial one.
 		return null;
 	}
@@ -621,7 +621,7 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 		// CVSNO - use the new computeRequestExpAge function.
 		$expAge = 0;
 		$cc = ( array_key_exists('resp_cache_control', $hHeaders) ? $hHeaders['resp_cache_control'] : null );
-		if ( $cc && 
+		if ( $cc &&
 			 ( FALSE !== stripos($cc, "must-revalidate") || FALSE !== stripos($cc, "no-cache") || FALSE !== stripos($cc, "no-store") ) ) {
 			// These directives dictate the response can NOT be cached.
 			$expAge = 0;
@@ -822,8 +822,8 @@ function aggregateStats($pageid, $firstUrl, $firstHtmlUrl, $statusInfo) {
 		", numHttps = $numHttps" .
 		", numCompressed = $numCompressed" .
 		", maxDomainReqs = $maxDomainReqs" .
-		", wptid = " . "'" . mysqli_real_escape_string($link, $statusInfo['wptid']) . "'" . 
-		", wptrun = " . $statusInfo['medianRun'] . 
+		", wptid = " . "'" . mysqli_real_escape_string($link, $statusInfo['wptid']) . "'" .
+		", wptrun = " . $statusInfo['medianRun'] .
 		( $statusInfo['rank'] ? ", rank = " . $statusInfo['rank'] : "" ) .
 		" where pageid = $pageid;";
 	doSimpleCommand($cmd);
@@ -964,7 +964,10 @@ function prettyType($mimeType, $ext) {
 	else if ( "xml" === $ext ) {
 		return "xml";
 	}
-	else if ( false !== strpos($mimeType, "flash") || "mp4" === $ext || "swf" === $ext || "f4v" === $ext || "flv" === $ext ) {
+    //Video extensions mp4, webm, ts, m4v, m4s, m4v, mov, ogv
+	else if ( false !== strpos($mimeType, "flash") || false !== strpos($mimeType, "webm") || false !== strpos($mimeType, "mp4") || false !== strpos($mimeType, "flv")
+       ||  "mp4" === $ext || "webm" === $ext || "ts" == $ext || "m4v" === $ext || "m4s" === $ext || "mov" === $ext || "ogv" === $ext
+       ||  "swf" === $ext || "f4v" === $ext || "flv" === $ext ) {
 		return "video";
 	}
 	else if ( false !== strpos($mimeType, "html") || "html" === $ext || "htm" === $ext ) {
@@ -1037,19 +1040,19 @@ function lockFilename($device, $proc="uber") { // CVSNO - go back and remove $de
 }
 
 
-function killProcessAndChildren($pid, $signal=9) { 
-	exec("ps -ef | awk '\$3 == '$pid' { print  \$2 }'", $output, $ret); 
+function killProcessAndChildren($pid, $signal=9) {
+	exec("ps -ef | awk '\$3 == '$pid' { print  \$2 }'", $output, $ret);
 	if ( $ret ) {
-		return 'you need ps, grep, and awk'; 
+		return 'you need ps, grep, and awk';
 	}
 
-	while ( list(, $t) = each($output) ) { 
-		if ( $t != $pid ) { 
-			killProcessAndChildren($t,$signal); 
-		} 
-	} 
+	while ( list(, $t) = each($output) ) {
+		if ( $t != $pid ) {
+			killProcessAndChildren($t,$signal);
+		}
+	}
 
-	posix_kill($pid, $signal); 
+	posix_kill($pid, $signal);
 }
 
 
