@@ -17,9 +17,7 @@ limitations under the License.
 // The purpose is to free up disk space taken up by rows in the 
 // "requests" and "requestsdev" tables. We do NOT need these rows for
 // any part of the UI, and all of the requests are archived in a dump
-// file for each crawl. I'm too nervous to delete the rows automatically
-// as part of the crawl process. Instead, once everything looks okay,
-// I run this script manually.
+// file for each crawl.
 
 require_once("bootstrap.inc");
 require_once("../utils.inc");
@@ -34,10 +32,6 @@ if ( 0 < $nUnfinished ) {
 	exit(1);
 }
 
-// Crawls currently start with "California:Chrome" (desktop) so grab the last desktop crawl ID.
-$lastCrawl = doSimpleQuery("select max(crawlid) from crawls where location=\"California:Chrome\";");
-cprint("Last desktop crawl: $lastCrawl");
-
 cleanupRequests("requestsdev");
 cleanupRequests("requests");
 cleanupRequests("requestsmobiledev");
@@ -49,7 +43,7 @@ function cleanupRequests($table) {
 	global $lastCrawl;
 
 	// Actually delete rows and optimize the table.
-	$cmd = "delete from $table where crawlid < $lastCrawl;";
+	$cmd = "delete from $table;";
 	cprint("$cmd");
 	doSimpleCommand($cmd);
 	cprint("Optimize table \"$table\"...");

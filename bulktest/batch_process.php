@@ -72,6 +72,10 @@ if ( 0 === totalNotDone() ) {
 
 		updateCrawl($labelFromRun, $gArchive, $locations[0], array( "finishedDateTime" => time() ));
 
+		// Cleanup the requests table after the dump is complete (it is only used during a crawl to calculate aggregate stats)
+		doSimpleCommand("delete from $gRequestsTable;");
+		doSimpleCommand("optimize table $gRequestsTable;");
+
 		cprint(date("G:i") . ": DONE with crawl!");
 		exit(0);
 	}
