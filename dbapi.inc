@@ -39,7 +39,7 @@ $gUrlsChangeTableDesktop = $gUrlsChangeTable;
 // Mobile tables
 $gPagesTableMobile = $gPagesTable . "mobile";
 $gRequestsTableMobile = $gRequestsTable . "mobile";
-$gUrlsTableMobile = "urls";
+$gUrlsTableMobile = "urlsmobile";
 $gStatusTableMobile = $gStatusTable . "mobile";
 $gStatsTableMobile = $gStatsTable;  // share the data table - a first step toward a single DB
 
