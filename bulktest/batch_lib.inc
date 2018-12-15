@@ -136,10 +136,18 @@ function submitTest(&$record, $status) {
 
 // Submit the batch test to WPT server.
 function submitBatch() {
+	global $gMaxQueueLength;
+	$submittedTests = countTestsWithCode(SUBMITTED);
 	$unsubmitTests = obtainTestsWithCode(NOT_STARTED);
 	if ( !isEmptyQuery($unsubmitTests) ) {
 		while ($row = mysqli_fetch_assoc($unsubmitTests)) {
 			submitTest($row, 0);
+			// Limit the number of in-flight tests
+			if ($gMaxQueueLength) {
+				$submittedTests++;
+				if ($submittedTests >= $gMaxQueueLength)
+					break;
+			}
 		}
 	}
 }
