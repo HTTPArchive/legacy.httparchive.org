@@ -98,6 +98,7 @@ else if ( $gbMobile ) {
 	$gRequestsTable = $gRequestsTableMobile;
 	$gStatusTable = $gStatusTableMobile;
 	$gStatsTable = $gStatsTableMobile;
+	$gUrlsTable = $gUrlsTableMobile;
 }
 else if ( $gbChrome ) {
 	// Use a chrome version of the database tables if "chrome" is in the path.
