@@ -110,7 +110,7 @@ else if ( $gNumUrls ) {
 	loadUrlsFromDB($crawlid, $label, $gNumUrls);
 }
 else if ( $gbMobile ) {
-	loadUrlsFromDB($crawlid, $label, 4200000);
+	loadUrlsFromDB($crawlid, $label, 4300000);
 }
 else if ( $gbDev ) {
 	loadUrlsFromDB($crawlid, $label, 4000000);
