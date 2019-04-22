@@ -43,7 +43,7 @@ function cleanupRequests($table) {
 	global $lastCrawl;
 
 	// Actually delete rows and optimize the table.
-	$cmd = "delete from $table;";
+	$cmd = "TRUNCATE TABLE $table;";
 	cprint("$cmd");
 	doSimpleCommand($cmd);
 	cprint("Optimize table \"$table\"...");
