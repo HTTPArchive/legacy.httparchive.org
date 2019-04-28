@@ -15,7 +15,7 @@
   or not. 
 */
 
-var allowed = /^(article|aside|blockquote|body|div|footer|h1|h2|h3|h4|h5|h6|header||main|nav|p|section|span)$/i
+var allowed = /^(article|aside|blockquote|body|div|footer|h1|h2|h3|h4|h5|h6|header|main|nav|p|section|span)$/i
 
 function isValidCustomElementName(el) {
     return (el.tagName.indexOf('-') !== -1 && !(el instanceof HTMLUnknownElement))
@@ -33,5 +33,5 @@ function hasAuthorShadowRoot(el) {
     )
 }
 
-return Array.from(document.querySelectorAll('*'))
+return "" + Array.from(document.querySelectorAll('*'))
             .some(hasAuthorShadowRoot)
