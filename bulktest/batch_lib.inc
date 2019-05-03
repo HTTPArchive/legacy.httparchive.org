@@ -27,7 +27,7 @@ define("DONE", 4);
 // The status table saves $gErrBase + i to indicate that there is a permanent error happens when the test is in the status i.
 $gErrBase = 900;
 // The list of tasks for a batch run.
-$gNumParse = 5; // the number of parse tasks to fork
+$gNumParse = 10; // the number of parse tasks to fork
 $gaTasks = array("submit", "status", "obtain");
 for ( $i = 1; $i <= $gNumParse; $i++ ) {
 	array_push($gaTasks, "parse" . $i); // dynamically create the desired number of parse tasks
