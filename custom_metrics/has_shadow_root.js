@@ -17,7 +17,7 @@ var allowed = /^(article|aside|blockquote|body|div|footer|h1|h2|h3|h4|h5|h6|head
 
 function isValidCustomElementName(el) {
     // it's got to have a dash
-    if ((el.tagName.indexOf('-') !== -1) {
+    if (el.tagName.indexOf('-') !== -1) {
          // it has to be both an HTMLElement this prevents us from getting
          // any dasherized elements that could exist in 'other embdedded'
         if (el instanceof HTMLElement) {
