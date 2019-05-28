@@ -51,7 +51,7 @@ if ( "alexa" === $gFileType ) {
 	doSimpleCommand("update $gUrlsTable set ranktmp=null;");
 }
 // Clear out existing CrUX URLs.
-else if ( "other" === $gFileType ) {
+else if ( "other" === $gFileType ) { 
 	doSimpleCommand("truncate table $gUrlsTable;");
 }
 

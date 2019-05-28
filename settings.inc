@@ -19,11 +19,6 @@ $gMysqlDb = "REPLACE";
 $gMysqlUsername = "REPLACE";
 $gMysqlPassword = "REPLACE";
 
-$gMysqlServer = "localhost";   // CVSNO
-$gMysqlDb = "httparchive";   // CVSNO
-$gMysqlUsername = "root";   // CVSNO
-$gMysqlPassword = "HTTP@rchive";   // CVSNO
-
 $gDesktopDir = "/var/www/httparchive/";
 $gMobileDir = "/var/www/httparchive.mobile/";
 $gDevDir = "/var/www/httparchive.dev/";
