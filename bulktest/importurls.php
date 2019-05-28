@@ -50,6 +50,10 @@ echo "Importing URLS: file = $gUrlsFile, file type = $gFileType\n";
 if ( "alexa" === $gFileType ) {
 	doSimpleCommand("update $gUrlsTable set ranktmp=null;");
 }
+// Clear out existing CrUX URLs.
+else if ( "other" === $gFileType ) {
+	doSimpleCommand("truncate table $gUrlsTable;");
+}
 
 
 $handle = @fopen($gUrlsFile, "r");

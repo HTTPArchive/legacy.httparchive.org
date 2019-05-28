@@ -110,10 +110,10 @@ else if ( $gNumUrls ) {
 	loadUrlsFromDB($crawlid, $label, $gNumUrls);
 }
 else if ( $gbMobile ) {
-	loadUrlsFromDB($crawlid, $label, 1500000);
+	loadUrlsFromDB($crawlid, $label, 10000000);
 }
 else if ( $gbDev ) {
-	loadUrlsFromDB($crawlid, $label, 1500000);
+	loadUrlsFromDB($crawlid, $label, 10000000);
 }
 
 $numUrls = doSimpleQuery("select count(*) from $gStatusTable where crawlid=$crawlid;");

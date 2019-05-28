@@ -271,7 +271,7 @@ function dumpCrawl2($label, $archive=null, $location=null, $bMysql=true, $bCsv=t
 		$dumpfile = dumpfileName2($tablename, "csv") . ".gz";
 		tprint("Creating dump file $dumpfile...");
 		$dumpfileSql = dumpfileName2($tablename, "sql");
-		$tmpdir = "/tmp/$tablename." . time(); // Unique dir for this dump cuz mysqldump writes files that aren't writable by this process, and mysqldump -T can NOT overwrite existing files.
+		$tmpdir = "/var/tmp/$tablename." . time(); // Unique dir for this dump cuz mysqldump writes files that aren't writable by this process, and mysqldump -T can NOT overwrite existing files.
 		exec("mkdir $tmpdir; chmod 777 $tmpdir;");
 		$cmd = "mysqldump --opt --complete-insert --skip-add-drop-table -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer -T $tmpdir $gMysqlDb $tablename; " .
 			"gzip -f -c $tmpdir/$tablename.txt > $dumpfile ; cp $tmpdir/$tablename.sql $dumpfileSql";
@@ -306,7 +306,7 @@ function dumpCrawl($label, $archive=null, $location=null) {
 	// pages csv
 	// Unique dir for this dump cuz mysqldump writes files that aren't writable by this process, and mysqldump -T can NOT overwrite existing files.
 	$labelUnderscore = str_replace(" ", "_", $label);
-	$tmpdir = "/tmp/$labelUnderscore." . time();
+	$tmpdir = "/var/tmp/$labelUnderscore." . time();
 	$cmd = "mkdir $tmpdir; chmod 777 $tmpdir;";
 	exec($cmd);
 	$dumpfile = dumpfileName($label, "pages", "csv");

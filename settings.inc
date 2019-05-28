@@ -36,6 +36,8 @@ $gHAUrl = "http://httparchive.org/";
 $gHAMUrl = "http://mobile.httparchive.org/";
 $gWPTUrl = "//httparchive.webpagetest.org/";
 
+$gMaxQueueLength = 60000;
+
 $gbPrivateInstance = false;
 
 ?>

@@ -1,6 +1,9 @@
 bulktest/wptkey.inc.php
+bulktest/batch.log*
+bulktest/httparchive_batch_lock*
 node_modules/
 tmp/
 downloads/
 harviewer/
 *.log
+*nohup.out

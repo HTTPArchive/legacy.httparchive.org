@@ -27,7 +27,7 @@ define("DONE", 4);
 // The status table saves $gErrBase + i to indicate that there is a permanent error happens when the test is in the status i.
 $gErrBase = 900;
 // The list of tasks for a batch run.
-$gNumParse = 5; // the number of parse tasks to fork
+$gNumParse = 10; // the number of parse tasks to fork
 $gaTasks = array("submit", "status", "obtain");
 for ( $i = 1; $i <= $gNumParse; $i++ ) {
 	array_push($gaTasks, "parse" . $i); // dynamically create the desired number of parse tasks
@@ -91,12 +91,10 @@ function submitTest(&$record, $status) {
 
 	$wptServer = wptServer();
 	$location = $record['location'];
-	/*
 	if ($location == 'California:Chrome.3G') {
 		$location = 'California:Chrome.4G';
 	}
-	*/
-	$request = $wptServer . 'runtest.php?f=xml&priority=6&timeline=1&url=' . urlencode($record['url']) . 
+	$request = $wptServer . 'runtest.php?f=xml&debug=1&priority=6&timeline=1&url=' . urlencode($record['url']) . 
 		"&location=$location&runs=$runs" .
 		( $private ? "&private=1" : "" ) .
 		( $video ? "&video=1" : "" ) .
@@ -138,10 +136,18 @@ function submitTest(&$record, $status) {
 
 // Submit the batch test to WPT server.
 function submitBatch() {
+	global $gMaxQueueLength;
+	$submittedTests = countTestsWithCode(SUBMITTED);
 	$unsubmitTests = obtainTestsWithCode(NOT_STARTED);
 	if ( !isEmptyQuery($unsubmitTests) ) {
 		while ($row = mysqli_fetch_assoc($unsubmitTests)) {
 			submitTest($row, 0);
+			// Limit the number of in-flight tests
+			if ($gMaxQueueLength) {
+				$submittedTests++;
+				if ($submittedTests >= $gMaxQueueLength)
+					break;
+			}
 		}
 	}
 }
@@ -180,13 +186,13 @@ function checkWPTStatus() {
 						$nNoResult = 0; // reset
 						setStatus($row['statusid'], SUBMIT_DONE);
 					} 
-					elseif ( 400 <= $code ) {
+					elseif ( 400 <= $code || 100 > $code ) {
 						$nNoResult = 0; // reset
 						setStatus($row['statusid'], SUBMITTED + $gErrBase);
 					}
 					else {
 						$nNoResult++;
-						if ( $nNoResult > 200 ) {
+						if ( $nNoResult > 2000 ) {
 							// Quick bail:
 							// If we've exhausted all the completed results we do NOT want
 							// to continue checking EVERY remaining test. So instead we bail
@@ -966,7 +972,10 @@ function prettyType($mimeType, $ext) {
 	else if ( "xml" === $ext ) {
 		return "xml";
 	}
-	else if ( false !== strpos($mimeType, "flash") || "mp4" === $ext || "swf" === $ext || "f4v" === $ext || "flv" === $ext ) {
+    //Video extensions mp4, webm, ts, m4v, m4s, m4v, mov, ogv
+	else if ( false !== strpos($mimeType, "flash") || false !== strpos($mimeType, "webm") || false !== strpos($mimeType, "mp4") || false !== strpos($mimeType, "flv")
+       ||  "mp4" === $ext || "webm" === $ext || "ts" == $ext || "m4v" === $ext || "m4s" === $ext || "mov" === $ext || "ogv" === $ext
+       ||  "swf" === $ext || "f4v" === $ext || "flv" === $ext ) {
 		return "video";
 	}
 	else if ( false !== strpos($mimeType, "html") || "html" === $ext || "htm" === $ext ) {

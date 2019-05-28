@@ -39,7 +39,7 @@ $gUrlsChangeTableDesktop = $gUrlsChangeTable;
 // Mobile tables
 $gPagesTableMobile = $gPagesTable . "mobile";
 $gRequestsTableMobile = $gRequestsTable . "mobile";
-$gUrlsTableMobile = "urls";
+$gUrlsTableMobile = "urlsmobile";
 $gStatusTableMobile = $gStatusTable . "mobile";
 $gStatsTableMobile = $gStatsTable;  // share the data table - a first step toward a single DB
 
@@ -98,6 +98,7 @@ else if ( $gbMobile ) {
 	$gRequestsTable = $gRequestsTableMobile;
 	$gStatusTable = $gStatusTableMobile;
 	$gStatsTable = $gStatsTableMobile;
+	$gUrlsTable = $gUrlsTableMobile;
 }
 else if ( $gbChrome ) {
 	// Use a chrome version of the database tables if "chrome" is in the path.
