@@ -19,25 +19,210 @@ return {
   '01.13': document.querySelector('script[nomodule]') ? 1 : 0,
   'link-nodes': (() => {
     // Returns a JSON array of link nodes and their key/value attributes.
-    // Used by 01.14, 01.15, 01.16...
+    // Used by 01.14, 01.15, 01.16, 10.6
     var nodes = document.querySelectorAll('head link');
     var linkNodes = [];
 
     if (nodes) {
-        for (var i = 0, len = nodes.length; i < len; i++) {
-            var node = nodes[i];
-            var attributes = Object.values(node.attributes);
-            var el = {};
+      for (var i = 0, len = nodes.length; i < len; i++) {
+        var node = nodes[i];
+        var attributes = Object.values(node.attributes);
+        var el = {};
 
-            for (var n = 0, len2 = attributes.length; n < len2; n++) {
-                var attribute = attributes[n];
-                el[attribute.name.toLowerCase()] = attribute.value;
-            }
-
-            linkNodes.push(el);
+        for (var n = 0, len2 = attributes.length; n < len2; n++) {
+          var attribute = attributes[n];
+          el[attribute.name.toLowerCase()] = attribute.value;
         }
+
+        linkNodes.push(el);
+      }
     }
-    
+
     return JSON.stringify(linkNodes);
+  })(),
+  'meta-nodes': (() => {
+    // Returns a JSON array of meta nodes and their key/value attributes.
+    // Used by 10.6, 10.7 (potential: 09.29, 12.5, 04.5)
+    var nodes = document.querySelectorAll('head meta');
+    var metaNodes = [];
+
+    if (nodes) {
+      for (var i = 0, len = nodes.length; i < len; i++) {
+        var node = nodes[i];
+        var attributes = Object.values(node.attributes);
+        var el = {};
+
+        for (var n = 0, len2 = attributes.length; n < len2; n++) {
+          var attribute = attributes[n];
+          el[attribute.name.toLowerCase()] = attribute.value;
+        }
+
+        metaNodes.push(el);
+      }
+    }
+
+    return JSON.stringify(metaNodes);
+  })(),
+  // Extract schema.org elements and finds all @context and @type usage
+  '10.5': (() => {
+    var nodes = document.querySelectorAll('[itemtype], script[type=\'application/ld+json\']');
+    var link = document.createElement('a');
+    var schemaElements = {};
+
+    function nestedLookup(items) {
+      var keys = Object.keys(items);
+      for (var i = 0, len = keys.length; i < len; i++) {
+        var item = items[keys[i]];
+        // if array or object, dive into it
+        if (item instanceof Object || item instanceof Array) {
+          nestedLookup(item);
+        }
+      }
+      if (items['@type']) {
+        if (items['@context']) {
+          link.href = items['@context'] + '/' + items['@type'];
+          schemaElements[link.hostname + link.pathname] = true;
+        } else {
+          schemaElements[items['@type']] = true;
+        }
+      }
+    }
+
+    if (nodes) {
+      for (var i = 0, len = nodes.length; i < len; i++) {
+        var node = nodes[i];
+        var item = node.getAttribute('itemtype');
+
+        if (item) {
+          // microdata
+          link.href = node.getAttribute('itemtype');
+          schemaElements[link.hostname + link.pathname] = true;
+        } else if ((node.tagName = 'SCRIPT')) {
+          // json+ld
+          var content = JSON.parse(node.textContent);
+          var contentLoop = [];
+          if (content) {
+            // nested lookup
+            nestedLookup(content);
+          } else {
+            // flag failed json parse?
+          }
+        }
+      }
+    }
+    return JSON.stringify(Object.keys(schemaElements));
+  })(),
+  // Looks at links and identifies internal, external or hashed
+  'seo-anchor-elements': (() => {
+    // metric 10.10, 10.11
+    var nodes = document.getElementsByTagName('a');
+    var link = document.createElement('a');
+
+    var internal = 0; // metric 10.11
+    var external = 0; // metric 10.11
+    var hash = 0;
+    var navigateHash = 0; // metric 10.11
+    var issue = 0;
+
+    if (nodes) {
+      for (var i = 0, len = nodes.length; i < len; i++) {
+        var node = nodes[i];
+
+        // our local parser trick
+        if (node.href) {
+          link.href = node.href;
+
+          if (document.location.hostname === link.hostname) {
+            internal++;
+            if (document.location.pathname === link.pathname && link.hash.length > 0) {
+              // check if hash matches an element in the DOM (scroll to)
+              var element = document.querySelector(link.hash);
+              if (element) {
+                hash++;
+              } else {
+                navigateHash++;
+              }
+            }
+          } else if (document.location.hostname !== link.hostname) {
+            external++;
+          } else {
+            issue++;
+          }
+        }
+      }
+    }
+
+    return JSON.stringify({ internal, external, hash, navigateHash, issue });
+  })(),
+  // Extracts titles used and counts the words, to flag thin content pages
+  'seo-titles': (() => {
+    //metric 10.9
+    var nodes = document.querySelectorAll('h1, h2, h3, h4');
+    var titleWords = -1;
+    var titleElements = -1;
+
+    if (nodes) {
+      titleWords = 0;
+      titleElements = 0;
+
+      // analyse each title node
+      for (var i = 0, len = nodes.length; i < len; i++) {
+        var node = nodes[i];
+        // remove extra whitespace
+        var nodeText = node.textContent.replace(/\s+/g, ' ').replace(/^\s+|\s+$/, '');
+        var nodeWordsCount = nodeText.split(' ').length;
+
+        if (nodeWordsCount > 0) {
+          titleWords += nodeWordsCount;
+          titleElements++;
+        }
+      }
+    }
+    return JSON.stringify({ titleWords, titleElements });
+  })(),
+  // Extracts words on the page to flag thin content pages
+  'seo-words': (() => {
+    //metric 10.9
+    var body = (document.getElementsByTagName('body') || [])[0];
+    var wordsCount = -1;
+    var wordElements = -1;
+    if (body) {
+      wordsCount = 0;
+      wordElements = 0;
+      var n,
+        nodes = [],
+        walk = document.createTreeWalker(
+          body,
+          NodeFilter.SHOW_ALL,
+          {
+            acceptNode: function(node) {
+              if (node.nodeName === 'STYLE' || node.nodeName === 'SCRIPT') {
+                return NodeFilter.FILTER_REJECT;
+              }
+              if (node.nodeType !== 3) {
+                return NodeFilter.FILTER_SKIP;
+              }
+              return NodeFilter.FILTER_ACCEPT;
+            }
+          },
+          false
+        );
+      while ((n = walk.nextNode())) nodes.push(n);
+
+      // analyse each text node
+      for (var i = 0, len = nodes.length; i < len; i++) {
+        var node = nodes[i];
+
+        // remove extra whitespace
+        var nodeText = node.textContent.replace(/\s+/g, ' ').replace(/^\s+|\s+$/, '');
+        var nodeWordsCount = nodeText.split(' ').length;
+
+        if (nodeWordsCount > 3) {
+          wordsCount += nodeWordsCount;
+          wordElements++;
+        }
+      }
+    }
+    return JSON.stringify({ wordsCount, wordElements });
   })()
 };
