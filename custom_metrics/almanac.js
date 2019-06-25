@@ -54,13 +54,19 @@ return JSON.stringify({
   })(),
   // Extract schema.org elements and finds all @context and @type usage
   '10.5': (() => {
-    function nestedLookup(items) {
+    function nestedLookup(items, depth) {
       var keys = Object.keys(items);
+
+      // skip if nested depth > 5
+      if (depth > 5) {
+        return;
+      }
+
       for (var i = 0, len = keys.length; i < len; i++) {
         var item = items[keys[i]];
         // if array or object, dive into it
         if (item instanceof Object || item instanceof Array) {
-          nestedLookup(item);
+          nestedLookup(item, depth++);
         }
       }
       if (items['@type']) {
@@ -91,9 +97,9 @@ return JSON.stringify({
           try {
             var content = JSON.parse(node.textContent);
             var contentLoop = [];
-            if (content) {
+            if (content instanceof Object || content instanceof Array) {
               // nested lookup
-              nestedLookup(content);
+              nestedLookup(content, 0);
             }
           } catch (e) {}
         }
@@ -122,7 +128,7 @@ return JSON.stringify({
 
           if (document.location.hostname === link.hostname) {
             internal++;
-            if (document.location.pathname === link.pathname && link.hash.length > 0) {
+            if (document.location.pathname === link.pathname && link.hash.length > 1) {
               // check if hash matches an element in the DOM (scroll to)
               try {
                 var element = document.querySelector(link.hash);
