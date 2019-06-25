@@ -88,12 +88,14 @@ return JSON.stringify({
           schemaElements[link.hostname + link.pathname] = true;
         } else if ((node.tagName = 'SCRIPT')) {
           // json+ld
-          var content = JSON.parse(node.textContent);
-          var contentLoop = [];
-          if (content) {
-            // nested lookup
-            nestedLookup(content);
-          }
+          try {
+            var content = JSON.parse(node.textContent);
+            var contentLoop = [];
+            if (content) {
+              // nested lookup
+              nestedLookup(content);
+            }
+          } catch (e) {}
         }
       }
     }
@@ -167,7 +169,7 @@ return JSON.stringify({
   // Extracts words on the page to flag thin content pages
   'seo-words': (() => {
     //metric 10.9
-    function analyseNode(node) {
+    function analyseTextNode(node) {
       // remove extra whitespace
       var nodeText = node.textContent.replace(/\s+/g, ' ').replace(/^\s+|\s+$/, '');
       var nodeWordsCount = nodeText.split(' ').length;
@@ -203,7 +205,7 @@ return JSON.stringify({
           },
           false
         );
-      while ((n = walk.nextNode())) analyseNode(n);
+      while ((n = walk.nextNode())) analyseTextNode(n);
     }
     return { wordsCount, wordElements };
   })(),
