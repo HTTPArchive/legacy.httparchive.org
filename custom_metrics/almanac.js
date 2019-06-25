@@ -11,82 +11,72 @@
 // 2a. If the value requires more than one line of code, evaluate it in an IIFE, eg `(() => { ... })()`. See `link-nodes`.
 // 3. Test your change by following the instructions at https://github.com/HTTPArchive/almanac.httparchive.org/issues/33#issuecomment-502288773.
 // 4. Submit a PR to update this file.
+function parseNodes(nodes) {
+  var parsedNodes = [];
+  if (nodes) {
+    for (var i = 0, len = nodes.length; i < len; i++) {
+      var node = nodes[i];
+      var attributes = Object.values(node.attributes);
+      var el = {};
 
-return {
+      el.tagName = node.tagName.toLowerCase(); // for reference
+      for (var n = 0, len2 = attributes.length; n < len2; n++) {
+        var attribute = attributes[n];
+        el[attribute.name.toLowerCase()] = attribute.value;
+      }
+
+      parsedNodes.push(el);
+    }
+  }
+
+  return parsedNodes;
+}
+
+function nestedLookup(items) {
+  var keys = Object.keys(items);
+  for (var i = 0, len = keys.length; i < len; i++) {
+    var item = items[keys[i]];
+    // if array or object, dive into it
+    if (item instanceof Object || item instanceof Array) {
+      nestedLookup(item);
+    }
+  }
+  if (items['@type']) {
+    if (items['@context']) {
+      link.href = items['@context'] + '/' + items['@type'];
+      schemaElements[link.hostname + link.pathname] = true;
+    } else {
+      schemaElements[items['@type']] = true;
+    }
+  }
+}
+
+var almanacData = {
   // Wether the page contains <script type=module>.
   '01.12': document.querySelector('script[type=module]') ? 1 : 0,
   // Wether the page contains <script nomodule>.
   '01.13': document.querySelector('script[nomodule]') ? 1 : 0,
   'link-nodes': (() => {
     // Returns a JSON array of link nodes and their key/value attributes.
-    // Used by 01.14, 01.15, 01.16, 10.6
+    // Used by 01.14, 01.15, 01.16, 10.6,  06.46, 12.18
     var nodes = document.querySelectorAll('head link');
-    var linkNodes = [];
+    var linkNodes = parseNodes(nodes);
 
-    if (nodes) {
-      for (var i = 0, len = nodes.length; i < len; i++) {
-        var node = nodes[i];
-        var attributes = Object.values(node.attributes);
-        var el = {};
-
-        for (var n = 0, len2 = attributes.length; n < len2; n++) {
-          var attribute = attributes[n];
-          el[attribute.name.toLowerCase()] = attribute.value;
-        }
-
-        linkNodes.push(el);
-      }
-    }
-
-    return JSON.stringify(linkNodes);
+    return linkNodes;
   })(),
   'meta-nodes': (() => {
     // Returns a JSON array of meta nodes and their key/value attributes.
     // Used by 10.6, 10.7 (potential: 09.29, 12.5, 04.5)
     var nodes = document.querySelectorAll('head meta');
-    var metaNodes = [];
+    var metaNodes = parseNodes(nodes);
 
-    if (nodes) {
-      for (var i = 0, len = nodes.length; i < len; i++) {
-        var node = nodes[i];
-        var attributes = Object.values(node.attributes);
-        var el = {};
-
-        for (var n = 0, len2 = attributes.length; n < len2; n++) {
-          var attribute = attributes[n];
-          el[attribute.name.toLowerCase()] = attribute.value;
-        }
-
-        metaNodes.push(el);
-      }
-    }
-
-    return JSON.stringify(metaNodes);
+    return metaNodes;
   })(),
   // Extract schema.org elements and finds all @context and @type usage
   '10.5': (() => {
     var nodes = document.querySelectorAll('[itemtype], script[type=\'application/ld+json\']');
     var link = document.createElement('a');
     var schemaElements = {};
-
-    function nestedLookup(items) {
-      var keys = Object.keys(items);
-      for (var i = 0, len = keys.length; i < len; i++) {
-        var item = items[keys[i]];
-        // if array or object, dive into it
-        if (item instanceof Object || item instanceof Array) {
-          nestedLookup(item);
-        }
-      }
-      if (items['@type']) {
-        if (items['@context']) {
-          link.href = items['@context'] + '/' + items['@type'];
-          schemaElements[link.hostname + link.pathname] = true;
-        } else {
-          schemaElements[items['@type']] = true;
-        }
-      }
-    }
 
     if (nodes) {
       for (var i = 0, len = nodes.length; i < len; i++) {
@@ -104,25 +94,22 @@ return {
           if (content) {
             // nested lookup
             nestedLookup(content);
-          } else {
-            // flag failed json parse?
           }
         }
       }
     }
-    return JSON.stringify(Object.keys(schemaElements));
+    return Object.keys(schemaElements);
   })(),
   // Looks at links and identifies internal, external or hashed
   'seo-anchor-elements': (() => {
-    // metric 10.10, 10.11
+    // metric 10.10, 10.11,
     var nodes = document.getElementsByTagName('a');
     var link = document.createElement('a');
 
-    var internal = 0; // metric 10.11
-    var external = 0; // metric 10.11
+    var internal = 0; // metric 10.10
+    var external = 0; // metric 10.10
     var hash = 0;
     var navigateHash = 0; // metric 10.11
-    var issue = 0;
 
     if (nodes) {
       for (var i = 0, len = nodes.length; i < len; i++) {
@@ -145,14 +132,12 @@ return {
             }
           } else if (document.location.hostname !== link.hostname) {
             external++;
-          } else {
-            issue++;
           }
         }
       }
     }
 
-    return JSON.stringify({ internal, external, hash, navigateHash, issue });
+    return { internal, external, hash, navigateHash };
   })(),
   // Extracts titles used and counts the words, to flag thin content pages
   'seo-titles': (() => {
@@ -178,12 +163,12 @@ return {
         }
       }
     }
-    return JSON.stringify({ titleWords, titleElements });
+    return { titleWords, titleElements };
   })(),
   // Extracts words on the page to flag thin content pages
   'seo-words': (() => {
     //metric 10.9
-    var body = (document.getElementsByTagName('body') || [])[0];
+    var body = document.querySelector('body');
     var wordsCount = -1;
     var wordElements = -1;
     if (body) {
@@ -223,6 +208,29 @@ return {
         }
       }
     }
-    return JSON.stringify({ wordsCount, wordElements });
+    return { wordsCount, wordElements };
+  })(),
+  // Parse <input> elements
+  'input-elements': (() => {
+    // Used by  12.12, 12.14
+
+    var nodes = document.querySelectorAll('body input, body select');
+    var inputNodes = parseNodes(nodes);
+
+    return inputNodes;
+  })(),
+  // Parse <input> elements
+  '06.47': (() => {
+    var head = document.querySelector('head');
+    if (head) {
+      var headChild = head.firstElementChild;
+      if (headChild && headChild.tagName == 'LINK' && headChild && /fonts.googleapis.com/i.test(headChild.getAttribute('href'))) {
+        return 1;
+      }
+    }
+
+    return 0;
   })()
 };
+
+return JSON.stringify(almanacData);
