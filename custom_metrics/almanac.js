@@ -215,7 +215,7 @@ return JSON.stringify({
 
     return inputNodes;
   })(),
-  // Parse <input> elements
+  // Find first child of <head>
   '06.47': (() => {
     var head = document.querySelector('head');
     if (head) {
