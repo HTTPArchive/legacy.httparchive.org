@@ -124,12 +124,14 @@ return JSON.stringify({
             internal++;
             if (document.location.pathname === link.pathname && link.hash.length > 0) {
               // check if hash matches an element in the DOM (scroll to)
-              var element = document.querySelector(link.hash);
-              if (element) {
-                hash++;
-              } else {
-                navigateHash++;
-              }
+              try {
+                var element = document.querySelector(link.hash);
+                if (element) {
+                  hash++;
+                } else {
+                  navigateHash++;
+                }
+              } catch (e) {}
             }
           } else if (document.location.hostname !== link.hostname) {
             external++;
