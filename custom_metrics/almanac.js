@@ -12,6 +12,26 @@
 // 3. Test your change by following the instructions at https://github.com/HTTPArchive/almanac.httparchive.org/issues/33#issuecomment-502288773.
 // 4. Submit a PR to update this file.
 
+function parseNodes(nodes) {
+  var parsedNodes = [];
+  if (nodes) {
+    for (var i = 0, len = nodes.length; i < len; i++) {
+      var node = nodes[i];
+      var attributes = Object.values(node.attributes);
+      var el = {};
+
+      el.tagName = node.tagName.toLowerCase(); // for reference
+      for (var n = 0, len2 = attributes.length; n < len2; n++) {
+        var attribute = attributes[n];
+        el[attribute.name.toLowerCase()] = attribute.value;
+      }
+
+      parsedNodes.push(el);
+    }
+  }
+  return parsedNodes;
+}
+
 return JSON.stringify({
   // Wether the page contains <script type=module>.
   '01.12': document.querySelector('script[type=module]') ? 1 : 0,
@@ -20,27 +40,6 @@ return JSON.stringify({
   'link-nodes': (() => {
     // Returns a JSON array of link nodes and their key/value attributes.
     // Used by 01.14, 01.15, 01.16, 10.6,  06.46, 12.18
-    function parseNodes(nodes) {
-      var parsedNodes = [];
-      if (nodes) {
-        for (var i = 0, len = nodes.length; i < len; i++) {
-          var node = nodes[i];
-          var attributes = Object.values(node.attributes);
-          var el = {};
-
-          el.tagName = node.tagName.toLowerCase(); // for reference
-          for (var n = 0, len2 = attributes.length; n < len2; n++) {
-            var attribute = attributes[n];
-            el[attribute.name.toLowerCase()] = attribute.value;
-          }
-
-          parsedNodes.push(el);
-        }
-      }
-
-      return parsedNodes;
-    }
-
     var nodes = document.querySelectorAll('head link');
     var linkNodes = parseNodes(nodes);
 
@@ -49,27 +48,6 @@ return JSON.stringify({
   'meta-nodes': (() => {
     // Returns a JSON array of meta nodes and their key/value attributes.
     // Used by 10.6, 10.7 (potential: 09.29, 12.5, 04.5)
-    function parseNodes(nodes) {
-      var parsedNodes = [];
-      if (nodes) {
-        for (var i = 0, len = nodes.length; i < len; i++) {
-          var node = nodes[i];
-          var attributes = Object.values(node.attributes);
-          var el = {};
-
-          el.tagName = node.tagName.toLowerCase(); // for reference
-          for (var n = 0, len2 = attributes.length; n < len2; n++) {
-            var attribute = attributes[n];
-            el[attribute.name.toLowerCase()] = attribute.value;
-          }
-
-          parsedNodes.push(el);
-        }
-      }
-
-      return parsedNodes;
-    }
-
     var nodes = document.querySelectorAll('head meta');
     var metaNodes = parseNodes(nodes);
 
@@ -235,25 +213,6 @@ return JSON.stringify({
   // Parse <input> elements
   'input-elements': (() => {
     // Used by  12.12, 12.14
-    function parseNodes(nodes) {
-      var parsedNodes = [];
-      if (nodes) {
-        for (var i = 0, len = nodes.length; i < len; i++) {
-          var node = nodes[i];
-          var attributes = Object.values(node.attributes);
-          var el = {};
-
-          el.tagName = node.tagName.toLowerCase(); // for reference
-          for (var n = 0, len2 = attributes.length; n < len2; n++) {
-            var attribute = attributes[n];
-            el[attribute.name.toLowerCase()] = attribute.value;
-          }
-
-          parsedNodes.push(el);
-        }
-      }
-    }
-
     var nodes = document.querySelectorAll('body input, body select');
     var inputNodes = parseNodes(nodes);
 
@@ -268,7 +227,6 @@ return JSON.stringify({
         return 1;
       }
     }
-
     return 0;
   })()
 });
