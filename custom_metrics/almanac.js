@@ -168,6 +168,18 @@ return JSON.stringify({
   // Extracts words on the page to flag thin content pages
   'seo-words': (() => {
     //metric 10.9
+    function analyseNode(node) {
+      // remove extra whitespace
+      var nodeText = node.textContent.replace(/\s+/g, ' ').replace(/^\s+|\s+$/, '');
+      var nodeWordsCount = nodeText.split(' ').length;
+
+      if (nodeWordsCount > 3) {
+        // update counts
+        wordsCount += nodeWordsCount;
+        wordElements++;
+      }
+    }
+
     var body = document.querySelector('body');
     var wordsCount = -1;
     var wordElements = -1;
@@ -192,21 +204,7 @@ return JSON.stringify({
           },
           false
         );
-      while ((n = walk.nextNode())) nodes.push(n);
-
-      // analyse each text node
-      for (var i = 0, len = nodes.length; i < len; i++) {
-        var node = nodes[i];
-
-        // remove extra whitespace
-        var nodeText = node.textContent.replace(/\s+/g, ' ').replace(/^\s+|\s+$/, '');
-        var nodeWordsCount = nodeText.split(' ').length;
-
-        if (nodeWordsCount > 3) {
-          wordsCount += nodeWordsCount;
-          wordElements++;
-        }
-      }
+      while ((n = walk.nextNode())) analyseNode(n);
     }
     return { wordsCount, wordElements };
   })(),
