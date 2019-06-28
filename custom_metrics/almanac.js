@@ -271,5 +271,20 @@ return JSON.stringify({
       }
       return n;
     }, 0);
+  })(),
+  'amp-plugin': (() => {
+    // Gets metadata about the AMP plugin, if present.
+    try {
+      var r = new RegExp("^AMP Plugin v(\\d+\\.\\d+.*?)(?:;\\s*mode=(\\w+))?(?:;\\s*experiences=(\\w+))?$");
+      var metadata = Array.from(document.querySelectorAll('meta[name=generator][content^="AMP Plugin"]')).filter(e => r.test(e.content)).map(e => r.exec(e.content))[0];
+      if (metadata) {
+        return {
+          'version': metadata[1],
+          'mode': metadata[2],
+          'experiences': metadata[3]
+        };
+      }
+    } catch (e) {}
+    return null;
   })()
 });
