@@ -44,6 +44,14 @@ return JSON.stringify({
 
     return linkNodes;
   })(),
+  'priority-hints': (() => {
+    // Returns a JSON array of prioritized nodes and their key/value attributes.
+    // Used by 19.8, 19.9, and 19.10.
+    var nodes = document.querySelectorAll('link[importance], img[importance], script[importance], iframe[importance]');
+    var parsedNodes = parseNodes(nodes);
+
+    return parsedNodes;
+  })(),
   'meta-nodes': (() => {
     // Returns a JSON array of meta nodes and their key/value attributes.
     // Used by 10.6, 10.7 (potential: 09.29, 12.5, 04.5)
