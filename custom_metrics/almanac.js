@@ -92,7 +92,7 @@ return JSON.stringify({
           // microdata
           link.href = node.getAttribute('itemtype');
           schemaElements[link.hostname + link.pathname] = true;
-        } else if ((node.tagName = 'SCRIPT')) {
+        } else if (node.tagName == 'SCRIPT') {
           // json+ld
           try {
             var content = JSON.parse(node.textContent);
@@ -150,7 +150,7 @@ return JSON.stringify({
   })(),
   // Extracts titles used and counts the words, to flag thin content pages
   'seo-titles': (() => {
-    //metric 10.9
+    // metric 10.9
     var nodes = document.querySelectorAll('h1, h2, h3, h4');
     var titleWords = -1;
     var titleElements = -1;
@@ -163,7 +163,7 @@ return JSON.stringify({
       for (var i = 0, len = nodes.length; i < len; i++) {
         var node = nodes[i];
         // remove extra whitespace
-        var nodeText = node.textContent.replace(/\s+/g, ' ').replace(/^\s+|\s+$/, '');
+        var nodeText = node.textContent.trim().replace(/\s+/g, ' ');
         var nodeWordsCount = nodeText.split(' ').length;
 
         if (nodeWordsCount > 0) {
@@ -176,10 +176,11 @@ return JSON.stringify({
   })(),
   // Extracts words on the page to flag thin content pages
   'seo-words': (() => {
-    //metric 10.9
+    // metric 10.9
     function analyseTextNode(node) {
       // remove extra whitespace
-      var nodeText = node.textContent.replace(/\s+/g, ' ').replace(/^\s+|\s+$/, '');
+      var nodeText = node.textContent.trim().replace(/\s+/g, ' ');
+      // splitting on a whitespace, won't work for e.g. Chinese
       var nodeWordsCount = nodeText.split(' ').length;
 
       if (nodeWordsCount > 3) {
@@ -189,7 +190,7 @@ return JSON.stringify({
       }
     }
 
-    var body = document.querySelector('body');
+    var body = document.body;
     var wordsCount = -1;
     var wordElements = -1;
     if (body) {
@@ -205,6 +206,8 @@ return JSON.stringify({
               if (node.nodeName === 'STYLE' || node.nodeName === 'SCRIPT') {
                 return NodeFilter.FILTER_REJECT;
               }
+
+              // nodeType === 3 are Node.TEXT_NODE
               if (node.nodeType !== 3) {
                 return NodeFilter.FILTER_SKIP;
               }
@@ -220,17 +223,18 @@ return JSON.stringify({
   // Parse <input> elements
   'input-elements': (() => {
     // Used by  12.12, 12.14
-    var nodes = document.querySelectorAll('body input, body select');
+    var nodes = document.querySelectorAll('input, select');
     var inputNodes = parseNodes(nodes);
 
     return inputNodes;
   })(),
   // Find first child of <head>
+  // Whether the first child of <head> is a Google Fonts <link>
   '06.47': (() => {
     var head = document.querySelector('head');
     if (head) {
       var headChild = head.firstElementChild;
-      if (headChild && headChild.tagName == 'LINK' && headChild && /fonts.googleapis.com/i.test(headChild.getAttribute('href'))) {
+      if (headChild && headChild.tagName == 'LINK' && /fonts.googleapis.com/i.test(headChild.getAttribute('href'))) {
         return 1;
       }
     }
