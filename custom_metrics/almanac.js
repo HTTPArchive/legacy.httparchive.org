@@ -248,6 +248,13 @@ return JSON.stringify({
     }
     return 0;
   })(),
+  '08.39': (() => {
+    // Counts the number of link/script elements with the subresource integrity attribute.
+    return {
+      'link': document.querySelectorAll('link[integrity]').length,
+      'script': document.querySelectorAll('script[integrity]').length
+    };
+  })(),
   '12.11': (() => {
     // Counts the links or buttons only containing an icon.
     var clickables = document.querySelectorAll('a, button');
