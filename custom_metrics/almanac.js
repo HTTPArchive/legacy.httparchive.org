@@ -239,5 +239,21 @@ return JSON.stringify({
       }
     }
     return 0;
+  })(),
+  // Find all links that has a rel="preconnect" and then return the url that was "preconnected"
+  'link-preconnect': (() => {
+    var nodes = document.querySelectorAll('link');
+    var linkNodes = parseNodes(nodes);
+    var preconnects = [];
+
+    // used for 6.15
+    for (var i in linkNodes) {
+      // checks if there's a preconnect substring inside rel
+      if (linkNodes[i].rel.indexOf('preconnect') >= 0) {
+        preconnects.push(linkNodes[i].href)
+      }
+    }
+
+    return preconnects;
   })()
 });
