@@ -247,5 +247,22 @@ return JSON.stringify({
       }
     }
     return 0;
+  })(),
+  '12.11': (() => {
+    // Counts the links or buttons only containing an icon.
+    var clickables = document.querySelectorAll('a, button');
+    return Array.from(clickables).reduce((n, clickable) => {
+      // Clickables containing SVG are assumed to be icons.
+      if (clickable.firstElementChild && clickable.firstElementChild.tagName == 'SVG') {
+        return n + 1;
+      }
+      // Clickables containing 1-char text are assumed to be icons.
+      // Note that this fails spectacularly for complex unicode points.
+      // See https://blog.jonnew.com/posts/poo-dot-length-equals-two.
+      if (clickable.textContent.trim().length == 1) {
+        return n + 1;
+      }
+      return n;
+    }, 0);
   })()
 });
