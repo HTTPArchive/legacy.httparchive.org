@@ -11,12 +11,22 @@
 // 3. Test your change by following the instructions at https://github.com/HTTPArchive/almanac.httparchive.org/issues/33#issuecomment-502288773.
 // 4. Submit a PR to update this file.
 
+// Sanitize the `attributes` property.
+function getNodeAttributes(node) {
+  // Inspired by dequelabs/axe-core.
+  if (node.attributes instanceof NamedNodeMap) {
+    return node.attributes;
+  }
+  return node.cloneNode(false).attributes;
+}
+
+// Map nodes to their attributes,
 function parseNodes(nodes) {
   var parsedNodes = [];
   if (nodes) {
     for (var i = 0, len = nodes.length; i < len; i++) {
       var node = nodes[i];
-      var attributes = Object.values(node.attributes);
+      var attributes = Object.values(getNodeAttributes(node));
       var el = {};
 
       el.tagName = node.tagName.toLowerCase(); // for reference
@@ -248,6 +258,21 @@ return JSON.stringify({
     }
     return 0;
   })(),
+  '08.39': (() => {
+    // Counts the number of link/script elements with the subresource integrity attribute.
+    return {
+      'link': document.querySelectorAll('link[integrity]').length,
+      'script': document.querySelectorAll('script[integrity]').length
+    };
+  })(),
+  '09.27': (() => {
+    // Returns a JSON array of nodes with a tabindex and their key/value attributes.
+    // We acknowledge that attribute selectors are expensive to query.
+    var nodes = document.querySelectorAll('body [tabindex]');
+    var parsedNodes = parseNodes(nodes);
+
+    return parsedNodes;
+  })(),
   '12.11': (() => {
     // Counts the links or buttons only containing an icon.
     var clickables = document.querySelectorAll('a, button');
@@ -264,5 +289,21 @@ return JSON.stringify({
       }
       return n;
     }, 0);
+  })(),
+  'amp-plugin': (() => {
+    // Gets metadata about the AMP plugin, if present.
+    // Used by 14.2, 14.3, 14.4.
+    try {
+      var r = new RegExp("^AMP Plugin v(\\d+\\.\\d+.*?)(?:;\\s*mode=(\\w+))?(?:;\\s*experiences=(\\w+))?$");
+      var metadata = Array.from(document.querySelectorAll('meta[name=generator][content^="AMP Plugin"]')).filter(e => r.test(e.content)).map(e => r.exec(e.content))[0];
+      if (metadata) {
+        return {
+          'version': metadata[1],
+          'mode': metadata[2],
+          'experiences': metadata[3]
+        };
+      }
+    } catch (e) {}
+    return null;
   })()
 });
