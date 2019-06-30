@@ -135,6 +135,7 @@ return JSON.stringify({
     var external = 0; // metric 10.10
     var hash = 0;
     var navigateHash = 0; // metric 10.11
+    var earlyHash = 0; // metric 09.10
 
     if (nodes) {
       for (var i = 0, len = nodes.length; i < len; i++) {
@@ -152,6 +153,9 @@ return JSON.stringify({
                 var element = document.querySelector(link.hash);
                 if (element) {
                   hash++;
+                  if (i < 3) {
+                    earlyHash++;
+                  }
                 } else {
                   navigateHash++;
                 }
@@ -164,7 +168,7 @@ return JSON.stringify({
       }
     }
 
-    return { internal, external, hash, navigateHash };
+    return { internal, external, hash, navigateHash, earlyHash };
   })(),
   // Extracts titles used and counts the words, to flag thin content pages
   'seo-titles': (() => {
