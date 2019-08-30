@@ -298,16 +298,12 @@ return JSON.stringify({
     // Gets metadata about the AMP plugin, if present.
     // Used by 14.2, 14.3, 14.4.
     try {
-      var r = new RegExp("^AMP Plugin v(\\d+\\.\\d+.*?)(?:;\\s*mode=(\\w+))?(?:;\\s*experiences=(\\w+))?$");
-      var metadata = Array.from(document.querySelectorAll('meta[name=generator][content^="AMP Plugin"]')).filter(e => r.test(e.content)).map(e => r.exec(e.content))[0];
+      var metadata = document.querySelector('meta[name=generator][content^="AMP Plugin"]');
       if (metadata) {
-        return {
-          'version': metadata[1],
-          'mode': metadata[2],
-          'experiences': metadata[3]
-        };
+        return metadata.getAttribute('content');
       }
-    } catch (e) {}
-    return null;
+    } catch (e) {
+      return null;
+    }
   })()
 });
