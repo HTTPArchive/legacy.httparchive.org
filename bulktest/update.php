@@ -221,7 +221,7 @@ if ( $col ) {
 }
 else {
 	$labelUnderscore = str_replace(" ", "_", $label);
-	$tmpdir = "/tmp/$labelUnderscore." . time();  // Unique dir for this dump cuz mysqldump writes files that aren't writable by this process, and mysqldump -T can NOT overwrite existing files.
+	$tmpdir = "/var/tmp/$labelUnderscore." . time();  // Unique dir for this dump cuz mysqldump writes files that aren't writable by this process, and mysqldump -T can NOT overwrite existing files.
 	// pages
 	$cmd = "mysqldump --where='pageid >= $minPageid and pageid <= $maxPageid' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $pagesTable | gzip > ../downloads/httparchive_" . ( $gbMobile ? "mobile_" : "" ) . $labelUnderscore . "_pages.gz";
 	tprint("Dump pages table:");
