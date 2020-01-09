@@ -552,7 +552,7 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 			if ( array_key_exists($lcname, $ghReqHeaders) ) {
 				// This is one of the standard headers we want to save.
 				$column = $ghReqHeaders[$lcname];
-				$hHeaders[$column] = ( array_key_exists($column, $hHeaders) ? $hHeaders[$column] . " $value" : $value );
+				$hHeaders[$column] = ( array_key_exists($column, $hHeaders) ? $hHeaders[$column] . ", $value" : $value );
 			}
 			else if ( "cookie" == $lcname ) {
 				// We don't save the Cookie header, just the size.
@@ -608,7 +608,7 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 			if ( array_key_exists($lcname, $ghRespHeaders) ) {
 				// This is one of the standard headers we want to save.
 				$column = $ghRespHeaders[$lcname];
-				$hHeaders[$column] = ( array_key_exists($column, $hHeaders) ? $hHeaders[$column] . " $value" : $value );
+				$hHeaders[$column] = ( array_key_exists($column, $hHeaders) ? $hHeaders[$column] . ", $value" : $value );
 			}
 			else if ( "set-cookie" == $lcname ) {
 				// We don't save the Set-Cookie header, just the size.
