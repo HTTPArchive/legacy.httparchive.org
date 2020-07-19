@@ -305,5 +305,6 @@ return JSON.stringify({
     } catch (e) {
       return null;
     }
-  })()
+  })(),
+  'has_picture_img': document.querySelectorAll("picture img").length > 0
 });
