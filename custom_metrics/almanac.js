@@ -306,5 +306,6 @@ return JSON.stringify({
       return null;
     }
   })(),
+  //  check if there is any picturen tag containing an img tag
   'has_picture_img': document.querySelectorAll("picture img").length > 0
 });
