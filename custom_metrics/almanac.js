@@ -307,5 +307,5 @@ return JSON.stringify({
     }
   })(),
   //  check if there is any picture tag containing an img tag
-  'has_picture_img': document.querySelectorAll("picture img").length > 0
+  'has_picture_img': document.querySelectorAll('picture img').length > 0
 });
