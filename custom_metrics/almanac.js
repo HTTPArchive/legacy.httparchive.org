@@ -254,7 +254,7 @@ return JSON.stringify({
     // Extract the text of the H1 tag 
   'h1-text': (() => {
     // We return only the text of the first H1. 
-    var h1_text = document.querySelectorAll('h1')[0].textContent;
+    var h1_text = document.querySelectorAll('h1')[0]?.textContent ?? 'h1 is missing';
     
     return h1_text;
   })(),
