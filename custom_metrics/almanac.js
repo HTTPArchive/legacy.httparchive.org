@@ -250,6 +250,15 @@ return JSON.stringify({
 
     return inputNodes;
   })(),
+
+    // Extract the text of the H1 tag 
+  'h1-text': (() => {
+    // We return only the text of the first H1. 
+    var h1_text = document.querySelectorAll('h1')[0].textContent;
+    
+    return h1_text;
+  })(),
+
   // Find first child of <head>
   // Whether the first child of <head> is a Google Fonts <link>
   '06.47': (() => {
