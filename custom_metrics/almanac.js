@@ -125,8 +125,9 @@ return JSON.stringify({
     }
     return Object.keys(schemaElements);
   })(),
-  // Looks at links and identifies internal, external or hashed
+  // Looks at links and identifies internal, external or hashed as well as rel attributes and if a link is image only  
   'seo-anchor-elements': (() => {
+    // Used by: SEO
     // metric 10.10, 10.11,
     var nodes = document.getElementsByTagName('a');
     var link = document.createElement('a');
@@ -136,6 +137,11 @@ return JSON.stringify({
     var hash = 0;
     var navigateHash = 0; // metric 10.11
     var earlyHash = 0; // metric 09.10
+    
+    var nofollow = 0;
+    var ugc = 0;
+    var sponsored = 0;
+    var imageLink = 0;
 
     if (nodes) {
       for (var i = 0, len = nodes.length; i < len; i++) {
@@ -164,15 +170,161 @@ return JSON.stringify({
           } else if (document.location.hostname !== link.hostname) {
             external++;
           }
+          
+          // Checking rel attribute values 
+          // https://support.google.com/webmasters/answer/96569?hl=en
+          if (node.rel) {
+              node.rel.split(" ").forEach(n1 => {
+                  n1.split(",").forEach(n => {
+                      switch (n.toLowerCase().trim()) {
+                          case "nofollow":
+                              nofollow++;
+                              break;
+                          case "ugc":
+                              ugc++;
+                              break;
+                          case "sponsored":
+                              sponsored++;
+                              break;
+                      }
+                  });
+              });
+          }
+
+          // see if it is an image link
+          // no visible text
+          let noText = node.innerText.trim().length === 0;
+          let hasImage = node.querySelector('img') !== null;
+
+          if (noText) {
+              if (hasImage) {
+                  imageLink++;
+              }
+              else {
+                  // invisible link? 
+              }
+          }
         }
       }
     }
 
-    return { internal, external, hash, navigateHash, earlyHash };
+    return { internal, external, hash, navigateHash, earlyHash, nofollow, ugc, sponsored, imageLink };
   })(),
-  // Extracts titles used and counts the words, to flag thin content pages
+  // extract the real title tag contents  
+  'title-elements': (() => {
+      // Used by: SEO
+      var nodes = document.querySelectorAll('head title');
+
+      let results = [];
+    
+      // might only need data like the number of titles, character lenght, total words, pixels?
+
+      nodes.forEach(node => results.push({ "text": node.innerHTML }));
+
+      return results;
+  })(),
+  // content information including visible words and number of headings
+  'content': (() => {
+      // Used by: SEO
+      let result = {};
+
+      // innerText which removes html and ignores hidden content
+      result.visibleWords = document.body.innerText.match(/\S+/g).length;// \S+ matches none whitespace, which would be a word
+
+      // do we need this?
+      result.h1 = document.querySelectorAll('h1').length;
+      result.h2 = document.querySelectorAll('h2').length;
+      result.h3 = document.querySelectorAll('h3').length;
+      result.h4 = document.querySelectorAll('h4').length;
+
+      return result; 
+  })(),
+  // data on img tags including alt, loading, width & height attribute use  
+  'images': (() => {
+      // Used by: SEO
+      var nodes = document.querySelectorAll('img');
+
+      let result = {
+          images: 0,
+          alt: {
+              missing: 0,
+              blank: 0,
+              present: 0
+          },
+          loading: {
+              auto: 0,
+              lazy: 0,
+              eager: 0,
+              invalid: 0,
+              missing: 0,
+              blank: 0
+          },
+          dimensions: {
+              missingWidth: 0,
+              missingHeight: 0
+          }
+      };
+
+      nodes.forEach(node => {
+          result.images++;
+          if (node.hasAttribute("alt")) {
+              if (node.getAttribute("alt").trim().length > 0) {
+                  result.alt.present++;
+              }
+              else {
+                  result.alt.blank++;
+              }
+          }
+          else {
+              result.alt.missing++;
+          }
+
+          // https://web.dev/native-lazy-loading/
+          if (node.hasAttribute("loading")) {
+              let val = node.getAttribute("loading").trim().toLowerCase();
+
+              switch (val) {
+                  case "auto":
+                      result.loading.auto++;
+                      break;
+                  case "lazy":
+                      result.loading.lazy++;
+                      break;
+                  case "eager":
+                      result.loading.eager++;
+                      break;
+                  case "":
+                      result.loading.blank++;
+                      break;
+                  default:
+                      result.loading.invalid++;
+                      break;
+              }
+          }
+          else {
+              result.loading.missing++;
+          }
+
+          if (!node.hasAttribute("width")) result.dimensions.missingWidth++;
+          if (!node.hasAttribute("height")) result.dimensions.missingHeight++;
+      });
+
+      return result;
+  })(),
+  // data-nosnippet use 
+  'seo-data-nosnippet': (() => {
+      // Used by: SEO
+      // https://support.google.com/webmasters/answer/79812?hl=en
+      // https://developers.google.com/search/reference/robots_meta_tag
+      var validNodes = document.querySelectorAll('span[data-nosnippet], div[data-nosnippet], section[data-nosnippet]');
+      var allNodes = document.querySelectorAll('[data-nosnippet]');
+      return { valid: validNodes.length, wrongTagType: allNodes.length - validNodes.length};
+  })(),
+  // Extracts headings used and counts the words, to flag thin content pages
   'seo-titles': (() => {
-    // metric 10.9
+    // metric 10.9    
+    // SEO: I'm not sure we will still use this. The content property should return more useful heading info. Maybe the word coutn is of value?
+    
     var nodes = document.querySelectorAll('h1, h2, h3, h4');
     var titleWords = -1;
     var titleElements = -1;
@@ -185,7 +337,8 @@ return JSON.stringify({
       for (var i = 0, len = nodes.length; i < len; i++) {
         var node = nodes[i];
         // remove extra whitespace
-        var nodeText = node.textContent.trim().replace(/\s+/g, ' ');
+        var nodeText = node.textContent.trim().replace(/\s+/g, ' '); // shrink spaces down to one
+        // splitting on a whitespace, won't work for e.g. Chinese
         var nodeWordsCount = nodeText.split(' ').length;
 
         if (nodeWordsCount > 0) {
@@ -198,14 +351,16 @@ return JSON.stringify({
   })(),
   // Extracts words on the page to flag thin content pages
   'seo-words': (() => {
-    // metric 10.9
+    // metric 10.9    
+    // SEO: I'm not sure we will still use this. The content property should return more accurate word counts and is far simpler.
+    
     function analyseTextNode(node) {
       // remove extra whitespace
-      var nodeText = node.textContent.trim().replace(/\s+/g, ' ');
+      var nodeText = node.textContent.trim().replace(/\s+/g, ' '); // shrink spaces down to one
       // splitting on a whitespace, won't work for e.g. Chinese
       var nodeWordsCount = nodeText.split(' ').length;
 
-      if (nodeWordsCount > 3) {
+      if (nodeWordsCount > 3) { // ignores nodes with 3 or less words?
         // update counts
         wordsCount += nodeWordsCount;
         wordElements++;
