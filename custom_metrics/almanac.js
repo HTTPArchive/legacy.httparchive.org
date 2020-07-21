@@ -306,8 +306,8 @@ return JSON.stringify({
       return null;
     }
   })(),
-  //  check if there is any picture tag containing an img tag
-  'has_picture_img': document.querySelectorAll('picture img').length > 0,
-  // check if there are any source or img tags with sizes attribute
-  'has_image_sizes': document.querySelectorAll('source[sizes], img[sizes]').length > 0  
+  //  Counts the number of picture tags containing an img tag
+  'num_picture_img': document.querySelectorAll('picture img').length,
+  // Counts the number of source or img tags with sizes attribute
+  'num_image_sizes': document.querySelectorAll('source[sizes], img[sizes]').length
 });
