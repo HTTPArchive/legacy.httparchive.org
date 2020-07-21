@@ -210,37 +210,36 @@ return JSON.stringify({
 
     return { internal, external, hash, navigateHash, earlyHash, nofollow, ugc, sponsored, imageLink };
   })(),
-  // extract the real title tag contents  
-  'title-elements': (() => {
-      // Used by: SEO
-      var nodes = document.querySelectorAll('head title');
-
-      let results = [];
-    
-      // might only need data like the number of titles, character lenght, total words, pixels?
-
-      nodes.forEach(node => results.push({ "text": node.innerHTML }));
-
-      return results;
-  })(),
+  // Extract the real title tag contents  
+  // Used by: SEO
+  'title': Array.from(document.querySelectorAll('head title')).map(e => {return {"text": e.innerText}}),
+  // Get the html lang attribute if present. Was previously done via SQL which only captured the first two characts of the value (country code)
+  // Used by: SEO
+  'html-lang': document.querySelector('html')?.getAttribute('lang'),
+  // visible word count
+  // Used by: SEO
+  'visible-words': document.body?.innerText?.match(/\S+/g)?.length, // \S+ matches none whitespace, which would be a word
   // content information including visible words and number of headings
-  'content': (() => {
+  'heading': (() => {
       // Used by: SEO
       let result = {};
 
-      // innerText which removes html and ignores hidden content
-      result.visibleWords = document.body.innerText.match(/\S+/g).length;// \S+ matches none whitespace, which would be a word
+       var h1Array = Array.from(document.querySelectorAll('h1'));
+
+      result.h1 = h1Array.map(e => {return {"text": e.innerText}});
 
       // do we need this?
-      result.h1 = document.querySelectorAll('h1').length;
-      result.h2 = document.querySelectorAll('h2').length;
-      result.h3 = document.querySelectorAll('h3').length;
-      result.h4 = document.querySelectorAll('h4').length;
+      result.h1Count = h1Array.length;
+      result.h2Count = document.querySelectorAll('h2').length;
+      result.h3Count = document.querySelectorAll('h3').length;
+      result.h4Count = document.querySelectorAll('h4').length;
 
+      
       return result; 
   })(),
+
   // data on img tags including alt, loading, width & height attribute use  
-  'images': (() => {
+  'image': (() => {
       // Used by: SEO
       var nodes = document.querySelectorAll('img');
 
@@ -312,7 +311,7 @@ return JSON.stringify({
       return result;
   })(),
   // data-nosnippet use 
-  'seo-data-nosnippet': (() => {
+  'data-nosnippet': (() => {
       // Used by: SEO
       // https://support.google.com/webmasters/answer/79812?hl=en
       // https://developers.google.com/search/reference/robots_meta_tag
