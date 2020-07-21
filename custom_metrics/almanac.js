@@ -237,7 +237,34 @@ return JSON.stringify({
       
       return result; 
   })(),
+  // content information including visible words and number of headings
+  'structured-data': (() => {
+    // Used by: SEO
 
+    let result = {};
+
+    let jsonLdScripts = Array.from(document.querySelectorAll('script[type="application/ld+json"]'));
+
+    result.jsonLdScriptCount = jsonLdScripts.length;
+
+    result.jsonLdScriptErrorCount = jsonLdScripts.filter(e => {
+      try {
+        var cleanText = e.textContent.trim();
+        var cleanText = cleanText.replace(/^\/\*(.*?)\*\//g, ''); // remove * comment from start (could be for CDATA section) does not deal with multi line comments
+        var cleanText = cleanText.replace(/\/\*(.*?)\*\/$/g, ''); // remove * comment from end (could be for CDATA section) does not deal with multi line comments
+        var cleanText = cleanText.replace(/^\/\/.*/, ''); // remove // comment from start (could be for CDATA section)
+        var cleanText = cleanText.replace(/\/\/.*$/, ''); // remove // comment from end (could be for CDATA section)
+
+        JSON.parse(cleanText);
+        return false; // its good
+      }
+      catch(e) {
+        return true; // its bad
+      }
+    }).length;
+
+    return result; 
+})(),
   // data on img tags including alt, loading, width & height attribute use  
   'image': (() => {
       // Used by: SEO
