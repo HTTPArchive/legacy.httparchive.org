@@ -278,19 +278,42 @@ return JSON.stringify({
     return parsedNodes;
   })(),
   '12.11': (() => {
+    function containsAnSvg(element) {
+      var children = Array.from(element.childNodes);
+      return !!children.find((child) => {
+        if (child.tagName && child.tagName.toLowerCase() === 'svg') {
+          return true;
+        }
+
+        if (child.childNodes.length) {
+          return containsAnSvg(child);
+        }
+
+        return false;
+      });
+    }
+
     // Counts the links or buttons only containing an icon.
     var clickables = document.querySelectorAll('a, button');
     return Array.from(clickables).reduce((n, clickable) => {
-      // Clickables containing SVG are assumed to be icons.
-      if (clickable.firstElementChild && clickable.firstElementChild.tagName == 'SVG') {
-        return n + 1;
-      }
+      var visible_text_length = clickable.textContent.trim().length;
+
       // Clickables containing 1-char text are assumed to be icons.
       // Note that this fails spectacularly for complex unicode points.
       // See https://blog.jonnew.com/posts/poo-dot-length-equals-two.
-      if (clickable.textContent.trim().length == 1) {
+      if (visible_text_length == 1) {
         return n + 1;
       }
+
+      if (containsAnSvg(clickable)) {
+        // The icon in this case is an svg, so any other text is assumed to be a label
+        if (visible_text_length >= 1) {
+          return n;
+        }
+
+        return n + 1;
+      }
+
       return n;
     }, 0);
   })(),
