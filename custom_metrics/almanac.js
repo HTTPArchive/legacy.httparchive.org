@@ -277,7 +277,8 @@ return JSON.stringify({
 
     return parsedNodes;
   })(),
-  '12.11': (() => {
+  // Counts the links or buttons only containing an icon.
+  'icon_only_clickables': (() => {
     function containsAnSvg(element) {
       var children = Array.from(element.childNodes);
       return !!children.find((child) => {
@@ -293,7 +294,6 @@ return JSON.stringify({
       });
     }
 
-    // Counts the links or buttons only containing an icon.
     var clickables = document.querySelectorAll('a, button');
     return Array.from(clickables).reduce((n, clickable) => {
       var visible_text_length = clickable.textContent.trim().length;
