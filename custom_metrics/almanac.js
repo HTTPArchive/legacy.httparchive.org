@@ -237,15 +237,22 @@ return JSON.stringify({
   'heading': (() => {     
       let result = {};
 
-       var h1Array = Array.from(document.querySelectorAll('h1'));
+      var h1Array = Array.from(document.querySelectorAll('h1'));
+      var h2Array = Array.from(document.querySelectorAll('h2'));
+      var h3Array = Array.from(document.querySelectorAll('h3'));
+      var h4Array = Array.from(document.querySelectorAll('h4'));
 
       result.h1 = h1Array.map(e => {return {"text": e.innerText}});
 
-      // do we need this?
       result.h1Count = h1Array.length;
-      result.h2Count = document.querySelectorAll('h2').length;
-      result.h3Count = document.querySelectorAll('h3').length;
-      result.h4Count = document.querySelectorAll('h4').length;
+      result.h2Count = h2Array.length;
+      result.h3Count = h3Array.length;
+      result.h4Count = h4Array.length;
+
+      result.h1NonEmptyCount = h1Array.filter(e => e.innerText.trim().length > 0).length;
+      result.h2NonEmptyCount = h2Array.filter(e => e.innerText.trim().length > 0).length;
+      result.h3NonEmptyCount = h3Array.filter(e => e.innerText.trim().length > 0).length;
+      result.h4NonEmptyCount = h4Array.filter(e => e.innerText.trim().length > 0).length;
    
       return result; 
   })(),
@@ -253,6 +260,44 @@ return JSON.stringify({
   // content information including visible words and number of headings
   // Used by: SEO
   'structured-data': (() => {  
+
+    var link = document.createElement('a');
+    var jsonLdTypes = {};
+
+    function nestedLookup(items, depth) {
+      var keys = Object.keys(items);
+
+      // skip if nested depth > 5
+      if (depth > 5) {
+        return;
+      }
+
+      for (var i = 0, len = keys.length; i < len; i++) {
+        var item = items[keys[i]];
+        // if array or object, dive into it
+        if (item instanceof Object || item instanceof Array) {
+          nestedLookup(item, depth++);
+        }
+      }
+      let type = null;
+      if (items['@type']) {
+        if (items['@context']) {
+          link.href = items['@context'] + '/' + items['@type'];
+
+          type = link.hostname + link.pathname;
+        } else {
+          type = items['@type'];
+        }
+      }
+      if (type) {
+        if (jsonLdTypes[type]) {
+          jsonLdTypes[type]++;
+        } else {
+          jsonLdTypes[type] = 1;
+        }
+      }
+    }
+
     let result = {};
 
     let jsonLdScripts = Array.from(document.querySelectorAll('script[type="application/ld+json"]'));
@@ -278,6 +323,31 @@ return JSON.stringify({
     }).length;
 
     // now process each json in jsonLds
+    nestedLookup(jsonLds, 0);
+
+    result.jsonLdTypes = jsonLdTypes;
+
+    // now microdata
+
+    var microdataTypes = {};
+    var nodes = document.querySelectorAll('[itemtype]');
+
+    if (nodes) {
+      for (var i = 0, len = nodes.length; i < len; i++) {
+        var node = nodes[i];
+
+        link.href = node.getAttribute('itemtype');
+
+        let type = link.hostname + link.pathname;
+
+        if (microdataTypes[type]) {
+          microdataTypes[type]++;
+        } else {
+          microdataTypes[type] = 1;
+        }        
+      }
+    }
+    result.microdataTypes = microdataTypes;
 
     return result; 
   })(),
@@ -355,10 +425,21 @@ return JSON.stringify({
       return result;
   })(),
 
+  // amp related data
+  // Used by: SEO  
+  'amp': (() => {  
+    let result = {};
+
+    result.htmlAmpAttributePresent = !!document.querySelector('html')?.hasAttribute('amp');
+
+    result.relAmphtml = document.querySelector("link[rel='amphtml']")?.getAttribute('href') ?? null;
+
+    return result;
+  })(),
+
   // data-nosnippet use 
   // Used by: SEO
-  'data-nosnippet': (() => {
-      
+  'data-nosnippet': (() => {     
       // https://support.google.com/webmasters/answer/79812?hl=en
       // https://developers.google.com/search/reference/robots_meta_tag
       var validNodes = document.querySelectorAll('span[data-nosnippet], div[data-nosnippet], section[data-nosnippet]');
@@ -369,7 +450,7 @@ return JSON.stringify({
   // Extracts headings used and counts the words, to flag thin content pages
   // Used by: SEO
   'seo-titles': (() => {   
-    // SEO: I'm not sure we will still use this. The content property should return more useful heading info. Maybe the word coutn is of value?
+    // SEO: I'm not sure we will still use this. The heading property should return more useful heading info. Maybe the word count is of value?
     
     var nodes = document.querySelectorAll('h1, h2, h3, h4');
     var titleWords = -1;
