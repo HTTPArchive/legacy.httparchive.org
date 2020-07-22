@@ -43,34 +43,43 @@ function parseNodes(nodes) {
 
 return JSON.stringify({
   // Wether the page contains <script type=module>.
+  // Used by 2019/01_12
   '01.12': document.querySelector('script[type=module]') ? 1 : 0,
+
   // Wether the page contains <script nomodule>.
+  // Used by 2019/01_13
   '01.13': document.querySelector('script[nomodule]') ? 1 : 0,
+
+  // Used by SEO, 2019/01,2019/06, 2019/10, 2019/19
   'link-nodes': (() => {
-    // Returns a JSON array of link nodes and their key/value attributes.
+    // Returns a JSON array of link nodes and their key/value attributes
     // Used by 01.14, 01.15, 01.16, 10.6,  06.46, 12.18
     var nodes = document.querySelectorAll('head link');
     var linkNodes = parseNodes(nodes);
 
     return linkNodes;
   })(),
-  'priority-hints': (() => {
-    // Returns a JSON array of prioritized nodes and their key/value attributes.
-    // Used by 19.8, 19.9, and 19.10.
+
+  // Returns a JSON array of prioritized nodes and their key/value attributes
+  // Used by 2019/19_7, 2019/19_8, 2019/19_9, 2019/19_10
+  'priority-hints': (() => { 
     var nodes = document.querySelectorAll('link[importance], img[importance], script[importance], iframe[importance]');
     var parsedNodes = parseNodes(nodes);
 
     return parsedNodes;
   })(),
-  'meta-nodes': (() => {
-    // Returns a JSON array of meta nodes and their key/value attributes.
-    // Used by 10.6, 10.7 (potential: 09.29, 12.5, 04.5)
+
+  // Returns a JSON array of meta nodes and their key/value attributes
+  // Used by SEO, 2019/09_28
+  'meta-nodes': (() => {     
     var nodes = document.querySelectorAll('head meta');
     var metaNodes = parseNodes(nodes);
 
     return metaNodes;
   })(),
+
   // Extract schema.org elements and finds all @context and @type usage
+  // Used by SEO
   '10.5': (() => {
     function nestedLookup(items, depth) {
       var keys = Object.keys(items);
@@ -125,10 +134,10 @@ return JSON.stringify({
     }
     return Object.keys(schemaElements);
   })(),
-  // Looks at links and identifies internal, external or hashed as well as rel attributes and if a link is image only  
+
+  // Looks at links and identifies internal, external or hashed as well as rel attributes and if a link is image only
+  // Used by: SEO, 2019/09_10 
   'seo-anchor-elements': (() => {
-    // Used by: SEO
-    // metric 10.10, 10.11,
     var nodes = document.getElementsByTagName('a');
     var link = document.createElement('a');
 
@@ -210,18 +219,22 @@ return JSON.stringify({
 
     return { internal, external, hash, navigateHash, earlyHash, nofollow, ugc, sponsored, imageLink };
   })(),
+
   // Extract the real title tag contents  
   // Used by: SEO
   'title': Array.from(document.querySelectorAll('head title')).map(e => {return {"text": e.innerText}}),
+
   // Get the html lang attribute if present. Was previously done via SQL which only captured the first two characts of the value (country code)
   // Used by: SEO
   'html-lang': document.querySelector('html')?.getAttribute('lang'),
+
   // visible word count
   // Used by: SEO
   'visible-words': document.body?.innerText?.match(/\S+/g)?.length, // \S+ matches none whitespace, which would be a word
+
   // content information including visible words and number of headings
-  'heading': (() => {
-      // Used by: SEO
+  // Used by: SEO
+  'heading': (() => {     
       let result = {};
 
        var h1Array = Array.from(document.querySelectorAll('h1'));
@@ -233,19 +246,20 @@ return JSON.stringify({
       result.h2Count = document.querySelectorAll('h2').length;
       result.h3Count = document.querySelectorAll('h3').length;
       result.h4Count = document.querySelectorAll('h4').length;
-
-      
+   
       return result; 
   })(),
-  // content information including visible words and number of headings
-  'structured-data': (() => {
-    // Used by: SEO
 
+  // content information including visible words and number of headings
+  // Used by: SEO
+  'structured-data': (() => {  
     let result = {};
 
     let jsonLdScripts = Array.from(document.querySelectorAll('script[type="application/ld+json"]'));
 
     result.jsonLdScriptCount = jsonLdScripts.length;
+
+    let jsonLds = [];
 
     result.jsonLdScriptErrorCount = jsonLdScripts.filter(e => {
       try {
@@ -255,7 +269,7 @@ return JSON.stringify({
         var cleanText = cleanText.replace(/^\/\/.*/, ''); // remove // comment from start (could be for CDATA section)
         var cleanText = cleanText.replace(/\/\/.*$/, ''); // remove // comment from end (could be for CDATA section)
 
-        JSON.parse(cleanText);
+        jsonLds.push(JSON.parse(cleanText)); // exception if invalid
         return false; // its good
       }
       catch(e) {
@@ -263,11 +277,14 @@ return JSON.stringify({
       }
     }).length;
 
+    // now process each json in jsonLds
+
     return result; 
-})(),
-  // data on img tags including alt, loading, width & height attribute use  
-  'image': (() => {
-      // Used by: SEO
+  })(),
+
+  // data on img tags including alt, loading, width & height attribute use
+  // Used by: SEO  
+  'image': (() => {   
       var nodes = document.querySelectorAll('img');
 
       let result = {
@@ -337,18 +354,21 @@ return JSON.stringify({
 
       return result;
   })(),
+
   // data-nosnippet use 
+  // Used by: SEO
   'data-nosnippet': (() => {
-      // Used by: SEO
+      
       // https://support.google.com/webmasters/answer/79812?hl=en
       // https://developers.google.com/search/reference/robots_meta_tag
       var validNodes = document.querySelectorAll('span[data-nosnippet], div[data-nosnippet], section[data-nosnippet]');
       var allNodes = document.querySelectorAll('[data-nosnippet]');
       return { valid: validNodes.length, wrongTagType: allNodes.length - validNodes.length};
   })(),
+
   // Extracts headings used and counts the words, to flag thin content pages
-  'seo-titles': (() => {
-    // metric 10.9    
+  // Used by: SEO
+  'seo-titles': (() => {   
     // SEO: I'm not sure we will still use this. The content property should return more useful heading info. Maybe the word coutn is of value?
     
     var nodes = document.querySelectorAll('h1, h2, h3, h4');
@@ -375,9 +395,10 @@ return JSON.stringify({
     }
     return { titleWords, titleElements };
   })(),
+
   // Extracts words on the page to flag thin content pages
-  'seo-words': (() => {
-    // metric 10.9    
+  // Used by: SEO
+  'seo-words': (() => {   
     // SEO: I'm not sure we will still use this. The content property should return more accurate word counts and is far simpler.
     
     function analyseTextNode(node) {
@@ -423,16 +444,18 @@ return JSON.stringify({
     }
     return { wordsCount, wordElements };
   })(),
+
   // Parse <input> elements
-  'input-elements': (() => {
-    // Used by  12.12, 12.14
+  // Used by 2019/12*, 2019/09_30b
+  'input-elements': (() => {   
     var nodes = document.querySelectorAll('input, select');
     var inputNodes = parseNodes(nodes);
 
     return inputNodes;
   })(),
 
-    // Extract the text of the H1 tag 
+  // Extract the text of the H1 tag 
+  // Used by: SEO
   'h1-text': (() => {
     // We return only the text of the first H1. 
     var h1_text = document.querySelectorAll('h1')[0]?.textContent ?? 'h1 is missing';
@@ -442,6 +465,7 @@ return JSON.stringify({
 
   // Find first child of <head>
   // Whether the first child of <head> is a Google Fonts <link>
+  // Used by: 2019/06_47
   '06.47': (() => {
     var head = document.querySelector('head');
     if (head) {
@@ -452,23 +476,29 @@ return JSON.stringify({
     }
     return 0;
   })(),
-  '08.39': (() => {
-    // Counts the number of link/script elements with the subresource integrity attribute.
+
+  // Counts the number of link/script elements with the subresource integrity attribute.
+  // Used by: ?
+  '08.39': (() => { 
     return {
       'link': document.querySelectorAll('link[integrity]').length,
       'script': document.querySelectorAll('script[integrity]').length
     };
   })(),
+
+  // Returns a JSON array of nodes with a tabindex and their key/value attributes.
+  // Used by: 2019/09_27
   '09.27': (() => {
-    // Returns a JSON array of nodes with a tabindex and their key/value attributes.
     // We acknowledge that attribute selectors are expensive to query.
     var nodes = document.querySelectorAll('body [tabindex]');
     var parsedNodes = parseNodes(nodes);
 
     return parsedNodes;
   })(),
+
+  // Counts the links or buttons only containing an icon
+  // Used by: 2019/12_11
   '12.11': (() => {
-    // Counts the links or buttons only containing an icon.
     var clickables = document.querySelectorAll('a, button');
     return Array.from(clickables).reduce((n, clickable) => {
       // Clickables containing SVG are assumed to be icons.
@@ -484,9 +514,10 @@ return JSON.stringify({
       return n;
     }, 0);
   })(),
+
+  // Gets metadata about the AMP plugin, if present
+  // Used by: CMS? 
   'amp-plugin': (() => {
-    // Gets metadata about the AMP plugin, if present.
-    // Used by 14.2, 14.3, 14.4.
     try {
       var metadata = document.querySelector('meta[name=generator][content^="AMP Plugin"]');
       if (metadata) {
