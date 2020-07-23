@@ -383,5 +383,10 @@ return JSON.stringify({
     };
   }),
 
-
+  'scripts': (() => {
+    return {
+      total: document.scripts.length,
+      props: parseNodes(document.scripts),
+    };
+  }),
 });
