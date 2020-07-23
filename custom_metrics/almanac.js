@@ -41,7 +41,10 @@ function parseNodes(nodes) {
       el.tagName = node.tagName.toLowerCase(); // for reference
       for (var n = 0, len2 = attributes.length; n < len2; n++) {
         var attribute = attributes[n];
-        el[attribute.name.toLowerCase()] = attribute.value;
+
+        if (attribute.name) {
+            el[attribute.name.toLowerCase()] = attribute.value;
+        }
       }
 
       parsedNodes.push(el);
@@ -81,6 +84,8 @@ function seoText(node) {
 }
 
 var primaryTitle = null;
+
+try {
 
 return JSON.stringify({
   // Wether the page contains <script type=module>.
@@ -409,10 +414,17 @@ return JSON.stringify({
 
       function addType(array, type, jsonld) {
         link.href = type;
+        let www = false;
         let name = link.hostname + link.pathname; 
+
+        if (name.startsWith("www.")) {
+          www = true;
+          name = name.substring("www.".length);
+        }
+
         let item = array.find(i => i.name === name);       
         if (!item) {
-          item = {name: name, count: 0, jsonld: 0, microdata: 0, https: 0, http: 0};
+          item = {name: name, count: 0, jsonld: 0, microdata: 0, https: 0, http: 0, www: 0};
           array.push(item);
         }  
 
@@ -422,6 +434,9 @@ return JSON.stringify({
           item.https++;        
         else 
           item.http++;
+
+        if (www) 
+          item.www++;   
 
         if (jsonld) 
           item.jsonld++;
@@ -447,8 +462,6 @@ return JSON.stringify({
             var cleanText = e.textContent.trim();
             var cleanText = cleanText.replace(/^\/\*(.*?)\*\//g, ''); // remove * comment from start (could be for CDATA section) does not deal with multi line comments
             var cleanText = cleanText.replace(/\/\*(.*?)\*\/$/g, ''); // remove * comment from end (could be for CDATA section) does not deal with multi line comments
-            var cleanText = cleanText.replace(/^\/\/.*/, ''); // remove // comment from start (could be for CDATA section)
-            var cleanText = cleanText.replace(/\/\/.*$/, ''); // remove // comment from end (could be for CDATA section)
 
             nestedJsonldLookup(JSON.parse(cleanText), 0, "http://no-context.com/");
             return false; // its good
@@ -827,6 +840,7 @@ return JSON.stringify({
 
   // Counts the links or buttons only containing an icon
   // Used by: 2019/12_11
+  // This site returns an array of 233 empty objects??? http://www.yoaview.com/Yoaview/SITE/
   '12.11': (() => {
     var clickables = document.querySelectorAll('a, button');
     return Array.from(clickables).reduce((n, clickable) => {
@@ -859,3 +873,8 @@ return JSON.stringify({
   //  check if there is any picture tag containing an img tag
   'has_picture_img': document.querySelectorAll('picture img').length > 0
 });
+
+}
+catch(e) {
+  return {exception: {message: e.message, object: e}};
+}
