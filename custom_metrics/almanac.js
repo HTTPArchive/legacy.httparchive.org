@@ -11,6 +11,15 @@
 // 3. Test your change by following the instructions at https://github.com/HTTPArchive/almanac.httparchive.org/issues/33#issuecomment-502288773.
 // 4. Submit a PR to update this file.
 
+var wptRequests = [];
+try {
+    wptRequests = $WPT_REQUESTS; // gets replaced will lots of request response data
+}
+catch (e) { }
+
+function getResponseHeaders(name) {
+  return wptRequests[0]?.response_headers[name]?.split("\n");
+}
 // Sanitize the `attributes` property.
 function getNodeAttributes(node) {
   // Inspired by dequelabs/axe-core.
@@ -40,6 +49,38 @@ function parseNodes(nodes) {
   }
   return parsedNodes;
 }
+
+// returns text with regard to SEO. Visible text and image alt text,
+function seoText(node) {
+
+  let tempNodes = [];
+
+  let images = node.querySelectorAll("img");
+
+  for (var i = 0, len = images.length; i < len; i++) {
+    var image = images[i];
+
+    if (image.alt && image.alt.trim().length > 0) {
+
+      var span = document.createElement("SPAN");
+
+      span.innerText = " ["+image.alt.trim()+"] ";
+
+      image.parentNode.insertBefore(span, image.nextSibling);
+
+      tempNodes.push(span);
+    }
+  }
+
+  let text =  node.innerText.trim();
+
+
+  tempNodes.forEach(t => t.parentNode.remove(t));
+
+  return text;
+}
+
+var primaryTitle = null;
 
 return JSON.stringify({
   // Wether the page contains <script type=module>.
@@ -78,283 +119,392 @@ return JSON.stringify({
     return metaNodes;
   })(),
 
-  // Extract schema.org elements and finds all @context and @type usage
-  // Used by SEO
-  '10.5': (() => {
-    function nestedLookup(items, depth) {
-      var keys = Object.keys(items);
-
-      // skip if nested depth > 5
-      if (depth > 5) {
-        return;
-      }
-
-      for (var i = 0, len = keys.length; i < len; i++) {
-        var item = items[keys[i]];
-        // if array or object, dive into it
-        if (item instanceof Object || item instanceof Array) {
-          nestedLookup(item, depth++);
-        }
-      }
-      if (items['@type']) {
-        if (items['@context']) {
-          link.href = items['@context'] + '/' + items['@type'];
-          schemaElements[link.hostname + link.pathname] = true;
-        } else {
-          schemaElements[items['@type']] = true;
-        }
-      }
-    }
-
-    var nodes = document.querySelectorAll('[itemtype], script[type=\'application/ld+json\']');
-    var link = document.createElement('a');
-    var schemaElements = {};
-
-    if (nodes) {
-      for (var i = 0, len = nodes.length; i < len; i++) {
-        var node = nodes[i];
-        var item = node.getAttribute('itemtype');
-
-        if (item) {
-          // microdata
-          link.href = node.getAttribute('itemtype');
-          schemaElements[link.hostname + link.pathname] = true;
-        } else if (node.tagName == 'SCRIPT') {
-          // json+ld
-          try {
-            var content = JSON.parse(node.textContent);
-            var contentLoop = [];
-            if (content instanceof Object || content instanceof Array) {
-              // nested lookup
-              nestedLookup(content, 0);
-            }
-          } catch (e) {}
-        }
-      }
-    }
-    return Object.keys(schemaElements);
-  })(),
-
   // Looks at links and identifies internal, external or hashed as well as rel attributes and if a link is image only
   // Used by: SEO, 2019/09_10 
   'seo-anchor-elements': (() => {
-    var nodes = document.getElementsByTagName('a');
-    var link = document.createElement('a');
+    try {   
+      var nodes = document.getElementsByTagName('a');
+      var link = document.createElement('a');
 
-    var internal = 0; // metric 10.10
-    var external = 0; // metric 10.10
-    var hash = 0;
-    var navigateHash = 0; // metric 10.11
-    var earlyHash = 0; // metric 09.10
-    
-    var nofollow = 0;
-    var ugc = 0;
-    var sponsored = 0;
-    var imageLink = 0;
+      var hostname = document.location.hostname;
 
-    if (nodes) {
-      for (var i = 0, len = nodes.length; i < len; i++) {
-        var node = nodes[i];
+      var internal = 0; // metric 10.10
+      var external = 0; // metric 10.10
+      var externalSameDomain = 0; // metric 10.10
+      var externalDifferentDomain = 0; // metric 10.10
+      var hash = 0;
+      var navigateHash = 0; // metric 10.11
+      var earlyHash = 0; // metric 09.10
+      
+      var nofollow = 0;
+      var ugc = 0;
+      var sponsored = 0;
+      var imageLink = 0;
 
-        // our local parser trick
-        if (node.href) {
-          link.href = node.href;
+      if (nodes) {
+        for (var i = 0, len = nodes.length; i < len; i++) {
+          var node = nodes[i];
 
-          if (document.location.hostname === link.hostname) {
-            internal++;
-            if (document.location.pathname === link.pathname && link.hash.length > 1) {
-              // check if hash matches an element in the DOM (scroll to)
-              try {
-                var element = document.querySelector(link.hash);
-                if (element) {
-                  hash++;
-                  if (i < 3) {
-                    earlyHash++;
+          // our local parser trick
+          if (node.href) {
+            link.href = node.href;
+
+            if (hostname === link.hostname) {
+              internal++;
+              if (document.location.pathname === link.pathname && link.hash.length > 1) {
+                // check if hash matches an element in the DOM (scroll to)
+                try {
+                  var element = document.querySelector(link.hash);
+                  if (element) {
+                    hash++;
+                    if (i < 3) {
+                      earlyHash++;
+                    }
+                  } else {
+                    navigateHash++;
                   }
-                } else {
-                  navigateHash++;
-                }
-              } catch (e) {}
-            }
-          } else if (document.location.hostname !== link.hostname) {
-            external++;
-          }
-          
-          // Checking rel attribute values 
-          // https://support.google.com/webmasters/answer/96569?hl=en
-          if (node.rel) {
-              node.rel.split(" ").forEach(n1 => {
-                  n1.split(",").forEach(n => {
-                      switch (n.toLowerCase().trim()) {
-                          case "nofollow":
-                              nofollow++;
-                              break;
-                          case "ugc":
-                              ugc++;
-                              break;
-                          case "sponsored":
-                              sponsored++;
-                              break;
-                      }
-                  });
-              });
-          }
+                } catch (e) {}
+              }
+            } else { // if (document.location.hostname !== link.hostname) {
+              external++;
 
-          // see if it is an image link
-          // no visible text
-          let noText = node.innerText.trim().length === 0;
-          let hasImage = node.querySelector('img') !== null;
-
-          if (noText) {
-              if (hasImage) {
-                  imageLink++;
+              // check if the same domain
+              if (hostname.endsWith('.'+link.hostname) || link.hostname.endsWith('.'+hostname)) {
+                externalSameDomain++;
               }
               else {
-                  // invisible link? 
+                externalDifferentDomain++;
               }
+            }
+            
+            // Checking rel attribute values 
+            // https://support.google.com/webmasters/answer/96569?hl=en
+            if (node.rel) {
+                node.rel.split(" ").forEach(n1 => {
+                    n1.split(",").forEach(n => {
+                        switch (n.toLowerCase().trim()) {
+                            case "nofollow":
+                                nofollow++;
+                                break;
+                            case "ugc":
+                                ugc++;
+                                break;
+                            case "sponsored":
+                                sponsored++;
+                                break;
+                        }
+                    });
+                });
+            }
+
+            // see if it is an image link
+            // no visible text
+            let noText = node.innerText.trim().length === 0;
+            let hasImage = node.querySelector('img') !== null;
+
+            if (noText) {
+                if (hasImage) {
+                    imageLink++;
+                }
+                else {
+                    // invisible link? 
+                }
+            }
           }
         }
       }
+
+      return { internal, external, externalSameDomain, externalDifferentDomain, hash, navigateHash, earlyHash, nofollow, ugc, sponsored, imageLink };
     }
-
-    return { internal, external, hash, navigateHash, earlyHash, nofollow, ugc, sponsored, imageLink };
+    catch(e) {
+      return {exception: {message: e.message, object: e}};
+    }
   })(),
-
-  // Extract the real title tag contents  
-  // Used by: SEO
-  'title': Array.from(document.querySelectorAll('head title')).map(e => {return {"text": e.innerText}}),
 
   // Get the html lang attribute if present. Was previously done via SQL which only captured the first two characts of the value (country code)
   // Used by: SEO
-  'html-lang': document.querySelector('html')?.getAttribute('lang'),
+  'html-lang': document.querySelector('html')?.getAttribute('lang')?.toLowerCase(),
 
   // visible word count
   // Used by: SEO
   'visible-words': document.body?.innerText?.match(/\S+/g)?.length, // \S+ matches none whitespace, which would be a word
 
+  // Extract the real title tag contents  
+  // Used by: SEO
+  'title': (() => {
+    try {    
+      let result = {};
+      result.titleCount = Array.from(document.querySelectorAll('head title')).map(e => {
+        let text = e.innerText.trim();
+        let characters = text.length;
+        let words = text.match(/\S+/g)?.length;
+
+        if (text.length > 0 && !result.primary) {
+          primaryTitle = text; // for the heading section
+
+          result.primary = {
+            characters: characters,
+            words: words
+          };
+        }
+        return {characters: characters, words: words };
+      }).length;
+      return result; 
+    }
+    catch(e) {
+      return {exception: {message: e.message, object: e}};
+    }
+  })(),
+
   // content information including visible words and number of headings
   // Used by: SEO
-  'heading': (() => {     
+  'heading': (() => { 
+    try {  
       let result = {};
 
-      var h1Array = Array.from(document.querySelectorAll('h1'));
-      var h2Array = Array.from(document.querySelectorAll('h2'));
-      var h3Array = Array.from(document.querySelectorAll('h3'));
-      var h4Array = Array.from(document.querySelectorAll('h4'));
+      function processHeading(n) {
+        let text = seoText(n);
 
-      result.h1 = h1Array.map(e => {return {"text": e.innerText}});
+        let words = text.match(/\S+/g)?.length;
 
-      result.h1Count = h1Array.length;
-      result.h2Count = h2Array.length;
-      result.h3Count = h3Array.length;
-      result.h4Count = h4Array.length;
+        if (text.length > 0 && !result.primary) {
 
-      result.h1NonEmptyCount = h1Array.filter(e => e.innerText.trim().length > 0).length;
-      result.h2NonEmptyCount = h2Array.filter(e => e.innerText.trim().length > 0).length;
-      result.h3NonEmptyCount = h3Array.filter(e => e.innerText.trim().length > 0).length;
-      result.h4NonEmptyCount = h4Array.filter(e => e.innerText.trim().length > 0).length;
+          result.primary = {
+            words: words,
+            characters: text.length,
+            matchesTitle: text.toLowerCase() == primaryTitle?.toLowerCase()
+          }
+        }
+        return {characters: text.length, words: words ?? 0};
+      }
+      
+      for(let l=1; l < 9; l++) {
+        let nodes = Array.from(document.querySelectorAll('h'+l));
+
+
+
+        let characters = 0;
+        let words = 0;
+        // if don't have a primary heading yet, search for one.
+        
+        var hs = nodes.map(n => {
+          let h = processHeading(n);
+          characters += h.characters;
+          words += h.words;
+          return h;
+        });
+  
+        result["h"+l] = {
+          count: nodes.length,
+          nonEmptyCount: nodes.filter(e => seoText(e).length > 0).length,
+          characters: characters,
+          words: words
+        };
+      }
    
       return result; 
+    }
+    catch(e) {
+      return {exception: {message: e.message, object: e}};
+    }
   })(),
 
   // content information including visible words and number of headings
   // Used by: SEO
   'structured-data': (() => {  
+    try { 
+      var link = document.createElement('a');
 
-    var link = document.createElement('a');
-    var jsonLdTypes = {};
-
-    function nestedLookup(items, depth) {
-      var keys = Object.keys(items);
-
-      // skip if nested depth > 5
-      if (depth > 5) {
-        return;
+      let result = {
+        jsonldAndMicrodataTypes: [],
+        logo: false,
+        siteLinkSearchBox: false,
+        itemsByFormat: {
+          microformats2: 0,
+          microdata: 0,
+          jsonld: 0,
+          rdfa: 0
+        },
+        contextHostnames: []
       }
 
-      for (var i = 0, len = keys.length; i < len; i++) {
-        var item = items[keys[i]];
-        // if array or object, dive into it
-        if (item instanceof Object || item instanceof Array) {
-          nestedLookup(item, depth++);
+      function nestedJsonldLookup(items, depth, context) {
+        if (items instanceof Array) {
+          // loop array and process any objects in it 
+          for (var i = 0, len = items.length; i < len; i++) {
+            var item = items[i];
+            if (item instanceof Object) {
+              nestedJsonldLookup(item, depth+1, context);
+            }
+          }
+        }
+        else if (items instanceof Object) {
+          // process object
+          result.itemsByFormat.jsonld++;
+
+          if (items['@context']) {
+            let c = null;
+            if (typeof items['@context'] === 'string') { 
+              c = items['@context'];
+            }
+            else {
+              c = "http://complex-context.com/"; // can only deal with simple contexts for now
+            }
+
+            if (c) {
+              try {
+              link.href = items['@context'];
+              context = link.href;
+              }
+              catch (e) {
+                context = "http://invalid-context.com/";
+              }
+              
+            }
+          }
+
+          let type = context + "-UnknownType-";
+
+          if (items['@type']) {
+            let t =null;
+
+            if (typeof items['@type'] === 'string') { 
+              t = items['@type'];
+            }
+            else {
+              t = "-ComplexType-"; // can only deal with simple contexts for now
+            }
+            if (t) {
+              if (t.startsWith('http')) {
+                  try {
+                    link.href = t;
+                    type = link.href;
+                  }
+                  catch (e) {
+                    type = context + "-InvalidType-";
+                  }
+              } else {
+                link.href = context + t.trimStart('/');
+                type = link.href;
+              }
+            }
+          }
+
+          addType(result.jsonldAndMicrodataTypes, type, true);
+ 
+          // process any properties that have arrays or objects
+          var keys = Object.keys(items);
+          for (var i = 0, len = keys.length; i < len; i++) {
+            var item = items[keys[i]];
+            // if array or object, dive into it
+            if (keys[i] === "logo") {
+              result.logo = true;
+            }
+            if (item instanceof Object || item instanceof Array) {
+              nestedJsonldLookup(item, depth++, context);
+            }
+          }
         }
       }
-      let type = null;
-      if (items['@type']) {
-        if (items['@context']) {
-          link.href = items['@context'] + '/' + items['@type'];
 
-          type = link.hostname + link.pathname;
-        } else {
-          type = items['@type'];
+      function addType(array, type, jsonld) {
+        link.href = type;
+        let name = link.hostname + link.pathname; 
+        let item = array.find(i => i.name === name);       
+        if (!item) {
+          item = {name: name, count: 0, jsonld: 0, microdata: 0, https: 0, http: 0};
+          array.push(item);
+        }  
+
+        item.count++;
+
+        if (link.protocol === 'https:') 
+          item.https++;        
+        else 
+          item.http++;
+
+        if (jsonld) 
+          item.jsonld++;
+        else 
+          item.microdata++;
+
+        if (!result.contextHostnames.includes(link.hostname)) {
+          result.contextHostnames.push(link.hostname);
+        }
+
+        if (name === "schema.org/SearchAction") {
+          result.siteLinkSearchBox = true;
         }
       }
-      if (type) {
-        if (jsonLdTypes[type]) {
-          jsonLdTypes[type]++;
-        } else {
-          jsonLdTypes[type] = 1;
-        }
-      }
-    }
 
-    let result = {};
+      // json-ld
+      let jsonldScripts = Array.from(document.querySelectorAll('script[type="application/ld+json"]'));
 
-    let jsonLdScripts = Array.from(document.querySelectorAll('script[type="application/ld+json"]'));
+      result.jsonldScripts = {
+        count: jsonldScripts.length,
+        errors: jsonldScripts.filter(e => {
+          try {
+            var cleanText = e.textContent.trim();
+            var cleanText = cleanText.replace(/^\/\*(.*?)\*\//g, ''); // remove * comment from start (could be for CDATA section) does not deal with multi line comments
+            var cleanText = cleanText.replace(/\/\*(.*?)\*\/$/g, ''); // remove * comment from end (could be for CDATA section) does not deal with multi line comments
+            var cleanText = cleanText.replace(/^\/\/.*/, ''); // remove // comment from start (could be for CDATA section)
+            var cleanText = cleanText.replace(/\/\/.*$/, ''); // remove // comment from end (could be for CDATA section)
 
-    result.jsonLdScriptCount = jsonLdScripts.length;
+            nestedJsonldLookup(JSON.parse(cleanText), 0, "http://no-context.com/");
+            return false; // its good
+          }
+          catch(e) {
+            return true; // its bad
+          }
+        }).length
+      };
 
-    let jsonLds = [];
-
-    result.jsonLdScriptErrorCount = jsonLdScripts.filter(e => {
-      try {
-        var cleanText = e.textContent.trim();
-        var cleanText = cleanText.replace(/^\/\*(.*?)\*\//g, ''); // remove * comment from start (could be for CDATA section) does not deal with multi line comments
-        var cleanText = cleanText.replace(/\/\*(.*?)\*\/$/g, ''); // remove * comment from end (could be for CDATA section) does not deal with multi line comments
-        var cleanText = cleanText.replace(/^\/\/.*/, ''); // remove // comment from start (could be for CDATA section)
-        var cleanText = cleanText.replace(/\/\/.*$/, ''); // remove // comment from end (could be for CDATA section)
-
-        jsonLds.push(JSON.parse(cleanText)); // exception if invalid
-        return false; // its good
-      }
-      catch(e) {
-        return true; // its bad
-      }
-    }).length;
-
-    // now process each json in jsonLds
-    nestedLookup(jsonLds, 0);
-
-    result.jsonLdTypes = jsonLdTypes;
-
-    // now microdata
-
-    var microdataTypes = {};
-    var nodes = document.querySelectorAll('[itemtype]');
-
-    if (nodes) {
-      for (var i = 0, len = nodes.length; i < len; i++) {
-        var node = nodes[i];
+      // microdata
+      var microdataNodes = document.querySelectorAll('[itemtype]');
+      for (var i = 0, len = microdataNodes.length; i < len; i++) {
+        var node = microdataNodes[i];
 
         link.href = node.getAttribute('itemtype');
 
-        let type = link.hostname + link.pathname;
+        let type = link.href;
 
-        if (microdataTypes[type]) {
-          microdataTypes[type]++;
-        } else {
-          microdataTypes[type] = 1;
-        }        
+        addType(result.jsonldAndMicrodataTypes, type, false);  
+
+        result.itemsByFormat.microdata++;    
       }
-    }
-    result.microdataTypes = microdataTypes;
 
-    return result; 
+      if (document.querySelector("[itemprop$='logo']")){
+        result.logo = true;
+      }
+       
+      if (document.querySelector("[itemtype$='SearchAction']")){
+        result.siteLinkSearchBox = true;
+      }
+
+      // rdfa
+      result.itemsByFormat.rdfa = document.querySelectorAll('[typeof]').length;
+
+      // microformats
+      result.microformats2Types = [];
+      ["h-adr","h-card","h-entry","h-event","h-feed","h-geo","h-item","h-listing draft","h-product","h-recipe","h-resume","h-review","h-review-aggregate"].forEach(name => {
+        let items = document.querySelectorAll('.'+name);
+        if (items.length > 0) {
+          result.microformats2Types.push({name: name, count: items.length});
+          result.itemsByFormat.microformats2 += items.length;
+        }
+      });
+      
+      return result; 
+    }
+    catch(e) {
+      return {exception: {message: e.message, object: e}};
+    }
   })(),
 
   // data on img tags including alt, loading, width & height attribute use
   // Used by: SEO  
   'image': (() => {   
+    try { 
       var nodes = document.querySelectorAll('img');
 
       let result = {
@@ -423,6 +573,10 @@ return JSON.stringify({
       });
 
       return result;
+    }
+    catch(e) {
+      return {exception: {message: e.message, object: e}};
+    }
   })(),
 
   // amp related data
@@ -447,38 +601,8 @@ return JSON.stringify({
       return { valid: validNodes.length, wrongTagType: allNodes.length - validNodes.length};
   })(),
 
-  // Extracts headings used and counts the words, to flag thin content pages
-  // Used by: SEO
-  'seo-titles': (() => {   
-    // SEO: I'm not sure we will still use this. The heading property should return more useful heading info. Maybe the word count is of value?
-    
-    var nodes = document.querySelectorAll('h1, h2, h3, h4');
-    var titleWords = -1;
-    var titleElements = -1;
-
-    if (nodes) {
-      titleWords = 0;
-      titleElements = 0;
-
-      // analyse each title node
-      for (var i = 0, len = nodes.length; i < len; i++) {
-        var node = nodes[i];
-        // remove extra whitespace
-        var nodeText = node.textContent.trim().replace(/\s+/g, ' '); // shrink spaces down to one
-        // splitting on a whitespace, won't work for e.g. Chinese
-        var nodeWordsCount = nodeText.split(' ').length;
-
-        if (nodeWordsCount > 0) {
-          titleWords += nodeWordsCount;
-          titleElements++;
-        }
-      }
-    }
-    return { titleWords, titleElements };
-  })(),
-
   // Extracts words on the page to flag thin content pages
-  // Used by: SEO
+  // Used by: SEO  (Probably will go)
   'seo-words': (() => {   
     // SEO: I'm not sure we will still use this. The content property should return more accurate word counts and is far simpler.
     
@@ -534,7 +658,131 @@ return JSON.stringify({
 
     return inputNodes;
   })(),
+  // The first canonical value in the page 
+  // Used by: SEO
+  'canonical': document.querySelector('link[rel="canonical"]')?.href,
 
+  // Calculates robots status per type of robot 
+  // Used by: SEO
+  'robots': (() => {
+    // https://developers.google.com/search/reference/robots_meta_tag
+    let result = {
+      x_robots_tag: getResponseHeaders("x-robots-tag"), // array
+      hasRobotsMetaTag: false,
+      hasXRobotsTag: false
+    }
+
+    function processRobotsValue(destination, content) {
+      content.split(",").forEach(part => {
+        switch(part.split(":")[0].trim().toLowerCase()) {
+          case "noindex":
+            destination.noindex = true;
+            break;
+          case "none":
+            destination.noindex = true;
+            destination.nofollow = true;
+            break;
+          case "nofollow":
+            destination.nofollow = true;
+            break;
+          case "noarchive":
+            destination.noarchive = true;
+            break;
+          case "nosnippet":
+            destination.nosnippet = true;
+            break;
+          case "unavailable_after":
+            destination.unavailable_after = true;
+            break;
+          case "max-snippet":
+            destination.max_snippet = true;
+            break;
+          case "max-image-preview":
+            destination.max_image_preview = true;
+            break;
+          case "max-video-preview":
+            destination.max_video_preview = true;
+            break;
+          case "notranslate":
+            destination.notranslate = true;
+            break;
+          case "noimageindex":
+            destination.noimageindex = true;
+            break;
+          case "nocache":
+            destination.nocache = true;
+            break;
+        }
+      });
+    }
+    function calculateRobots(selector, x_robots_name) {
+      let robots = {
+        noindex: false,
+        nofollow: false,
+        noarchive: false,
+        nosnippet: false,
+        unavailable_after: false,
+        max_snippet: false,
+        max_image_preview: false,
+        max_video_preview: false,
+        notranslate: false,
+        noimageindex: false,
+        nocache: false,
+        viaMetaTag: false,
+        viaXRobotsTag: false
+      };
+
+      Array.from(document.querySelectorAll(selector)).forEach(e => {
+        if (e.hasAttribute("content")) {
+          let content = e.getAttribute("content");
+          robots.viaMetaTag = true;
+          result.hasRobotsMetaTag = true;
+          processRobotsValue(robots, content)    
+        }
+      });
+
+      if (result.x_robots_tag) {
+        result.x_robots_tag.forEach((tag) => {
+            let bot = "anybot";
+
+            let t = tag.trim().toLowerCase();
+
+            if (t.startsWith("googlebot:")) {
+              bot = "googlebot";
+              t = t.substring("googlebot:".length);
+            } else if (t.startsWith("googlebot-news:")) {
+              bot = "googlebot-news";
+              t = t.substring("googlebot-news:".length);
+            } else if (t.startsWith("otherbot:")) {
+              t = t.substring("otherbot:".length);
+            }
+
+            if (bot === 'anybot') {
+              robots.viaXRobotsTag = true;
+              result.hasXRobotsTag = true;
+              processRobotsValue(robots, t); // always process
+            }
+
+            if (bot === x_robots_name) {
+              robots.viaXRobotsTag = true;
+              result.hasXRobotsTag = true;
+              processRobotsValue(robots, t);
+            }
+        
+        });
+      }
+
+      return robots;
+
+    }
+
+    result.otherbot = calculateRobots('meta[name="robots"]', 'otherbot');
+    result.googlebot = calculateRobots('meta[name="robots"], meta[name="googlebot"]', 'googlebot');
+    result.googlebot_news = calculateRobots('meta[name="robots"], meta[name="googlebot-news"]', 'googlebot-news');
+
+    return result;
+
+  })(),
   // Extract the text of the H1 tag 
   // Used by: SEO
   'h1-text': (() => {
