@@ -564,4 +564,20 @@ return JSON.stringify({
     // Returns a JSON array of meta nodes and their key/value attributes.
     return parseNode(document.body);
   }),
+
+  'html_node': (() => {
+    // Returns a JSON array of meta nodes and their key/value attributes.
+    return parseNode(document.documentElement);
+  }),
+
+  'document_title': (() => {
+    return {
+      value: document.title,
+      length: document.title.length
+    };
+  }),
+
+  'length_of_h1s': (() => {
+    return [...document.querySelectorAll('h1')].map(node => node.innerText.length);
+  }),
 });
