@@ -20,21 +20,26 @@ function getNodeAttributes(node) {
   return node.cloneNode(false).attributes;
 }
 
+function parseNode(node) {
+  var attributes = Object.values(getNodeAttributes(node));
+  var el = {};
+
+  el.tagName = node.tagName.toLowerCase(); // for reference
+  for (var n = 0, len2 = attributes.length; n < len2; n++) {
+    var attribute = attributes[n];
+    el[attribute.name.toLowerCase()] = attribute.value;
+  }
+
+  return el;
+}
+
 // Map nodes to their attributes,
 function parseNodes(nodes) {
   var parsedNodes = [];
   if (nodes) {
     for (var i = 0, len = nodes.length; i < len; i++) {
       var node = nodes[i];
-      var attributes = Object.values(getNodeAttributes(node));
-      var el = {};
-
-      el.tagName = node.tagName.toLowerCase(); // for reference
-      for (var n = 0, len2 = attributes.length; n < len2; n++) {
-        var attribute = attributes[n];
-        el[attribute.name.toLowerCase()] = attribute.value;
-      }
-
+      var el = parseNode(node);
       parsedNodes.push(el);
     }
   }
@@ -346,13 +351,24 @@ return JSON.stringify({
   // Various stats of img, source and picture elements
   'images': (() => {
     const pictures = document.querySelectorAll('picture');
-    const img = document.querySelectorAll('img');
+    const img = [...document.querySelectorAll('img')];
     const sources = document.querySelectorAll('source');
 
     const pictures_with_img = document.querySelectorAll('picture img');
     const images_with_srcset = document.querySelectorAll('img[srcset], source[srcset]');
     const images_with_sizes = [...document.querySelectorAll('img[sizes], source[sizes]')];
     const images_using_loading_prop = [...document.querySelectorAll('img[loading], source[loading]')];
+
+    // NOTE: -1 is used to represent images with no alt tag at all. Empty alt tags have a value of 0
+    const alt_tag_lengths = img.map(img => {
+      if (!img.hasAttribute('alt')) {
+        return -1;
+      }
+
+      // alt=" " is less correct but comparable to alt="" so we use trim
+      // Also remove duplicate spaces to get a feel for how long alt tags really are
+      return img.alt.trim().replace(/\s+/g, ' ').length;
+    });
 
     return {
       total_pictures: pictures.length,
@@ -366,6 +382,7 @@ return JSON.stringify({
       // Values specific properties. Cleaned and trimmed to make processing easier
       sizes_values: images_with_sizes.map(img => img.sizes.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim()),
       images_using_loading_prop: images_using_loading_prop.map(img => img.sizes.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim()),
+      alt_tag_lengths: alt_tag_lengths,
 
       // TODO: Should we really add all of this metadata? It may be helpful later on, but it will bloat the file
       picture_props: parseNodes(pictures),
@@ -541,5 +558,10 @@ return JSON.stringify({
       values_and_count: attributes_and_count,
       unique_values: [...unique_values],
     };
+  }),
+
+  'body_node': (() => {
+    // Returns a JSON array of meta nodes and their key/value attributes.
+    return parseNode(document.body);
   }),
 });
