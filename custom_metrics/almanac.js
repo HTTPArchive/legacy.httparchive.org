@@ -384,7 +384,6 @@ return JSON.stringify({
       images_using_loading_prop: images_using_loading_prop.map(img => img.sizes.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim()),
       alt_tag_lengths: alt_tag_lengths,
 
-      // TODO: Should we really add all of this metadata? It may be helpful later on, but it will bloat the file
       picture_props: parseNodes(pictures),
       img_props: parseNodes(img),
       source_props: parseNodes(sources),
