@@ -389,4 +389,157 @@ return JSON.stringify({
       props: parseNodes(document.scripts),
     };
   }),
+
+  'nodes_using_role': (() => {
+    const nodes_with_role = [...document.querySelectorAll('[role]')];
+
+    /**
+     * 1. Build an object with each key being a unique value of `role` and the value being how often this role occurred
+     * 2. Make a list of unique role values
+     */
+    const unique_values = new Set();
+    const role_values_and_count = {};
+    for (const node of nodes_with_role) {
+      const role = node.getAttribute('role').toLowerCase();
+      unique_values.add(role);
+
+      if (!role_values_and_count[role]) {
+        role_values_and_count[role] = 1;
+        continue;
+      }
+
+      role_values_and_count[role]++;
+    }
+
+    return {
+      total: nodes_with_role.length,
+      values_and_count: role_values_and_count,
+      unique_values: [...unique_values],
+    };
+  }),
+
+  'total_nodes_with_duplicate_ids': (() => {
+    const nodes_with_id = [...document.querySelectorAll('[id]')];
+    const id_count_map = new Map();
+    for (const node of nodes_with_id) {
+      const count = id_count_map.get(node.id) || 0;
+      id_count_map.set(node.id, count + 1);
+    }
+
+    let total_duplicates = 0;
+    for (const count of id_count_map.values()) {
+      if (count > 1) {
+        // Subtract one because the first div to have this ID is not a duplicate
+        total_duplicates += count - 1;
+      }
+    }
+
+    return total_duplicates;
+  }),
+
+  /**
+   * The 'h' is stripped to create a numeric array.
+   * E.g. h1 > h2 > h3 > h3 => [1, 2, 3, 3, ]
+   */
+  'headings_order': (() => {
+    const headings = [...document.querySelectorAll('h1, h2, h3, h4, h5, h6')];
+    const levels = [];
+    for (const heading of headings) {
+      const level = parseInt(heading.tagName.replace('H', ''), 10);
+      if (!isNaN(level)) {
+        levels.push(level);
+      }
+    }
+
+    return levels;
+  }),
+
+  'shortcuts_stats': (() => {
+    const aria_shortcut_nodes = [...document.querySelectorAll('[aria-keyshortcuts]')];
+    const accesskey_nodes = [...document.querySelectorAll('[accesskey]')];
+
+    return {
+      total_with_aria_shortcut: aria_shortcut_nodes.length,
+      total_with_accesskey: accesskey_nodes.length,
+
+      // Purposely left these as potentially duplicated fields so we can analyze if the same value is used more than once
+      aria_shortcut_values: aria_shortcut_nodes.map(node => node.getAttribute('aria-keyshortcuts')),
+      accesskey_values: accesskey_nodes.map(node => node.getAttribute('accesskey')),
+    };
+  }),
+
+  'nodes_using_aria': (() => {
+    const nodes_with_role = [...document.querySelectorAll('[aria-*]')];
+
+    /**
+     * 1. Build an object with each key being a unique value of `role` and the value being how often this role occurred
+     * 2. Make a list of unique role values
+     */
+    const unique_values = new Set();
+    const role_values_and_count = {};
+    for (const node of nodes_with_role) {
+      const role = node.getAttribute('role').toLowerCase();
+      unique_values.add(role);
+
+      if (!role_values_and_count[role]) {
+        role_values_and_count[role] = 1;
+        continue;
+      }
+
+      role_values_and_count[role]++;
+    }
+
+    return {
+      total: nodes_with_role.length,
+      values_and_count: role_values_and_count,
+      unique_values: [...unique_values],
+    };
+  }),
+
+  // NOTE: This will not pick up all of the attributes on scripts
+  'attributes_used_on_elements': (() => {
+    // Assists us in walking through the entire DOM tree
+    function walk(node, fun) {
+      fun(node);
+
+      node = node.firstChild;
+      while (node) {
+        walk(node, fun);
+        node = node.nextSibling;
+      }
+    }
+
+    // Example usage: Process all elements on the page
+    const unique_values = new Set();
+    const attributes_and_count = {};
+    walk(document.documentElement, (node) => {
+      // Only analyze elements
+      if (node.nodeType !== Node.ELEMENT_NODE) {
+        return;
+      }
+
+      const attributes = node.getAttributeNames();
+      if (attributes.length <= 0) {
+        return;
+      }
+
+      unique_values.add(...attributes);
+
+      // Count how often each of these attributes shows up
+      for (const attribute of attributes) {
+        if (!attributes_and_count[attribute]) {
+          attributes_and_count[attribute] = 1;
+          continue;
+        }
+
+        attributes_and_count[attribute]++;
+      }
+    });
+
+    return {
+      // How often each of these values show up
+      values_and_count: attributes_and_count,
+      unique_values: [...unique_values],
+    };
+  }),
 });
