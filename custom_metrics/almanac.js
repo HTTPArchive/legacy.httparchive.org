@@ -330,5 +330,58 @@ return JSON.stringify({
     }
   })(),
   //  check if there is any picture tag containing an img tag
-  'has_picture_img': document.querySelectorAll('picture img').length > 0
+  'has_picture_img': document.querySelectorAll('picture img').length > 0,
+
+  // Previously for 04_04.sql in 2019
+  'inline_svg_stats': (() => {
+    const svg_elements = [...document.querySelectorAll('svg')];
+
+    return {
+      total: svg_elements.length,
+      content_lengths: svg_elements.map(svg => svg.outerHTML.length),
+      props: parseNodes(svg_elements),
+    };
+  }),
+
+  // Various stats of img, source and picture elements
+  'images': (() => {
+    const pictures = document.querySelectorAll('picture');
+    const img = document.querySelectorAll('img');
+    const sources = document.querySelectorAll('source');
+
+    const pictures_with_img = document.querySelectorAll('picture img');
+    const images_with_srcset = document.querySelectorAll('img[srcset], source[srcset]');
+    const images_with_sizes = [...document.querySelectorAll('img[sizes], source[sizes]')];
+    const images_using_loading_prop = [...document.querySelectorAll('img[loading], source[loading]')];
+
+    return {
+      total_pictures: pictures.length,
+      total_img: img.length,
+      total_sources: sources.length,
+
+      total_with_srcset: images_with_srcset.length,
+      total_with_sizes: images_with_sizes.length,
+      total_pictures_with_img: pictures_with_img.length,
+
+      // Values specific properties. Cleaned and trimmed to make processing easier
+      sizes_values: images_with_sizes.map(img => img.sizes.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim()),
+      images_using_loading_prop: images_using_loading_prop.map(img => img.sizes.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim()),
+
+      // TODO: Should we really add all of this metadata? It may be helpful later on, but it will bloat the file
+      picture_props: parseNodes(pictures),
+      img_props: parseNodes(img),
+      source_props: parseNodes(sources),
+    };
+  }),
+
+  'videos': (() => {
+    const videos = document.querySelectorAll('video');
+
+    return {
+      total: videos.length,
+      props: parseNodes(videos),
+    };
+  }),
+
+
 });
