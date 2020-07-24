@@ -828,7 +828,7 @@ var almanac = {
 
   // content information including visible words and number of headings
   // Used by: SEO
-  'structured-data': (() => {  
+  'structured_data': (() => {  
     try { 
       var link = document.createElement('a');
 
@@ -1141,13 +1141,13 @@ var almanac = {
           result.head_size = headmatch[0].length;
         }
 
-        let commentMatches = rawHtml.matchAll(/<!--/g);
+        let commentMatches = rawHtml.match(/<!--/g);
 
         if (commentMatches) {
           result.comment_count = commentMatches.length;
         }
 
-        let ifCommentMatches = rawHtml.matchAll(/<!-- *\[ *if/gs);
+        let ifCommentMatches = rawHtml.match(/<!-- *\[ *if/gs);
 
         if (ifCommentMatches) {
           result.conditional_comment_count = ifCommentMatches.length;
