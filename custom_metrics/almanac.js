@@ -153,6 +153,31 @@ var renderedPrimaryTitle = null;
 var rawPrimaryTitle = null;
 
 var almanac = {
+  // 'requests': (() => {
+
+  //   let result = [];
+
+  //   _wptBodies.forEach((request) => {
+  //     let r = {};
+
+  //     r.url = request.url;
+
+  //     if (request.request_headers) {
+  //       r.request_headers = request.request_headers.length;
+  //     }
+  //     if (request.response_headers) {
+  //        r.response_headers = request.response_headers.length;
+
+  //        r['content-type'] = request.response_headers['content-type'] ?? "unknown"
+  //     }
+
+  //     if (r.url.includes("youtube")) {
+  //       r.request = request;
+  //     }
+  //     result.push(r);
+  //   });
+  //   return result;
+  // })(),
   'http_status_code': (() => {
     let statusArray = getResponseHeaders('status');
 
