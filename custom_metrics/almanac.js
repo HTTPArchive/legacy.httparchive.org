@@ -335,7 +335,6 @@ return JSON.stringify({
       'disablePictureInPicture', 'disableRemotePlayback', 'duration',
       'height', 'intrinsicsize', 'loop', 'muted', 'playsinline', 'poster',
       'preload', 'src', 'width'];
-    // Returns a JSON array of video nodes and their key/value attributes.
     return allAttributes.filter(el => filter.includes(el));
   })()
 });
