@@ -41,6 +41,23 @@ function parseNodes(nodes) {
   return parsedNodes;
 }
 
+// Return the set of attributes for nodes,
+function getNodesAttributes(nodes) {
+  var object = {};
+  if (nodes) {
+    for (var i = 0, len = nodes.length; i < len; i++) {
+      var node = nodes[i];
+      var attributes = Object.values(getNodeAttributes(node));
+
+      for (var n = 0, len2 = attributes.length; n < len2; n++) {
+        var attribute = attributes[n];
+        object[attribute.name.toLowerCase()] = '';
+      }
+    }
+  }
+  return Object.getOwnPropertyNames(object);
+}
+
 return JSON.stringify({
   // Wether the page contains <script type=module>.
   '01.12': document.querySelector('script[type=module]') ? 1 : 0,
@@ -309,5 +326,16 @@ return JSON.stringify({
   //  Counts the number of picture tags containing an img tag
   'num_picture_img': document.querySelectorAll('picture img').length,
   // Counts the number of source or img tags with sizes attribute
-  'num_image_sizes': document.querySelectorAll('source[sizes], img[sizes]').length
+  'num_image_sizes': document.querySelectorAll('source[sizes], img[sizes]').length,
+  // Returns a set of video node attribute names
+  'video-nodes-attributes': (() => {
+    var allAttributes = getNodesAttributes(document.querySelectorAll('video'));
+    var filter = ['autoplay', 'autoPictureInPicture', 'buffered', 'controls',
+      'controlslist', 'crossorigin', 'use-credentials', 'currentTime',
+      'disablePictureInPicture', 'disableRemotePlayback', 'duration',
+      'height', 'intrinsicsize', 'loop', 'muted', 'playsinline', 'poster',
+      'preload', 'src', 'width'];
+    // Returns a JSON array of video nodes and their key/value attributes.
+    return allAttributes.filter(el => filter.includes(el));
+  })()
 });
