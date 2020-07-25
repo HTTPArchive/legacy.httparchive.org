@@ -346,7 +346,7 @@ return JSON.stringify({
       content_lengths: svg_elements.map(svg => svg.outerHTML.length),
       props: parseNodes(svg_elements),
     };
-  }),
+  })(),
 
   // Various stats of img, source and picture elements
   'images': (() => {
@@ -388,7 +388,7 @@ return JSON.stringify({
       img_props: parseNodes(img),
       source_props: parseNodes(sources),
     };
-  }),
+  })(),
 
   'videos': (() => {
     const videos = document.querySelectorAll('video');
@@ -397,14 +397,14 @@ return JSON.stringify({
       total: videos.length,
       props: parseNodes(videos),
     };
-  }),
+  })(),
 
   'scripts': (() => {
     return {
       total: document.scripts.length,
       props: parseNodes(document.scripts),
     };
-  }),
+  })(),
 
   'nodes_using_role': (() => {
     const nodes_with_role = [...document.querySelectorAll('[role]')];
@@ -432,7 +432,7 @@ return JSON.stringify({
       values_and_count: role_values_and_count,
       unique_values: [...unique_values],
     };
-  }),
+  })(),
 
   'total_nodes_with_duplicate_ids': (() => {
     const nodes_with_id = [...document.querySelectorAll('[id]')];
@@ -451,7 +451,7 @@ return JSON.stringify({
     }
 
     return total_duplicates;
-  }),
+  })(),
 
   /**
    * The 'h' is stripped to create a numeric array.
@@ -468,7 +468,7 @@ return JSON.stringify({
     }
 
     return levels;
-  }),
+  })(),
 
   'shortcuts_stats': (() => {
     const aria_shortcut_nodes = [...document.querySelectorAll('[aria-keyshortcuts]')];
@@ -482,7 +482,7 @@ return JSON.stringify({
       aria_shortcut_values: aria_shortcut_nodes.map(node => node.getAttribute('aria-keyshortcuts')),
       accesskey_values: accesskey_nodes.map(node => node.getAttribute('accesskey')),
     };
-  }),
+  })(),
 
   'nodes_using_aria': (() => {
     const nodes_with_role = [...document.querySelectorAll('[aria-*]')];
@@ -510,7 +510,7 @@ return JSON.stringify({
       values_and_count: role_values_and_count,
       unique_values: [...unique_values],
     };
-  }),
+  })(),
 
   // NOTE: This will not pick up all of the attributes on scripts
   'attributes_used_on_elements': (() => {
@@ -557,26 +557,26 @@ return JSON.stringify({
       values_and_count: attributes_and_count,
       unique_values: [...unique_values],
     };
-  }),
+  })(),
 
   'body_node': (() => {
     // Returns a JSON array of meta nodes and their key/value attributes.
     return parseNode(document.body);
-  }),
+  })(),
 
   'html_node': (() => {
     // Returns a JSON array of meta nodes and their key/value attributes.
     return parseNode(document.documentElement);
-  }),
+  })(),
 
   'document_title': (() => {
     return {
       value: document.title,
       length: document.title.length
     };
-  }),
+  })(),
 
   'length_of_h1s': (() => {
     return [...document.querySelectorAll('h1')].map(node => node.innerText.length);
-  }),
+  })(),
 });
