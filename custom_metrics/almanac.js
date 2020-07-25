@@ -26,6 +26,10 @@ function parseNode(node) {
 
   el.tagName = node.tagName.toLowerCase(); // for reference
   for (var n = 0, len2 = attributes.length; n < len2; n++) {
+    if (!attribute.name) {
+      continue;
+    }
+
     var attribute = attributes[n];
     el[attribute.name.toLowerCase()] = attribute.value;
   }
