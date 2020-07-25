@@ -335,6 +335,17 @@ return JSON.stringify({
   'num_srcset_descriptor_x': document.querySelectorAll('source[srcset*="x"], img[srcset*="x"]').length,
   // Count the number of imges with srcset with descriptor-w
   'num_srcset_descriptor_w': document.querySelectorAll('source[srcset*="w"], img[srcset*="w"]').length,
+  // Count the number of scrset candidates
+  'num_srcset_candidates': (() => {
+    var nodes = document.querySelectorAll('source[srcset], img[srcset]');
+    var count = 0;
+    for (var i = 0, len = nodes.length; i < len; i++) {
+      var node = nodes[i];
+      var srcset = node['srcset'];
+      count += srcset.split(',').length;
+    }
+    return count;
+  })(),
   // Returns a set of video node attribute names
   'video-nodes-attributes': (() => {
     var allAttributes = getNodesAttributes(document.querySelectorAll('video'));
