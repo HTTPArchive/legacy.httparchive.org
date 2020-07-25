@@ -477,6 +477,8 @@ var almanac = {
       var navigate_hash = 0; // metric 10.11
       var early_hash = 0; // metric 09.10
       
+      var dofollow = 0; // :-)
+      var follow = 0; // :-)
       var nofollow = 0;
       var ugc = 0;
       var sponsored = 0;
@@ -586,6 +588,12 @@ var almanac = {
                             case "nofollow":
                                 nofollow++;
                                 break;
+                            case "dofollow":
+                              dofollow++;
+                                break;
+                            case "follow":
+                              follow++;
+                                break;
                             case "ugc":
                                 ugc++;
                                 break;
@@ -649,7 +657,7 @@ var almanac = {
         }
       }
 
-      return { internal, external, external_same_domain, external_different_domain, hash, navigate_hash, early_hash, nofollow, ugc, sponsored, image_link, noopener, noreferrer, target_blank, targets, protocols };
+      return { internal, external, external_same_domain, external_different_domain, hash, navigate_hash, early_hash, nofollow, dofollow, follow, ugc, sponsored, image_link, noopener, noreferrer, target_blank, targets, protocols };
     }
     catch(e) {
       return logError("anchors", e);
@@ -1541,6 +1549,9 @@ var almanac = {
         else
           result.deprecatedElements[t] = 1;
     });
+
+
+
     return result;
   })(),
 
