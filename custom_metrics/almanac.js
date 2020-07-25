@@ -328,9 +328,13 @@ return JSON.stringify({
   // Counts the number of source or img tags with sizes attribute
   'num_image_sizes': document.querySelectorAll('source[sizes], img[sizes]').length,
   // Count the mumber of images with srcset attribute
-  num_srcset_all: document.querySelectorAll('source[srcset], img[srcset]').length,
+  'num_srcset_all': document.querySelectorAll('source[srcset], img[srcset]').length,
   // Count the mumber of images with srcset and sizes attributes
-  num_srcset_sizes: document.querySelectorAll('source[srcset][sizes], img[srcset][sizes]').length,
+  'num_srcset_sizes': document.querySelectorAll('source[srcset][sizes], img[srcset][sizes]').length,
+  // Count the number of imges with srcset with descriptor-x
+  'num_srcset_descriptor-x': document.querySelectorAll('source[srcset*="x"], img[srcset*="x"]').length,
+  // Count the number of imges with srcset with descriptor-w
+  'num_srcset_descriptor-w': document.querySelectorAll('source[srcset*="w"], img[srcset*="w"]').length,
   // Returns a set of video node attribute names
   'video-nodes-attributes': (() => {
     var allAttributes = getNodesAttributes(document.querySelectorAll('video'));
