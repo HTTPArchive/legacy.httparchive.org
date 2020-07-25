@@ -462,7 +462,7 @@ var almanac = {
 
   // Looks at links and identifies internal, external or hashed as well as rel attributes and if a link is image only
   // Used by: SEO, 2019/09_10 
-  'anchor_links': (() => {
+  'anchors': (() => {
     try {   
       var nodes = document.getElementsByTagName('a');
       var link = document.createElement('a');
@@ -486,34 +486,86 @@ var almanac = {
       var noopener = 0;
       var noreferrer = 0;
 
+      var protocols = {};
+      var targets = {};
+
+   //   var crawlable = {nohref: 0};
+
       if (nodes) {
         for (var i = 0, len = nodes.length; i < len; i++) {
           var node = nodes[i];
 
-          // our local parser trick
-          if (node.href) {
-            link.href = node.href;
+          // trying to analyse crawlability - commented out for now
+          // bottom line, a link is crawlable if it has an href using a protocol that is crawlable. I capture protocols so that can be worked out.
+          // what would be nice it to determine if a link is meant to click to another page, but is not in the href. onclick listener or onclick attribute that changes the address
+          // https://github.com/GoogleChrome/lighthouse/blob/master/lighthouse-core/audits/seo/crawlable-anchors.js
+
+          // let hasRole = node.hasAttribute("role") && node.getAttribute("role").trim().length > 0; // implies link is for an action not a crawlable link
+          // let hasName = node.name && node.name.trim().length > 0; 
+          // let hasId = node.id && node.id.trim().length > 0; 
+
+          // if (node.hasAttribute("onclick"))
+          // {
+          //     let onclick = node.getAttribute("onclick");
+
+          //     // if does a window.location or window.open
+          //     // could be a function call?
+          //     // if it return false to stop the href? that could also be hidden in a function
+          // }
+          // click based listeners?
+
+          
+          if (!node.href || node.href.trim().length === 0) {
+            // no href means not crawlable
+            // maybe a named anchor so not an issue (name or id)
+            // maybe has a role, so not designed to be a link
+
+            // crawlable.nohref++;
+          }
+          else 
+          {
+            link.href = node.href; // our local parser trick
+
+            let protocol = link.protocol.replace(":", "").toLowerCase();
+
+            if (protocol === "") {
+              protocol = "-empty-";
+            }
+
+            if (protocols[protocol]) 
+              protocols[protocol]++;
+            else 
+              protocols[protocol] = 1;
+
+
+            // console.log(node.href + " to "+ link.href + " " +link.protocol);                          
 
             if (hostname === link.hostname) {
+              // same hostname
               internal++;
-              if (document.location.pathname === link.pathname && link.hash.length > 1) {
-                // check if hash matches an element in the DOM (scroll to)
-                try {
-                  var element = document.querySelector(link.hash);
-                  if (element) {
-                    hash++;
-                    if (i < 3) {
-                      early_hash++;
+
+              if (document.location.pathname === link.pathname) {
+                // same page
+
+                if (link.hash.length > 1) { // >1 so not it include # only
+                  // check if hash matches an element in the DOM (scroll to)
+                  try {
+                    var element = document.querySelector(link.hash);
+                    if (element) {
+                      hash++;
+                      if (i < 3) {
+                        early_hash++; // first two links in the page?
+                      }
+                    } else {
+                      navigate_hash++; // does not relate to a named anchor on the page
                     }
-                  } else {
-                    navigate_hash++;
-                  }
-                } catch (e) {}
+                  } catch (e) {}
+                }
               }
-            } else { // if (document.location.hostname !== link.hostname) {
+            } else { 
               external++;
 
-              // check if the same domain
+              // check if the same domain, e.g. a sub domain, or this is a subdomain linking to the main domain
               if (hostname.endsWith('.'+link.hostname) || link.hostname.endsWith('.'+hostname)) {
                 external_same_domain++;
               }
@@ -552,19 +604,32 @@ var almanac = {
                     });
                 });
             }
+            if (node.target) {
+              let target = node.target.trim();
 
-            if (node.target == "_blank") {
-              target_blank.total++;
 
-              if (current_noopener && current_noreferrer) {
-                target_blank.noopener_noreferrer++;
-              } else if (current_noopener) {
-                target_blank.noopener++;
-              } else if (current_noreferrer) {
-                target_blank.noreferrer++;
-              } else {
-                target_blank.neither++;
+              if (target == "_blank") {
+                target_blank.total++;
+
+                if (current_noopener && current_noreferrer) {
+                  target_blank.noopener_noreferrer++;
+                } else if (current_noopener) {
+                  target_blank.noopener++;
+                } else if (current_noreferrer) {
+                  target_blank.noreferrer++;
+                } else {
+                  target_blank.neither++;
+                }
               }
+
+              if (target === "") {
+                target = "-empty-";
+              }
+
+              if (targets[target]) 
+                targets[target]++;
+              else 
+                targets[target] = 1;
             }
 
             // see if it is an image link
@@ -584,10 +649,10 @@ var almanac = {
         }
       }
 
-      return { internal, external, external_same_domain, external_different_domain, hash, navigate_hash, early_hash, nofollow, ugc, sponsored, image_link, noopener: noopener, noreferrer: noreferrer, target_blank: target_blank };
+      return { internal, external, external_same_domain, external_different_domain, hash, navigate_hash, early_hash, nofollow, ugc, sponsored, image_link, noopener, noreferrer, target_blank, targets, protocols };
     }
     catch(e) {
-      return logError("anchor_links", e);
+      return logError("anchors", e);
     }
   })(),
 
@@ -1461,6 +1526,24 @@ var almanac = {
 
   })(),
 
+  // markup info 
+  // Used by: Markup
+  'markup': (() => {     
+    // https://html.spec.whatwg.org/multipage/obsolete.html#non-conforming-features
+    // Array.from(document.querySelectorAll('dfn[data-dfn-type] code')).map(e => e.innerText).join(',')
+    let result = {deprecatedElements: {}};
+    let deprecatedNodes = [...document.querySelectorAll('applet,acronym,bgsound,dir,noframes,isindex,keygen,listing,menuitem,nextid,noembed,plaintext,rb,rtc,strike,xmp,basefont,big,blink,center,font,multicol,nobr,spacer,tt,frameset,frame')];
+
+    deprecatedNodes.forEach((n) => {
+      let t = n.tagName.toLowerCase();
+        if (result.deprecatedElements[t])
+          result.deprecatedElements[t]++;
+        else
+          result.deprecatedElements[t] = 1;
+    });
+    return result;
+  })(),
+
   // Find first child of <head>
   // Whether the first child of <head> is a Google Fonts <link>
   // Used by: 2019/06_47
@@ -1534,5 +1617,5 @@ if (errors.length > 0) {
   almanac.errors = errors;
 }
 
-// for some reason we rturn the string. Maybe to make it easier for usin in BigQuery
+// for some reason we return the string. Maybe to make it easier for usin in BigQuery
 return JSON.stringify(almanac);
