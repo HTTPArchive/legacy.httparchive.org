@@ -355,8 +355,6 @@ return JSON.stringify({
       return null;
     }
   })(),
-  //  check if there is any picture tag containing an img tag
-  'has_picture_img': document.querySelectorAll('picture img').length > 0,
 
   // Previously for 04_04.sql in 2019
   'inline_svg_stats': (() => {
@@ -374,6 +372,7 @@ return JSON.stringify({
     const pictures = document.querySelectorAll('picture');
     const imgs = [...document.querySelectorAll('img')];
     const sources = document.querySelectorAll('source');
+    const pictures_with_img = document.querySelectorAll('picture img');
 
     const pictures_with_img = document.querySelectorAll('picture img');
     const images_with_srcset = document.querySelectorAll('img[srcset], source[srcset]');
@@ -576,12 +575,10 @@ return JSON.stringify({
   })(),
 
   'body_node': (() => {
-    // Returns a JSON array of meta nodes and their key/value attributes.
     return parseNode(document.body);
   })(),
 
   'html_node': (() => {
-    // Returns a JSON array of meta nodes and their key/value attributes.
     return parseNode(document.documentElement);
   })(),
 
