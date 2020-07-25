@@ -323,10 +323,14 @@ return JSON.stringify({
       return null;
     }
   })(),
-  //  Counts the number of picture tags containing an img tag
+  // Counts the number of picture tags containing an img tag
   'num_picture_img': document.querySelectorAll('picture img').length,
   // Counts the number of source or img tags with sizes attribute
   'num_image_sizes': document.querySelectorAll('source[sizes], img[sizes]').length,
+  // Count the mumber of images with srcset attribute
+  num_srcset_all: document.querySelectorAll('source[srcset], img[srcset]').length,
+  // Count the mumber of images with srcset and sizes attributes
+  num_srcset_sizes: document.querySelectorAll('source[srcset][sizes], img[srcset][sizes]').length,
   // Returns a set of video node attribute names
   'video-nodes-attributes': (() => {
     var allAttributes = getNodesAttributes(document.querySelectorAll('video'));
