@@ -345,6 +345,15 @@ return JSON.stringify({
     }
     return count;
   })(),
+  // Return picture formats ["image/webp","image/svg+xml"]
+  'picture_formats': (() => {
+    var nodes = document.querySelectorAll('picture source[type]');
+    var formats = [];
+    for (var i = 0, len = nodes.length; i < len; i++) {
+      formats.push(nodes[i]['type'].toLowerCase());
+    }
+    return formats;
+  })(),
   // Returns a set of video node attribute names
   'video-nodes-attributes': (() => {
     var allAttributes = getNodesAttributes(document.querySelectorAll('video'));
