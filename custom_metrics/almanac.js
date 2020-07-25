@@ -374,7 +374,6 @@ return JSON.stringify({
     const sources = document.querySelectorAll('source');
     const pictures_with_img = document.querySelectorAll('picture img');
 
-    const pictures_with_img = document.querySelectorAll('picture img');
     const images_with_srcset = document.querySelectorAll('img[srcset], source[srcset]');
     const images_with_sizes = [...document.querySelectorAll('img[sizes], source[sizes]')];
     const images_using_loading_prop = [...document.querySelectorAll('img[loading], source[loading]')];
