@@ -46,6 +46,27 @@ function parseNodes(nodes) {
   return parsedNodes;
 }
 
+/**
+ * Executes a function on the node and all of its children
+ *
+ * By default it only executes the function if the node is an element.
+ * Disable this to run the function on a node of any type (e.g., text nodes)
+ */
+function walkNodes(root_node, fun, only_elements = true) {
+  let walker;
+  if (only_elements) {
+    walker = document.createTreeWalker(root_node, NodeFilter.SHOW_ELEMENT);
+  } else {
+    walker = document.createTreeWalker(root_node);
+  }
+
+  let current_node = walker.currentNode;
+  while (current_node) {
+    fun(current_node);
+    current_node = walker.nextNode();
+  }
+}
+
 return JSON.stringify({
   // Wether the page contains <script type=module>.
   '01.12': document.querySelector('script[type=module]') ? 1 : 0,
@@ -485,55 +506,35 @@ return JSON.stringify({
   })(),
 
   'nodes_using_aria': (() => {
-    const nodes_with_role = [...document.querySelectorAll('[aria-*]')];
-
-    /**
-     * 1. Build an object with each key being a unique value of `role` and the value being how often this role occurred
-     * 2. Make a list of unique role values
-     */
-    const unique_values = new Set();
-    const role_values_and_count = {};
-    for (const node of nodes_with_role) {
-      const role = node.getAttribute('role').toLowerCase();
-      unique_values.add(role);
-
-      if (!role_values_and_count[role]) {
-        role_values_and_count[role] = 1;
-        continue;
+    // Example usage: Process all elements on the page
+    const aria_nodes = [];
+    walkNodes(document.documentElement, (node) => {
+      const attributes = node.getAttributeNames();
+      if (attributes.length <= 0) {
+        return;
       }
 
-      role_values_and_count[role]++;
-    }
+      let has_aria = false;
+      for (const attribute_name of attributes) {
+        if (attribute_name.toLowerCase().indexOf('aria') === 0) {
+          // This node has aria, so we'll store all of its attributes and move on to the next node now
+          aria_nodes.push(parseNode(node));
+          return;
+        }
+      }
 
-    return {
-      total: nodes_with_role.length,
-      values_and_count: role_values_and_count,
-      unique_values: [...unique_values],
-    };
+      // The node didn't have aria so we simply do nothing and move on to the next node
+    });
+
+    return aria_nodes;
   })(),
 
   // NOTE: This will not pick up all of the attributes on scripts
   'attributes_used_on_elements': (() => {
-    // Assists us in walking through the entire DOM tree
-    function walk(node, fun) {
-      fun(node);
-
-      node = node.firstChild;
-      while (node) {
-        walk(node, fun);
-        node = node.nextSibling;
-      }
-    }
-
     // Example usage: Process all elements on the page
     const unique_values = new Set();
     const attributes_and_count = {};
-    walk(document.documentElement, (node) => {
-      // Only analyze elements
-      if (node.nodeType !== Node.ELEMENT_NODE) {
-        return;
-      }
-
+    walkNodes(document.documentElement, (node) => {
       const attributes = node.getAttributeNames();
       if (attributes.length <= 0) {
         return;
