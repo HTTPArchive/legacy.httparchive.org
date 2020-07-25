@@ -411,11 +411,12 @@ return JSON.stringify({
       }),
       alt_tag_lengths: alt_tag_lengths,
 
+      // NOTE: props starting with __ are not actual properties. They were added by this script
       picture_props: parseNodes(pictures),
       img_props: imgs.map(img => {
         const props = parseNode(img);
-        props.__naturalWidth = img.naturalWidth;
-        props.__naturalHeight = img.naturalHeight;
+        props.__natural_width = img.naturalWidth;
+        props.__natural_height = img.naturalHeight;
         props.__width = img.width;
         props.__height = img.height;
 
