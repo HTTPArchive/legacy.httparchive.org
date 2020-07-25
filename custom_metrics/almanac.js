@@ -372,7 +372,7 @@ return JSON.stringify({
   // Various stats of img, source and picture elements
   'images': (() => {
     const pictures = document.querySelectorAll('picture');
-    const img = [...document.querySelectorAll('img')];
+    const imgs = [...document.querySelectorAll('img')];
     const sources = document.querySelectorAll('source');
 
     const pictures_with_img = document.querySelectorAll('picture img');
@@ -381,7 +381,7 @@ return JSON.stringify({
     const images_using_loading_prop = [...document.querySelectorAll('img[loading], source[loading]')];
 
     // NOTE: -1 is used to represent images with no alt tag at all. Empty alt tags have a value of 0
-    const alt_tag_lengths = img.map(img => {
+    const alt_tag_lengths = imgs.map(img => {
       if (!img.hasAttribute('alt')) {
         return -1;
       }
@@ -393,7 +393,7 @@ return JSON.stringify({
 
     return {
       total_pictures: pictures.length,
-      total_img: img.length,
+      total_img: imgs.length,
       total_sources: sources.length,
 
       total_with_srcset: images_with_srcset.length,
@@ -401,12 +401,18 @@ return JSON.stringify({
       total_pictures_with_img: pictures_with_img.length,
 
       // Values specific properties. Cleaned and trimmed to make processing easier
-      sizes_values: images_with_sizes.map(img => img.sizes.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim()),
-      images_using_loading_prop: images_using_loading_prop.map(img => img.sizes.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim()),
+      sizes_values: images_with_sizes.map(img => {
+        const value = img.getAttribute('sizes') || '';
+        return value.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
+      }),
+      loading_values: images_using_loading_prop.map(img => {
+        const value = img.getAttribute('loading') || '';
+        return value.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
+      }),
       alt_tag_lengths: alt_tag_lengths,
 
       picture_props: parseNodes(pictures),
-      img_props: parseNodes(img),
+      img_props: parseNodes(imgs),
       source_props: parseNodes(sources),
     };
   })(),
@@ -516,7 +522,7 @@ return JSON.stringify({
 
       let has_aria = false;
       for (const attribute_name of attributes) {
-        if (attribute_name.toLowerCase().indexOf('aria') === 0) {
+        if (attribute_name.toLowerCase().indexOf('aria-') === 0) {
           // This node has aria, so we'll store all of its attributes and move on to the next node now
           aria_nodes.push(parseNode(node));
           return;
@@ -535,21 +541,21 @@ return JSON.stringify({
     const unique_values = new Set();
     const attributes_and_count = {};
     walkNodes(document.documentElement, (node) => {
-      const attributes = node.getAttributeNames();
-      if (attributes.length <= 0) {
+      const attribute_names = node.getAttributeNames();
+      if (attribute_names.length <= 0) {
         return;
       }
 
-      unique_values.add(...attributes);
-
       // Count how often each of these attributes shows up
-      for (const attribute of attributes) {
-        if (!attributes_and_count[attribute]) {
-          attributes_and_count[attribute] = 1;
+      for (const name of attribute_names) {
+        unique_values.add(name);
+
+        if (!attributes_and_count[name]) {
+          attributes_and_count[name] = 1;
           continue;
         }
 
-        attributes_and_count[attribute]++;
+        attributes_and_count[name]++;
       }
     });
 
