@@ -62,26 +62,51 @@ catch (e) {
   logError("wptBodies", "Data returned was not valid", e);
  }
 
-let _rawHtmlDom = null;
-let _rawHtml = null;
-function getRawHtmlDom() {
-  if (!_rawHtmlDom && _wptBodies.length > 0) {
-    
-    let html = getRawHtml();
-
-    _rawHtmlDom = document.createElement('div');
-    _rawHtmlDom.innerHTML = html;
-  }
-  
-  return _rawHtmlDom;
-}
-
-function getRawHtml() {
+ let _rawHtml = null;
+ function getRawHtml() {
   if (!_rawHtml && _wptBodies.length > 0) {  
     _rawHtml = _wptBodies[0].response_body;
   }
+
+//  _rawHtml = '<html><head><meta name="description" content="test"/></head><body>visible</body></html>';
   return _rawHtml;
 }
+
+let _rawHtmlDocument = null;
+
+function getRawHtmlDocument() {
+  if (!_rawHtmlDocument) {
+    
+    let html = getRawHtml();
+
+    if (html) {
+
+      _rawHtmlDocument = document.implementation.createHTMLDocument("New Document");
+
+      _rawHtmlDocument.documentElement.innerHTML = html;
+
+    }
+  }
+  
+  return _rawHtmlDocument;
+}
+
+let _rawHtmlDiv = null;
+function getRawHtmlDiv() {
+  if (!_rawHtmlDiv) {
+    
+    let html = getRawHtml();
+
+    if (html) {
+      _rawHtmlDiv = document.createElement('div');
+      _rawHtmlDiv.innerHTML = html;
+    }
+  }
+  
+  return _rawHtmlDiv;
+}
+
+
 
 function getResponseHeaders(name) {
   return _wptBodies[0]?.response_headers[name]?.split("\n");
@@ -825,26 +850,7 @@ var almanac = {
   // Used by: SEO
   'html_lang': document.querySelector('html')?.getAttribute('lang')?.toLowerCase(),
 
-  // visible word count
-  // Used by: SEO
-  'visible_words': (() => {
 
-    let result = {
-      rendered: document.body?.innerText?.match(/\S+/g)?.length, // \S+ matches none whitespace, which would be a word
-    };
-
-    var rawDom = getRawHtmlDom();
-
-    if (rawDom) {
-      document.body.appendChild(rawDom);
-
-      result.raw = rawDom.innerText?.match(/\S+/g)?.length;
-
-      document.body.removeChild(rawDom);
-    }
-
-    return result;
-  })(),
 
   // Extract the real title tag contents  
   // Used by: SEO
@@ -882,11 +888,13 @@ var almanac = {
 
       result.rendered = getTitles(document);
 
-      let rawHtmlDom = getRawHtmlDom();
+      let rawHtmlDocument = getRawHtmlDocument();
 
-      if (rawHtmlDom) {
-        result.raw = getTitles(rawHtmlDom);
+      if (rawHtmlDocument) {
+        result.raw = getTitles(rawHtmlDocument);
       }
+
+      result.title_changed_on_render = renderedPrimaryTitle != rawPrimaryTitle;
 
       return result; 
     }
@@ -937,10 +945,10 @@ var almanac = {
 
       result.rendered = getMetaDescriptions(document);
 
-      let rawHtmlDom = getRawHtmlDom();
+      let rawHtmlDocument = getRawHtmlDocument();
 
-      if (rawHtmlDom) {
-        result.raw = getMetaDescriptions(rawHtmlDom);
+      if (rawHtmlDocument) {
+        result.raw = getMetaDescriptions(rawHtmlDocument);
       }
 
       return result; 
@@ -970,10 +978,10 @@ var almanac = {
 
       result.rendered = getHreflangValues(document);
 
-      let rawHtmlDom = getRawHtmlDom();
+      let rawHtmlDocument = getRawHtmlDocument();
 
-      if (rawHtmlDom) {
-        result.raw = getHreflangValues(rawHtmlDom);
+      if (rawHtmlDocument) {
+        result.raw = getHreflangValues(rawHtmlDocument);
       }
 
       let linkHeaders = getResponseHeaders("link");
@@ -1068,15 +1076,13 @@ var almanac = {
 
       result.rendered = processHeadings(document);
 
-      let rawHtmlDom = getRawHtmlDom();
+      let rawHtmlDocument = getRawHtmlDocument();
 
-      if (rawHtmlDom) {
-        result.raw = processHeadings(rawHtmlDom);
+      if (rawHtmlDocument) {
+        result.raw = processHeadings(rawHtmlDocument);
       }
 
-      if (renderedPrimaryTitle && rawPrimaryTitle) {
-        result.title_changed_on_render = renderedPrimaryTitle != rawPrimaryTitle;
-      }
+
    
       return result; 
     }
@@ -1341,10 +1347,10 @@ var almanac = {
       let r = {};
       r.rendered = gatherStructuredData(document);
 
-      let rawHtmlDom = getRawHtmlDom();
+      let rawHtmlDocument = getRawHtmlDocument();
 
-      if (rawHtmlDom) {
-        r.raw = gatherStructuredData(rawHtmlDom);
+      if (rawHtmlDocument) {
+        r.raw = gatherStructuredData(rawHtmlDocument);
       }
       
       return r; 
@@ -1664,9 +1670,9 @@ var almanac = {
       result.http_header_link_canoncials = canonicalLinkHeaders;
 
       // raw canonicals
-      let rawHtmlDom = getRawHtmlDom();
-      if (rawHtmlDom) {
-        result.raw.html_link_canoncials = [...rawHtmlDom.querySelectorAll('link[rel="canonical"]')].map(n => {
+      let rawHtmlDocument = getRawHtmlDocument();
+      if (rawHtmlDocument) {
+        result.raw.html_link_canoncials = [...rawHtmlDocument.querySelectorAll('link[rel="canonical"]')].map(n => {
           let c = n.href ?? "";
           processCanonical(c);
           return c;
@@ -1846,10 +1852,10 @@ var almanac = {
 
       result.rendered = calculateAllRobots(document);
 
-      let rawHtmlDom = getRawHtmlDom();
+      let rawHtmlDocument = getRawHtmlDocument();
 
-      if (rawHtmlDom){
-        result.raw = calculateAllRobots(rawHtmlDom);
+      if (rawHtmlDocument){
+        result.raw = calculateAllRobots(rawHtmlDocument);
       }
 
       return result;
@@ -1973,6 +1979,27 @@ var almanac = {
       }
       return n;
     }, 0);
+  })(),
+
+    // visible word count
+  // Used by: SEO
+  'visible_words': (() => {
+
+    let result = {
+      rendered: document.body?.innerText?.match(/\S+/g)?.length, // \S+ matches none whitespace, which would be a word
+    };
+
+    var rawDiv = getRawHtmlDiv();
+
+    if (rawDiv) {
+      document.body.appendChild(rawDiv); // i think this removes the head section from the raw page. So do this last. needed so it can work out whats visible
+
+      result.raw = rawDiv.innerText?.match(/\S+/g)?.length;
+
+      document.body.removeChild(rawDiv);
+    }
+
+    return result;
   })(),
 
   //  check if there is any picture tag containing an img tag
