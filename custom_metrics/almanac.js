@@ -11,7 +11,7 @@
 // 3. Test your change by following the instructions at https://github.com/HTTPArchive/almanac.httparchive.org/issues/33#issuecomment-502288773.
 // 4. Submit a PR to update this file.
 
-var errors = [];
+var logs = [];
 
 function logError(context, messageOrException, exception = null) {
   let error = {type: "error", context: context};
@@ -47,7 +47,7 @@ function logError(context, messageOrException, exception = null) {
     error.exception = e;
   }
 
-  errors.push(error);
+  logs.push(error);
 
   return error;
 }
@@ -124,11 +124,9 @@ function seoText(node) {
 
   let tempNodes = [];
 
-  let images = node.querySelectorAll("img");
+  let images = [...node.querySelectorAll("img")];
 
-  for (var i = 0, len = images.length; i < len; i++) {
-    var image = images[i];
-
+  images.forEach((image) => {
     if (image.alt && image.alt.trim().length > 0) {
 
       var span = image.ownerDocument.createElement("SPAN");
@@ -139,10 +137,9 @@ function seoText(node) {
 
       tempNodes.push(span);
     }
-  }
+  });
 
   let text =  node.innerText.trim();
-
 
   tempNodes.forEach(t => t.parentNode.remove(t));
 
@@ -189,6 +186,8 @@ var almanac = {
   'doctype': document.doctype?.name ?? null,
   'favicon': !!document.querySelector('link[rel*="icon"]'),
   'viewport': document.querySelector('meta[name="viewport"]')?.getAttribute('content') ?? null,
+  'rel_alternate_mobile': !!document.querySelector('link[rel="alternate"][media][href]'),
+  'compatMode': document.compatMode,
   // Wether the page contains <script type=module>.
   // Used by 2019/01_12
   '01.12': document.querySelector('script[type=module]') ? 1 : 0,
@@ -225,9 +224,9 @@ var almanac = {
     return metaNodes;
   })(),
 
-    // noscript use
+  // noscript use
   // Used by SEO, 2019/09_28
-  'noscript': (() => {   
+  'noscripts': (() => {   
     try {   
       let result = {iframe_googletagmanager_count: 0};
 
@@ -243,7 +242,7 @@ var almanac = {
       return result;
     }
     catch(e) {
-      return logError("noscript", e);
+      return logError("noscripts", e);
     }
   })(),
 
@@ -259,10 +258,6 @@ var almanac = {
 
       nodes.forEach((n) => {
         let type = n.getAttribute("type");
-
-        if (type === "") {
-          type = "-blank-";
-        }
 
         if (type) {
             if (result.types[type])
@@ -295,10 +290,6 @@ var almanac = {
         nodes.forEach((n) => {
           let dir = n.getAttribute("dir");
   
-          if (dir === "") {
-            dir = "-blank-";
-          }
-  
           if (dir) {
             if (target.values[dir])
               target.values[dir]++;
@@ -324,6 +315,8 @@ var almanac = {
     }
   })(),
 
+
+
     // input
   // Used by SEO, 2019/09_28
   'inputs': (() => {   
@@ -337,10 +330,6 @@ var almanac = {
       nodes.forEach((n) => {
         let type = n.getAttribute("type");
 
-        if (type === "") {
-          type = "-blank-";
-        }
-
         if (type) {
             if (result.types[type])
               result.types[type]++;
@@ -349,6 +338,8 @@ var almanac = {
         }
 
     });
+
+    result.props = parseNodes(document.querySelectorAll('input, select'));
 
       return result;
     }
@@ -370,10 +361,6 @@ var almanac = {
       nodes.forEach((n) => {
         let type = n.getAttribute("type");
 
-        if (type === "") {
-          type = "-blank-";
-        }
-
         if (type) {
             if (result.types[type])
               result.types[type]++;
@@ -382,10 +369,6 @@ var almanac = {
         }
 
         let src = n.getAttribute("src");
-
-        if (src === "") {
-          src = "-blank-";
-        }
 
         if (src)
           result.src++;
@@ -410,10 +393,6 @@ var almanac = {
     nodes.forEach((n) => {
       let autoplay = n.getAttribute("autoplay");
 
-      if (autoplay === "") {
-        autoplay = "-blank-";
-      }
-
       if (result.autoplay[autoplay])
         result.autoplay[autoplay]++;
       else 
@@ -430,14 +409,10 @@ var almanac = {
 
     let result = {autoplay: {}};
 
-    const nodes = document.querySelectorAll('audios');
+    const nodes = document.querySelectorAll('audio');
 
     nodes.forEach((n) => {
       let autoplay = n.getAttribute("autoplay");
-
-      if (autoplay === "") {
-        autoplay = "-blank-";
-      }
 
       if (result.autoplay[autoplay])
         result.autoplay[autoplay]++;
@@ -451,213 +426,395 @@ var almanac = {
     return result;
   })(),
 
-  // Parse <input> elements
-  // Used by 2019/12*, 2019/09_30b
-  'input_nodes': (() => {   
-    var nodes = document.querySelectorAll('input, select');
-    var inputNodes = parseNodes(nodes);
 
-    return inputNodes;
+  'classes': (() => {
+
+    let result = {names: {}, names_total: 0, references_total: 0};
+
+    const nodes = document.querySelectorAll('*[class]');
+
+    nodes.forEach((n) => {
+      n.classList.forEach((name) => {
+        result.references_total++;
+
+        if (result.names[name]) {
+          result.names[name]++;
+        }
+        else {
+          result.names[name] =1;
+          result.names_total++;
+        }
+      });
+    });
+
+    return result;
+  })(),
+
+  'ids': (() => {
+
+    let result = {ids: {}, ids_total: 0, duplicates_total: 0};
+
+    const nodes = document.querySelectorAll('*[id]');
+
+    nodes.forEach((n) => {
+
+        result.ids_total++;
+
+        if (result.ids[n.id]) {
+          result.ids[n.id]++;
+          result.duplicates_total++;
+        }
+        else {
+          result.ids[n.id] = 1;          
+        }
+     
+    });
+
+    return result;
   })(),
 
   // Looks at links and identifies internal, external or hashed as well as rel attributes and if a link is image only
   // Used by: SEO, 2019/09_10 
   'anchors': (() => {
     try {   
-      var nodes = document.getElementsByTagName('a');
-      var link = document.createElement('a');
+      let link = document.createElement('a');
+      let location = document.location;
 
-      var hostname = document.location.hostname;
+      // use d so could repeat on raw page
 
-      var internal = 0; // metric 10.10
-      var external = 0; // metric 10.10
-      var external_same_domain = 0; // metric 10.10
-      var external_different_domain = 0; // metric 10.10
-      var hash = 0;
-      var navigate_hash = 0; // metric 10.11
-      var early_hash = 0; // metric 09.10
-      
-      var dofollow = 0; // :-)
-      var follow = 0; // :-)
-      var nofollow = 0;
-      var ugc = 0;
-      var sponsored = 0;
-      var image_link = 0;
+      let d = document;
 
-      var target_blank = {total: 0, noopener_noreferrer: 0, noopener: 0, noreferrer: 0, neither: 0};
-      var noopener = 0;
-      var noreferrer = 0;
+      let nodes = d.getElementsByTagName('a');
 
-      var protocols = {};
-      var targets = {};
+      let hostname = location.hostname;
 
-   //   var crawlable = {nohref: 0};
+      let protocol = "";
 
-      if (nodes) {
-        for (var i = 0, len = nodes.length; i < len; i++) {
-          var node = nodes[i];
-
-          // trying to analyse crawlability - commented out for now
-          // bottom line, a link is crawlable if it has an href using a protocol that is crawlable. I capture protocols so that can be worked out.
-          // what would be nice it to determine if a link is meant to click to another page, but is not in the href. onclick listener or onclick attribute that changes the address
-          // https://github.com/GoogleChrome/lighthouse/blob/master/lighthouse-core/audits/seo/crawlable-anchors.js
-
-          // let hasRole = node.hasAttribute("role") && node.getAttribute("role").trim().length > 0; // implies link is for an action not a crawlable link
-          // let hasName = node.name && node.name.trim().length > 0; 
-          // let hasId = node.id && node.id.trim().length > 0; 
-
-          // if (node.hasAttribute("onclick"))
-          // {
-          //     let onclick = node.getAttribute("onclick");
-
-          //     // if does a window.location or window.open
-          //     // could be a function call?
-          //     // if it return false to stop the href? that could also be hidden in a function
-          // }
-          // click based listeners?
-
-          
-          if (!node.href || node.href.trim().length === 0) {
-            // no href means not crawlable
-            // maybe a named anchor so not an issue (name or id)
-            // maybe has a role, so not designed to be a link
-
-            // crawlable.nohref++;
+      let result = {
+        crawlable: {
+          follow: 0,
+          nofollow: 0
+        },
+        hash_link: 0,
+        hash_only_link: 0,
+        javascript_void_links: 0,
+        same_page: {
+          total: 0,
+          jumpto: {
+            total: 0,
+            early: 0,
+            other: 0,
+            using_id: 0,
+            using_name: 0
+          },
+          dynamic: {
+            total: 0,
+            onclick_attributes: {
+              total: 0,
+              window_location: 0,
+              window_open: 0,
+              unknown_action: 0
+            },
+            href_javascript: 0,
+            hash_link: 0
+          },
+          other: {
+            total: 0,
+            hash_link: 0
           }
-          else 
-          {
+        },
+        same_site: 0,
+        same_property : 0,
+        other_property  : 0,
+        rel_attributes : {
+          dofollow: 0,
+          follow: 0,
+          nofollow: 0,
+          ugc: 0,
+          sponsored: 0,
+          noopener: 0,
+          noreferrer: 0
+        },
+        image_links: 0,
+        invisible_links: 0,
+        text_links: 0,
+        target_blank: {total: 0, noopener_noreferrer: 0, noopener: 0, noreferrer: 0, neither: 0},
+        targets: {},
+        protocols: {}
+      };
+
+    
+      let index = 0;
+      if (nodes) {
+        [...nodes].forEach((node) => {
+          index++;
+
+          let crawlable = false;
+          let samePage = false;
+          let dealtWith = false;
+          let hashBased = false;
+
+          if (node.href && node.href.trim().length > 0) {
             link.href = node.href; // our local parser trick
 
-            let protocol = link.protocol.replace(":", "").toLowerCase();
-
-            if (protocol === "") {
-              protocol = "-empty-";
+            if (node.getAttribute("href") === "#") {
+              result.hash_only_link++;
+            } else if (node.getAttribute("href").includes("#")) {
+              result.hash_link++;
             }
 
-            if (protocols[protocol]) 
-              protocols[protocol]++;
+            protocol = link.protocol.replace(":", "").toLowerCase();
+
+            if (result.protocols[protocol]) 
+              result.protocols[protocol]++;
             else 
-              protocols[protocol] = 1;
+              result.protocols[protocol] = 1;
 
-
-            // console.log(node.href + " to "+ link.href + " " +link.protocol);                          
-
-            if (hostname === link.hostname) {
-              // same hostname
-              internal++;
-
-              if (document.location.pathname === link.pathname) {
-                // same page
-
-                if (link.hash.length > 1) { // >1 so not it include # only
-                  // check if hash matches an element in the DOM (scroll to)
-                  try {
-                    var element = document.querySelector(link.hash);
-                    if (element) {
-                      hash++;
-                      if (i < 3) {
-                        early_hash++; // first two links in the page?
-                      }
-                    } else {
-                      navigate_hash++; // does not relate to a named anchor on the page
-                    }
-                  } catch (e) {}
+            switch(protocol) {
+              case "http": // crawlable
+              case "https": // crawlable
+              crawlable = true;
+                break;
+              case "ftp": // crawlable
+              crawlable = true;
+                break;
+              case "javascript":
+                samePage = true;
+                result.same_page.total++;
+                if (link.href.includes("void")) {
+                  result.javascript_void_links++;
                 }
-              }
-            } else { 
-              external++;
-
-              // check if the same domain, e.g. a sub domain, or this is a subdomain linking to the main domain
-              if (hostname.endsWith('.'+link.hostname) || link.hostname.endsWith('.'+hostname)) {
-                external_same_domain++;
-              }
-              else {
-                external_different_domain++;
-              }
+                break; 
+              default:
+                samePage = true;
+                result.same_page.total++;
+                break;     
             }
-
-
-            let current_noopener = false;
-            let current_noreferrer = false;
-            // Checking rel attribute values 
-            // https://support.google.com/webmasters/answer/96569?hl=en
-            if (node.rel) {
-                node.rel.split(" ").forEach(n1 => {
-                    n1.split(",").forEach(n => {
-                        switch (n.toLowerCase().trim()) {
-                            case "nofollow":
-                                nofollow++;
-                                break;
-                            case "dofollow":
-                              dofollow++;
-                                break;
-                            case "follow":
-                              follow++;
-                                break;
-                            case "ugc":
-                                ugc++;
-                                break;
-                            case "sponsored":
-                                sponsored++;
-                                break;
-                            case "noopener":
-                              noopener++;
-                              current_noopener = true;
-                              break;
-                            case "noreferrer":
-                              noreferrer++;
-                              current_noreferrer = true;
-                              break;
-                        }
-                    });
-                });
-            }
-            if (node.target) {
-              let target = node.target.trim();
-
-
-              if (target == "_blank") {
-                target_blank.total++;
-
-                if (current_noopener && current_noreferrer) {
-                  target_blank.noopener_noreferrer++;
-                } else if (current_noopener) {
-                  target_blank.noopener++;
-                } else if (current_noreferrer) {
-                  target_blank.noreferrer++;
-                } else {
-                  target_blank.neither++;
-                }
-              }
-
-              if (target === "") {
-                target = "-empty-";
-              }
-
-              if (targets[target]) 
-                targets[target]++;
-              else 
-                targets[target] = 1;
-            }
-
-            // see if it is an image link
-            // no visible text
-            let noText = node.innerText.trim().length === 0;
-            let hasImage = node.querySelector('img') !== null;
-
-            if (noText) {
-                if (hasImage) {
-                  image_link++;
+            if (!samePage) { // was not set by protocol
+              if (hostname === link.hostname) {
+                
+                if (location.pathname === link.pathname) {
+                  // same page
+                  result.same_page.total++;
+                  samePage = true; 
                 }
                 else {
-                    // invisible link? 
+                  // same site
+                  result.same_site++;
+                  dealtWith = true;
                 }
+              }
+              else {
+                if (hostname.endsWith('.'+link.hostname) || link.hostname.endsWith('.'+hostname)) {
+                  // same property 
+                  result.same_property++;
+                  dealtWith = true;
+                }
+                else {
+                    // other property
+                    result.other_property++;
+                    dealtWith = true;
+                }
+              }
+            }
+
+            if (samePage && link.hash.length > 1) { // >1 so not it include # only
+              hashBased = true;
+              crawlable = false;
+              let id = link.hash.substring(1);
+              if (d.getElementById(id)) { // matching id or name
+                // working named anchor link
+                result.same_page.jumpto.total++;
+                result.same_page.jumpto.using_id++;
+                dealtWith = true;
+
+                if (index <= 3) {
+                  result.same_page.jumpto.early++;
+                } else {
+                  result.same_page.jumpto.other++;
+                }
+
+              } else  if (d.querySelector("*[name='"+id+"']")) { // matching id or name
+                // working named anchor link
+                result.same_page.jumpto.total++;
+                result.same_page.jumpto.using_name++;
+                dealtWith = true;
+
+                if (index <= 3) {
+                  result.same_page.jumpto.early++;
+                } else {
+                  result.same_page.jumpto.other++;
+                }
+
+              }
+              //else // # link with no clue
+
+            }
+            //else // link to self
+
+
+
+           
+  
+          }
+          else {
+            // no href so class as same page
+            result.same_page.total++;
+          }
+
+          // ok
+          if (!dealtWith) {
+            // still not worked out what it does. dynamic or other is left
+
+          // https://github.com/GoogleChrome/lighthouse/blob/master/lighthouse-core/audits/seo/crawlable-anchors.js
+
+          // seems role is more for none links that behave links links: role="link". so this is for somewhere else.
+            // let hasRole = node.hasAttribute("role") && node.getAttribute("role").trim().length > 0; // implies link is for an action not a crawlable link
+
+            // if (hasRole) {
+            //   result.dynamic.has_role++;
+            //   dealtWith = true;
+            // }
+
+            let dynamic = false;
+
+            if (node.hasAttribute("onclick"))
+            {
+              dynamic = true;
+              result.same_page.dynamic.onclick_attributes.total++;
+
+              let onclick = node.getAttribute("onclick");
+              
+              if (onclick.includes("window.location")) {
+                result.same_page.dynamic.onclick_attributes.window_location++;
+              } else if (onclick.includes("window.open")) {
+                result.same_page.dynamic.onclick_attributes.window_open++;
+              }
+              else {
+                result.same_page.dynamic.onclick_attributes.unknown_action++;
+              }           
+            }
+
+            if (protocol.trim().toLowerCase() === "javascript") {
+              result.same_page.dynamic.href_javascript++;
+              dynamic = true;
+            }
+
+            // click based listeners?
+
+            if (dynamic) {
+              if (hashBased) {
+                result.same_page.dynamic.hash_link++;
+              }
+              result.same_page.dynamic.total++;
+            }
+            else {
+              result.same_page.other.total++;
+              if (hashBased) {
+                result.same_page.other.hash_link++;
+              }
+            }          
+          }
+
+
+
+          // other stuff
+
+          let current_noopener = false;
+          let current_noreferrer = false;
+          let follow = true;
+          // Checking rel attribute values 
+          // https://support.google.com/webmasters/answer/96569?hl=en
+          if (node.rel) {
+              node.rel.split(" ").forEach(n1 => {
+                  n1.split(",").forEach(n => {
+                      switch (n.toLowerCase().trim()) {
+                          case "nofollow":
+                            result.rel_attributes.nofollow++;
+                            follow = false;
+                            break;
+                          case "dofollow":
+                            result.rel_attributes.dofollow++;
+                            break;
+                          case "follow":
+                            result.rel_attributes.follow++;
+                            break;
+                          case "ugc":
+                            result.rel_attributes.ugc++;
+                            follow = false;
+                            break;
+                          case "sponsored":
+                            result.rel_attributes.sponsored++;
+                            follow = false;
+                            break;
+                          case "noopener":
+                            result.rel_attributes.noopener++;
+                            current_noopener = true;
+                            break;
+                          case "noreferrer":
+                            result.rel_attributes.noreferrer++;
+                            current_noreferrer = true;
+                            break;
+                      }
+                  });
+              });
+          }
+
+          if (node.target) {
+            let target = node.target.trim();
+
+
+            if (target == "_blank") {
+              result.target_blank.total++;
+
+              if (current_noopener && current_noreferrer) {
+                result.target_blank.noopener_noreferrer++;
+              } else if (current_noopener) {
+                result.target_blank.noopener++;
+              } else if (current_noreferrer) {
+                result.target_blank.noreferrer++;
+              } else {
+                result.target_blank.neither++;
+              }
+            }
+
+            if (result.targets[target]) 
+              result.targets[target]++;
+            else 
+              result.targets[target] = 1;
+          }
+
+          // see if it is an image link
+          // no visible text
+          let noText = node.innerText.trim().length === 0;
+          let hasImage = node.querySelector('img') !== null;
+
+          if (noText) {
+              if (hasImage) {
+                result.image_links++;
+              }
+              else {
+                  // invisible link? 
+                  result.invisible_links++;
+              }
+          }
+          else {
+            result.text_links++;
+          }
+
+          if (crawlable) { // unless nofollow ???
+            if (follow) {
+              result.crawlable.follow++;
+            } else
+            {
+              result.crawlable.nofollow++;
             }
           }
-        }
+
+        });
       }
 
-      return { internal, external, external_same_domain, external_different_domain, hash, navigate_hash, early_hash, nofollow, dofollow, follow, ugc, sponsored, image_link, noopener, noreferrer, target_blank, targets, protocols };
+      return result;
     }
     catch(e) {
       return logError("anchors", e);
@@ -697,7 +854,7 @@ var almanac = {
 
       function getTitles(d) {
         let target = {};
-        target.count = Array.from(d.querySelectorAll('head title')).map(e => {
+        target.total = Array.from(d.querySelectorAll('head title')).map(e => {
           let text = e.innerText.trim();
           let characters = text.length;
           let words = text.match(/\S+/g)?.length;
@@ -710,9 +867,11 @@ var almanac = {
               rawPrimaryTitle = text; // for the heading section
             }
 
+
             target.primary = {
               characters: characters,
-              words: words
+              words: words,
+              text: text
             };
           }
           return {characters: characters, words: words };
@@ -743,20 +902,35 @@ var almanac = {
       let result = {};
 
       function getMetaDescriptions(d) {
-        let target = {};
-        target.count = Array.from(d.querySelectorAll('head meta[name="description"]')).map(e => {
+        let target = {all: {text: "", words: 0, characters: 0}};       
+        target.total = Array.from(d.querySelectorAll('head meta[name="description"]')).map(e => {
           let text = e.getAttribute("content") ?? "";
           let characters = text.length;
           let words = text.match(/\S+/g)?.length;
 
+          target.all.text = (target.all.text+" "+text).trim();
+          target.all.words += words;
+          target.all.characters += characters;
+
+          let snippet  = text;
+
+          if (snippet.length > 500) {
+            snippet = snippet.substring(0,500) + "...";
+          }
+
           if (text.length > 0 && !target.primary) {
             target.primary = {
               characters: characters,
-              words: words
+              words: words,
+              text: snippet
             };
           }
           return {characters: characters, words: words };
         }).length;
+
+        if (target.all.text.length > 500) {
+          target.all.text = target.all.text.substring(0,500) + "...";
+        }
 
         return target;
       }
@@ -781,7 +955,7 @@ var almanac = {
   // Used by: SEO
   'hreflang': (() => {
     try {    
-      let result = {http_header: []};
+      let result = {http_header: {values: []}};
 
       function getHreflangValues(d) {
         let target = {values: []};
@@ -809,7 +983,7 @@ var almanac = {
 
           for (const match of matches) {
             let c =match[1];
-            result.http_header.push(c);
+            result.http_header.values.push(c);
           }  
         })
       }
@@ -827,31 +1001,45 @@ var almanac = {
     try {  
       
 
-      function processHeading(d, target, n) {
+      function processHeading(d, target, n, level) {
+        let html  = n.innerHTML;
         let text = seoText(n);
 
         let words = text.match(/\S+/g)?.length;
 
-        if (text.length > 0 && !result.primary) {
-          let primaryTitle = "";
-          if (d == document) {
-            primaryTitle = renderedPrimaryTitle; 
-          }
-          else {
-            primaryTitle = rawPrimaryTitle; 
-          }
+        if (!target.primary) {
+          if (text.length > 0) { // make this primary
+            let primaryTitle = "";
+            if (d == document) {
+              primaryTitle = renderedPrimaryTitle; 
+            }
+            else {
+              primaryTitle = rawPrimaryTitle; 
+            }
 
-          target.primary = {
-            words: words,
-            characters: text.length,
-            matches_title: text.toLowerCase() == primaryTitle?.toLowerCase()
+            let snippet = text;
+
+            if (snippet.length > 100) {
+              snippet = snippet.substring(0, 100)+"...";
+            }
+
+            target.primary = {
+              words: words,
+              characters: text.length,
+              matches_title: text.toLowerCase() == primaryTitle?.toLowerCase(),
+              text: snippet,
+              level: level
+            }
+          } else if (html.length > 0) {
+            // looks like a hidden heading
+            target.first_non_empty_heading_hidden = true;
           }
         }
         return {characters: text.length, words: words ?? 0};
       }
       
       function processHeadings(d) {
-        let target = {};
+        let target = {first_non_empty_heading_hidden: false};
         for(let l=1; l < 9; l++) {
           let nodes = Array.from(d.querySelectorAll('h'+l));
 
@@ -860,15 +1048,15 @@ var almanac = {
           // if don't have a primary heading yet, search for one.
           
           var hs = nodes.map(n => {
-            let h = processHeading(d, target, n);
+            let h = processHeading(d, target, n, l);
             characters += h.characters;
             words += h.words;
             return h;
           });
     
           target["h"+l] = {
-            count: nodes.length,
-            non_empty_count: nodes.filter(e => seoText(e).length > 0).length,
+            total: nodes.length,
+            non_empty_total: nodes.filter(e => seoText(e).length > 0).length,
             characters: characters,
             words: words
           };
@@ -905,19 +1093,37 @@ var almanac = {
     try { 
       var link = document.createElement('a');
 
-      function nestedJsonldLookup(target, items, depth, context) {
+      function nestedJsonldLookup(target, jsonldIds, items, depth, context) {
         if (items instanceof Array) {
           // loop array and process any objects in it 
           for (var i = 0, len = items.length; i < len; i++) {
             var item = items[i];
             if (item instanceof Object) {
-              nestedJsonldLookup(target, item, depth+1, context);
+              nestedJsonldLookup(target, jsonldIds, item, depth+1, context);
             }
           }
         }
         else if (items instanceof Object) {
           // process object
           target.items_by_format.jsonld++;
+
+          if (items['@id']) {
+            if (typeof items['@id'] === 'string') {
+              
+              link.href = items['@id'];
+              let id = link.href;
+
+              if (jsonldIds[id]) {
+                jsonldIds[id]++;
+                // therefore a cross reference
+                target.jsonldReferencedIds++;
+              }
+              else {
+                jsonldIds[id] = 1;
+                target.jsonldIds++;
+              }
+            }
+          }
 
           if (items['@context']) {
             let c = null;
@@ -978,7 +1184,7 @@ var almanac = {
               target.logo = true;
             }
             if (item instanceof Object || item instanceof Array) {
-              nestedJsonldLookup(target, item, depth++, context);
+              nestedJsonldLookup(target, jsonldIds, item, depth++, context);
             }
           }
         }
@@ -1031,6 +1237,11 @@ var almanac = {
 
         let target = {
           jsonld_and_microdata_types: [],
+          jsonldIds: 0,
+          jsonldReferencedIds: 0,
+          microdataIds: 0,
+          microdataReferencedIds: 0,
+          jsonlsMicrodataCommonIds: 0,
           logo: false,
           sitelinks_search_box: false,
           items_by_format: {
@@ -1041,6 +1252,8 @@ var almanac = {
           },
           context_hostnames: []
         };
+
+        let jsonldIds = {};
 
         // json-ld
         let jsonld_scripts = Array.from(d.querySelectorAll('script[type="application/ld+json"]'));
@@ -1053,7 +1266,7 @@ var almanac = {
               var cleanText = cleanText.replace(/^\/\*(.*?)\*\//g, ''); // remove * comment from start (could be for CDATA section) does not deal with multi line comments
               var cleanText = cleanText.replace(/\/\*(.*?)\*\/$/g, ''); // remove * comment from end (could be for CDATA section) does not deal with multi line comments
 
-              nestedJsonldLookup(target, JSON.parse(cleanText), 0, "http://no-context.com/");
+              nestedJsonldLookup(target, jsonldIds, JSON.parse(cleanText), 0, "http://no-context.com/");
               return false; // its good
             }
             catch(e) {
@@ -1083,6 +1296,31 @@ var almanac = {
         if (d.querySelector("[itemtype$='SearchAction']")){
           target.sitelinks_search_box = true;
         }
+
+        let microdataIds = {};
+
+        let microdataItemIdNodes = [...d.querySelectorAll('[itemid]')];
+
+        microdataItemIdNodes.forEach((n) => {
+          link.href = n.getAttribute('itemid');
+
+            let id = link.href;
+
+            if (microdataIds[id]) {
+              microdataIds[id]++;
+              // therefore a cross reference
+              target.microdataReferencedIds++;
+            }
+            else {
+              microdataIds[id] = 1;
+              target.microdataIds++;
+
+              if (jsonldIds[id]) {
+                // common id
+                target.jsonlsMicrodataCommonIds++;
+              }
+            }
+        });
 
         // rdfa
         target.items_by_format.rdfa = d.querySelectorAll('[typeof]').length;
@@ -1123,28 +1361,28 @@ var almanac = {
       var nodes = document.querySelectorAll('img');
 
       let result = {
-          images: 0,
-          alt: {
-              missing: 0,
-              blank: 0,
-              present: 0
-          },
-          loading: {
-              auto: 0,
-              lazy: 0,
-              eager: 0,
-              invalid: 0,
-              missing: 0,
-              blank: 0
-          },
-          dimensions: {
-              missing_width: 0,
-              missing_height: 0
-          }
+        total: 0,
+        alt: {
+            missing: 0,
+            blank: 0,
+            present: 0
+        },
+        loading: {
+            auto: 0,
+            lazy: 0,
+            eager: 0,
+            invalid: 0,
+            missing: 0,
+            blank: 0
+        },
+        dimensions: {
+            missing_width: 0,
+            missing_height: 0
+        }
       };
 
       nodes.forEach(node => {
-          result.images++;
+          result.total++;
           if (node.hasAttribute("alt")) {
               if (node.getAttribute("alt").trim().length > 0) {
                   result.alt.present++;
@@ -1194,7 +1432,62 @@ var almanac = {
     }
   })(),
 
-    // amp related data
+   // data on iframe tags including loading
+  // Used by: SEO  
+  'iframes': (() => {   
+    try { 
+      var nodes = document.querySelectorAll('iframe');
+
+      let result = {
+          total: 0,
+          loading: {
+              auto: 0,
+              lazy: 0,
+              eager: 0,
+              invalid: 0,
+              missing: 0,
+              blank: 0
+          }
+      };
+
+      nodes.forEach(node => {
+          result.total++;
+
+          // https://web.dev/native-lazy-loading/
+          if (node.hasAttribute("loading")) {
+              let val = node.getAttribute("loading").trim().toLowerCase();
+
+              switch (val) {
+                  case "auto":
+                      result.loading.auto++;
+                      break;
+                  case "lazy":
+                      result.loading.lazy++;
+                      break;
+                  case "eager":
+                      result.loading.eager++;
+                      break;
+                  case "":
+                      result.loading.blank++;
+                      break;
+                  default:
+                      result.loading.invalid++;
+                      break;
+              }
+          }
+          else {
+              result.loading.missing++;
+          }
+      });
+
+      return result;
+    }
+    catch(e) {
+      return logError("iframe", e);
+    }
+  })(),
+
+  // data from the original html
   // Used by: SEO  
   'raw_html': (() => {  
     try {
@@ -1240,7 +1533,21 @@ var almanac = {
     try {
       let result = {};
 
+      // valid amp page
+      // https://amp.dev/documentation/guides-and-tutorials/learn/spec/amphtml/
+      // doctype is html
+      // html amp or ⚡ attribute
+      // canonical link to real page
+      // <meta charset="utf-8">
+      // <meta name="viewport" content="width=device-width">
+      // <script async src="https://cdn.ampproject.org/v0.js"></script>
+      // boilerplate css
+
       result.html_amp_attribute_present = !!document.querySelector('html')?.hasAttribute('amp');
+
+      result.html_amp_emoji_attribute_present = !!document.querySelector('html')?.hasAttribute('⚡');
+
+      result.amp_page = result.html_amp_attribute_present || result.html_amp_emoji_attribute_present;
 
       result.rel_amphtml = document.querySelector("link[rel='amphtml']")?.getAttribute('href') ?? null;
 
@@ -1320,9 +1627,9 @@ var almanac = {
   })(),
 
 
-  // The first canonical value in the page 
+  // canonicals used in the page and http header
   // Used by: SEO
-  'canonical': (() => {
+  'canonicals': (() => {
     try {
       function processCanonical(c) {
         if (c === result.url) 
@@ -1330,13 +1637,13 @@ var almanac = {
        else 
           result.other_canonical = true;
 
-        if (result.canonicals.includes(c)) 
+        if (result.canonicals[c]) 
           result.canonicals[c]++;
         else 
           result.canonicals[c] = 1;
       }
 
-      let result = {rendered: {}, raw: {}, self_canonical: false, other_canonical: false, canonicals: []};
+      let result = {rendered: {}, raw: {}, self_canonical: false, other_canonical: false, canonicals: {}};
       result.url = document.location.href.split("#")[0];
 
       // headers
@@ -1360,7 +1667,7 @@ var almanac = {
       let rawHtmlDom = getRawHtmlDom();
       if (rawHtmlDom) {
         result.raw.html_link_canoncials = [...rawHtmlDom.querySelectorAll('link[rel="canonical"]')].map(n => {
-          let c = n.href ?? "-notset-";
+          let c = n.href ?? "";
           processCanonical(c);
           return c;
         });
@@ -1369,7 +1676,7 @@ var almanac = {
       // rendered
       let htmlCanonicalLinkNodes = document.querySelectorAll('link[rel="canonical"]');
       let htmlCanonicalLinks = [...htmlCanonicalLinkNodes].map(n => {
-        let c = n.href ?? "-notset-";
+        let c = n.href ?? "";
         processCanonical(c);
         return c;
       });
@@ -1511,11 +1818,30 @@ var almanac = {
       }
 
       function calculateAllRobots(d) {
-        return {
+        let r = {
           otherbot: calculateRobots(d, 'meta[name="robots"]', 'otherbot'),
           googlebot: calculateRobots(d, 'meta[name="robots"], meta[name="googlebot"]', 'googlebot'),
-          googlebot_news: calculateRobots(d, 'meta[name="robots"], meta[name="googlebot-news"]', 'googlebot-news')
+          googlebot_news: calculateRobots(d, 'meta[name="robots"], meta[name="googlebot-news"]', 'googlebot-news'),
+          google: {}
         };
+        // Find all Google values
+        d.querySelectorAll("meta[name='google']").forEach((n) => {
+            let v = n.getAttribute("content");
+
+            if (v) {
+              v.split(",").forEach((v1) => {v1.split(" ").forEach((v2) => {
+                let v3 = v2.trim().toLowerCase();
+                if (r.google[v3]) {
+                  r.google[v3]++;
+                }
+                else {
+                  r.google[v3] = 1;
+                }
+              })});
+            }
+        })
+
+        return r;
       }
 
       result.rendered = calculateAllRobots(document);
@@ -1553,6 +1879,47 @@ var almanac = {
 
 
     return result;
+  })(),
+
+  // svg use
+  // Used by Markup
+  'svgs': (() => {   
+    try {   
+      let result = {};
+
+      result.svg_element_total = document.querySelectorAll('svg').length;
+      result.svg_img_total = document.querySelectorAll('img[src*=".svg"]').length;
+      result.svg_object_total = document.querySelectorAll('object[data*=".svg"]').length;
+      result.svg_embed_total = document.querySelectorAll('embed[src*=".svg"]').length;
+      result.svg_iframe_total = document.querySelectorAll('iframe[src*=".svg"]').length;
+
+      result.svg_total = result.svg_element_total+result.svg_img_total+result.svg_object_total+result.svg_embed_total+result.svg_iframe_total;
+
+      return result;
+    }
+    catch(e) {
+      return logError("svgs", e);
+    }
+  })(),
+
+    // app
+      // Used by Markup
+  'app': (() => {   
+    try {   
+      let result = {};
+
+      
+      //  `<div id="app">` 
+      result.app_id_present = !!document.getElementById("app");
+
+      // `<meta name="theme-color">` 
+      result.meta_theme_color_present = !!document.querySelector('meta[name="theme-color"]');
+
+      return result;
+    }
+    catch(e) {
+      return logError("svgs", e);
+    }
   })(),
 
   // Find first child of <head>
@@ -1624,8 +1991,8 @@ if (!almanac) { // should not be possible
 }
 
 // add any logged errors to the almanac 
-if (errors.length > 0) {
-  almanac.errors = errors;
+if (logs.length > 0) {
+  almanac.log = logs;
 }
 
 // for some reason we return the string. Maybe to make it easier for usin in BigQuery
