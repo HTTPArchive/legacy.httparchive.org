@@ -20,9 +20,44 @@ function getNodeAttributes(node) {
   return node.cloneNode(false).attributes;
 }
 
-function parseNode(node) {
+/**
+ * @typedef {Object} ParseNodeOptions
+ * @property {boolean} [prop_values_to_remove]
+ * @property {boolean} [remove_data_prop_value=true]
+ * @property {boolean} [remove_input_value=true] - On input elements, removes the value="" value
+ * @property {RegExp[]} [other_prop_values_to_remove] - Array of regex patterns. If any property name matches these, their values are removed
+ * @property {Map<RegExp, number>} [prop_to_max_length_map] - Map of regex to max sizes. If any property name matches these, their values will be clamped
+ * @property {number} [max_prop_length=-1] - Default max length of a property. -1 turns this feature off
+ * @property {RegExp[]} [include_only_prop_list] - An explicit list of props to keep. If this is used, any other properties will be discarded completely
+ */
+
+/**
+ * @param {Node} node
+ * @param {ParseNodeOptions} options
+ */
+function parseNode(node, options = {}) {
+  options = Object.assign(
+      {},
+      {
+        remove_data_prop_value: true,
+        remove_input_value: true,
+        other_prop_values_to_remove: [],
+
+        prop_to_max_length_map: new Map(),
+        max_prop_length: -1,
+
+        include_only_prop_list: [],
+      },
+      options);
   const attributes = Object.values(getNodeAttributes(node));
   const el = {};
+  const input_tag_names = new Set('input', 'select', 'textarea');
+
+  // Copy the array to avoid weird bugs in the future from sharing an array
+  const removal_patterns = [...options.other_prop_values_to_remove];
+  if (options.remove_data_prop_value) {
+    removal_patterns.push(/^data-/);
+  }
 
   el.tagName = node.tagName.toLowerCase(); // for reference
   for (const attribute of attributes) {
@@ -30,21 +65,69 @@ function parseNode(node) {
       continue;
     }
 
-    el[attribute.name.toLowerCase()] = attribute.value;
+    if (include_only_prop_list) {
+      // We're using an include only list for props. Throw away everything else
+      for (const pattern of include_only_prop_list) {
+        if (pattern.test(attribute_name)) {
+          continue;
+        }
+      }
+    }
+
+    const attribute_name = attribute.name.toLowerCase();
+    el[attribute_name] = attribute.value;
+
+    // No processing to do. Exit early
+    if (!el[attribute_name] || el[attribute_name].length <= 0) {
+      continue;
+    }
+
+    if (options.remove_input_value &&
+        input_tag_names.has(el.tagName) && attribute_name === 'value') {
+      el[attribute_name] = '';
+      continue;
+    }
+
+    for (const pattern of removal_patterns) {
+      if (pattern.test(attribute_name)) {
+        el[attribute_name] = '';
+        continue;
+      }
+    }
+
+    // Ensure the value length is kept within bounds
+    let matched = false;
+    for (const [pattern, max_length] of options.prop_to_max_length_map) {
+      if (pattern.test(attribute_name)) {
+        el[attribute_name] = el[attribute_name].substr(0, max_length);
+        matched = true;
+        // We cannot exit early, because future matches might be more specific
+      }
+    }
+
+    // If there wasn't a rule specified for this property, clamp it to the default max size
+    if (!matched && options.max_prop_length > 0) {
+      el[attribute_name] = el[attribute_name].substr(0, options.max_prop_length);
+    }
   }
 
   return el;
 }
 
-// Map nodes to their attributes,
-function parseNodes(nodes) {
+/**
+ * Map nodes to their attributes
+ * @param {Node[]} nodes
+ * @param {ParseNodeOptions} options
+ */
+function parseNodes(nodes, options = {}) {
   const parsedNodes = [];
   if (nodes) {
     for (const node of nodes) {
-      const el = parseNode(node);
+      const el = parseNode(node, options);
       parsedNodes.push(el);
     }
   }
+
   return parsedNodes;
 }
 
@@ -301,7 +384,11 @@ return JSON.stringify({
     // Returns a JSON array of nodes with a tabindex and their key/value attributes.
     // We acknowledge that attribute selectors are expensive to query.
     var nodes = document.querySelectorAll('body [tabindex]');
-    var parsedNodes = parseNodes(nodes);
+    var parsedNodes = parseNodes(nodes, {
+      max_prop_length: 255,
+      include_only_prop_list: [/^tabindex$/, /^aria-/],
+    });
+    const minified_nodes = parsedNodes
 
     return parsedNodes;
   })(),
@@ -507,7 +594,10 @@ return JSON.stringify({
       for (const attribute_name of attributes) {
         if (attribute_name.toLowerCase().indexOf('aria-') === 0) {
           // This node has aria, so we'll store all of its attributes and move on to the next node now
-          aria_nodes.push(parseNode(node));
+          // This may return a lot of nodes, so we'll remove the value of some commonly used props
+          aria_nodes.push(parseNode(node, {
+            other_prop_values_to_remove: [/^class$/]
+          }));
           return;
         }
       }
