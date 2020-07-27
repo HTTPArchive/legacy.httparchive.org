@@ -307,21 +307,6 @@ return JSON.stringify({
   })(),
   // Counts the links or buttons only containing an icon.
   'icon_only_clickables': (() => {
-    function containsAnSvg(element) {
-      var children = Array.from(element.childNodes);
-      return !!children.find((child) => {
-        if (child.tagName && child.tagName.toLowerCase() === 'svg') {
-          return true;
-        }
-
-        if (child.childNodes.length) {
-          return containsAnSvg(child);
-        }
-
-        return false;
-      });
-    }
-
     var clickables = document.querySelectorAll('a, button');
     return Array.from(clickables).reduce((n, clickable) => {
       var visible_text_length = clickable.textContent.trim().length;
@@ -333,7 +318,7 @@ return JSON.stringify({
         return n + 1;
       }
 
-      if (containsAnSvg(clickable)) {
+      if (clickable.querySelector('svg')) {
         // The icon in this case is an svg, so any other text is assumed to be a label
         if (visible_text_length >= 1) {
           return n;
