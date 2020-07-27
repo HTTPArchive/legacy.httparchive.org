@@ -890,14 +890,19 @@ var almanac = {
               rawPrimaryTitle = text; // for the heading section
             }
 
+            let snippet = text;
+
+            if (snippet.length > 200) {
+              snippet = snippet.substring(0,200) + "...";
+            }
 
             target.primary = {
               characters: characters,
               words: words,
-              text: text
+              text: snippet
             };
           }
-          return {characters: characters, words: words };
+          return {characters, words };
         }).length;
 
         return target;
@@ -1384,42 +1389,86 @@ var almanac = {
       // img also supports srcset
 
       // map with area attributes are also links (href, alt). Does google see them? An img references a map via the usemap attribute
-
-      var nodes = document.querySelectorAll('img');
-
+ 
       let result = {
-        total: 0,
-        alt: {
-            missing: 0,
-            blank: 0,
-            present: 0
+        picture: {
+          total: 0
         },
-        loading: {
-            auto: 0,
-            lazy: 0,
-            eager: 0,
-            invalid: 0,
-            missing: 0,
-            blank: 0
+        source: {
+            total: 0,
+            src_total: 0,
+            srcset_total: 0,
+            media_total: 0,
+            type_total: 0
         },
-        dimensions: {
-            missing_width: 0,
-            missing_height: 0
+        img: {
+          total: 0,
+          src_total: 0,
+          srcset_total: 0,
+          alt: {
+              missing: 0,
+              blank: 0,
+              present: 0
+          },
+          loading: {
+              auto: 0,
+              lazy: 0,
+              eager: 0,
+              invalid: 0,
+              missing: 0,
+              blank: 0
+          },
+          dimensions: {
+              missing_width: 0,
+              missing_height: 0
+          }
         }
       };
 
-      nodes.forEach(node => {
-          result.total++;
+      var pictureNodes = document.querySelectorAll('picture');
+
+      pictureNodes.forEach(node => {
+        result.picture.total++;
+      });
+
+      var sourceNodes = document.querySelectorAll('source');
+
+      sourceNodes.forEach(node => {
+        result.source.total++;
+        if (node.hasAttribute("srcset")) {
+          result.source.srcset_total++;
+        }
+        if (node.hasAttribute("src")) {
+          result.source.src_total++;
+        }
+        if (node.hasAttribute("media")) {
+          result.source.media_total++;
+        }
+        if (node.hasAttribute("type")) {
+          result.source.type_total++;
+        }
+      });
+
+      var imgNodes = document.querySelectorAll('img');
+
+      imgNodes.forEach(node => {
+          result.img.total++;
+          if (node.hasAttribute("srcset")) {
+            result.img.srcset_total++;
+          }
+          if (node.hasAttribute("src")) {
+            result.img.src_total++;
+          }
           if (node.hasAttribute("alt")) {
               if (node.getAttribute("alt").trim().length > 0) {
-                  result.alt.present++;
+                  result.img.alt.present++;
               }
               else {
-                  result.alt.blank++;
+                  result.img.alt.blank++;
               }
           }
           else {
-              result.alt.missing++;
+              result.img.alt.missing++;
           }
 
           // https://web.dev/native-lazy-loading/
@@ -1428,28 +1477,28 @@ var almanac = {
 
               switch (val) {
                   case "auto":
-                      result.loading.auto++;
+                      result.img.loading.auto++;
                       break;
                   case "lazy":
-                      result.loading.lazy++;
+                      result.img.loading.lazy++;
                       break;
                   case "eager":
-                      result.loading.eager++;
+                      result.img.loading.eager++;
                       break;
                   case "":
-                      result.loading.blank++;
+                      result.img.loading.blank++;
                       break;
                   default:
-                      result.loading.invalid++;
+                      result.img.loading.invalid++;
                       break;
               }
           }
           else {
-              result.loading.missing++;
+              result.img.loading.missing++;
           }
 
-          if (!node.hasAttribute("width")) result.dimensions.missing_width++;
-          if (!node.hasAttribute("height")) result.dimensions.missing_height++;
+          if (!node.hasAttribute("width")) result.img.dimensions.missing_width++;
+          if (!node.hasAttribute("height")) result.img.dimensions.missing_height++;
       });
 
       return result;
