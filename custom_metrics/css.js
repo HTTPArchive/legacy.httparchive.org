@@ -13,5 +13,9 @@
 
 return JSON.stringify({
     'has_cssinjs_styled_components': document.querySelectorAll('style[data-styled]').length > 0 || document.querySelectorAll('style[data-styled-components]').length > 0,
-    'has_cssinjs_radium': document.querySelectorAll('[data-radium]').length > 0
+    'has_cssinjs_radium': document.querySelectorAll('[data-radium]').length > 0,
+    'has_cssinjs_jss': document.querySelectorAll('[data-jss]').length > 0,
+    'has_cssinjs_emotion': document.querySelectorAll('[data-emotion]').length > 0,
+    'has_cssinjs_goober': !!document.getElementById('_goober')
+
 });
