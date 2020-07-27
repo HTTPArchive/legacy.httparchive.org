@@ -12,7 +12,8 @@
 // 4. Submit a PR to update this file.
 
 var logs = [];
-
+// saves the error details in the results log property.
+// returns the same error object so that it can be also used as the return value for a property.
 function logError(context, messageOrException, exception = null) {
   let error = {type: "error", context: context};
 
@@ -52,28 +53,28 @@ function logError(context, messageOrException, exception = null) {
   return error;
 }
 
-try {
+try { // whole process is placed in a try/catch so we can log uncaught errors
 
+// this provides access to a lot of WebPageTest data, including the raw html, headers and other requests involved
 var _wptBodies = [];
 try {
   _wptBodies = $WPT_BODIES; 
 }
 catch (e) {
   logError("wptBodies", "Data returned was not valid", e);
- }
+}
 
- let _rawHtml = null;
- function getRawHtml() {
+// string of the raw html
+let _rawHtml = null;
+function getRawHtml() {
   if (!_rawHtml && _wptBodies.length > 0) {  
     _rawHtml = _wptBodies[0].response_body;
   }
-
-//  _rawHtml = '<html><head><meta name="description" content="test"/></head><body>visible</body></html>';
   return _rawHtml;
 }
 
+// an html document of the raw html
 let _rawHtmlDocument = null;
-
 function getRawHtmlDocument() {
   if (!_rawHtmlDocument) {
     
@@ -84,13 +85,13 @@ function getRawHtmlDocument() {
       _rawHtmlDocument = document.implementation.createHTMLDocument("New Document");
 
       _rawHtmlDocument.documentElement.innerHTML = html;
-
     }
-  }
-  
+  } 
   return _rawHtmlDocument;
 }
 
+// the raw html placed in a div. This was needed for a special case where I need to test for content visibility. I temporarily add the div to the rendered page so that it can calculate things. 
+// Note that it seems the head is removed from this version, so it does not work for gathering meta data etc.
 let _rawHtmlDiv = null;
 function getRawHtmlDiv() {
   if (!_rawHtmlDiv) {
@@ -101,14 +102,15 @@ function getRawHtmlDiv() {
       _rawHtmlDiv = document.createElement('div');
       _rawHtmlDiv.innerHTML = html;
     }
-  }
-  
+  } 
   return _rawHtmlDiv;
 }
 
+// returns an array of matching response headers
 function getResponseHeaders(name) {
   return _wptBodies[0]?.response_headers[name]?.split("\n");
 }
+
 // Sanitize the `attributes` property.
 function getNodeAttributes(node) {
   // Inspired by dequelabs/axe-core.
@@ -169,35 +171,11 @@ function seoText(node) {
   return text;
 }
 
+// to help properties share information
 var renderedPrimaryTitle = null;
 var rawPrimaryTitle = null;
 
 var almanac = {
-  // 'requests': (() => {
-
-  //   let result = [];
-
-  //   _wptBodies.forEach((request) => {
-  //     let r = {};
-
-  //     r.url = request.url;
-
-  //     if (request.request_headers) {
-  //       r.request_headers = request.request_headers.length;
-  //     }
-  //     if (request.response_headers) {
-  //        r.response_headers = request.response_headers.length;
-
-  //        r['content-type'] = request.response_headers['content-type'] ?? "unknown"
-  //     }
-
-  //     if (r.url.includes("youtube")) {
-  //       r.request = request;
-  //     }
-  //     result.push(r);
-  //   });
-  //   return result;
-  // })(),
   'http_status_code': (() => {
     try {
       let statusArray = getResponseHeaders('status');
@@ -216,9 +194,11 @@ var almanac = {
   'viewport': document.querySelector('meta[name="viewport"]')?.getAttribute('content') ?? null,
   'rel_alternate_mobile': !!document.querySelector('link[rel="alternate"][media][href]'),
   'compatMode': document.compatMode,
-    // Get the html lang attribute if present. Was previously done via SQL which only captured the first two characts of the value (country code)
+
+  // Get the html lang attribute if present. Was previously done via SQL which only captured the first two characts of the value (country code)
   // Used by: SEO
   'html_lang': document.querySelector('html')?.getAttribute('lang')?.toLowerCase(),
+
   // Wether the page contains <script type=module>.
   // Used by 2019/01_12
   '01.12': document.querySelector('script[type=module]') ? 1 : 0,
@@ -270,7 +250,7 @@ var almanac = {
     }
   })(),
 
-  // noscript use
+  // noscript tag use
   // Used by SEO, 2019/09_28
   'noscripts': (() => {   
     try {   
@@ -283,7 +263,7 @@ var almanac = {
       nodes.forEach((n) => {
         if (n.innerHTML.match(/googletagmanager\.com/gi)) 
           result.iframe_googletagmanager_count++;
-    });
+      });
 
       return result;
     }
@@ -320,7 +300,7 @@ var almanac = {
     }
   })(),
 
-    // dir attributes
+  // dir attributes
   // Used by SEO, 2019/09_28
   'dirs': (() => {   
     try {   
@@ -360,9 +340,7 @@ var almanac = {
     }
   })(),
 
-
-
-    // input
+  // input tags
   // Used by SEO, 2019/09_28
   'inputs': (() => {   
     try {   
@@ -392,7 +370,7 @@ var almanac = {
     }
   })(),
 
-      // input
+  // script tags
   // Used by SEO, 2019/09_28
   'scripts': (() => {   
     try {   
@@ -427,6 +405,8 @@ var almanac = {
     }
   })(),
 
+  // video tags
+  // Used by Markup
   'videos': (() => {
     try {
       let result = {autoplay: {}};
@@ -452,6 +432,8 @@ var almanac = {
     }
   })(),
 
+  // audio tags
+  // Used by Markup
   'audios': (() => {
     try {
       let result = {autoplay: {}};
@@ -477,7 +459,8 @@ var almanac = {
     }
   })(),
 
-
+  // class attribute usage
+  // Used by Markup
   'classes': (() => {
     try {
       let result = {unique_names_total: 0, references_total: 0};
@@ -507,6 +490,8 @@ var almanac = {
     }
   })(),
 
+  // id attribute usage
+  // Used by Markup
   'ids': (() => {
     try {
       let ids = {};
@@ -544,8 +529,6 @@ var almanac = {
 
       let link = document.createElement('a');
       let location = document.location;
-
-      // use d so could repeat on raw page
 
       function getAnchorData(d) {
 
@@ -729,13 +712,6 @@ var almanac = {
 
             // https://github.com/GoogleChrome/lighthouse/blob/master/lighthouse-core/audits/seo/crawlable-anchors.js
 
-            // seems role is more for none links that behave links links: role="link". so this is for somewhere else.
-              // let hasRole = node.hasAttribute("role") && node.getAttribute("role").trim().length > 0; // implies link is for an action not a crawlable link
-
-              // if (hasRole) {
-              //   target.dynamic.has_role++;
-              //   dealtWith = true;
-              // }
 
               let dynamic = false;
 
@@ -999,8 +975,8 @@ var almanac = {
     }
   })(),
 
-   // Extract hreflang info  
-   // https://support.google.com/webmasters/answer/189077?hl=en
+  // Extract hreflang info  
+  // https://support.google.com/webmasters/answer/189077?hl=en
   // Used by: SEO
   'hreflangs': (() => {
     try {    
@@ -1044,8 +1020,8 @@ var almanac = {
     }
   })(),
 
-  // content information including visible words and number of headings
-  // Used by: SEO
+  // heading information from H1 to H8 
+  // Used by: SEO, Markup
   'headings': (() => { 
     try {  
     
@@ -1131,7 +1107,7 @@ var almanac = {
     }
   })(),
 
-  // content information including visible words and number of headings
+  // Structured Data use
   // Used by: SEO
   'structured_data': (() => {  
     try { 
@@ -1483,7 +1459,7 @@ var almanac = {
     }
   })(),
 
-   // data on iframe tags including loading
+  // data on iframe tags including loading
   // Used by: SEO  
   'iframes': (() => {   
     try { 
@@ -1539,7 +1515,7 @@ var almanac = {
   })(),
 
   // data from the original html
-  // Used by: SEO  
+  // Used by: SEO, Markup  
   'raw_html': (() => {  
     try {
       let result = {};
@@ -1637,7 +1613,7 @@ var almanac = {
   })(),
 
   // Extracts words on the page to flag thin content pages
-  // Used by: SEO  (Probably will go)
+  // Used by: SEO  (Probably will not be used)
   'words': (() => {   
     // SEO: I'm not sure we will still use this. The content property should return more accurate word counts and is far simpler.
     try {
@@ -1820,17 +1796,6 @@ var almanac = {
         let robots = {
           status_index: true,
           status_follow: true,
-          // noindex: false,
-          // nofollow: false,
-          // noarchive: false,
-          // nosnippet: false,
-          // unavailable_after: false,
-          // max_snippet: false,
-          // max_image_preview: false,
-          // max_video_preview: false,
-          // notranslate: false,
-          // noimageindex: false,
-          // nocache: false,
           via_meta_tag: false,
           via_x_robots_tag: false
         };
@@ -1968,8 +1933,8 @@ var almanac = {
     }
   })(),
 
-    // app
-      // Used by Markup
+  // app
+  // Used by Markup
   'app': (() => {   
     try {   
       let result = {};
@@ -2065,8 +2030,6 @@ var almanac = {
     }, 0);
   })(),
 
-
-
   //  check if there is any picture tag containing an img tag
   'has_picture_img': document.querySelectorAll('picture img').length > 0
 };
@@ -2087,5 +2050,4 @@ if (logs.length > 0) {
   almanac.log = logs;
 }
 
-// for some reason we return the string. Maybe to make it easier for usin in BigQuery
 return JSON.stringify(almanac);

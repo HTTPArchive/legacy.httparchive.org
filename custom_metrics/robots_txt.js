@@ -7,7 +7,7 @@ return fetch('/robots.txt')
     return r.text().then(t => {
       result.size = t.length;
       result.comment_lines = t.match(/^\s*#\s*(.*)$/gm)?.length;
-      result.empty_lines = t.match(/^\s*$/gm)?.length;
+     // result.empty_lines = t.match(/^\s*$/gm)?.length;
       result.allow_lines = t.match(/^\s*allow\s*:\s*(.*?)\s*$/gmi)?.length;
       result.disallow_lines = t.match(/^\s*disallow\s*:\s*(.*?)\s*$/gmi)?.length;
 
