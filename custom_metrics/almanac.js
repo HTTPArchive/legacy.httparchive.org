@@ -557,6 +557,7 @@ return JSON.stringify({
 
   'videos': (() => {
     const videos = document.querySelectorAll('video');
+    const tracks = document.querySelectorAll('video track');
 
     const filter_options = {
       include_only_prop_list: [
@@ -571,11 +572,15 @@ return JSON.stringify({
       // Protect us from weird values
       max_prop_length: 255,
     };
-    return parseNodes(videos, filter_options);
+    const parsed_videos = parseNodes(videos, filter_options);
+
+    const parsed_tracks = parseNodes(tracks, {max_prop_length: 255});
+    parsed_videos.tracks = parsed_tracks;
+    return parsed_videos;
   })(),
 
   'scripts': (() => {
-    return parseNodes(document.scripts);
+    return parseNodes(document.scripts, {max_prop_length: 512});
   })(),
 
   'nodes_using_role': (() => {
@@ -649,36 +654,6 @@ return JSON.stringify({
       aria_shortcut_values: aria_shortcut_nodes.map(node => node.getAttribute('aria-keyshortcuts')),
       accesskey_values: accesskey_nodes.map(node => node.getAttribute('accesskey')),
     };
-  })(),
-
-  'nodes_using_aria': (() => {
-    // Example usage: Process all elements on the page
-    const aria_nodes = [];
-    walkNodes(document.documentElement, (node) => {
-      const attributes = node.getAttributeNames();
-      if (attributes.length <= 0) {
-        return;
-      }
-
-      let has_aria = false;
-      for (const attribute_name of attributes) {
-        if (attribute_name.toLowerCase().indexOf('aria-') === 0) {
-          // This node has aria, so we'll store all of its attributes and move on to the next node now
-          // This may return a lot of nodes, so we'll remove the value of some commonly used props
-          aria_nodes.push(
-              parseNode(node, {
-                other_prop_values_to_remove: [/^class$/, /^src$/],
-                max_prop_length: 255,
-              }).attributes
-          );
-          return;
-        }
-      }
-
-      // The node didn't have aria so we simply do nothing and move on to the next node
-    });
-
-    return aria_nodes;
   })(),
 
   // What attribute values are used and how often are they used
