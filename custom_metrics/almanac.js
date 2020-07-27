@@ -607,22 +607,9 @@ return JSON.stringify({
   })(),
 
   'total_nodes_with_duplicate_ids': (() => {
-    const nodes_with_id = [...document.querySelectorAll('[id]')];
-    const id_count_map = new Map();
-    for (const node of nodes_with_id) {
-      const count = id_count_map.get(node.id) || 0;
-      id_count_map.set(node.id, count + 1);
-    }
-
-    let total_duplicates = 0;
-    for (const count of id_count_map.values()) {
-      if (count > 1) {
-        // Subtract one because the first div to have this ID is not a duplicate
-        total_duplicates += count - 1;
-      }
-    }
-
-    return total_duplicates;
+    const ids = [...document.querySelectorAll('[id]')].map(e => e.id);
+    const unique_ids = new Set(ids);
+    return ids.length - unique_ids.size;
   })(),
 
   /**
