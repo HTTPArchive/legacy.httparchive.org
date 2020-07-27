@@ -106,8 +106,6 @@ function getRawHtmlDiv() {
   return _rawHtmlDiv;
 }
 
-
-
 function getResponseHeaders(name) {
   return _wptBodies[0]?.response_headers[name]?.split("\n");
 }
@@ -201,18 +199,26 @@ var almanac = {
   //   return result;
   // })(),
   'http_status_code': (() => {
-    let statusArray = getResponseHeaders('status');
+    try {
+      let statusArray = getResponseHeaders('status');
 
-    if (statusArray)
-      return statusArray[0];
+      if (statusArray)
+        return statusArray[0];
 
-    return null;
+      return null;
+    }
+    catch(e) {
+      return logError("http_status_code", e);
+    }
   })(),
   'doctype': document.doctype?.name ?? null,
   'favicon': !!document.querySelector('link[rel*="icon"]'),
   'viewport': document.querySelector('meta[name="viewport"]')?.getAttribute('content') ?? null,
   'rel_alternate_mobile': !!document.querySelector('link[rel="alternate"][media][href]'),
   'compatMode': document.compatMode,
+    // Get the html lang attribute if present. Was previously done via SQL which only captured the first two characts of the value (country code)
+  // Used by: SEO
+  'html_lang': document.querySelector('html')?.getAttribute('lang')?.toLowerCase(),
   // Wether the page contains <script type=module>.
   // Used by 2019/01_12
   '01.12': document.querySelector('script[type=module]') ? 1 : 0,
@@ -225,28 +231,43 @@ var almanac = {
   'link_nodes': (() => {
     // Returns a JSON array of link nodes and their key/value attributes
     // Used by 01.14, 01.15, 01.16, 10.6,  06.46, 12.18
-    var nodes = document.querySelectorAll('head link');
-    var linkNodes = parseNodes(nodes);
+    try {
+      var nodes = document.querySelectorAll('head link');
+      var linkNodes = parseNodes(nodes);
 
-    return linkNodes;
+      return linkNodes;
+    }
+    catch(e) {
+      return logError("link_nodes", e);
+    }
   })(),
 
   // Returns a JSON array of prioritized nodes and their key/value attributes
   // Used by 2019/19_7, 2019/19_8, 2019/19_9, 2019/19_10
   'priority_hints': (() => { 
-    var nodes = document.querySelectorAll('link[importance], img[importance], script[importance], iframe[importance]');
-    var parsedNodes = parseNodes(nodes);
+    try {
+      var nodes = document.querySelectorAll('link[importance], img[importance], script[importance], iframe[importance]');
+      var parsedNodes = parseNodes(nodes);
 
-    return parsedNodes;
+      return parsedNodes;
+    }
+    catch(e) {
+      return logError("priority_hints", e);
+    }
   })(),
 
   // Returns a JSON array of meta nodes and their key/value attributes
   // Used by SEO, 2019/09_28
-  'meta_nodes': (() => {     
-    var nodes = document.querySelectorAll('head meta');
-    var metaNodes = parseNodes(nodes);
+  'meta_nodes': (() => {    
+    try { 
+      var nodes = document.querySelectorAll('head meta');
+      var metaNodes = parseNodes(nodes);
 
-    return metaNodes;
+      return metaNodes;
+    }
+    catch(e) {
+      return logError("meta_nodes", e);
+    }
   })(),
 
   // noscript use
@@ -260,7 +281,7 @@ var almanac = {
       result.total = nodes.length;
 
       nodes.forEach((n) => {
-        if (n.innerHTML.match(/googletagmanager\.com/g)) 
+        if (n.innerHTML.match(/googletagmanager\.com/gi)) 
           result.iframe_googletagmanager_count++;
     });
 
@@ -290,13 +311,12 @@ var almanac = {
             else 
               result.types[type] = 1;
         }
-
-    });
+      });
 
       return result;
     }
     catch(e) {
-      return logError("button", e);
+      return logError("buttons", e);
     }
   })(),
 
@@ -361,15 +381,14 @@ var almanac = {
             else 
               result.types[type] = 1;
         }
+      });
 
-    });
-
-    result.props = parseNodes(document.querySelectorAll('input, select'));
+      result.props = parseNodes(document.querySelectorAll('input, select'));
 
       return result;
     }
     catch(e) {
-      return logError("input", e);
+      return logError("inputs", e);
     }
   })(),
 
@@ -399,8 +418,7 @@ var almanac = {
           result.src++;
         else 
           result.inline++;
-
-    });
+      });
 
       return result;
     }
@@ -410,433 +428,461 @@ var almanac = {
   })(),
 
   'videos': (() => {
+    try {
+      let result = {autoplay: {}};
 
-    let result = {autoplay: {}};
+      const nodes = document.querySelectorAll('video');
 
-    const nodes = document.querySelectorAll('video');
+      nodes.forEach((n) => {
+        let autoplay = n.getAttribute("autoplay");
 
-    nodes.forEach((n) => {
-      let autoplay = n.getAttribute("autoplay");
+        if (result.autoplay[autoplay])
+          result.autoplay[autoplay]++;
+        else 
+          result.autoplay[autoplay] = 1;
+        });
 
-      if (result.autoplay[autoplay])
-        result.autoplay[autoplay]++;
-      else 
-        result.autoplay[autoplay] = 1;
-      });
+      result.total = nodes.length;
+      result.props = parseNodes(nodes);
 
-    result.total = nodes.length;
-    result.props = parseNodes(nodes);
-
-    return result;
+      return result;
+    }
+    catch(e) {
+      return logError("videos", e);
+    }
   })(),
 
   'audios': (() => {
+    try {
+      let result = {autoplay: {}};
 
-    let result = {autoplay: {}};
+      const nodes = document.querySelectorAll('audio');
 
-    const nodes = document.querySelectorAll('audio');
+      nodes.forEach((n) => {
+        let autoplay = n.getAttribute("autoplay");
 
-    nodes.forEach((n) => {
-      let autoplay = n.getAttribute("autoplay");
+        if (result.autoplay[autoplay])
+          result.autoplay[autoplay]++;
+        else 
+          result.autoplay[autoplay] = 1;
+        });
 
-      if (result.autoplay[autoplay])
-        result.autoplay[autoplay]++;
-      else 
-        result.autoplay[autoplay] = 1;
-      });
+      result.total = nodes.length;
+      result.props = parseNodes(nodes);
 
-    result.total = nodes.length;
-    result.props = parseNodes(nodes);
-
-    return result;
+      return result;
+    }
+    catch(e) {
+      return logError("audios", e);
+    }
   })(),
 
 
   'classes': (() => {
+    try {
+      let result = {unique_names_total: 0, references_total: 0};
 
-    let result = {names: {}, names_total: 0, references_total: 0};
+      let names = {};
 
-    const nodes = document.querySelectorAll('*[class]');
+      const nodes = document.querySelectorAll('*[class]');
 
-    nodes.forEach((n) => {
-      n.classList.forEach((name) => {
-        result.references_total++;
+      nodes.forEach((n) => {
+        n.classList.forEach((name) => {
+          result.references_total++;
 
-        if (result.names[name]) {
-          result.names[name]++;
-        }
-        else {
-          result.names[name] =1;
-          result.names_total++;
-        }
+          if (names[name]) {
+            names[name]++;
+          }
+          else {
+            names[name] =1;
+            result.unique_names_total++;
+          }
+        });
       });
-    });
 
-    return result;
+      return result;
+    }
+    catch(e) {
+      return logError("classes", e);
+    }
   })(),
 
   'ids': (() => {
+    try {
+      let ids = {};
+      let result = {ids_total: 0, duplicate_ids_total: 0, unique_ids_total: 0};
 
-    let result = {ids: {}, ids_total: 0, duplicates_total: 0};
+      const nodes = document.querySelectorAll('*[id]');
 
-    const nodes = document.querySelectorAll('*[id]');
+      nodes.forEach((n) => {
 
-    nodes.forEach((n) => {
+          result.ids_total++;
 
-        result.ids_total++;
+          if (ids[n.id]) {
+            ids[n.id]++;
+            result.duplicate_ids_total++;
+          }
+          else {
+            ids[n.id] = 1; 
+            result.unique_ids_total++;         
+          }
+      
+      });
 
-        if (result.ids[n.id]) {
-          result.ids[n.id]++;
-          result.duplicates_total++;
-        }
-        else {
-          result.ids[n.id] = 1;          
-        }
-     
-    });
-
-    return result;
+      return result;
+    }
+    catch(e) {
+      return logError("ids", e);
+    }
   })(),
 
   // Looks at links and identifies internal, external or hashed as well as rel attributes and if a link is image only
   // Used by: SEO, 2019/09_10 
   'anchors': (() => {
     try {   
+      // area tags are also a form of link
+
       let link = document.createElement('a');
       let location = document.location;
 
       // use d so could repeat on raw page
 
-      let d = document;
+      function getAnchorData(d) {
 
-      let nodes = d.getElementsByTagName('a');
+        let nodes = d.getElementsByTagName('a');
 
-      let hostname = location.hostname;
+        let hostname = location.hostname;
 
-      let protocol = "";
+        let protocol = "";
 
-      let result = {
-        crawlable: {
-          follow: 0,
-          nofollow: 0
-        },
-        hash_link: 0,
-        hash_only_link: 0,
-        javascript_void_links: 0,
-        same_page: {
-          total: 0,
-          jumpto: {
-            total: 0,
-            early: 0,
-            other: 0,
-            using_id: 0,
-            using_name: 0
+        let target = {
+          crawlable: {
+            follow: 0,
+            nofollow: 0
           },
-          dynamic: {
+          hash_link: 0,
+          hash_only_link: 0,
+          javascript_void_links: 0,
+          same_page: {
             total: 0,
-            onclick_attributes: {
+            jumpto: {
               total: 0,
-              window_location: 0,
-              window_open: 0,
-              unknown_action: 0
+              early: 0,
+              other: 0,
+              using_id: 0,
+              using_name: 0
             },
-            href_javascript: 0,
-            hash_link: 0
+            dynamic: {
+              total: 0,
+              onclick_attributes: {
+                total: 0,
+                window_location: 0,
+                window_open: 0,
+                unknown_action: 0
+              },
+              href_javascript: 0,
+              hash_link: 0
+            },
+            other: {
+              total: 0,
+              hash_link: 0
+            }
           },
-          other: {
-            total: 0,
-            hash_link: 0
-          }
-        },
-        same_site: 0,
-        same_property : 0,
-        other_property  : 0,
-        rel_attributes : {
-          dofollow: 0,
-          follow: 0,
-          nofollow: 0,
-          ugc: 0,
-          sponsored: 0,
-          noopener: 0,
-          noreferrer: 0
-        },
-        image_links: 0,
-        invisible_links: 0,
-        text_links: 0,
-        target_blank: {total: 0, noopener_noreferrer: 0, noopener: 0, noreferrer: 0, neither: 0},
-        targets: {},
-        protocols: {}
-      };
+          same_site: 0,
+          same_property : 0,
+          other_property  : 0,
+          rel_attributes : {
+            dofollow: 0,
+            follow: 0,
+            nofollow: 0,
+            ugc: 0,
+            sponsored: 0,
+            noopener: 0,
+            noreferrer: 0
+          },
+          image_links: 0,
+          invisible_links: 0,
+          text_links: 0,
+          target_blank: {total: 0, noopener_noreferrer: 0, noopener: 0, noreferrer: 0, neither: 0},
+          targets: {},
+          protocols: {}
+        };
 
-    
-      let index = 0;
-      if (nodes) {
-        [...nodes].forEach((node) => {
-          index++;
+      
+        let index = 0;
+        if (nodes) {
+          [...nodes].forEach((node) => {
+            index++;
 
-          let crawlable = false;
-          let samePage = false;
-          let dealtWith = false;
-          let hashBased = false;
+            let crawlable = false;
+            let samePage = false;
+            let dealtWith = false;
+            let hashBased = false;
 
-          if (node.href && node.href.trim().length > 0) {
-            link.href = node.href; // our local parser trick
+            if (node.href && node.href.trim().length > 0) {
+              link.href = node.href; // our local parser trick
 
-            if (node.getAttribute("href") === "#") {
-              result.hash_only_link++;
-            } else if (node.getAttribute("href").includes("#")) {
-              result.hash_link++;
-            }
-
-            protocol = link.protocol.replace(":", "").toLowerCase();
-
-            if (result.protocols[protocol]) 
-              result.protocols[protocol]++;
-            else 
-              result.protocols[protocol] = 1;
-
-            switch(protocol) {
-              case "http": // crawlable
-              case "https": // crawlable
-              crawlable = true;
-                break;
-              case "ftp": // crawlable
-              crawlable = true;
-                break;
-              case "javascript":
-                samePage = true;
-                result.same_page.total++;
-                if (link.href.includes("void")) {
-                  result.javascript_void_links++;
-                }
-                break; 
-              default:
-                samePage = true;
-                result.same_page.total++;
-                break;     
-            }
-            if (!samePage) { // was not set by protocol
-              if (hostname === link.hostname) {
-                
-                if (location.pathname === link.pathname) {
-                  // same page
-                  result.same_page.total++;
-                  samePage = true; 
-                }
-                else {
-                  // same site
-                  result.same_site++;
-                  dealtWith = true;
-                }
+              if (node.getAttribute("href") === "#") {
+                target.hash_only_link++;
+              } else if (node.getAttribute("href").includes("#")) {
+                target.hash_link++;
               }
-              else {
-                if (hostname.endsWith('.'+link.hostname) || link.hostname.endsWith('.'+hostname)) {
-                  // same property 
-                  result.same_property++;
-                  dealtWith = true;
-                }
-                else {
-                    // other property
-                    result.other_property++;
+
+              protocol = link.protocol.replace(":", "").toLowerCase();
+
+              if (target.protocols[protocol]) 
+                target.protocols[protocol]++;
+              else 
+                target.protocols[protocol] = 1;
+
+              switch(protocol) {
+                case "http": // crawlable
+                case "https": // crawlable
+                crawlable = true;
+                  break;
+                case "ftp": // crawlable
+                crawlable = true;
+                  break;
+                case "javascript":
+                  samePage = true;
+                  target.same_page.total++;
+                  if (link.href.includes("void")) {
+                    target.javascript_void_links++;
+                  }
+                  break; 
+                default:
+                  samePage = true;
+                  target.same_page.total++;
+                  break;     
+              }
+              if (!samePage) { // was not set by protocol
+                if (hostname === link.hostname) {
+                  
+                  if (location.pathname === link.pathname) {
+                    // same page
+                    target.same_page.total++;
+                    samePage = true; 
+                  }
+                  else {
+                    // same site
+                    target.same_site++;
                     dealtWith = true;
+                  }
+                }
+                else {
+                  if (hostname.endsWith('.'+link.hostname) || link.hostname.endsWith('.'+hostname)) {
+                    // same property 
+                    target.same_property++;
+                    dealtWith = true;
+                  }
+                  else {
+                      // other property
+                      target.other_property++;
+                      dealtWith = true;
+                  }
                 }
               }
-            }
 
-            if (samePage && link.hash.length > 1) { // >1 so not it include # only
-              hashBased = true;
-              crawlable = false;
-              let id = link.hash.substring(1);
-              if (d.getElementById(id)) { // matching id or name
-                // working named anchor link
-                result.same_page.jumpto.total++;
-                result.same_page.jumpto.using_id++;
-                dealtWith = true;
+              if (samePage && link.hash.length > 1) { // >1 so not it include # only
+                hashBased = true;
+                crawlable = false;
+                let id = link.hash.substring(1);
+                if (d.getElementById(id)) { // matching id or name
+                  // working named anchor link
+                  target.same_page.jumpto.total++;
+                  target.same_page.jumpto.using_id++;
+                  dealtWith = true;
 
-                if (index <= 3) {
-                  result.same_page.jumpto.early++;
-                } else {
-                  result.same_page.jumpto.other++;
+                  if (index <= 3) {
+                    target.same_page.jumpto.early++;
+                  } else {
+                    target.same_page.jumpto.other++;
+                  }
+
+                } else  if (d.querySelector("*[name='"+id+"']")) { // matching id or name
+                  // working named anchor link
+                  target.same_page.jumpto.total++;
+                  target.same_page.jumpto.using_name++;
+                  dealtWith = true;
+
+                  if (index <= 3) {
+                    target.same_page.jumpto.early++;
+                  } else {
+                    target.same_page.jumpto.other++;
+                  }
+
                 }
-
-              } else  if (d.querySelector("*[name='"+id+"']")) { // matching id or name
-                // working named anchor link
-                result.same_page.jumpto.total++;
-                result.same_page.jumpto.using_name++;
-                dealtWith = true;
-
-                if (index <= 3) {
-                  result.same_page.jumpto.early++;
-                } else {
-                  result.same_page.jumpto.other++;
-                }
+                //else // # link with no clue
 
               }
-              //else // # link with no clue
-
-            }
-            //else // link to self
-
-
-
-           
-  
-          }
-          else {
-            // no href so class as same page
-            result.same_page.total++;
-          }
-
-          // ok
-          if (!dealtWith) {
-            // still not worked out what it does. dynamic or other is left
-
-          // https://github.com/GoogleChrome/lighthouse/blob/master/lighthouse-core/audits/seo/crawlable-anchors.js
-
-          // seems role is more for none links that behave links links: role="link". so this is for somewhere else.
-            // let hasRole = node.hasAttribute("role") && node.getAttribute("role").trim().length > 0; // implies link is for an action not a crawlable link
-
-            // if (hasRole) {
-            //   result.dynamic.has_role++;
-            //   dealtWith = true;
-            // }
-
-            let dynamic = false;
-
-            if (node.hasAttribute("onclick"))
-            {
-              dynamic = true;
-              result.same_page.dynamic.onclick_attributes.total++;
-
-              let onclick = node.getAttribute("onclick");
-              
-              if (onclick.includes("window.location")) {
-                result.same_page.dynamic.onclick_attributes.window_location++;
-              } else if (onclick.includes("window.open")) {
-                result.same_page.dynamic.onclick_attributes.window_open++;
-              }
-              else {
-                result.same_page.dynamic.onclick_attributes.unknown_action++;
-              }           
-            }
-
-            if (protocol.trim().toLowerCase() === "javascript") {
-              result.same_page.dynamic.href_javascript++;
-              dynamic = true;
-            }
-
-            // click based listeners?
-
-            if (dynamic) {
-              if (hashBased) {
-                result.same_page.dynamic.hash_link++;
-              }
-              result.same_page.dynamic.total++;
+              //else // link to self           
+    
             }
             else {
-              result.same_page.other.total++;
-              if (hashBased) {
-                result.same_page.other.hash_link++;
-              }
-            }          
-          }
-
-
-
-          // other stuff
-
-          let current_noopener = false;
-          let current_noreferrer = false;
-          let follow = true;
-          // Checking rel attribute values 
-          // https://support.google.com/webmasters/answer/96569?hl=en
-          if (node.rel) {
-              node.rel.split(" ").forEach(n1 => {
-                  n1.split(",").forEach(n => {
-                      switch (n.toLowerCase().trim()) {
-                          case "nofollow":
-                            result.rel_attributes.nofollow++;
-                            follow = false;
-                            break;
-                          case "dofollow":
-                            result.rel_attributes.dofollow++;
-                            break;
-                          case "follow":
-                            result.rel_attributes.follow++;
-                            break;
-                          case "ugc":
-                            result.rel_attributes.ugc++;
-                            follow = false;
-                            break;
-                          case "sponsored":
-                            result.rel_attributes.sponsored++;
-                            follow = false;
-                            break;
-                          case "noopener":
-                            result.rel_attributes.noopener++;
-                            current_noopener = true;
-                            break;
-                          case "noreferrer":
-                            result.rel_attributes.noreferrer++;
-                            current_noreferrer = true;
-                            break;
-                      }
-                  });
-              });
-          }
-
-          if (node.target) {
-            let target = node.target.trim();
-
-
-            if (target == "_blank") {
-              result.target_blank.total++;
-
-              if (current_noopener && current_noreferrer) {
-                result.target_blank.noopener_noreferrer++;
-              } else if (current_noopener) {
-                result.target_blank.noopener++;
-              } else if (current_noreferrer) {
-                result.target_blank.noreferrer++;
-              } else {
-                result.target_blank.neither++;
-              }
+              // no href so class as same page
+              target.same_page.total++;
             }
 
-            if (result.targets[target]) 
-              result.targets[target]++;
-            else 
-              result.targets[target] = 1;
-          }
+            // ok
+            if (!dealtWith) {
+              // still not worked out what it does. dynamic or other is left
 
-          // see if it is an image link
-          // no visible text
-          let noText = node.innerText.trim().length === 0;
-          let hasImage = node.querySelector('img') !== null;
+            // https://github.com/GoogleChrome/lighthouse/blob/master/lighthouse-core/audits/seo/crawlable-anchors.js
 
-          if (noText) {
-              if (hasImage) {
-                result.image_links++;
+            // seems role is more for none links that behave links links: role="link". so this is for somewhere else.
+              // let hasRole = node.hasAttribute("role") && node.getAttribute("role").trim().length > 0; // implies link is for an action not a crawlable link
+
+              // if (hasRole) {
+              //   target.dynamic.has_role++;
+              //   dealtWith = true;
+              // }
+
+              let dynamic = false;
+
+              if (node.hasAttribute("onclick"))
+              {
+                dynamic = true;
+                target.same_page.dynamic.onclick_attributes.total++;
+
+                let onclick = node.getAttribute("onclick");
+                
+                if (onclick.includes("window.location")) {
+                  target.same_page.dynamic.onclick_attributes.window_location++;
+                } else if (onclick.includes("window.open")) {
+                  target.same_page.dynamic.onclick_attributes.window_open++;
+                }
+                else {
+                  target.same_page.dynamic.onclick_attributes.unknown_action++;
+                }           
+              }
+
+              if (protocol.trim().toLowerCase() === "javascript") {
+                target.same_page.dynamic.href_javascript++;
+                dynamic = true;
+              }
+
+              // click based listeners?
+
+              if (dynamic) {
+                if (hashBased) {
+                  target.same_page.dynamic.hash_link++;
+                }
+                target.same_page.dynamic.total++;
               }
               else {
-                  // invisible link? 
-                  result.invisible_links++;
-              }
-          }
-          else {
-            result.text_links++;
-          }
-
-          if (crawlable) { // unless nofollow ???
-            if (follow) {
-              result.crawlable.follow++;
-            } else
-            {
-              result.crawlable.nofollow++;
+                target.same_page.other.total++;
+                if (hashBased) {
+                  target.same_page.other.hash_link++;
+                }
+              }          
             }
-          }
 
-        });
+            // other stuff
+
+            let current_noopener = false;
+            let current_noreferrer = false;
+            let follow = true;
+            // Checking rel attribute values 
+            // https://support.google.com/webmasters/answer/96569?hl=en
+            if (node.rel) {
+                node.rel.split(" ").forEach(n1 => {
+                    n1.split(",").forEach(n => {
+                        switch (n.toLowerCase().trim()) {
+                            case "nofollow":
+                              target.rel_attributes.nofollow++;
+                              follow = false;
+                              break;
+                            case "dofollow":
+                              target.rel_attributes.dofollow++;
+                              break;
+                            case "follow":
+                              target.rel_attributes.follow++;
+                              break;
+                            case "ugc":
+                              target.rel_attributes.ugc++;
+                              follow = false;
+                              break;
+                            case "sponsored":
+                              target.rel_attributes.sponsored++;
+                              follow = false;
+                              break;
+                            case "noopener":
+                              target.rel_attributes.noopener++;
+                              current_noopener = true;
+                              break;
+                            case "noreferrer":
+                              target.rel_attributes.noreferrer++;
+                              current_noreferrer = true;
+                              break;
+                        }
+                    });
+                });
+            }
+
+            if (node.target) {
+              let targetAttribute = node.target.trim();
+
+
+              if (targetAttribute == "_blank") {
+                target.target_blank.total++;
+
+                if (current_noopener && current_noreferrer) {
+                  target.target_blank.noopener_noreferrer++;
+                } else if (current_noopener) {
+                  target.target_blank.noopener++;
+                } else if (current_noreferrer) {
+                  target.target_blank.noreferrer++;
+                } else {
+                  target.target_blank.neither++;
+                }
+              }
+
+              if (target.targets[targetAttribute]) 
+                target.targets[targetAttribute]++;
+              else 
+                target.targets[targetAttribute] = 1;
+            }
+
+            // see if it is an image link
+            // no visible text
+            let noText = node.innerText.trim().length === 0;
+            let hasImage = node.querySelector('img') !== null;
+
+            if (noText) {
+                if (hasImage) {
+                  target.image_links++;
+                }
+                else {
+                    // invisible link? 
+                    target.invisible_links++;
+                }
+            }
+            else {
+              target.text_links++;
+            }
+
+            if (crawlable) { // unless nofollow ???
+              if (follow) {
+                target.crawlable.follow++;
+              } else
+              {
+                target.crawlable.nofollow++;
+              }
+            }
+
+          });
+        }
+        return target;
+      };
+
+      let result = {};
+
+      result.rendered = getAnchorData(document)
+
+      let rawHtmlDocument = getRawHtmlDocument();
+
+      if (rawHtmlDocument) {
+        result.raw = getAnchorData(rawHtmlDocument);
       }
 
       return result;
@@ -845,11 +891,6 @@ var almanac = {
       return logError("anchors", e);
     }
   })(),
-
-  // Get the html lang attribute if present. Was previously done via SQL which only captured the first two characts of the value (country code)
-  // Used by: SEO
-  'html_lang': document.querySelector('html')?.getAttribute('lang')?.toLowerCase(),
-
 
 
   // Extract the real title tag contents  
@@ -961,7 +1002,7 @@ var almanac = {
    // Extract hreflang info  
    // https://support.google.com/webmasters/answer/189077?hl=en
   // Used by: SEO
-  'hreflang': (() => {
+  'hreflangs': (() => {
     try {    
       let result = {http_header: {values: []}};
 
@@ -987,7 +1028,7 @@ var almanac = {
       let linkHeaders = getResponseHeaders("link");
       if (linkHeaders) {
         linkHeaders.forEach((h) => {
-          let matches = h.matchAll(/hreflang=['"]?(.*?)['"]/g);
+          let matches = h.matchAll(/hreflang=['"]?(.*?)['"]/gi);
 
           for (const match of matches) {
             let c =match[1];
@@ -999,7 +1040,7 @@ var almanac = {
       return result; 
     }
     catch(e) {
-      return logError("hreflang", e);
+      return logError("hreflangs", e);
     }
   })(),
 
@@ -1007,8 +1048,7 @@ var almanac = {
   // Used by: SEO
   'headings': (() => { 
     try {  
-      
-
+    
       function processHeading(d, target, n, level) {
         let html  = n.innerHTML;
         let text = seoText(n);
@@ -1090,8 +1130,6 @@ var almanac = {
       return logError("headings", e);
     }
   })(),
-
-
 
   // content information including visible words and number of headings
   // Used by: SEO
@@ -1356,7 +1394,7 @@ var almanac = {
       return r; 
     }
     catch(e) {
-      return logError("structured-data", e);
+      return logError("structured_data", e);
     }
   })(),
 
@@ -1364,6 +1402,13 @@ var almanac = {
   // Used by: SEO  
   'images': (() => {   
     try { 
+      // pictures that contain img and multiple source elements
+      // source elements in pictures (media and srcset attributes)
+
+      // img also supports srcset
+
+      // map with area attributes are also links (href, alt). Does google see them? An img references a map via the usemap attribute
+
       var nodes = document.querySelectorAll('img');
 
       let result = {
@@ -1489,7 +1534,7 @@ var almanac = {
       return result;
     }
     catch(e) {
-      return logError("iframe", e);
+      return logError("iframes", e);
     }
   })(),
 
@@ -1506,11 +1551,18 @@ var almanac = {
         result.body = !!rawHtml.match(/<body/g);
         result.html = !!rawHtml.match(/<html/g);
         result.head = !!rawHtml.match(/<head/g);
+        result.size = rawHtml.length;
 
-        let headmatch = rawHtml.match(/<head.*<\/head>/gs); // s = match newlines
+        let headmatch = rawHtml.match(/<head.*<\/head>/gsi); // s = match newlines
 
         if (headmatch) {
           result.head_size = headmatch[0].length;
+        }
+
+        let bodymatch = rawHtml.match(/<body.*<\/body>/gsi); // s = match newlines
+
+        if (bodymatch) {
+          result.body_size = bodymatch[0].length;
         }
 
         let commentMatches = rawHtml.match(/<!--/g);
@@ -1519,7 +1571,7 @@ var almanac = {
           result.comment_count = commentMatches.length;
         }
 
-        let ifCommentMatches = rawHtml.match(/<!-- *\[ *if/gs);
+        let ifCommentMatches = rawHtml.match(/<!-- *\[ *if/gsi);
 
         if (ifCommentMatches) {
           result.conditional_comment_count = ifCommentMatches.length;
@@ -1571,12 +1623,17 @@ var almanac = {
 
   // data-nosnippet use 
   // Used by: SEO
-  'data_nosnippet': (() => {     
+  'data_nosnippet': (() => { 
+    try {    
       // https://support.google.com/webmasters/answer/79812?hl=en
       // https://developers.google.com/search/reference/robots_meta_tag
       var validNodes = document.querySelectorAll('span[data-nosnippet], div[data-nosnippet], section[data-nosnippet]');
       var allNodes = document.querySelectorAll('[data-nosnippet]');
       return { valid: validNodes.length, wrong_tag_type: allNodes.length - validNodes.length};
+    }
+    catch(e) {
+      return logError("data_nosnippet", e);
+    }
   })(),
 
   // Extracts words on the page to flag thin content pages
@@ -1658,7 +1715,7 @@ var almanac = {
       let linkHeaders = getResponseHeaders("link");
       if (linkHeaders) {
         linkHeaders.forEach((h) => {
-          let matches = h.matchAll(/<([^>]*)> *; *rel=['"]?canonical['"]?/g);
+          let matches = h.matchAll(/<([^>]*)> *; *rel=['"]?canonical['"]?/gi);
 
           for (const match of matches) {
             let c = match[1];
@@ -1693,7 +1750,7 @@ var almanac = {
       return result;
     }
     catch(e) {
-      return logError("canonical", e);
+      return logError("canonicals", e);
     }
   })(),
 
@@ -1868,23 +1925,26 @@ var almanac = {
 
   // markup info 
   // Used by: Markup
-  'markup': (() => {     
-    // https://html.spec.whatwg.org/multipage/obsolete.html#non-conforming-features
-    // Array.from(document.querySelectorAll('dfn[data-dfn-type] code')).map(e => e.innerText).join(',')
-    let result = {deprecatedElements: {}};
-    let deprecatedNodes = [...document.querySelectorAll('applet,acronym,bgsound,dir,noframes,isindex,keygen,listing,menuitem,nextid,noembed,plaintext,rb,rtc,strike,xmp,basefont,big,blink,center,font,multicol,nobr,spacer,tt,frameset,frame')];
+  'markup': (() => {  
+    try {   
+      // https://html.spec.whatwg.org/multipage/obsolete.html#non-conforming-features
+      // Array.from(document.querySelectorAll('dfn[data-dfn-type] code')).map(e => e.innerText).join(',')
+      let result = {deprecated_elements: {}};
+      let deprecatedNodes = [...document.querySelectorAll('applet,acronym,bgsound,dir,noframes,isindex,keygen,listing,menuitem,nextid,noembed,plaintext,rb,rtc,strike,xmp,basefont,big,blink,center,font,multicol,nobr,spacer,tt,frameset,frame')];
 
-    deprecatedNodes.forEach((n) => {
-      let t = n.tagName.toLowerCase();
-        if (result.deprecatedElements[t])
-          result.deprecatedElements[t]++;
-        else
-          result.deprecatedElements[t] = 1;
-    });
+      deprecatedNodes.forEach((n) => {
+        let t = n.tagName.toLowerCase();
+          if (result.deprecated_elements[t])
+            result.deprecated_elements[t]++;
+          else
+            result.deprecated_elements[t] = 1;
+      });
 
-
-
-    return result;
+      return result;
+    }
+    catch(e) {
+      return logError("markup", e);
+    }
   })(),
 
   // svg use
@@ -1914,7 +1974,6 @@ var almanac = {
     try {   
       let result = {};
 
-      
       //  `<div id="app">` 
       result.app_id_present = !!document.getElementById("app");
 
@@ -1924,7 +1983,32 @@ var almanac = {
       return result;
     }
     catch(e) {
-      return logError("svgs", e);
+      return logError("app", e);
+    }
+  })(),
+
+  // visible word count
+  // Used by: SEO
+  'visible_words': (() => {
+    try {
+      let result = {
+        rendered: document.body?.innerText?.match(/\S+/g)?.length, // \S+ matches none whitespace, which would be a word
+      };
+
+      var rawDiv = getRawHtmlDiv();
+
+      if (rawDiv) {
+        document.body.appendChild(rawDiv); // i think this removes the head section from the raw page. So do this last. needed so it can work out whats visible
+
+        result.raw = rawDiv.innerText?.match(/\S+/g)?.length;
+
+        document.body.removeChild(rawDiv);
+      }
+
+      return result;
+    }
+    catch(e) {
+      return logError("visible_words", e);
     }
   })(),
 
@@ -1981,26 +2065,7 @@ var almanac = {
     }, 0);
   })(),
 
-    // visible word count
-  // Used by: SEO
-  'visible_words': (() => {
 
-    let result = {
-      rendered: document.body?.innerText?.match(/\S+/g)?.length, // \S+ matches none whitespace, which would be a word
-    };
-
-    var rawDiv = getRawHtmlDiv();
-
-    if (rawDiv) {
-      document.body.appendChild(rawDiv); // i think this removes the head section from the raw page. So do this last. needed so it can work out whats visible
-
-      result.raw = rawDiv.innerText?.match(/\S+/g)?.length;
-
-      document.body.removeChild(rawDiv);
-    }
-
-    return result;
-  })(),
 
   //  check if there is any picture tag containing an img tag
   'has_picture_img': document.querySelectorAll('picture img').length > 0
