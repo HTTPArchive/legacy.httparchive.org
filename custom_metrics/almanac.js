@@ -363,5 +363,18 @@ return JSON.stringify({
       'height', 'intrinsicsize', 'loop', 'muted', 'playsinline', 'poster',
       'preload', 'src', 'width'];
     return allAttributes.filter(el => filter.includes(el));
+  })(),
+  // Counts the number of pictures using source media min-resolution
+  'num_picture_using_min_resolution': (() => {
+    var nodes = document.querySelectorAll('picture source[media*="min-resolution"]');
+    var set = [];
+    // the same picture can have multiple sources with min-resolution
+    // create a set with the picture nodes, parents of source
+    for (var i = 0, len = nodes.length; i < len; i++) {
+      if (!set.includes(nodes[i].parentNode)) {
+        set.push(nodes[i].parentNode);
+      }
+    }
+    return set.length;
   })()
 });
