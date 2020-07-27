@@ -62,8 +62,6 @@ function getNodesAttributes(nodes) {
 function countUniqueParents(nodes)
 {
   var set = [];
-  // the same picture can have multiple sources with min-resolution
-  // create a set with the picture nodes, parents of source
   for (var i = 0, len = nodes.length; i < len; i++) {
     if (!set.includes(nodes[i].parentNode))
     {
