@@ -367,8 +367,10 @@ return JSON.stringify({
     }
     return formats;
   })(),
+  // Count all vide nodes
+  'num_video_nodes': document.querySelectorAll('video').length,
   // Returns a set of video node attribute names
-  'video-nodes-attributes': (() => {
+  'video_nodes_attributes': (() => {
     var allAttributes = getNodesAttributes(document.querySelectorAll('video'));
     var filter = ['autoplay', 'autoPictureInPicture', 'buffered', 'controls',
       'controlslist', 'crossorigin', 'use-credentials', 'currentTime',
