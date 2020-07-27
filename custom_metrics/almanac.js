@@ -361,11 +361,11 @@ return JSON.stringify({
   // Return picture formats ["image/webp","image/svg+xml"]
   'picture_formats': (() => {
     var nodes = document.querySelectorAll('picture source[type]');
-    var formats = [];
+    var formats = {};
     for (var i = 0, len = nodes.length; i < len; i++) {
-      formats.push(nodes[i]['type'].toLowerCase());
+      formats[nodes[i]['type'].toLowerCase()] = '';
     }
-    return formats;
+    return Object.getOwnPropertyNames(formats);
   })(),
   // Count all video nodes
   'num_video_nodes': document.querySelectorAll('video').length,
