@@ -58,6 +58,21 @@ function getNodesAttributes(nodes) {
   return Object.getOwnPropertyNames(object);
 }
 
+// Return the set of unique parent nodes for nodes
+function countUniqueParents(nodes)
+{
+  var set = [];
+  // the same picture can have multiple sources with min-resolution
+  // create a set with the picture nodes, parents of source
+  for (var i = 0, len = nodes.length; i < len; i++) {
+    if (!set.includes(nodes[i].parentNode))
+    {
+      set.push(nodes[i].parentNode);
+    }
+  }
+  return set.length;
+}
+
 return JSON.stringify({
   // Wether the page contains <script type=module>.
   '01.12': document.querySelector('script[type=module]') ? 1 : 0,
@@ -367,14 +382,11 @@ return JSON.stringify({
   // Counts the number of pictures using source media min-resolution
   'num_picture_using_min_resolution': (() => {
     var nodes = document.querySelectorAll('picture source[media*="min-resolution"]');
-    var set = [];
-    // the same picture can have multiple sources with min-resolution
-    // create a set with the picture nodes, parents of source
-    for (var i = 0, len = nodes.length; i < len; i++) {
-      if (!set.includes(nodes[i].parentNode)) {
-        set.push(nodes[i].parentNode);
-      }
-    }
-    return set.length;
+    return countUniqueParents(nodes);
+  })(),
+  // Counts the number of pictures using source media min-resolution
+  'num_picture_using_orientation': (() => {
+    var nodes = document.querySelectorAll('picture source[media*="orientation"]');
+    return countUniqueParents(nodes);
   })()
 });
