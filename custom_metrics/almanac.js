@@ -367,7 +367,7 @@ return JSON.stringify({
     }
     return formats;
   })(),
-  // Count all vide nodes
+  // Count all video nodes
   'num_video_nodes': document.querySelectorAll('video').length,
   // Returns a set of video node attribute names
   'video_nodes_attributes': (() => {
