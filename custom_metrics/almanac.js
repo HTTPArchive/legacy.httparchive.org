@@ -32,8 +32,15 @@ function getNodeAttributes(node) {
  */
 
 /**
+ * @typedef {Object} ParseNodeResponse
+ * @property {Object.<string, string>[]} attributes
+ * @property {string[]} attribute_names
+ */
+
+/**
  * @param {Node} node
  * @param {ParseNodeOptions} options
+ * @return {ParseNodeResponse}
  */
 function parseNode(node, options = {}) {
   options = Object.assign(
@@ -51,6 +58,7 @@ function parseNode(node, options = {}) {
       options);
   const attributes = Object.values(getNodeAttributes(node));
   const el = {};
+  const attribute_names = new Set();
   const input_tag_names = new Set('input', 'select', 'textarea');
 
   // Copy the array to avoid weird bugs in the future from sharing an array
@@ -65,16 +73,25 @@ function parseNode(node, options = {}) {
       continue;
     }
 
-    if (include_only_prop_list) {
+    // Always add the names of the attributes. These are not filtered
+    const attribute_name = attribute.name.toLowerCase();
+    attribute_names.add(attribute_name);
+
+    if (options.include_only_prop_list && options.include_only_prop_list.length > 0) {
       // We're using an include only list for props. Throw away everything else
-      for (const pattern of include_only_prop_list) {
+      let found = false;
+      for (const pattern of options.include_only_prop_list) {
         if (pattern.test(attribute_name)) {
-          continue;
+          found = true;
+          break;
         }
+      }
+
+      if (!found) {
+        continue;
       }
     }
 
-    const attribute_name = attribute.name.toLowerCase();
     el[attribute_name] = attribute.value;
 
     // No processing to do. Exit early
@@ -111,24 +128,56 @@ function parseNode(node, options = {}) {
     }
   }
 
-  return el;
+  return {
+    attributes: el,
+    attribute_names: Array.from(attribute_names),
+  };
 }
 
 /**
- * Map nodes to their attributes
+ * @typedef {Object} ParseNodesResponse
+ * @property {number} total - Total nodes
+ * @property {Object.<string, string>[]} nodes - Key value object of all the properties in the node. Filtered by the options passed
+ * @property {Object.<string, number>} attribute_usage_count - How often each property was used. This is NOT FILTERED by the options passed
+ */
+
+/**
+ * Process nodes and their attributes
  * @param {Node[]} nodes
  * @param {ParseNodeOptions} options
+ * @returns {ParseNodesResponse}
  */
 function parseNodes(nodes, options = {}) {
-  const parsedNodes = [];
-  if (nodes) {
-    for (const node of nodes) {
-      const el = parseNode(node, options);
-      parsedNodes.push(el);
-    }
+  if (!nodes) {
+    return {
+      total: 0,
+      attributes: [],
+      attribute_usage_count: {},
+    };
   }
 
-  return parsedNodes;
+  const parsed_nodes = [];
+  const attribute_usage_count = {};
+  const total = nodes.length;
+  for (const node of nodes) {
+    const result = parseNode(node, options);
+    for (const name of result.attribute_names) {
+      if (!attribute_usage_count[name]) {
+        attribute_usage_count[name] = 1;
+        continue;
+      }
+
+      attribute_usage_count[name]++;
+    }
+
+    parsed_nodes.push(result.attributes);
+  }
+
+  return {
+    total,
+    nodes: parsed_nodes,
+    attribute_usage_count,
+  };
 }
 
 /**
@@ -161,25 +210,19 @@ return JSON.stringify({
     // Returns a JSON array of link nodes and their key/value attributes.
     // Used by 01.14, 01.15, 01.16, 10.6,  06.46, 12.18
     var nodes = document.querySelectorAll('head link');
-    var linkNodes = parseNodes(nodes);
-
-    return linkNodes;
+    return parseNodes(nodes);
   })(),
   'priority-hints': (() => {
     // Returns a JSON array of prioritized nodes and their key/value attributes.
     // Used by 19.8, 19.9, and 19.10.
     var nodes = document.querySelectorAll('link[importance], img[importance], script[importance], iframe[importance]');
-    var parsedNodes = parseNodes(nodes);
-
-    return parsedNodes;
+    return parseNodes(nodes);
   })(),
   'meta-nodes': (() => {
     // Returns a JSON array of meta nodes and their key/value attributes.
     // Used by 10.6, 10.7 (potential: 09.29, 12.5, 04.5)
     var nodes = document.querySelectorAll('head meta');
-    var metaNodes = parseNodes(nodes);
-
-    return metaNodes;
+    return parseNodes(nodes);
   })(),
   // Extract schema.org elements and finds all @context and @type usage
   '10.5': (() => {
@@ -354,10 +397,17 @@ return JSON.stringify({
     return { wordsCount, wordElements };
   })(),
   // Parse <input> elements
-  'input-elements': (() => {
-    // Used by  12.12, 12.14
+  'input_elements': (() => {
     var nodes = document.querySelectorAll('input, select');
-    var inputNodes = parseNodes(nodes);
+    var inputNodes = parseNodes(nodes , {
+      include_only_prop_list: [
+        /^aria-.+$/,
+        /^type$/,
+        /^id$/,
+        /^name$/,
+        /^placeholder$/,
+      ]
+    });
 
     return inputNodes;
   })(),
@@ -384,13 +434,10 @@ return JSON.stringify({
     // Returns a JSON array of nodes with a tabindex and their key/value attributes.
     // We acknowledge that attribute selectors are expensive to query.
     var nodes = document.querySelectorAll('body [tabindex]');
-    var parsedNodes = parseNodes(nodes, {
+    return parseNodes(nodes, {
       max_prop_length: 255,
-      include_only_prop_list: [/^tabindex$/, /^aria-/],
+      include_only_prop_list: [/^tabindex$/],
     });
-    const minified_nodes = parsedNodes
-
-    return parsedNodes;
   })(),
   // Counts the links or buttons only containing an icon.
   'icon_only_clickables': (() => {
@@ -437,7 +484,7 @@ return JSON.stringify({
     return {
       total: svg_elements.length,
       content_lengths: svg_elements.map(svg => svg.outerHTML.length),
-      props: parseNodes(svg_elements),
+      attribute_usage_count: parseNodes(svg_elements).attribute_usage_count,
     };
   })(),
 
@@ -463,10 +510,33 @@ return JSON.stringify({
       return img.alt.trim().replace(/\s+/g, ' ').length;
     });
 
+    /** @type {ParseNodeOptions} */
+    const filter_options = {
+      include_only_prop_list: [
+        /^crossorigin$/,
+        /^decoding$/,
+        /^importance$/,
+        /^intrinsicsize$/,
+        /^ismap$/,
+        /^loading$/,
+        /^referrerpolicy$/,
+        /^usemap$/,
+        /^type$/,
+        /^aria-.+$/,
+      ],
+
+      // Most img sources should be within this many characters. Help guard us from huge base64 values
+      max_prop_length: 255,
+    };
+
+    const parsed_pictures = parseNodes(pictures, filter_options);
+    const parsed_imgs = parseNodes(imgs, filter_options);
+    const parsed_sources = parseNodes(sources, filter_options);
+
     return {
-      total_pictures: pictures.length,
-      total_img: imgs.length,
-      total_sources: sources.length,
+      pictures: parseNodes(pictures, filter_options),
+      imgs: parseNodes(imgs, filter_options),
+      sources: parseNodes(sources, filter_options),
 
       total_with_srcset: images_with_srcset.length,
       total_with_sizes: images_with_sizes.length,
@@ -482,30 +552,30 @@ return JSON.stringify({
         return value.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
       }),
       alt_tag_lengths: alt_tag_lengths,
-
-      picture_props: parseNodes(pictures),
-      img_props: imgs.map(img => {
-        const props = parseNode(img);
-        return props;
-      }),
-      source_props: parseNodes(sources),
     };
   })(),
 
   'videos': (() => {
     const videos = document.querySelectorAll('video');
 
-    return {
-      total: videos.length,
-      props: parseNodes(videos),
+    const filter_options = {
+      include_only_prop_list: [
+        /^autoplay$/,
+        /^controls$/,
+        /^loop$/,
+        /^muted$/,
+        /^poster$/,
+        /^preload$/,
+        /^aria-.+$/,
+      ],
+      // Protect us from weird values
+      max_prop_length: 255,
     };
+    return parseNodes(videos, filter_options);
   })(),
 
   'scripts': (() => {
-    return {
-      total: document.scripts.length,
-      props: parseNodes(document.scripts),
-    };
+    return parseNodes(document.scripts);
   })(),
 
   'nodes_using_role': (() => {
@@ -513,21 +583,21 @@ return JSON.stringify({
 
     // Build an object with each key being a unique value of `role` and the
     // value being how often this role occurred
-    const role_values_and_count = {};
+    const role_usage_and_count = {};
     for (const node of nodes_with_role) {
       const role = node.getAttribute('role').toLowerCase();
 
-      if (!role_values_and_count[role]) {
-        role_values_and_count[role] = 1;
+      if (!role_usage_and_count[role]) {
+        role_usage_and_count[role] = 1;
         continue;
       }
 
-      role_values_and_count[role]++;
+      role_usage_and_count[role]++;
     }
 
     return {
       total: nodes_with_role.length,
-      values_and_count: role_values_and_count,
+      usage_and_count: role_usage_and_count,
     };
   })(),
 
@@ -595,9 +665,12 @@ return JSON.stringify({
         if (attribute_name.toLowerCase().indexOf('aria-') === 0) {
           // This node has aria, so we'll store all of its attributes and move on to the next node now
           // This may return a lot of nodes, so we'll remove the value of some commonly used props
-          aria_nodes.push(parseNode(node, {
-            other_prop_values_to_remove: [/^class$/]
-          }));
+          aria_nodes.push(
+              parseNode(node, {
+                other_prop_values_to_remove: [/^class$/, /^src$/],
+                max_prop_length: 255,
+              }).attributes
+          );
           return;
         }
       }
@@ -633,11 +706,11 @@ return JSON.stringify({
   })(),
 
   'body_node': (() => {
-    return parseNode(document.body);
+    return parseNode(document.body).attributes;
   })(),
 
   'html_node': (() => {
-    return parseNode(document.documentElement);
+    return parseNode(document.documentElement).attributes;
   })(),
 
   'document_title': (() => {
