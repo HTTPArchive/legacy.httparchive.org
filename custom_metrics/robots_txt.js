@@ -8,12 +8,20 @@ return fetch('/robots.txt')
       result.size = t.length;
       result.comment_lines = t.match(/^\s*#\s*(.*)$/gm)?.length;
       result.empty_lines = t.match(/^\s*$/gm)?.length;
-    //  result.user_agents = t.matchAll(/^\s*user-agent\s*:\s*(.*?)\s*$/gmi)?.map(m => m[1]);
       result.allow_lines = t.match(/^\s*allow\s*:\s*(.*?)\s*$/gmi)?.length;
       result.disallow_lines = t.match(/^\s*disallow\s*:\s*(.*?)\s*$/gmi)?.length;
 
-      let sitemapMatches = t.matchAll(/^\s*sitemap\s*:\s*(.*?)\s*$/gmi);
+      let userAgentMatches = t.matchAll(/^\s*user-agent\s*:\s*(.*?)\s*$/gmi);
+      if (userAgentMatches) {
+        result.user_agents = [];
 
+        for (const match of userAgentMatches) {
+          let c = match[1];
+          result.user_agents.push(c);
+        }
+      }
+      
+      let sitemapMatches = t.matchAll(/^\s*sitemap\s*:\s*(.*?)\s*$/gmi);
       if (sitemapMatches) {
         result.sitemaps = [];
 
