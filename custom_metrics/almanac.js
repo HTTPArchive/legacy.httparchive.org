@@ -411,15 +411,9 @@ return JSON.stringify({
       }),
       alt_tag_lengths: alt_tag_lengths,
 
-      // NOTE: props starting with __ are not actual properties. They were added by this script
       picture_props: parseNodes(pictures),
       img_props: imgs.map(img => {
         const props = parseNode(img);
-        props.__natural_width = img.naturalWidth;
-        props.__natural_height = img.naturalHeight;
-        props.__width = img.width;
-        props.__height = img.height;
-
         return props;
       }),
       source_props: parseNodes(sources),
@@ -445,15 +439,11 @@ return JSON.stringify({
   'nodes_using_role': (() => {
     const nodes_with_role = [...document.querySelectorAll('[role]')];
 
-    /**
-     * 1. Build an object with each key being a unique value of `role` and the value being how often this role occurred
-     * 2. Make a list of unique role values
-     */
-    const unique_values = new Set();
+    // Build an object with each key being a unique value of `role` and the
+    // value being how often this role occurred
     const role_values_and_count = {};
     for (const node of nodes_with_role) {
       const role = node.getAttribute('role').toLowerCase();
-      unique_values.add(role);
 
       if (!role_values_and_count[role]) {
         role_values_and_count[role] = 1;
@@ -466,7 +456,6 @@ return JSON.stringify({
     return {
       total: nodes_with_role.length,
       values_and_count: role_values_and_count,
-      unique_values: [...unique_values],
     };
   })(),
 
@@ -544,10 +533,9 @@ return JSON.stringify({
     return aria_nodes;
   })(),
 
+  // What attribute values are used and how often are they used
   // NOTE: This will not pick up all of the attributes on scripts
   'attributes_used_on_elements': (() => {
-    // Example usage: Process all elements on the page
-    const unique_values = new Set();
     const attributes_and_count = {};
     walkNodes(document.documentElement, (node) => {
       const attribute_names = node.getAttributeNames();
@@ -557,8 +545,6 @@ return JSON.stringify({
 
       // Count how often each of these attributes shows up
       for (const name of attribute_names) {
-        unique_values.add(name);
-
         if (!attributes_and_count[name]) {
           attributes_and_count[name] = 1;
           continue;
@@ -568,11 +554,7 @@ return JSON.stringify({
       }
     });
 
-    return {
-      // How often each of these values show up
-      values_and_count: attributes_and_count,
-      unique_values: [...unique_values],
-    };
+    return attributes_and_count;
   })(),
 
   'body_node': (() => {
