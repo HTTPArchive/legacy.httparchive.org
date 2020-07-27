@@ -21,12 +21,11 @@ function getNodeAttributes(node) {
 }
 
 function parseNode(node) {
-  var attributes = Object.values(getNodeAttributes(node));
-  var el = {};
+  const attributes = Object.values(getNodeAttributes(node));
+  const el = {};
 
   el.tagName = node.tagName.toLowerCase(); // for reference
-  for (var n = 0, len2 = attributes.length; n < len2; n++) {
-    var attribute = attributes[n];
+  for (const attribute of attributes) {
     if (!attribute.name) {
       continue;
     }
@@ -39,11 +38,10 @@ function parseNode(node) {
 
 // Map nodes to their attributes,
 function parseNodes(nodes) {
-  var parsedNodes = [];
+  const parsedNodes = [];
   if (nodes) {
-    for (var i = 0, len = nodes.length; i < len; i++) {
-      var node = nodes[i];
-      var el = parseNode(node);
+    for (const node of nodes) {
+      const el = parseNode(node);
       parsedNodes.push(el);
     }
   }
