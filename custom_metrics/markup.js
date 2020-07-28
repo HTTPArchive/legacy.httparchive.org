@@ -52,15 +52,9 @@ var _custom_metrics = null;
 try { // whole process is placed in a try/catch so we can log uncaught errors
 
   _custom_metrics = {
-    'doctype': document.doctype?.name ?? null,
     'favicon': !!document.querySelector('link[rel*="icon"]'),
-    'viewport': document.querySelector('meta[name="viewport"]')?.getAttribute('content') ?? null,
     'rel_alternate_mobile': !!document.querySelector('link[rel="alternate"][media][href]'),
     'compatMode': document.compatMode,
-
-    // Get the html lang attribute if present. Was previously done via SQL which only captured the first two characts of the value (country code)
-    // Used by: SEO
-    'html_lang': document.querySelector('html')?.getAttribute('lang')?.toLowerCase(),
 
     // noscript tag use
     // Used by SEO, Markup, 2019/09_28
@@ -619,7 +613,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
         result.app_id_present = !!document.getElementById("app");
 
         // `<meta name="theme-color">` 
-        result.meta_theme_color_present = !!document.querySelector('meta[name="theme-color"]');
+        result.meta_theme_color = document.querySelector('meta[name="theme-color"]')?.getAttribute('content') ?? null;
 
         return result;
       }
