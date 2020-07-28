@@ -386,8 +386,10 @@ return JSON.stringify({
   })(),
   // Counts the number of pictures using source media min-resolution
   'num_picture_using_min_resolution': (() => {
-    var nodes = document.querySelectorAll('picture source[media*="min-resolution"]');
-    return countUniqueParents(nodes);
+    var pictures = document.querySelectorAll('picture');
+    return Array.from(pictures).filter(picture => {
+      return picture.querySelector('source[media*="min-resolution"]');
+    }).length;
   })(),
   // Counts the number of pictures using source media orientation
   'num_picture_using_orientation': (() => {
