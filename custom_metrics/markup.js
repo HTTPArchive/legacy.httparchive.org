@@ -180,41 +180,6 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
       }
     })(),
 
-    // script tags
-    // Used by SEO, 2019/09_28
-    'scripts': (() => {   
-      try {   
-        let result = {types: {}, inline: 0, src: 0};
-
-        var nodes = [...document.querySelectorAll('script')];
-
-        result.total = nodes.length;
-
-        nodes.forEach((n) => {
-          let type = n.getAttribute("type");
-
-          if (type) {
-              if (result.types[type])
-                result.types[type]++;
-              else 
-                result.types[type] = 1;
-          }
-
-          let src = n.getAttribute("src");
-
-          if (src)
-            result.src++;
-          else 
-            result.inline++;
-        });
-
-        return result;
-      }
-      catch(e) {
-        return logError("scripts", e);
-      }
-    })(),
-
     // audio tags
     // Used by Markup
     'audios': (() => {
