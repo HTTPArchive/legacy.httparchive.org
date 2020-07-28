@@ -43,19 +43,17 @@ function parseNodes(nodes) {
 
 // Return the set of attributes for nodes,
 function getNodesAttributes(nodes) {
-  var object = {};
-  if (nodes) {
-    for (var i = 0, len = nodes.length; i < len; i++) {
-      var node = nodes[i];
-      var attributes = Object.values(getNodeAttributes(node));
-
-      for (var n = 0, len2 = attributes.length; n < len2; n++) {
-        var attribute = attributes[n];
-        object[attribute.name.toLowerCase()] = '';
-      }
+  if (!nodes) {
+    return [];
+  }
+  var uniqueAttributes = new Set();
+  for (var node of nodes) {
+    var attributes = Object.values(getNodeAttributes(node));
+    for (var attribute of attributes) {
+      uniqueAttributes.add(attribute.name.toLowerCase());
     }
   }
-  return Object.getOwnPropertyNames(object);
+  return Array.from(uniqueAttributes);
 }
 
 // Return the set of unique parent nodes for nodes
