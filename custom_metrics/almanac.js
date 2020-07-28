@@ -681,11 +681,13 @@ return JSON.stringify({
   })(),
 
   'body_node': (() => {
-    return parseNode(document.body).attributes;
+    // Only a single element, so we can keep the data values
+    return parseNode(document.body, {remove_data_prop_value: false}).attributes;
   })(),
 
   'html_node': (() => {
-    return parseNode(document.documentElement).attributes;
+    // Only a single element, so we can keep the data values
+    return parseNode(document.documentElement, {remove_data_prop_value: false}).attributes;
   })(),
 
   'document_title': (() => {
