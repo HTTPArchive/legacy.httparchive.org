@@ -116,5 +116,21 @@ return JSON.stringify({
     return Array.from(pictures).filter(picture => {
       return picture.querySelector('source[media*="orientation"]');
     }).length;
+  })(),
+  // Counts the number of candidates for srcset of img that are not in picture
+  'num_img_not_in_picture_srcset_candidates': (() => {
+    var images = document.querySelectorAll('img[srcset]');
+    var nodes = Array.from(images).filter(image => {
+      return image.parentNode.tagName.toLowerCase() != 'picture';
+    });
+    var count = 0;
+    for (var node of nodes) {
+      var srcset = node.getAttribute('srcset');
+      if (!srcset) {
+        continue;
+      }
+      count += srcset.split(',').length;
+    }
+    return count;
   })()
 });
