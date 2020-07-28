@@ -364,11 +364,15 @@ return JSON.stringify({
   // Return picture formats ["image/webp","image/svg+xml"]
   'picture_formats': (() => {
     var nodes = document.querySelectorAll('picture source[type]');
-    var formats = {};
-    for (var i = 0, len = nodes.length; i < len; i++) {
-      formats[nodes[i]['type'].toLowerCase()] = '';
+    var formats = new Set();
+    for (var source of nodes) {
+      var format = source.getAttribute('type');
+      if (!format) {
+        continue;
+      }
+      formats.add(format.toLowerCase());
     }
-    return Object.getOwnPropertyNames(formats);
+    return Array.from(formats);
   })(),
   // Count all video nodes
   'num_video_nodes': document.querySelectorAll('video').length,
