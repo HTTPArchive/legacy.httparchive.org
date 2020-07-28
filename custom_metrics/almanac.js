@@ -497,10 +497,10 @@ return JSON.stringify({
 
     const images_with_srcset = document.querySelectorAll('img[srcset], source[srcset]');
     const images_with_sizes = [...document.querySelectorAll('img[sizes], source[sizes]')];
-    const images_using_loading_prop = [...document.querySelectorAll('img[loading], source[loading]')];
+    const images_using_loading = [...document.querySelectorAll('img[loading], source[loading]')];
 
     // NOTE: -1 is used to represent images with no alt tag at all. Empty alt tags have a value of 0
-    const alt_tag_lengths = imgs.map(img => {
+    const alt_lengths = imgs.map(img => {
       if (!img.hasAttribute('alt')) {
         return -1;
       }
@@ -545,13 +545,13 @@ return JSON.stringify({
       // Values specific properties. Cleaned and trimmed to make processing easier
       sizes_values: images_with_sizes.map(img => {
         const value = img.getAttribute('sizes') || '';
-        return value.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
+        return value.toLoacleLowerCase().replace(/\s+/g, ' ').trim();
       }),
-      loading_values: images_using_loading_prop.map(img => {
+      loading_values: images_using_loading.map(img => {
         const value = img.getAttribute('loading') || '';
-        return value.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
+        return value.toLoacleLowerCase().replace(/\s+/gm, ' ').trim();
       }),
-      alt_tag_lengths: alt_tag_lengths,
+      alt_lengths: alt_lengths,
     };
   })(),
 
@@ -590,7 +590,7 @@ return JSON.stringify({
     // value being how often this role occurred
     const role_usage_and_count = {};
     for (const node of nodes_with_role) {
-      const role = node.getAttribute('role').toLowerCase();
+      const role = node.getAttribute('role').toLoacleLowerCase();
 
       if (!role_usage_and_count[role]) {
         role_usage_and_count[role] = 1;
@@ -638,7 +638,7 @@ return JSON.stringify({
       total_with_accesskey: accesskey_nodes.length,
 
       // Purposely left these as potentially duplicated fields so we can analyze if the same value is used more than once
-      aria_shortcut_values: aria_shortcut_nodes.map(node => node.getAttribute('aria-keyshortcuts')),
+      aria_shortcut_values: aria_shortcut_nodes.map(node => node.getAttribute('aria-keyshortcuts').toLoacleLowerCase()),
       accesskey_values: accesskey_nodes.map(node => node.getAttribute('accesskey')),
     };
   })(),
