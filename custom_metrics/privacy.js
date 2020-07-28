@@ -1,4 +1,6 @@
-//[almanac]
+//[privacy]
+// Uncomment the previous line for testing on webpagetest.org
+
 return JSON.stringify({
   privacy_wording_links: (() => {
     // Wording sourced from: https://github.com/RUB-SysSec/we-value-your-privacy/blob/master/privacy_wording.json
