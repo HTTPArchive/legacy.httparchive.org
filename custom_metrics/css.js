@@ -22,7 +22,7 @@ return JSON.stringify({
         let hasJSX = false;
         document.querySelectorAll('style').
             forEach((s) => {
-                hasJSX = hasJSX || s.id.indexOf('__jsx-') == 0
+                hasJSX = hasJSX || s.id.indexOf('__jsx-') === 0
             });
 
         return hasJSX;
