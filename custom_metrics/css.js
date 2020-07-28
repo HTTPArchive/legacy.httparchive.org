@@ -12,10 +12,10 @@
 // 4. Submit a PR to update this file.
 
 return JSON.stringify({
-    'has_cssinjs_styled_components': document.querySelectorAll('style[data-styled]').length > 0 || document.querySelectorAll('style[data-styled-components]').length > 0,
-    'has_cssinjs_radium': document.querySelectorAll('[data-radium]').length > 0,
-    'has_cssinjs_jss': document.querySelectorAll('[data-jss]').length > 0,
-    'has_cssinjs_emotion': document.querySelectorAll('[data-emotion]').length > 0,
-    'has_cssinjs_goober': !!document.getElementById('_goober')
-
+    'has_cssinjs_styled_components': !!(document.querySelector('style[data-styled]').length || document.querySelectorAll('style[data-styled-components]').length),
+    'has_cssinjs_radium': !!document.querySelector('[data-radium]').length,
+    'has_cssinjs_jss': !!document.querySelector('[data-jss]').length,
+    'has_cssinjs_emotion': !!document.querySelector('[data-emotion]').length,
+    'has_cssinjs_goober': !!document.getElementById('_goober'),
+    'has_cssinjs_merge-styles': !!document.querySelector('[data-merge-styles]')
 });
