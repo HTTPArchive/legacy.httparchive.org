@@ -270,7 +270,7 @@ return JSON.stringify({
     };
   })(),
   '09.27': (() => {
-    // Returns a JSON array of nodes witha tabindex and their key/value attributes.
+    // Returns a JSON array of nodes with a tabindex and their key/value attributes.
     // We acknowledge that attribute selectors are expensive to query.
     var nodes = document.querySelectorAll('body [tabindex]');
     var parsedNodes = parseNodes(nodes);
