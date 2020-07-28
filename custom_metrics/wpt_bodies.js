@@ -1,4 +1,4 @@
-//[wpt_metrics]
+//[wpt_bodies]
 // Uncomment the previous line for testing on webpagetest.org
 
 // Instructions for adding a new custom metric are in almanac.js.
