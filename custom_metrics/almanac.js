@@ -270,7 +270,7 @@ return JSON.stringify({
     };
   })(),
   '09.27': (() => {
-    // Returns a JSON array of nodes with a tabindex and their key/value attributes.
+    // Returns a JSON array of nodes with a tabindex and their key/value attributes.
     // We acknowledge that attribute selectors are expensive to query.
     var nodes = document.querySelectorAll('body [tabindex]');
     var parsedNodes = parseNodes(nodes);
@@ -305,5 +305,7 @@ return JSON.stringify({
     } catch (e) {
       return null;
     }
-  })()
+  })(),
+  //  check if there is any picture tag containing an img tag
+  'has_picture_img': document.querySelectorAll('picture img').length > 0
 });
