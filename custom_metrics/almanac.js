@@ -353,7 +353,10 @@ return JSON.stringify({
     var nodes = document.querySelectorAll('source[srcset], img[srcset]');
     var count = 0;
     for (var i = 0, len = nodes.length; i < len; i++) {
-      var srcset = nodes[i]['srcset'];
+      var srcset = nodes[i].getAttribute('srcset');
+      if (!srcset) {
+        continue;
+      }
       count += srcset.split(',').length;
     }
     return count;
