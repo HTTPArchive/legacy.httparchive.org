@@ -1,15 +1,16 @@
 # Custom metrics
 
-## Instructions for adding a custom metric.
+## Adding a new custom metric
 
-HTTP Archive uses WebPageTest (WPT) to collect information of web pages. WPT is able to run arbitrary JavaScript at the end of a test to coleect custom metrics. See the [WPT custom metrics documentation](https://github.com/WPO-Foundation/webpagetest-docs/blob/master/user/custom_metrics.md) for more info.
+HTTP Archive uses WebPageTest (WPT) to collect information about how web pages are built. WPT is able to run arbitrary JavaScript at the end of a test to collect specific data, known as custom metrics. See the [WPT custom metrics documentation](https://github.com/WPO-Foundation/webpagetest-docs/blob/master/user/custom_metrics.md) for more info.
 
+To add a new custom metric to HTTP Archive:
 
-0. Use existing files or create a new one and add a new key/value pair to the return object.
-1. The key should be a unique identifier for the metric, and should be named according to what it's measuring (eg. 'link-nodes').
-2. If the value requires more than one line of code, evaluate it in an IIFE, eg `(() => { ... })()`.
+0. Select the appropriate `js` file. Some custom metrics are small and single-purpose while others return many metrics for a given topic, like [`media.js`](./media.js) and [`almanac.js`](./almanac.js). Create a new file if you're not sure where your script belongs.
 
-```
+1. For scripts that return a JSON object, the key should be named according to what it's measuring, for example `meta-nodes` returns an array of all `<meta>` nodes and their attributes:
+
+```js
 return JSON.stringify({
   'meta-nodes': (() => {
     // Returns a JSON array of meta nodes and their key/value attributes.
@@ -24,7 +25,7 @@ return JSON.stringify({
 });
 ```
 
-3. Test your changes on WPT.
+3. Test your changes on WPT using the workflow below.
 
 4. Submit a pull request. Include one or more links to test results in your PR description to verify that the script is working.
 
