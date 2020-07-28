@@ -17,5 +17,14 @@ return JSON.stringify({
     'has_cssinjs_jss': !!document.querySelector('[data-jss]').length,
     'has_cssinjs_emotion': !!document.querySelector('[data-emotion]').length,
     'has_cssinjs_goober': !!document.getElementById('_goober'),
-    'has_cssinjs_merge-styles': !!document.querySelector('[data-merge-styles]')
+    'has_cssinjs_merge-styles': !!document.querySelector('[data-merge-styles]'),
+    'has_cssinjs_jsx': (() => {
+        let hasJSX = false;
+        document.querySelectorAll('style').
+            forEach((s) => {
+                hasJSX = hasJSX || s.id.indexOf('__jsx-') == 0
+            });
+
+        return hasJSX;
+    })()
 });
