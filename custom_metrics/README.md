@@ -2,9 +2,7 @@
 
 ## Instructions for adding a custom metric.
 
-HTTP Archive uses WebPageTest to collect information of web pages.
-
-WebPageTest is able to run arbitrary JavaScript at the end of a test to coleect custom metrics. See the [official documentation](https://github.com/WPO-Foundation/webpagetest-docs/blob/master/user/custom_metrics.md).
+HTTP Archive uses WebPageTest (WPT) to collect information of web pages. WPT is able to run arbitrary JavaScript at the end of a test to coleect custom metrics. See the [WPT custom metrics documentation](https://github.com/WPO-Foundation/webpagetest-docs/blob/master/user/custom_metrics.md) for more info.
 
 
 0. Use existing files or create a new one and add a new key/value pair to the return object.
@@ -26,9 +24,9 @@ return JSON.stringify({
 });
 ```
 
-3. Test your changes.
+3. Test your changes on WPT.
 
-4. Submit a pull request.
+4. Submit a pull request. Include one or more links to test results in your PR description to verify that the script is working.
 
 ## Testing
 
