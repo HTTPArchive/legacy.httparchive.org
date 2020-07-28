@@ -1,10 +1,10 @@
-# Web Almanac Custom metrics
+# Custom metrics
 
 ## Instructions for adding a custom metric.
 
-HTTP Archive Almanac uses WebPagetest to collect information of webpages.
+HTTP Archive uses WebPageTest to collect information of web pages.
 
-WebPagetest is able to run arbitrary javascript at the end of a test to coleect custom metrics - [official documentation](https://github.com/WPO-Foundation/webpagetest-docs/blob/master/user/custom_metrics.md).
+WebPageTest is able to run arbitrary JavaScript at the end of a test to coleect custom metrics. See the [official documentation](https://github.com/WPO-Foundation/webpagetest-docs/blob/master/user/custom_metrics.md).
 
 
 0. Use existing files or create a new one and add a new key/value pair to the return object.
@@ -26,13 +26,24 @@ return JSON.stringify({
 });
 ```
 
-3. Test your change by following [the instructions](https://github.com/HTTPArchive/almanac.httparchive.org/issues/33#issuecomment-502288773).
+3. Test your changes.
 
 4. Submit a pull request.
 
+## Testing
 
-## WebPagetest tests debug
+To test a custom metric, for example [`doctype.js`](https://github.com/HTTPArchive/legacy.httparchive.org/blob/master/custom_metrics/doctype.js), you can enter the script directly on [webpagetest.org](https://webpagetest.org?debug=1) under the "Custom" tab.
 
-Use https://www.webpagetest.org/?debug=1 to run the tests and it will include a raw debug log from the agent including the devtools commands to run the custom metrics (and any handled exceptions).
-Log ouput can be found in the main results page to the left of the waterfall. For each run there will be a link for the "debug log" (next to the timeline and trace links).
+![image](https://user-images.githubusercontent.com/1120896/59539351-e3ecdd80-8eca-11e9-8b43-76bbd7a12029.png)
 
+Note that all WPT custom metrics must have `[metricName]` at the start of the script. This is excluded in the HTTP Archive code and generated automatically based on the file name, so you will need to manually ensure that it's set.
+
+If you include the `debug=1` parameter on the WPT home page, for example https://webpagetest.org?debug=1, the test results will include a raw debug log from the agent including the devtools commands to run the custom metrics (and any handled exceptions). The log ouput can be found in the main results page to the left of the waterfall. For each run there will be a link for the "debug log" (next to the timeline and trace links).
+
+To see the custom metric results, select a run and click the "Custom Metrics" link in the top right corner:
+
+![image](https://user-images.githubusercontent.com/1120896/88727164-0e185380-d0fd-11ea-973e-81a50cd24013.png)
+
+![image](https://user-images.githubusercontent.com/1120896/88727208-24beaa80-d0fd-11ea-8ae1-57df2c8505e4.png)
+
+For complex metrics like [almanac.js](./almanac.js) you can more easily explore the results by copy/pasting the JSON into your browser console.
