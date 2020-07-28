@@ -1,4 +1,6 @@
-# Instructions for adding a new custom metric for the Web Almanac.
+# Web Almanac Custom metrics
+
+## Instructions for adding a custom metric.
 
 HTTP Archive Almanac uses WebPagetest to collect information of webpages.
 
@@ -24,6 +26,13 @@ return JSON.stringify({
 });
 ```
 
-3. Test your change by following the instructions at https://github.com/HTTPArchive/almanac.httparchive.org/issues/33#issuecomment-502288773.
+3. Test your change by following [the instructions](https://github.com/HTTPArchive/almanac.httparchive.org/issues/33#issuecomment-502288773).
 
 4. Submit a pull request.
+
+
+## WebPagetest tests debug
+
+Use https://www.webpagetest.org/?debug=1 to run the tests and it will include a raw debug log from the agent including the devtools commands to run the custom metrics (and any handled exceptions).
+Log ouput can be found in the main results page to the left of the waterfall. For each run there will be a link for the "debug log" (next to the timeline and trace links).
+
