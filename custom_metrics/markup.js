@@ -215,32 +215,6 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
       }
     })(),
 
-    // video tags
-    // Used by Markup
-    'videos': (() => {
-      try {
-        let result = {autoplay: {}};
-
-        const nodes = document.querySelectorAll('video');
-
-        nodes.forEach((n) => {
-          let autoplay = n.getAttribute("autoplay");
-
-          if (result.autoplay[autoplay])
-            result.autoplay[autoplay]++;
-          else 
-            result.autoplay[autoplay] = 1;
-          });
-
-        result.total = nodes.length;
-
-        return result;
-      }
-      catch(e) {
-        return logError("videos", e);
-      }
-    })(),
-
     // audio tags
     // Used by Markup
     'audios': (() => {
