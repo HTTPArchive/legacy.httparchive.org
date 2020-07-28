@@ -406,6 +406,19 @@ return JSON.stringify({
         /^id$/,
         /^name$/,
         /^placeholder$/,
+        /^accept$/,
+        /^autocomplete$/,
+        /^autofocus$/,
+        /^capture$/,
+        /^max$/,
+        /^maxlength$/,
+        /^min$/,
+        /^minlength$/,
+        /^required$/,
+        /^readonly$/,
+        /^pattern$/,
+        /^multiple$/,
+        /^step$/,
       ]
     });
 
