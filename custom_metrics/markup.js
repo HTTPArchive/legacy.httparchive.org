@@ -499,14 +499,14 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
 
     // markup info 
     // Used by: Markup
-    'deprecated_elements': (() => {  
+    'obsolete_elements': (() => {  
       try {   
         // https://html.spec.whatwg.org/multipage/obsolete.html#non-conforming-features
         // Array.from(document.querySelectorAll('dfn[data-dfn-type] code')).map(e => e.innerText).join(',')
         let result = {};
-        let deprecatedNodes = [...document.querySelectorAll('applet,acronym,bgsound,dir,noframes,isindex,keygen,listing,menuitem,nextid,noembed,plaintext,rb,rtc,strike,xmp,basefont,big,blink,center,font,multicol,nobr,spacer,tt,frameset,frame')];
+        let obsoleteNodes = [...document.querySelectorAll('applet,acronym,bgsound,dir,frame,frameset,noframes,isindex,keygen,listing,menuitem,nextid,noembed,plaintext,rb,rtc,strike,xmp,basefont,big,blink,center,font,marquee,multicol,nobr,spacer,tt')];
 
-        deprecatedNodes.forEach((n) => {
+        obsoleteNodes.forEach((n) => {
           let t = n.tagName.toLowerCase();
             if (result[t])
               result[t]++;
@@ -517,7 +517,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
         return result;
       }
       catch(e) {
-        return logError("deprecated_elements", e);
+        return logError("obsolete_elements", e);
       }
     })(),
 
