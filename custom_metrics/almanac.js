@@ -330,9 +330,15 @@ return JSON.stringify({
   // Count the mumber of images with srcset and sizes attributes
   'num_srcset_sizes': document.querySelectorAll('source[srcset][sizes], img[srcset][sizes]').length,
   // Count the number of imges with srcset with descriptor-x
-  'num_srcset_descriptor_x': document.querySelectorAll('source[srcset*="x"], img[srcset*="x"]').length,
+  'num_srcset_descriptor_x': (() => {
+    var nodes = document.querySelectorAll('source[srcset], img[srcset]');
+    return Array.from(nodes).filter(node => node.getAttribute('srcset').match(/\s\d+x/)).length;
+  })(),
   // Count the number of imges with srcset with descriptor-w
-  'num_srcset_descriptor_w': document.querySelectorAll('source[srcset*="w"], img[srcset*="w"]').length,
+  'num_srcset_descriptor_w': (() => {
+    var nodes = document.querySelectorAll('source[srcset], img[srcset]');
+    return Array.from(nodes).filter(node => node.getAttribute('srcset').match(/\s\d+w/)).length;
+  })(),
   // Count the number of scrset candidates
   'num_srcset_candidates': (() => {
     var nodes = document.querySelectorAll('source[srcset], img[srcset]');
