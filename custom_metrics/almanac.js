@@ -56,19 +56,6 @@ function getNodesAttributes(nodes) {
   return Array.from(uniqueAttributes);
 }
 
-// Return the set of unique parent nodes for nodes
-function countUniqueParents(nodes)
-{
-  var set = [];
-  for (var i = 0, len = nodes.length; i < len; i++) {
-    if (!set.includes(nodes[i].parentNode))
-    {
-      set.push(nodes[i].parentNode);
-    }
-  }
-  return set.length;
-}
-
 return JSON.stringify({
   // Wether the page contains <script type=module>.
   '01.12': document.querySelector('script[type=module]') ? 1 : 0,
@@ -393,7 +380,10 @@ return JSON.stringify({
   })(),
   // Counts the number of pictures using source media orientation
   'num_picture_using_orientation': (() => {
+    var pictures = document.querySelectorAll('picture');
+    return Array.from(pictures).filter(picture => {
+      return picture.querySelector('source[media*="orientation"]');
+    }).length;
     var nodes = document.querySelectorAll('picture source[media*="orientation"]');
-    return countUniqueParents(nodes);
   })()
 });
