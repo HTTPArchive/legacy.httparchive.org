@@ -390,6 +390,5 @@ return JSON.stringify({
     return Array.from(pictures).filter(picture => {
       return picture.querySelector('source[media*="orientation"]');
     }).length;
-    var nodes = document.querySelectorAll('picture source[media*="orientation"]');
   })()
 });
