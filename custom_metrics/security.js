@@ -1,21 +1,20 @@
 return JSON.stringify({
-	"iframe-allow": [].map.call(document.querySelectorAll('iframe[allow]'), (x) => {
-		return {
-			"allow": x.getAttribute('allow'),
-			"src": x.getAttribute(src)
-		}
-	}),
-	"iframe-sandbox": [].map.call(document.querySelectorAll('iframe[sandbox]'), (x) => {
-		return {
-			"sandbox": x.getAttribute('sandbox'),
-			"src": x.getAttribute(src)
-		}
-	}),
-	"sri-integrity": [].map.call(document.querySelectorAll('[integrity]'), (x) => {
-		return {
-			"integrity": x.getAttribute('integrity'),
-			"src": x.getAttribute(src),
-			"tagname": x.tagName.toLowerCase()
-		}
-	})
+  "iframe-allow-sandbox": (() => {
+    const link = document.createElement('a');
+    return Array.from(document.querySelectorAll('iframe[allow], iframe[sandbox]')).map((iframe) => {
+      link.href = iframe.src;
+      return {
+        "allow": iframe.getAttribute('allow'),
+        "sandbox": iframe.getAttribute('sandbox'),
+        "hostname": link.origin
+      }
+    })
+  })(),
+  "sri-integrity": Array.from(document.querySelectorAll('[integrity]')).map((element) => {
+    return {
+      "integrity": element.getAttribute('integrity'),
+      "src": element.getAttribute('src'),
+      "tagname": element.tagName.toLowerCase()
+    }
+  })
 });
