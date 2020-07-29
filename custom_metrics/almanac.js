@@ -20,25 +20,185 @@ function getNodeAttributes(node) {
   return node.cloneNode(false).attributes;
 }
 
-// Map nodes to their attributes,
-function parseNodes(nodes) {
-  var parsedNodes = [];
-  if (nodes) {
-    for (var i = 0, len = nodes.length; i < len; i++) {
-      var node = nodes[i];
-      var attributes = Object.values(getNodeAttributes(node));
-      var el = {};
+/**
+ * @typedef {Object} ParseNodeOptions
+ * @property {boolean} [prop_values_to_remove]
+ * @property {boolean} [remove_data_prop_value=true]
+ * @property {boolean} [remove_input_value=true] - On input elements, removes the value="" value
+ * @property {RegExp[]} [other_prop_values_to_remove] - Array of regex patterns. If any property name matches these, their values are removed
+ * @property {Map<RegExp, number>} [prop_to_max_length_map] - Map of regex to max sizes. If any property name matches these, their values will be clamped
+ * @property {number} [max_prop_length=-1] - Default max length of a property. -1 turns this feature off
+ * @property {RegExp[]} [include_only_prop_list] - An explicit list of props to keep. If this is used, any other properties will be discarded completely
+ */
 
-      el.tagName = node.tagName.toLowerCase(); // for reference
-      for (var n = 0, len2 = attributes.length; n < len2; n++) {
-        var attribute = attributes[n];
-        el[attribute.name.toLowerCase()] = attribute.value;
+/**
+ * @typedef {Object} ParseNodeResponse
+ * @property {Object.<string, string>[]} attributes
+ * @property {string[]} attribute_names
+ */
+
+/**
+ * @param {Node} node
+ * @param {ParseNodeOptions} options
+ * @return {ParseNodeResponse}
+ */
+function parseNode(node, options = {}) {
+  options = Object.assign(
+      {},
+      {
+        remove_data_prop_value: true,
+        remove_input_value: true,
+        other_prop_values_to_remove: [],
+
+        prop_to_max_length_map: new Map(),
+        max_prop_length: -1,
+
+        include_only_prop_list: [],
+      },
+      options);
+  const attributes = Object.values(getNodeAttributes(node));
+  const el = {};
+  const attribute_names = new Set();
+  const input_tag_names = new Set('input', 'select', 'textarea');
+
+  // Copy the array to avoid weird bugs in the future from sharing an array
+  const removal_patterns = [...options.other_prop_values_to_remove];
+  if (options.remove_data_prop_value) {
+    removal_patterns.push(/^data-/);
+  }
+
+  el.tagName = node.tagName.toLowerCase(); // for reference
+  for (const attribute of attributes) {
+    if (!attribute.name) {
+      continue;
+    }
+
+    // Always add the names of the attributes. These are not filtered
+    const attribute_name = attribute.name.toLowerCase();
+    attribute_names.add(attribute_name);
+
+    if (options.include_only_prop_list && options.include_only_prop_list.length > 0) {
+      // We're using an include only list for props. Throw away everything else
+      let found = false;
+      for (const pattern of options.include_only_prop_list) {
+        if (pattern.test(attribute_name)) {
+          found = true;
+          break;
+        }
       }
 
-      parsedNodes.push(el);
+      if (!found) {
+        continue;
+      }
+    }
+
+    el[attribute_name] = attribute.value;
+
+    // No processing to do. Exit early
+    if (!el[attribute_name] || el[attribute_name].length <= 0) {
+      continue;
+    }
+
+    if (options.remove_input_value &&
+        input_tag_names.has(el.tagName) && attribute_name === 'value') {
+      el[attribute_name] = '';
+      continue;
+    }
+
+    for (const pattern of removal_patterns) {
+      if (pattern.test(attribute_name)) {
+        el[attribute_name] = '';
+        continue;
+      }
+    }
+
+    // Ensure the value length is kept within bounds
+    let matched = false;
+    for (const [pattern, max_length] of options.prop_to_max_length_map) {
+      if (pattern.test(attribute_name)) {
+        el[attribute_name] = el[attribute_name].substr(0, max_length);
+        matched = true;
+        // We cannot exit early, because future matches might be more specific
+      }
+    }
+
+    // If there wasn't a rule specified for this property, clamp it to the default max size
+    if (!matched && options.max_prop_length > 0) {
+      el[attribute_name] = el[attribute_name].substr(0, options.max_prop_length);
     }
   }
-  return parsedNodes;
+
+  return {
+    attributes: el,
+    attribute_names: Array.from(attribute_names),
+  };
+}
+
+/**
+ * @typedef {Object} ParseNodesResponse
+ * @property {number} total - Total nodes
+ * @property {Object.<string, string>[]} nodes - Key value object of all the properties in the node. Filtered by the options passed
+ * @property {Object.<string, number>} attribute_usage_count - How often each property was used. This is NOT FILTERED by the options passed
+ */
+
+/**
+ * Process nodes and their attributes
+ * @param {Node[]} nodes
+ * @param {ParseNodeOptions} options
+ * @returns {ParseNodesResponse}
+ */
+function parseNodes(nodes, options = {}) {
+  if (!nodes) {
+    return {
+      total: 0,
+      attributes: [],
+      attribute_usage_count: {},
+    };
+  }
+
+  const parsed_nodes = [];
+  const attribute_usage_count = {};
+  const total = nodes.length;
+  for (const node of nodes) {
+    const result = parseNode(node, options);
+    for (const name of result.attribute_names) {
+      if (!attribute_usage_count[name]) {
+        attribute_usage_count[name] = 1;
+        continue;
+      }
+
+      attribute_usage_count[name]++;
+    }
+
+    parsed_nodes.push(result.attributes);
+  }
+
+  return {
+    total,
+    nodes: parsed_nodes,
+    attribute_usage_count,
+  };
+}
+
+/**
+ * Executes a function on the node and all of its children
+ *
+ * By default it only executes the function if the node is an element.
+ * Disable this to run the function on a node of any type (e.g., text nodes)
+ */
+function walkNodes(root_node, fun, only_elements = true) {
+  let walker;
+  if (only_elements) {
+    walker = document.createTreeWalker(root_node, NodeFilter.SHOW_ELEMENT);
+  } else {
+    walker = document.createTreeWalker(root_node);
+  }
+
+  let current_node = walker.currentNode;
+  while (current_node) {
+    fun(current_node);
+    current_node = walker.nextNode();
+  }
 }
 
 return JSON.stringify({
@@ -50,25 +210,19 @@ return JSON.stringify({
     // Returns a JSON array of link nodes and their key/value attributes.
     // Used by 01.14, 01.15, 01.16, 10.6,  06.46, 12.18
     var nodes = document.querySelectorAll('head link');
-    var linkNodes = parseNodes(nodes);
-
-    return linkNodes;
+    return parseNodes(nodes);
   })(),
   'priority-hints': (() => {
     // Returns a JSON array of prioritized nodes and their key/value attributes.
     // Used by 19.8, 19.9, and 19.10.
     var nodes = document.querySelectorAll('link[importance], img[importance], script[importance], iframe[importance]');
-    var parsedNodes = parseNodes(nodes);
-
-    return parsedNodes;
+    return parseNodes(nodes);
   })(),
   'meta-nodes': (() => {
     // Returns a JSON array of meta nodes and their key/value attributes.
     // Used by 10.6, 10.7 (potential: 09.29, 12.5, 04.5)
     var nodes = document.querySelectorAll('head meta');
-    var metaNodes = parseNodes(nodes);
-
-    return metaNodes;
+    return parseNodes(nodes);
   })(),
   // Extract schema.org elements and finds all @context and @type usage
   '10.5': (() => {
@@ -243,10 +397,30 @@ return JSON.stringify({
     return { wordsCount, wordElements };
   })(),
   // Parse <input> elements
-  'input-elements': (() => {
-    // Used by  12.12, 12.14
+  'input_elements': (() => {
     var nodes = document.querySelectorAll('input, select');
-    var inputNodes = parseNodes(nodes);
+    var inputNodes = parseNodes(nodes , {
+      include_only_prop_list: [
+        /^aria-.+$/,
+        /^type$/,
+        /^id$/,
+        /^name$/,
+        /^placeholder$/,
+        /^accept$/,
+        /^autocomplete$/,
+        /^autofocus$/,
+        /^capture$/,
+        /^max$/,
+        /^maxlength$/,
+        /^min$/,
+        /^minlength$/,
+        /^required$/,
+        /^readonly$/,
+        /^pattern$/,
+        /^multiple$/,
+        /^step$/,
+      ]
+    });
 
     return inputNodes;
   })(),
@@ -273,24 +447,33 @@ return JSON.stringify({
     // Returns a JSON array of nodes with a tabindex and their key/value attributes.
     // We acknowledge that attribute selectors are expensive to query.
     var nodes = document.querySelectorAll('body [tabindex]');
-    var parsedNodes = parseNodes(nodes);
-
-    return parsedNodes;
+    return parseNodes(nodes, {
+      max_prop_length: 255,
+      include_only_prop_list: [/^tabindex$/],
+    });
   })(),
-  '12.11': (() => {
-    // Counts the links or buttons only containing an icon.
+  // Counts the links or buttons only containing an icon.
+  'icon_only_clickables': (() => {
     var clickables = document.querySelectorAll('a, button');
     return Array.from(clickables).reduce((n, clickable) => {
-      // Clickables containing SVG are assumed to be icons.
-      if (clickable.firstElementChild && clickable.firstElementChild.tagName == 'SVG') {
-        return n + 1;
-      }
+      var visible_text_length = clickable.textContent.trim().length;
+
       // Clickables containing 1-char text are assumed to be icons.
       // Note that this fails spectacularly for complex unicode points.
       // See https://blog.jonnew.com/posts/poo-dot-length-equals-two.
-      if (clickable.textContent.trim().length == 1) {
+      if (visible_text_length == 1) {
         return n + 1;
       }
+
+      if (clickable.querySelector('svg')) {
+        // The icon in this case is an svg, so any other text is assumed to be a label
+        if (visible_text_length >= 1) {
+          return n;
+        }
+
+        return n + 1;
+      }
+
       return n;
     }, 0);
   })(),
@@ -306,6 +489,209 @@ return JSON.stringify({
       return null;
     }
   })(),
-  //  check if there is any picture tag containing an img tag
-  'has_picture_img': document.querySelectorAll('picture img').length > 0
+
+  // Previously for 04_04.sql in 2019
+  'inline_svg_stats': (() => {
+    const svg_elements = [...document.querySelectorAll('svg')];
+
+    return {
+      total: svg_elements.length,
+      content_lengths: svg_elements.map(svg => svg.outerHTML.length),
+      attribute_usage_count: parseNodes(svg_elements).attribute_usage_count,
+    };
+  })(),
+
+  // Various stats of img, source and picture elements
+  'images': (() => {
+    const pictures = document.querySelectorAll('picture');
+    const imgs = [...document.querySelectorAll('img')];
+    const sources = document.querySelectorAll('source');
+    const pictures_with_img = document.querySelectorAll('picture img');
+
+    const images_with_srcset = document.querySelectorAll('img[srcset], source[srcset]');
+    const images_with_sizes = [...document.querySelectorAll('img[sizes], source[sizes]')];
+    const images_using_loading = [...document.querySelectorAll('img[loading], source[loading]')];
+
+    // NOTE: -1 is used to represent images with no alt tag at all. Empty alt tags have a value of 0
+    const alt_lengths = imgs.map(img => {
+      if (!img.hasAttribute('alt')) {
+        return -1;
+      }
+
+      // alt=" " is less correct but comparable to alt="" so we use trim
+      // Also remove duplicate spaces to get a feel for how long alt tags really are
+      return img.alt.trim().replace(/\s+/g, ' ').length;
+    });
+
+    /** @type {ParseNodeOptions} */
+    const filter_options = {
+      include_only_prop_list: [
+        /^crossorigin$/,
+        /^decoding$/,
+        /^importance$/,
+        /^intrinsicsize$/,
+        /^ismap$/,
+        /^loading$/,
+        /^referrerpolicy$/,
+        /^usemap$/,
+        /^type$/,
+        /^aria-.+$/,
+      ],
+
+      // Most img sources should be within this many characters. Help guard us from huge base64 values
+      max_prop_length: 255,
+    };
+
+    const parsed_pictures = parseNodes(pictures, filter_options);
+    const parsed_imgs = parseNodes(imgs, filter_options);
+    const parsed_sources = parseNodes(sources, filter_options);
+
+    return {
+      pictures: parseNodes(pictures, filter_options),
+      imgs: parseNodes(imgs, filter_options),
+      sources: parseNodes(sources, filter_options),
+
+      total_with_srcset: images_with_srcset.length,
+      total_with_sizes: images_with_sizes.length,
+      total_pictures_with_img: pictures_with_img.length,
+
+      // Values specific properties. Cleaned and trimmed to make processing easier
+      sizes_values: images_with_sizes.map(img => {
+        const value = img.getAttribute('sizes') || '';
+        return value.toLocaleLowerCase().replace(/\s+/g, ' ').trim();
+      }),
+      loading_values: images_using_loading.map(img => {
+        const value = img.getAttribute('loading') || '';
+        return value.toLocaleLowerCase().replace(/\s+/gm, ' ').trim();
+      }),
+      alt_lengths: alt_lengths,
+    };
+  })(),
+
+  'videos': (() => {
+    const videos = document.querySelectorAll('video');
+    const tracks = document.querySelectorAll('video track');
+
+    const filter_options = {
+      include_only_prop_list: [
+        /^autoplay$/,
+        /^controls$/,
+        /^loop$/,
+        /^muted$/,
+        /^poster$/,
+        /^preload$/,
+        /^aria-.+$/,
+      ],
+      // Protect us from weird values
+      max_prop_length: 255,
+    };
+    const parsed_videos = parseNodes(videos, filter_options);
+
+    const parsed_tracks = parseNodes(tracks, {max_prop_length: 255});
+    parsed_videos.tracks = parsed_tracks;
+    return parsed_videos;
+  })(),
+
+  'scripts': (() => {
+    return parseNodes(document.scripts, {max_prop_length: 512});
+  })(),
+
+  'nodes_using_role': (() => {
+    const nodes_with_role = [...document.querySelectorAll('[role]')];
+
+    // Build an object with each key being a unique value of `role` and the
+    // value being how often this role occurred
+    const role_usage_and_count = {};
+    for (const node of nodes_with_role) {
+      const role = node.getAttribute('role').toLocaleLowerCase();
+
+      if (!role_usage_and_count[role]) {
+        role_usage_and_count[role] = 1;
+        continue;
+      }
+
+      role_usage_and_count[role]++;
+    }
+
+    return {
+      total: nodes_with_role.length,
+      usage_and_count: role_usage_and_count,
+    };
+  })(),
+
+  /**
+   * The 'h' is stripped to create a numeric array.
+   * E.g. h1 > h2 > h3 > h3 => [1, 2, 3, 3, ]
+   */
+  'headings_order': (() => {
+    const headings = [...document.querySelectorAll('h1, h2, h3, h4, h5, h6')];
+    const levels = [];
+    for (const heading of headings) {
+      const level = parseInt(heading.tagName.replace('H', ''), 10);
+      if (!isNaN(level)) {
+        levels.push(level);
+      }
+    }
+
+    return levels;
+  })(),
+
+  'shortcuts_stats': (() => {
+    const aria_shortcut_nodes = [...document.querySelectorAll('[aria-keyshortcuts]')];
+    const accesskey_nodes = [...document.querySelectorAll('[accesskey]')];
+
+    return {
+      total_with_aria_shortcut: aria_shortcut_nodes.length,
+      total_with_accesskey: accesskey_nodes.length,
+
+      // Purposely left these as potentially duplicated fields so we can analyze if the same value is used more than once
+      aria_shortcut_values: aria_shortcut_nodes.map(node => node.getAttribute('aria-keyshortcuts').toLocaleLowerCase()),
+      accesskey_values: accesskey_nodes.map(node => node.getAttribute('accesskey')),
+    };
+  })(),
+
+  // What attribute values are used and how often are they used
+  // NOTE: This will not pick up all of the attributes on scripts
+  'attributes_used_on_elements': (() => {
+    const attributes_and_count = {};
+    walkNodes(document.documentElement, (node) => {
+      const attribute_names = node.getAttributeNames();
+      if (attribute_names.length <= 0) {
+        return;
+      }
+
+      // Count how often each of these attributes shows up
+      for (const name of attribute_names) {
+        if (!attributes_and_count[name]) {
+          attributes_and_count[name] = 1;
+          continue;
+        }
+
+        attributes_and_count[name]++;
+      }
+    });
+
+    return attributes_and_count;
+  })(),
+
+  'body_node': (() => {
+    // Only a single element, so we can keep the data values
+    return parseNode(document.body, {remove_data_prop_value: false}).attributes;
+  })(),
+
+  'html_node': (() => {
+    // Only a single element, so we can keep the data values
+    return parseNode(document.documentElement, {remove_data_prop_value: false}).attributes;
+  })(),
+
+  'document_title': (() => {
+    return {
+      value: document.title,
+      length: document.title.length
+    };
+  })(),
+
+  'length_of_h1s': (() => {
+    return [...document.querySelectorAll('h1')].map(node => node.innerText.length);
+  })(),
 });
