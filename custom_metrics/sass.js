@@ -245,7 +245,6 @@ results.sourcemaps = {
 if (sourcemapURLs.length === 0) {
 	return results;
 }
-// console.log("sourcemap URLs", sourcemapURLs);
 
 // Assumption: Either all sources are SCSS or none.
 let scss = await Promise.all(sourcemapURLs.map(async url => {
