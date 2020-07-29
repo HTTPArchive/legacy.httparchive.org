@@ -14,4 +14,5 @@ return JSON.stringify({
       a.innerText.match(pattern)
     ).length;
   })(),
+  iab_tcf: typeof window.__cmp == 'function',
 });
