@@ -140,21 +140,6 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
   var rawPrimaryTitle = null;
 
   _custom_metrics = {
-    // gather the status code from the headers
-    // Backup: available from summery table
-    'http_status_code': (() => {
-      try {
-        let statusArray = getResponseHeaders('status');
-
-        if (statusArray)
-          return statusArray[0];
-
-        return null;
-      }
-      catch(e) {
-        return logError("http_status_code", e);
-      }
-    })(),
     // Looks at links and identifies internal, external or hashed as well as rel attributes and if a link is image only
     // Used by: SEO, 2019/09_10 
     // Backup: old version in almanac.js - does not detect same domain
@@ -1123,7 +1108,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
         let linkHeaders = getResponseHeaders("link");
         if (linkHeaders) {
           linkHeaders.forEach((h) => {
-            let matches = h.matchAll(/<([^>]*)> *; *rel=['"]?canonical['"]?/gi);
+            let matches = h.matchAll(/<([^>]+)>\s*;\s*rel=['"]?canonical['"]?/gi);
 
             for (const match of matches) {
               let c = match[1];
