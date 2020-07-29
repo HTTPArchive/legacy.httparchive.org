@@ -39,7 +39,7 @@ Note that all WPT custom metrics must have `[metricName]` at the start of the sc
 
 If you include the `debug=1` parameter on the WPT home page, for example https://webpagetest.org?debug=1, the test results will include a raw debug log from the agent including the devtools commands to run the custom metrics (and any handled exceptions). The log ouput can be found in the main results page to the left of the waterfall. For each run there will be a link for the "debug log" (next to the timeline and trace links).
 
-To see the custom metric results, select a run and click the "Custom Metrics" link in the top right corner:
+To see the custom metric results, select a run, first click on "Details", and then on the "Custom Metrics" link in the top right corner:
 
 ![image](https://user-images.githubusercontent.com/1120896/88727164-0e185380-d0fd-11ea-973e-81a50cd24013.png)
 
