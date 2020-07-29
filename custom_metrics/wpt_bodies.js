@@ -305,7 +305,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
                   hashBased = true;
                   crawlable = false;
                   let id = link.hash.substring(1);
-                  if (d.getElementById(id)) { // matching id or name
+                  if (d.getElementById(id)) { // matching id
                     // working named anchor link
                     target.same_page.jumpto.total++;
                     target.same_page.jumpto.using_id++;
@@ -317,7 +317,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
                       target.same_page.jumpto.other++;
                     }
 
-                  } else  if (d.querySelector("*[name='"+id+"']")) { // matching id or name
+                  } else if (d.querySelector("*[name='"+id+"']")) { // then try matching name
                     // working named anchor link
                     target.same_page.jumpto.total++;
                     target.same_page.jumpto.using_name++;
@@ -552,7 +552,9 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
           result.raw = getTitles(rawHtmlDocument);
         }
 
-        result.title_changed_on_render = renderedPrimaryTitle != rawPrimaryTitle;
+        if (rawPrimaryTitle !== null) {
+          result.title_changed_on_render = renderedPrimaryTitle != rawPrimaryTitle;
+        }
 
         return result; 
       }
@@ -647,7 +649,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
         let linkHeaders = getResponseHeaders("link");
         if (linkHeaders) {
           linkHeaders.forEach((h) => {
-            let matches = h.matchAll(/hreflang=['"]?(.*?)['"]/gi);
+            let matches = h.matchAll(/hreflang=['"]?([^"',]*)/gi);
 
             for (const match of matches) {
               let c =match[1];
@@ -756,7 +758,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
     // Backup: old data in almanac.js - not very good
     'structured_data': (() => {  
       try { 
-        var link = document.createElement('a');
+        var link = document.createElement('a'); // Maybe new URL will be neater?
 
         function nestedJsonldLookup(target, jsonldIds, items, depth, context) {
           if (items instanceof Array) {
@@ -946,9 +948,9 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
             count: jsonld_scripts.length,
             errors: jsonld_scripts.filter(e => {
               try {
-                var cleanText = e.textContent.trim();
-                var cleanText = cleanText.replace(/^\/\*(.*?)\*\//g, ''); // remove * comment from start (could be for CDATA section) does not deal with multi line comments
-                var cleanText = cleanText.replace(/\/\*(.*?)\*\/$/g, ''); // remove * comment from end (could be for CDATA section) does not deal with multi line comments
+                let cleanText = e.textContent.trim();
+                cleanText = cleanText.replace(/^\/\*(.*?)\*\//g, ''); // remove * comment from start (could be for CDATA section) does not deal with multi line comments
+                cleanText = cleanText.replace(/\/\*(.*?)\*\/$/g, ''); // remove * comment from end (could be for CDATA section) does not deal with multi line comments
 
                 nestedJsonldLookup(target, jsonldIds, JSON.parse(cleanText), 0, "http://no-context.com/");
                 return false; // its good
@@ -988,22 +990,22 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
           microdataItemIdNodes.forEach((n) => {
             link.href = n.getAttribute('itemid');
 
-              let id = link.href;
+            let id = link.href;
 
-              if (microdataIds[id]) {
-                microdataIds[id]++;
-                // therefore a cross reference
-                target.microdataReferencedIds++;
-              }
-              else {
-                microdataIds[id] = 1;
-                target.microdataIds++;
+            if (microdataIds[id]) {
+              microdataIds[id]++;
+              // therefore a cross reference
+              target.microdataReferencedIds++;
+            }
+            else {
+              microdataIds[id] = 1;
+              target.microdataIds++;
 
-                if (jsonldIds[id]) {
-                  // common id
-                  target.jsonlsMicrodataCommonIds++;
-                }
+              if (jsonldIds[id]) {
+                // common id
+                target.jsonlsMicrodataCommonIds++;
               }
+            }
           });
 
           let sameAsNodes = [...d.querySelectorAll('[itemprop="sameAs"]')];
@@ -1061,9 +1063,9 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
 
         if (rawHtml) {
 
-          result.body = !!rawHtml.match(/<body/g);
-          result.html = !!rawHtml.match(/<html/g);
-          result.head = !!rawHtml.match(/<head/g);
+          result.body = !!rawHtml.match(/<body/gi);
+          result.html = !!rawHtml.match(/<html/gi);
+          result.head = !!rawHtml.match(/<head/gi);
           result.size = rawHtml.length;
 
           let headmatch = rawHtml.match(/<head.*<\/head>/gsi); // s = match newlines
@@ -1105,16 +1107,14 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
         function processCanonical(c) {
           if (c === result.url) 
             result.self_canonical = true;
-        else 
+          else 
             result.other_canonical = true;
 
-          if (result.canonicals[c]) 
-            result.canonicals[c]++;
-          else 
-            result.canonicals[c] = 1;
+          if (!result.canonicals.includes(c)) 
+            result.canonicals.push(c);
         }
 
-        let result = {rendered: {}, raw: {}, self_canonical: false, other_canonical: false, canonicals: {}};
+        let result = {rendered: {}, raw: {}, self_canonical: false, other_canonical: false, canonicals: []};
         result.url = document.location.href.split("#")[0];
 
         // headers
