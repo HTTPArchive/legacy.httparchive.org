@@ -2,7 +2,7 @@
 // Uncomment the previous line for testing on webpagetest.org
 
 return JSON.stringify({
-  'has_cssinjs_styled_components': !!(document.querySelector('style[data-styled]') || document.querySelectorAll('style[data-styled-components]')),
+  'has_cssinjs_styled_components': !!(document.querySelector('style[data-styled]') || document.querySelector('style[data-styled-components]')),
   'has_cssinjs_radium': !!document.querySelector('[data-radium]'),
   'has_cssinjs_jss': !!document.querySelector('[data-jss]'),
   'has_cssinjs_emotion': !!document.querySelector('[data-emotion]'),
