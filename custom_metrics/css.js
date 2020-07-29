@@ -1,4 +1,4 @@
-//[almanac-css]
+//[css]
 // Uncomment the previous line for testing on webpagetest.org
 
 return JSON.stringify({
