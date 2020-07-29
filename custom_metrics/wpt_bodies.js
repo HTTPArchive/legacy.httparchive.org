@@ -535,9 +535,6 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
 
         if (rawHtmlDocument) {
           result.raw = getTitles(rawHtmlDocument);
-        }
-
-        if (rawPrimaryTitle !== null) {
           result.title_changed_on_render = renderedPrimaryTitle != rawPrimaryTitle;
         }
 
