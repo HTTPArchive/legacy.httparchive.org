@@ -306,4 +306,4 @@ return results;
 })();
 
 // results.then(r => console.log(JSON.stringify(r, null, "\t")));
-return results;
+return JSON.stringify(results);
