@@ -3,6 +3,7 @@
 
 return JSON.stringify({
   privacy_wording_links: (() => {
+    // Number of privacy related links are available on the page, eg. 'Privacy policy'.
     // Wording sourced from: https://github.com/RUB-SysSec/we-value-your-privacy/blob/master/privacy_wording.json
     //words = privacy_wording.map(country => country.words).filter((v, i, a) => a.indexOf(v) === i).flat().sort().join('|');
 
@@ -14,5 +15,10 @@ return JSON.stringify({
       a.innerText.match(pattern)
     ).length;
   })(),
-  iab_tcf: typeof window.__cmp == 'function',
+  iab_tcf:
+    // IAB Transparency and Consent Framework is integrated on the page.
+    // docs v1: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework
+    // docs v2: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2
+    (typeof window.__cmp == 'function') |
+    (typeof window.__tcfapi == 'function'),
 });
