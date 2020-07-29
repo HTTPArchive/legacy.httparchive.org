@@ -7,3 +7,4 @@ downloads/
 harviewer/
 *.log
 *nohup.out
+settings.inc

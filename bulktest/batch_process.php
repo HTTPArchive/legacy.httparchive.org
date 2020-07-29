@@ -76,6 +76,12 @@ if ( 0 === totalNotDone() ) {
 		doSimpleCommand("TRUNCATE TABLE $gRequestsTable;");
 		doSimpleCommand("optimize table $gRequestsTable;");
 
+		// The desktop crawl has the prod requests table which needs to be cleaned up as well
+		if ( $gbDev && ( $gRequestsTableDesktop != $gRequestsTable ) ) {
+			doSimpleCommand("TRUNCATE TABLE $gRequestsTableDesktop;");
+			doSimpleCommand("optimize table $gRequestsTableDesktop;");
+		}
+
 		cprint(date("G:i") . ": DONE with crawl!");
 		exit(0);
 	}

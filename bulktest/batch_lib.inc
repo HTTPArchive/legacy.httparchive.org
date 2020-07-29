@@ -94,7 +94,7 @@ function submitTest(&$record, $status) {
 	if ($location == 'California:Chrome.3G') {
 		$location = 'California:Chrome.4G';
 	}
-	$request = $wptServer . 'runtest.php?f=xml&debug=1&priority=6&timeline=1&url=' . urlencode($record['url']) . 
+	$request = $wptServer . 'runtest.php?f=xml&debug=1&priority=6&timeline=1&v8rcs=1&url=' . urlencode($record['url']) . 
 		"&location=$location&runs=$runs" .
 		( $private ? "&private=1" : "" ) .
 		( $video ? "&video=1" : "" ) .
@@ -552,7 +552,7 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 			if ( array_key_exists($lcname, $ghReqHeaders) ) {
 				// This is one of the standard headers we want to save.
 				$column = $ghReqHeaders[$lcname];
-				$hHeaders[$column] = ( array_key_exists($column, $hHeaders) ? $hHeaders[$column] . " $value" : $value );
+				$hHeaders[$column] = ( array_key_exists($column, $hHeaders) ? $hHeaders[$column] . ", $value" : $value );
 			}
 			else if ( "cookie" == $lcname ) {
 				// We don't save the Cookie header, just the size.
@@ -608,7 +608,7 @@ function importEntries($entries, $pageid, $statusInfo, &$firstUrl, &$firstHtmlUr
 			if ( array_key_exists($lcname, $ghRespHeaders) ) {
 				// This is one of the standard headers we want to save.
 				$column = $ghRespHeaders[$lcname];
-				$hHeaders[$column] = ( array_key_exists($column, $hHeaders) ? $hHeaders[$column] . " $value" : $value );
+				$hHeaders[$column] = ( array_key_exists($column, $hHeaders) ? $hHeaders[$column] . ", $value" : $value );
 			}
 			else if ( "set-cookie" == $lcname ) {
 				// We don't save the Set-Cookie header, just the size.
