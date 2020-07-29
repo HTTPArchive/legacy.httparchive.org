@@ -4,18 +4,18 @@
 return JSON.stringify({
   'css_in_js': (() => {
     const CssInJsMap = {
-      'styled-components': !!document.querySelector('style[data-styled],style[data-styled-components]'),
-      'radium': !!document.querySelector('[data-radium]'),
-      'jss': !!document.querySelector('[data-jss]'),
-      'emotion': !!document.querySelector('[data-emotion]'),
-      'goober': !!document.getElementById('_goober'),
-      'merge-styles': !!document.querySelector('[data-merge-styles]'),
-      'jsx': !!document.querySelector('style[id*="__jsx-"]'),
-      'aphrodite': !!document.querySelector('[data-aphrodite]'),
-      'fela': !!document.querySelector('[data-fela-stylesheet]'),
-      'styletron': !!document.querySelector('[data-styletron],._styletron_hydrate_'),
-      'react-native-web': !!document.querySelector('#react-native-stylesheet'),
-      'glamor': !!document.querySelector('[data-glamor]')
+      'Styled Components': !!document.querySelector('style[data-styled],style[data-styled-components]'),
+      'Radium': !!document.querySelector('[data-radium]'),
+      'React JSS': !!document.querySelector('[data-jss]'),
+      'Emotion': !!document.querySelector('[data-emotion]'),
+      'Goober': !!document.getElementById('_goober'),
+      'Merge Styles': !!document.querySelector('[data-merge-styles]'),
+      'Styled Jsx': !!document.querySelector('style[id*="__jsx-"]'),
+      'Aphrodite': !!document.querySelector('[data-aphrodite]'),
+      'Fela': !!document.querySelector('[data-fela-stylesheet]'),
+      'Styletron': !!document.querySelector('[data-styletron],._styletron_hydrate_'),
+      'React Native for Web': !!document.querySelector('#react-native-stylesheet'),
+      'Glamor': !!document.querySelector('[data-glamor]')
     }
 
     const usedLibraries = []
