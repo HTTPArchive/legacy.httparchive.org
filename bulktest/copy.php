@@ -40,8 +40,8 @@ if ( $gbDev && ( $gPagesTableDesktop != $gPagesTableDev ) ) {
 		lprint("Rows already copied.");
 	}
 	else {
-		lprint("Copy 'requests' rows to production...");
-		doSimpleCommand("insert into $gRequestsTableDesktop select * from $gRequestsTableDev where $pageidCond;");
+		//lprint("Copy 'requests' rows to production...");
+		//doSimpleCommand("insert into $gRequestsTableDesktop select * from $gRequestsTableDev where $pageidCond;");
 
 		lprint("Copy 'pages' rows to production...");
 		doSimpleCommand("insert into $gPagesTableDesktop select * from $gPagesTableDev where $pageidCond;");
