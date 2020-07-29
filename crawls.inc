@@ -315,8 +315,9 @@ function dumpCrawl($label, $archive=null, $location=null) {
 	exec($cmd);
 	lprint("...mysqldump file created: $dumpfile.gz");
 
-	// requests
-	$requestsTable = ( $gbDev ? $gRequestsTableDesktop : $gRequestsTable );
+	// requests - allow it to point to the dev tables
+	// $requestsTable = ( $gbDev ? $gRequestsTableDesktop : $gRequestsTable );
+	$requestsTable = $gRequestsTable;
 	$dumpfile = dumpfileName($label, "requests");
 	$cmd = "mysqldump --where='$pageidCond' --no-create-db --no-create-info --skip-add-drop-table --complete-insert -u $gMysqlUsername -p$gMysqlPassword -h $gMysqlServer $gMysqlDb $requestsTable | gzip > $dumpfile.gz";
 	exec($cmd);
