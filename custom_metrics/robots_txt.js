@@ -6,9 +6,9 @@ return fetch('/robots.txt')
     result.status = r.status;  
     return r.text().then(t => {
       result.size = t.length;
-      result.comment_lines = t.match(/^\s*#\s*(.*)$/gm)?.length;
-      result.allow_lines = t.match(/^\s*allow\s*:\s*(.*?)\s*$/gmi)?.length;
-      result.disallow_lines = t.match(/^\s*disallow\s*:\s*(.*?)\s*$/gmi)?.length;
+      result.comment_lines = t.match(/^\s*#\s*(.*)$/gm)?.length ?? 0;
+      result.allow_lines = t.match(/^\s*allow\s*:\s*(.*?)\s*$/gmi)?.length ?? 0;
+      result.disallow_lines = t.match(/^\s*disallow\s*:\s*(.*?)\s*$/gmi)?.length ?? 0;
 
       let userAgentMatches = t.matchAll(/^\s*user-agent\s*:\s*(.*?)\s*$/gmi);
       if (userAgentMatches) {
