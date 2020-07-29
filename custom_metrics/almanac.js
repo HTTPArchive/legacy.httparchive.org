@@ -619,12 +619,6 @@ return JSON.stringify({
     };
   })(),
 
-  'total_nodes_with_duplicate_ids': (() => {
-    const ids = [...document.querySelectorAll('[id]')].map(e => e.id);
-    const unique_ids = new Set(ids);
-    return ids.length - unique_ids.size;
-  })(),
-
   /**
    * The 'h' is stripped to create a numeric array.
    * E.g. h1 > h2 > h3 > h3 => [1, 2, 3, 3, ]
