@@ -1108,7 +1108,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
         let linkHeaders = getResponseHeaders("link");
         if (linkHeaders) {
           linkHeaders.forEach((h) => {
-            let matches = h.matchAll(/<([^>]*)> *; *rel=['"]?canonical['"]?/gi);
+            let matches = h.matchAll(/<([^>]+)>\s*;\s*rel=['"]?canonical['"]?/gi);
 
             for (const match of matches) {
               let c = match[1];
