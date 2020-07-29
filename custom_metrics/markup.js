@@ -504,7 +504,10 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
         // https://html.spec.whatwg.org/multipage/obsolete.html#non-conforming-features
         // Array.from(document.querySelectorAll('dfn[data-dfn-type] code')).map(e => e.innerText).join(',')
         let result = {};
-        let obsoleteNodes = [...document.querySelectorAll('applet,acronym,bgsound,dir,frame,frameset,noframes,isindex,keygen,listing,menuitem,nextid,noembed,plaintext,rb,rtc,strike,xmp,basefont,big,blink,center,font,marquee,multicol,nobr,spacer,tt')];
+        let obsoleteNodes = [...document.querySelectorAll(
+          'applet,acronym,bgsound,dir,frame,frameset,noframes,isindex,keygen,listing,menuitem,nextid,noembed,' +
+          'plaintext,rb,rtc,strike,xmp,basefont,big,blink,center,font,marquee,multicol,nobr,spacer,tt'
+        )];
 
         obsoleteNodes.forEach((n) => {
           let t = n.tagName.toLowerCase();
