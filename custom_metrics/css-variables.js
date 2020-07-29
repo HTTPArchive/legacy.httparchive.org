@@ -1,3 +1,4 @@
+//[css-variables]
 function analyzeVariables() {
 
 const PREFIX = "almanac-var2020-";
