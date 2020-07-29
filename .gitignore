@@ -8,3 +8,4 @@ harviewer/
 *.log
 *nohup.out
 settings.inc
+custom_metrics/*.bak
