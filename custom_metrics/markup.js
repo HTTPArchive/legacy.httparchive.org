@@ -8,6 +8,7 @@
 var _logs = [];
 // saves the error details in the results log property.
 // returns the same error object so that it can be also used as the return value for a property.
+// refactor: https://github.com/HTTPArchive/legacy.httparchive.org/pull/177#discussion_r461970324
 function logError(context, messageOrException, exception = null) {
   let error = {type: "error", context: context};
 
@@ -148,6 +149,8 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
 
     // input tags
     // Used by Markup, 2019/09_28
+    // refactor: https://github.com/HTTPArchive/legacy.httparchive.org/pull/177#discussion_r461976290
+    // probably not needed as almanac.js covers this
     'inputs': (() => {   
       try {   
         let result = {types: {}};
@@ -176,6 +179,8 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
 
     // audio tags
     // Used by Markup
+    // refactor: https://github.com/HTTPArchive/legacy.httparchive.org/pull/177#discussion_r461976290
+    // or have almanac.js replace it like videos
     'audios': (() => {
       try {
         let result = {autoplay: {}};
@@ -568,11 +573,6 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
 catch(e) { // probably an un caught exception
   logError("general", "Failed to create the custom metrics object", e);
   _custom_metrics = {};
-}
-
-if (!_custom_metrics) { // should not be possible
-  _custom_metrics = {};
-  logError("general", "custom metrics object was missing");
 }
 
 // add any logged errors to the almanac 
