@@ -54,10 +54,12 @@ return JSON.stringify({
   tables: captureAndLogError(() => {
     const tables = document.querySelectorAll('table');
     const tables_with_caption = document.querySelectorAll('table caption');
+    const tabels_with_presentational = document.querySelectorAll('table[role="presentation" i]');
 
     return {
       total: tables.length,
       total_with_caption: tables_with_caption.length,
+      total_with_presentational: tabels_with_presentational.length,
     };
   }),
   file_extension_alts: captureAndLogError(() => {
@@ -136,7 +138,7 @@ return JSON.stringify({
     let total_empty = 0;
     let total_javascript_void = 0;
     for (const href_anchor of href_anchors) {
-      const href = href_anchor.href.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+      const href = href_anchor.getAttribute('href').trim().replace(/\s+/g, ' ').toLocaleLowerCase();
       if (href.length <= 0) {
         total_empty++;
       } else if (href === '#') {
@@ -161,7 +163,7 @@ return JSON.stringify({
 
     const scope_collector = {};
     for (const element of th_elements_with_scope) {
-      let scope = th_elements_with_scope.getAttribute('scope').trim().toLocaleLowerCase();
+      let scope = element.getAttribute('scope').trim().toLocaleLowerCase();
       incrementCollectorKey(scope_collector, scope);
     }
 
@@ -176,9 +178,6 @@ return JSON.stringify({
       total_tds: document.querySelectorAll('td').length,
       total_with_headers: document.querySelectorAll('td[headers]').length,
     };
-  }),
-  total_tables_with_role_presentational: captureAndLogError(() => {
-    return document.querySelectorAll('table[role="presentation" i]').length;
   }),
   total_anchors_with_role_button: captureAndLogError(() => {
     return document.querySelectorAll('a[role="button" i]').length;
@@ -239,6 +238,6 @@ return JSON.stringify({
     };
   }),
   does_page_use_sr_only_classes: captureAndLogError(() => {
-    return document.querySelectorAll('.sr-only, .visually-hidden').length;
+    return document.querySelectorAll('.sr-only, .visually-hidden').length > 0;
   }),
 });
