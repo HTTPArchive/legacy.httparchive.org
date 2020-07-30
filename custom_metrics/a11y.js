@@ -227,7 +227,7 @@ return JSON.stringify({
       total_either: total_role_button + total_role_link,
     };
   }),
-  does_page_use_sr_only_classes: captureAndLogError(() => {
+  screen_reader_classes: captureAndLogError(() => {
     return document.querySelectorAll('.sr-only, .visually-hidden').length > 0;
   }),
 });
