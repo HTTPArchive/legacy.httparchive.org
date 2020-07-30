@@ -57,7 +57,7 @@ const SassFunctions = [
 	"if"
 ];
 
-const sortObject = obj => Object.fromEntries(Object.entries(obj).sort((a, b) => b[1] - a[1]));
+const sortObject = (obj, f = x => x) => Object.fromEntries(Object.entries(obj).sort((a, b) => f(b[1]) - f(a[1])));
 
 function analyzeSCSS(scss, ret) {
 	if (!scss) {
@@ -88,6 +88,7 @@ function analyzeSCSS(scss, ret) {
 			calls: scss.match(RegExp("@include\\s+" + name + "\\b", "gi"))?.length
 		};
 	});
+	ret.mixins = sortObject(ret.mixins, o => o.calls);
 
 	// Custom functions
 	ret.functions = {};
@@ -106,6 +107,7 @@ function analyzeSCSS(scss, ret) {
 			calls: scss.match(RegExp("\\b" + name + "\\(", "gi"))?.length
 		};
 	});
+	ret.functions = sortObject(ret.functions, o => o.calls);
 
 	// TODO Measure usage of Sass functions
 	ret.functionCalls = {};
