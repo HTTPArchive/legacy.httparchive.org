@@ -167,7 +167,7 @@ function analyzeSCSS(scss, ret) {
 	// CSS variables that are set with Sass variables
 	// Note that this will fail on multiline values (it will return the first line only)
 	ret.variablesCombined = {value: {}, name: {}};
-	scss.replace(/(?<=^|\s)--([\w-]+):\s*(.*#\{.*\$.+\}.*)\s*$/gm, ($0, name, value) => {
+	scss.replace(/(?<=^|\s)--([\w-]+):\s*(.*#\{.+\}.*)\s*$/gm, ($0, name, value) => {
 		ret.variablesCombined.value["--" + name] = value;
 	});
 	scss.replace(/(?<=^|\s)--([\w-]*#\{.+?\}[\w-]*):\s*(.+?)(?=;|$)/gm, ($0, name, value) => {
