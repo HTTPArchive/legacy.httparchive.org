@@ -258,4 +258,4 @@ function serialize(data, separator) {
 	}, separator);
 }
 
-return JSON.stringify(analyzeVariables());
+return serialize(analyzeVariables());
