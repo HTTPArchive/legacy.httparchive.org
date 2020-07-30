@@ -113,9 +113,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
 
     let tempNodes = [];
 
-    let images = [...node.querySelectorAll("img")];
-
-    images.forEach((image) => {
+    [...node.querySelectorAll("img")].forEach((image) => {
       if (image.alt && image.alt.trim().length > 0) {
 
         var span = image.ownerDocument.createElement("SPAN");
@@ -498,7 +496,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
 
         function getTitles(d) {
           let target = {};
-          target.total = Array.from(d.querySelectorAll('head title')).map(e => {
+          target.total = [...d.querySelectorAll('head title')].map(e => {
             let text = e.innerText.trim();
             let characters = text.length;
             let words = text.match(/\S+/g)?.length;
@@ -554,12 +552,12 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
 
         function getMetaDescriptions(d) {
           let target = {all: {text: "", words: 0, characters: 0}};       
-          target.total = Array.from(d.querySelectorAll('head meta[name="description"]')).map(e => {
+          target.total = [...d.querySelectorAll('head meta[name="description"]')].map(e => {
             let text = e.getAttribute("content") ?? "";
             let characters = text.length;
             let words = text.match(/\S+/g)?.length;
 
-            target.all.text = (target.all.text+" "+text).trim();
+            target.all.text = (target.all.text+" "+text.trim()).trim();
             target.all.words += words;
             target.all.characters += characters;
 
@@ -611,9 +609,8 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
 
         function getHreflangValues(d) {
           let target = {values: []};
-          let hreflangs = Array.from(d.querySelectorAll('link[rel="alternate"][hreflang]'));
 
-          hreflangs.forEach(e => {
+          [...d.querySelectorAll('link[rel="alternate"][hreflang]')].forEach(e => {
             target.values.push(e.getAttribute("hreflang"));
           });
 
@@ -650,6 +647,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
     // heading information from H1 to H8 
     // Used by: SEO, Markup
     // Backup: heading order and length of h1s in almanac.js - not much
+    // maybe in the future this could not retun zeroed values, to save space.
     'headings': (() => { 
       try {  
       
@@ -693,7 +691,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
         function processHeadings(d) {
           let target = {first_non_empty_heading_hidden: false};
           for(let l=1; l < 9; l++) {
-            let nodes = Array.from(d.querySelectorAll('h'+l));
+            let nodes = [...d.querySelectorAll('h'+l)];
 
             let characters = 0;
             let words = 0;
@@ -745,12 +743,11 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
         function nestedJsonldLookup(target, jsonldIds, items, depth, context) {
           if (items instanceof Array) {
             // loop array and process any objects in it 
-            for (var i = 0, len = items.length; i < len; i++) {
-              var item = items[i];
+            items.forEach((item) => {
               if (item instanceof Object) {
                 nestedJsonldLookup(target, jsonldIds, item, depth+1, context);
               }
-            }
+            });
           }
           else if (items instanceof Object) {
             // process object
@@ -843,17 +840,16 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
             addType(target, target.jsonld_and_microdata_types, type, true);
   
             // process any properties that have arrays or objects
-            var keys = Object.keys(items);
-            for (var i = 0, len = keys.length; i < len; i++) {
-              var item = items[keys[i]];
+            Object.keys(items).forEach((key) => {
+              var item = items[key];
               // if array or object, dive into it
-              if (keys[i] === "logo") {
+              if (key === "logo") {
                 target.logo = true;
               }
               if (item instanceof Object || item instanceof Array) {
                 nestedJsonldLookup(target, jsonldIds, item, depth++, context);
               }
-            }
+            });
           }
         }
 
@@ -924,7 +920,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
           let jsonldIds = {};
 
           // json-ld
-          let jsonld_scripts = Array.from(d.querySelectorAll('script[type="application/ld+json"]'));
+          let jsonld_scripts = [...d.querySelectorAll('script[type="application/ld+json"]')];
 
           target.jsonld_scripts = {
             count: jsonld_scripts.length,
@@ -944,10 +940,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
           };
 
           // microdata
-          let microdataNodes = d.querySelectorAll('[itemtype]');
-          for (let i = 0, len = microdataNodes.length; i < len; i++) {
-            let node = microdataNodes[i];
-
+          [...d.querySelectorAll('[itemtype]')].forEach((node) => {
             link.href = node.getAttribute('itemtype');
 
             let type = link.href;
@@ -955,7 +948,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
             addType(target, target.jsonld_and_microdata_types, type, false);  
 
             target.items_by_format.microdata++;    
-          }
+          });
 
           if (d.querySelector("[itemprop$='logo']")){
             target.logo = true;
@@ -967,9 +960,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
 
           let microdataIds = {};
 
-          let microdataItemIdNodes = [...d.querySelectorAll('[itemid]')];
-
-          microdataItemIdNodes.forEach((n) => {
+          [...d.querySelectorAll('[itemid]')].forEach((n) => {
             link.href = n.getAttribute('itemid');
 
             let id = link.href;
@@ -990,9 +981,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
             }
           });
 
-          let sameAsNodes = [...d.querySelectorAll('[itemprop="sameAs"]')];
-
-          sameAsNodes.forEach((n) => {
+          [...d.querySelectorAll('[itemprop="sameAs"]')].forEach((n) => {
             let href = n.getAttribute('href'); 
 
             if (href) {
@@ -1127,8 +1116,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
         }
 
         // rendered
-        let htmlCanonicalLinkNodes = document.querySelectorAll('link[rel="canonical"]');
-        let htmlCanonicalLinks = [...htmlCanonicalLinkNodes].map(n => {
+        let htmlCanonicalLinks = [...document.querySelectorAll('link[rel="canonical"]')].map(n => {
           let c = n.href ?? "";
           processCanonical(c);
           return c;
@@ -1215,7 +1203,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
             via_x_robots_tag: false
           };
 
-          Array.from(d.querySelectorAll(selector)).forEach(e => {
+          [...d.querySelectorAll(selector)].forEach(e => {
             if (e.hasAttribute("content")) {
               let content = e.getAttribute("content");
               robots.via_meta_tag = true;
@@ -1268,7 +1256,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
             google: {}
           };
           // Find all Google values
-          d.querySelectorAll("meta[name='google']").forEach((n) => {
+          [...d.querySelectorAll("meta[name='google']")].forEach((n) => {
               let v = n.getAttribute("content");
 
               if (v) {
