@@ -94,8 +94,8 @@ function analyzeSCSS(scss, ret) {
 	let lastName; // used to track down the nearest @return after a @function
 	scss.replace(/@function\s+([\w-]+)(?:\((.+?)\))?|@return (.+)/g, ($0, name, args, returnValue) => {
 		if ($0.indexOf("@return") === 0 && lastName) {
-			ret.functions[lastName].return = returnValue;
-			lastName = undefined;
+			ret.functions[lastName].returns = ret.functions[lastName].returns || [];
+			ret.functions[lastName].returns.push(returnValue);
 			return $0;
 		}
 
