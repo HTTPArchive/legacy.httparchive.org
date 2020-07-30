@@ -20,7 +20,7 @@ function incrementCollectorKey(collector, key) {
   collector[key]++;
 }
 
-function errorToJson(error) {
+function getJsonReadyError(error) {
   if (typeof error === 'string') {
     return {
       message: error
@@ -28,10 +28,16 @@ function errorToJson(error) {
   }
 
   if (error instanceof Object) {
-    return JSON.stringify(error, Object.getOwnPropertyNames(error));
+    const error_obj = {};
+    const props = Object.getOwnPropertyNames(error);
+    for (const prop of props) {
+      error_obj[prop] = error[prop].toString();
+    }
+
+    return error_obj;
   }
 
-  return JSON.stringify(error);
+  return error;
 }
 
 function captureAndLogError(fun) {
@@ -39,7 +45,7 @@ function captureAndLogError(fun) {
     return fun();
   } catch (error) {
     return {
-      __error: errorToJson(error),
+      __error: getJsonReadyError(error),
     }
   }
 }
