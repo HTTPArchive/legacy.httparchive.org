@@ -191,27 +191,10 @@ const results = {};
 const $$ = s => [...document.querySelectorAll(s)];
 const sourcemapRegex = /\/\*[#@] sourceMappingURL=(.+?) \*\//;
 
-let stylesheets;
-
-if (typeof $WPT_BODIES !== "undefined") {
-	// in WPT, we already have the bodies
-	stylesheets = $WPT_BODIES.filter(request => request.type == "Stylesheet")
-		.map(file => {
-			return {url: file.url, body: file.response_body};
-		});
-}
-else {
-	// Outside WPT, use fetch()
-	stylesheets = await Promise.all($$("link[rel=stylesheet]").map(async link => {
-		try {
-			let response = await fetch(link.href);
-			let body = await response.text();
-
-			return {url: link.href, body};
-		}
-		catch (e) {}
-	}));
-}
+let stylesheets = $WPT_BODIES.filter(request => request.type == "Stylesheet")
+	.map(file => {
+		return {url: file.url, body: file.response_body};
+	});
 
 results.stylesheets = {
 	remote: stylesheets.length
