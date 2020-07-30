@@ -1,5 +1,5 @@
 /**
- * Generates custom-metrics/third-parties.js using the tests from the 
+ * Generates custom-metrics/third-parties.js using the tests from the
  * Library Detector project: https://github.com/johnmichel/Library-Detector-for-Chrome
  */
 const fetch = require('node-fetch');
