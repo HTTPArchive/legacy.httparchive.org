@@ -165,9 +165,13 @@ function analyzeSCSS(scss, ret) {
 	ret.errors = scss.match(/@error (.+)/g)?.map(e => e.slice(7));
 
 	// CSS variables that are set with Sass variables
-	ret.variablesCombined = {};
+	// Note that this will fail on multiline values (it will return the first line only)
+	ret.variablesCombined = {value: {}, name: {}};
 	scss.replace(/(?<=^|\s)--([\w-]+):\s*(.*#\{.*\$.+\}.*)\s*$/gm, ($0, name, value) => {
-		ret.variablesCombined["--" + name] = value;
+		ret.variablesCombined.value["--" + name] = value;
+	});
+	scss.replace(/(?<=^|\s)--([\w-]*#\{.+?\}[\w-]*):\s*(.+?)(?=;|$)/gm, ($0, name, value) => {
+		ret.variablesCombined.name["--" + name] = value;
 	});
 
 	// Heuristic for nesting &
