@@ -188,9 +188,9 @@ return JSON.stringify({
       }
 
       // Explicit label
-      const id = (element.getAttribute('id') || '').trim;
+      const id = (element.getAttribute('id') || '').trim();
       if (id.length > 0) {
-        const element = document.getElementsByName(id);
+        const element = document.querySelector(`label[for="${id}"]`);
         if (element) {
           return true;
         }
@@ -206,15 +206,21 @@ return JSON.stringify({
 
     const elements = document.querySelectorAll('input[placeholder], textarea[placeholder], select[placeholder]');
     let total_with_label = 0;
+    let total_elements = 0;
     for (const element of elements) {
+      if (element.type && element.type === 'submit') {
+        continue;
+      }
+
+      total_elements++;
       if (controlHasLabel(element)) {
         total_with_label++;
       }
     }
 
     return {
-      total_placeholder: elements.length,
-      total_no_label: elements.length - total_with_label,
+      total_placeholder: total_elements,
+      total_no_label: total_elements - total_with_label,
     };
   }),
   divs_or_spans_as_button_or_link: captureAndLogError(() => {
