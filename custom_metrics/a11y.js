@@ -121,32 +121,6 @@ return JSON.stringify({
       total_alt_same_as_title,
     };
   }),
-  no_destination_anchors: captureAndLogError(() => {
-    const href_anchors = [...document.querySelectorAll('a[href]')];
-
-    let total_hash = 0;
-    let total_empty = 0;
-    let total_javascript_void = 0;
-    for (const href_anchor of href_anchors) {
-      const href = href_anchor.getAttribute('href').trim().replace(/\s+/g, ' ').toLocaleLowerCase();
-      if (href.length <= 0) {
-        total_empty++;
-      } else if (href === '#') {
-        total_hash++;
-      } else if (href.indexOf('javascript:void') === 0) {
-        total_javascript_void++;
-      }
-    }
-
-    return {
-      total: total_hash + total_empty + total_javascript_void,
-      total_hash,
-      total_empty,
-      total_javascript_void,
-
-      total_with_href: href_anchors.length,
-    };
-  }),
   th_with_scope_attribute: captureAndLogError(() => {
     const th_elements = document.querySelectorAll('th');
     const th_elements_with_scope = document.querySelectorAll('th[scope]');
