@@ -18,6 +18,7 @@ function extractValueProperties(value) {
 }
 
 let visited = new Set();
+let modifiedRules = [];
 
 // Recursively walk a CSSStyleRule or CSSStyleDeclaration
 function walkRule(rule, ret) {
@@ -91,6 +92,7 @@ function walkRule(rule, ret) {
 
 		// Now that we're done, add the mirror properties
 		for (let property in additions) {
+			modifiedRules.push({style, additions});
 			style.setProperty(property, additions[property]);
 		}
 	}
@@ -217,6 +219,45 @@ for (let stylesheet of document.styleSheets) {
 	}
 }
 
+function collapseDuplicateSiblings(arr) {
+	if (arr) {
+		let map = {};
+
+		for (let child of arr) {
+			let serialized = serialize(child);
+
+			if (serialized in map) {
+				// Dupe
+				map[serialized]++;
+			}
+			else {
+				map[serialized] = 0;
+			}
+		}
+
+		let entries = Object.entries(map);
+
+		if (entries.length < arr.length) {
+			// There are duplicates
+			arr = entries.map(e => {
+				let child = JSON.parse(e[0]);
+
+				if (e[1] > 0) {
+					child.times = e[1] + 1;
+				}
+
+				return child;
+			})
+		}
+
+		arr.forEach(o => {
+			o.children = collapseDuplicateSiblings(o.children);
+		});
+	}
+
+	return arr;
+}
+
 // Do the same thing with inline styles
 for (let element of document.querySelectorAll('[style*="--"]')) {
 	walkRule(element.style, summary);
@@ -224,10 +265,20 @@ for (let element of document.querySelectorAll('[style*="--"]')) {
 
 let computed = buildGraph();
 
-// Cleanup
+
+// Cleanup: Remove classes
 for (let el of document.querySelectorAll(`.${PREFIX}element`)) {
 	el.classList.remove(`${PREFIX}element`);
 }
+
+// Cleanup: Remove custom properties
+for (let o of modifiedRules) {
+	for (let prop in o.additions) {
+		o.style.removeProperty(prop);
+	}
+}
+
+computed = collapseDuplicateSiblings(computed);
 
 return {summary, computed};
 
