@@ -189,6 +189,11 @@ function analyzeSCSS(scss, ret) {
 		"class": scss.match(/&\.\w+/g)?.length,
 		"attr": scss.match(/&\[\w+/g)?.length,
 	};
+
+	ret.constants = {
+		e: scss.match(/\bmath\.$e\b/g)?.length,
+		pi: scss.match(/\bmath\.$pi\b/g)?.length
+	};
 }
 
 let results = (async () => {
