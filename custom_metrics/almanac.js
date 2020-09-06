@@ -483,7 +483,7 @@ return JSON.stringify({
     try {
       var metadata = document.querySelector("meta[name='generator'i][content^='AMP Plugin'i]");
       if (metadata) {
-        return metadata.getAttribute('content'); // this can now vary by case
+        return metadata.getAttribute('content');
       }
     } catch (e) {
       return null;
