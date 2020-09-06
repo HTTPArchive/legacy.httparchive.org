@@ -481,9 +481,9 @@ return JSON.stringify({
     // Gets metadata about the AMP plugin, if present.
     // Used by 14.2, 14.3, 14.4.
     try {
-      var metadata = document.querySelector('meta[name=generator][content^="AMP Plugin"]');
+      var metadata = document.querySelector("meta[name='generator'i][content^='AMP Plugin'i]");
       if (metadata) {
-        return metadata.getAttribute('content');
+        return metadata.getAttribute('content'); // this can now vary by case
       }
     } catch (e) {
       return null;

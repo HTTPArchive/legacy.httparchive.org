@@ -53,8 +53,8 @@ var _custom_metrics = null;
 try { // whole process is placed in a try/catch so we can log uncaught errors
 
   _custom_metrics = {
-    'favicon': !!document.querySelector('link[rel*="icon"]'),
-    'rel_alternate_mobile': !!document.querySelector('link[rel="alternate"][media][href]'),
+    'favicon': !!document.querySelector('link[rel*="icon"i]'),
+    'rel_alternate_mobile': !!document.querySelector('link[rel="alternate"i][media][href]'),
     'compatMode': document.compatMode,
 
     // noscript tag use
@@ -473,9 +473,9 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
 
         result.amp_page = result.html_amp_attribute_present || result.html_amp_emoji_attribute_present;
 
-        result.rel_amphtml = document.querySelector("link[rel='amphtml']")?.getAttribute('href') ?? null;
+        result.rel_amphtml = document.querySelector("link[rel='amphtml'i]")?.getAttribute('href') ?? null;
 
-        var metadata = document.querySelector('meta[name=generator][content^="AMP Plugin"]');
+        var metadata = document.querySelector("meta[name='generator'i][content^='AMP Plugin'i]");
         if (metadata) {
           result.amp_plugin =  metadata.getAttribute('content') ?? null;
         }
@@ -536,10 +536,10 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
         let result = {};
 
         result.svg_element_total = document.querySelectorAll('svg').length;
-        result.svg_img_total = document.querySelectorAll('img[src*=".svg"]').length;
-        result.svg_object_total = document.querySelectorAll('object[data*=".svg"]').length;
-        result.svg_embed_total = document.querySelectorAll('embed[src*=".svg"]').length;
-        result.svg_iframe_total = document.querySelectorAll('iframe[src*=".svg"]').length;
+        result.svg_img_total = document.querySelectorAll('img[src*=".svg"i]').length;
+        result.svg_object_total = document.querySelectorAll('object[data*=".svg"i]').length;
+        result.svg_embed_total = document.querySelectorAll('embed[src*=".svg"i]').length;
+        result.svg_iframe_total = document.querySelectorAll('iframe[src*=".svg"i]').length;
 
         result.svg_total = result.svg_element_total+result.svg_img_total+result.svg_object_total+result.svg_embed_total+result.svg_iframe_total;
 
@@ -560,7 +560,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
         result.app_id_present = !!document.getElementById("app");
 
         // `<meta name="theme-color">` 
-        result.meta_theme_color = document.querySelector('meta[name="theme-color"]')?.getAttribute('content') ?? null;
+        result.meta_theme_color = document.querySelector('meta[name="theme-color"i]')?.getAttribute('content') ?? null;
 
         return result;
       }
