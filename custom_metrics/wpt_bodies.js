@@ -300,7 +300,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
                       target.same_page.jumpto.other++;
                     }
 
-                  } else if (d.querySelector("*[name='"+id+"']")) { // then try matching name
+                  } else if (d.querySelector("*[name='"+id+"'i]")) { // then try matching name
                     // working named anchor link
                     target.same_page.jumpto.total++;
                     target.same_page.jumpto.using_name++;
@@ -552,7 +552,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
 
         function getMetaDescriptions(d) {
           let target = {all: {text: "", words: 0, characters: 0}};       
-          target.total = [...d.querySelectorAll('head meta[name="description"]')].map(e => {
+          target.total = [...d.querySelectorAll('head meta[name="description"i]')].map(e => {
             let text = e.getAttribute("content") ?? "";
             let characters = text.length;
             let words = text.match(/\S+/g)?.length;
@@ -610,7 +610,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
         function getHreflangValues(d) {
           let target = {values: []};
 
-          [...d.querySelectorAll('link[rel="alternate"][hreflang]')].forEach(e => {
+          [...d.querySelectorAll('link[rel="alternate"i][hreflang]')].forEach(e => {
             target.values.push(e.getAttribute("hreflang"));
           });
 
@@ -920,7 +920,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
           let jsonldIds = {};
 
           // json-ld
-          let jsonld_scripts = [...d.querySelectorAll('script[type="application/ld+json"]')];
+          let jsonld_scripts = [...d.querySelectorAll('script[type="application/ld+json"i]')];
 
           target.jsonld_scripts = {
             count: jsonld_scripts.length,
@@ -1108,7 +1108,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
         // raw canonicals
         let rawHtmlDocument = getRawHtmlDocument();
         if (rawHtmlDocument) {
-          result.raw.html_link_canoncials = [...rawHtmlDocument.querySelectorAll('link[rel="canonical"]')].map(n => {
+          result.raw.html_link_canoncials = [...rawHtmlDocument.querySelectorAll('link[rel="canonical"i]')].map(n => {
             let c = n.href ?? "";
             processCanonical(c);
             return c;
@@ -1116,7 +1116,7 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
         }
 
         // rendered
-        let htmlCanonicalLinks = [...document.querySelectorAll('link[rel="canonical"]')].map(n => {
+        let htmlCanonicalLinks = [...document.querySelectorAll('link[rel="canonical"i]')].map(n => {
           let c = n.href ?? "";
           processCanonical(c);
           return c;
@@ -1250,13 +1250,13 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
 
         function calculateAllRobots(d) {
           let r = {
-            otherbot: calculateRobots(d, 'meta[name="robots"]', 'otherbot'),
-            googlebot: calculateRobots(d, 'meta[name="robots"], meta[name="googlebot"]', 'googlebot'),
-            googlebot_news: calculateRobots(d, 'meta[name="robots"], meta[name="googlebot-news"]', 'googlebot-news'),
+            otherbot: calculateRobots(d, 'meta[name="robots"i]', 'otherbot'),
+            googlebot: calculateRobots(d, 'meta[name="robots"i], meta[name="googlebot"i]', 'googlebot'),
+            googlebot_news: calculateRobots(d, 'meta[name="robots"i], meta[name="googlebot-news"i]', 'googlebot-news'),
             google: {}
           };
           // Find all Google values
-          [...d.querySelectorAll("meta[name='google']")].forEach((n) => {
+          [...d.querySelectorAll("meta[name='google'i]")].forEach((n) => {
               let v = n.getAttribute("content");
 
               if (v) {
