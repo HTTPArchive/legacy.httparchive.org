@@ -8,16 +8,21 @@
 // 3. Test your change by following the instructions at https://github.com/HTTPArchive/almanac.httparchive.org/issues/33#issuecomment-502288773.
 // 4. Submit a PR to update this file.
 
+function fetchWithTimeout(url) {
+  var controller = new AbortController();
+  setTimeout(() => {controller.abort()}, 5000);
+  return fetch(url, {signal: controller.signal});
+}
 
 return Promise.all([
-  fetch('/.well-known/assetlinks.json').then(function(r) {
+  fetchWithTimeout('/.well-known/assetlinks.json').then(function(r) {
     if(!r.redirected && r.status === 200) {
      return 1;
     } else {
      return 0;
     }
   }),
-  fetch('/.well-known/apple-app-site-association').then(function(r) {
+  fetchWithTimeout('/.well-known/apple-app-site-association').then(function(r) {
     if(!r.redirected && r.status === 200) {
       return 1;
     } else {
@@ -26,4 +31,6 @@ return Promise.all([
   })
 ]).then(([AndroidAppLinks, iOSUniveralLinks]) => {
   return JSON.stringify({AndroidAppLinks, iOSUniveralLinks});
+}).catch(error => {
+  return JSON.stringify({message: error.message, error: error});
 });
