@@ -1,4 +1,11 @@
 //[sass]
+
+function fetchWithTimeout(url) {
+	var controller = new AbortController();
+	setTimeout(() => {controller.abort()}, 5000);
+	return fetch(url, {signal: controller.signal});
+}
+
 const SassFunctions = [
 	// Color
 	"color.adjust", "adjust-color",
@@ -238,7 +245,7 @@ if (sourcemapURLs.length === 0) {
 // Assumption: Either all sources are SCSS or none.
 let scss = await Promise.all(sourcemapURLs.map(async url => {
 	try {
-		var response = await fetch(url);
+		var response = await fetchWithTimeout(url);
 		var json = await response.json();
 	}
 	catch (e) {
@@ -271,9 +278,16 @@ let scss = await Promise.all(sourcemapURLs.map(async url => {
 		}
 
 		let code = await Promise.all(sources.map(async s => {
-			let response = await fetch(s);
-			let text = response.ok? await response.text() : "";
-			return text;
+			try {
+				let response = await fetchWithTimeout(s);
+				let text = response.ok? await response.text() : "";
+
+				return text;
+			}
+			catch (e) {
+				return "";
+			}
+			
 		}));
 
 		return code.join("\n");

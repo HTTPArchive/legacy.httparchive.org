@@ -1,5 +1,12 @@
 //[robots_txt]
-return fetch('/robots.txt')
+
+function fetchWithTimeout(url) {
+  var controller = new AbortController();
+  setTimeout(() => {controller.abort()}, 5000);
+  return fetch(url, {signal: controller.signal});
+}
+
+return fetchWithTimeout('/robots.txt')
   .then(r => {
     let result = {};
     result.redirected = !!r.redirected;
