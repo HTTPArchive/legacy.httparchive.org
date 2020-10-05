@@ -13,7 +13,7 @@ return JSON.stringify({
   "sri-integrity": Array.from(document.querySelectorAll('[integrity]')).map((element) => {
     return {
       "integrity": element.getAttribute('integrity'),
-      "src": element.getAttribute('src'),
+      "src": element.getAttribute('src') || element.getAttribute('href'),
       "tagname": element.tagName.toLowerCase()
     }
   })
