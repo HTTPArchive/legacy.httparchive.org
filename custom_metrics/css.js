@@ -6,7 +6,7 @@ return JSON.stringify({
     const CssInJsMap = {
       'Styled Components': !!document.querySelector('style[data-styled],style[data-styled-components]'),
       'Radium': !!document.querySelector('[data-radium]'),
-      'React JSS': !!document.querySelector('[data-jss]'),
+      'JSS': !!document.querySelector('[data-jss]'),
       'Emotion': !!document.querySelector('[data-emotion]'),
       'Goober': !!document.getElementById('_goober'),
       'Merge Styles': !!document.querySelector('[data-merge-styles]'),
