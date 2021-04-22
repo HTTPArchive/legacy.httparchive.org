@@ -28,8 +28,8 @@ if ( array_key_exists(2, $argv) ) {
 	$gFileType = $argv[2];
 }
 
-if ( isset($gUrlsFile) && "alexa" != $gFileType && "other" != $gFileType ) {
-	die("ERROR: If you specifiy a urlsfile you must also specify the file type: \"alexa\" or \"other\".\n");
+if ( isset($gUrlsFile) && "alexa" != $gFileType && "other" != $gFileType && "crux" != $gFileType ) {
+	die("ERROR: If you specifiy a urlsfile you must also specify the file type: \"alexa\", \"other\", or \"crux\".\n");
 }
 
 if ( ! isset($gUrlsFile) ) {
@@ -47,11 +47,11 @@ echo "Importing URLS: file = $gUrlsFile, file type = $gFileType\n";
 // Clear out all the current rankings.
 // If a URL is no longer in the list, it'll stay in the table but not be referenced.
 // This is good - perhaps that URL might come back in the list and we want to preserve it's derived URL.
-if ( "alexa" === $gFileType ) {
+if ( "alexa" === $gFileType) {
 	doSimpleCommand("update $gUrlsTable set ranktmp=null;");
 }
 // Clear out existing CrUX URLs.
-else if ( "other" === $gFileType ) { 
+else if ( "other" === $gFileType || "crux" === $gFileType  ) { 
 	doSimpleCommand("truncate table $gUrlsTable;");
 }
 
@@ -75,6 +75,12 @@ if ( $handle ) {
 			if ( preg_match('/^(http[s]*:\/\/.*\/)$/', $line, $aMatches) ) {
 				$urlOrig = $aMatches[1];
 				$other = "true";
+			}
+		}
+		else if ( "crux" === $gFileType ) {
+			if ( preg_match('/^([0-9]*),(.*)$/', $line, $aMatches) ) {
+				$rank = $aMatches[1];
+				$urlOrig = $aMatches[2];
 			}
 		}
 
@@ -117,7 +123,7 @@ else {
 	echo "ERROR: Unable to open file \"$gUrlsFile\".\n";
 }
 
-if ( "alexa" === $gFileType ) {
+if ( "alexa" === $gFileType || "crux" === $gFileType ) {
 	doSimpleCommand("update $gUrlsTable set rank=ranktmp;");
 	echo "The ranks have been updated.\n";
 }
