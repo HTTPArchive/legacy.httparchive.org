@@ -72,17 +72,16 @@ const serviceWorkerInitiated = getEntriesForURLs(serviceWorkerInitiatedURLs);
 const workboxPattern = /workbox\.([a-zA-Z]+\.?[a-zA-Z]*)/g;
 const workboxPackagePattern = /([a-zA-Z]+)\.?[a-zA-Z]*/;
 const workboxMethodPattern = /([a-zA-Z]+\.?[a-zA-Z]*)/;
-const workboxInfo = serviceWorkerInitiated.filter(([url, body]) => {
-  return workboxPattern.test(body);
-}).map(([url, body]) => {
-  return [url, Array.from(body.matchAll(workboxPattern)).map(([match]) => {
-    return match;
-  })];
+// We should use serviceWorkerInitiatedURLs here, but SW detection has some false negatives.
+const workboxInfo = response_bodies.filter(har => {
+  return workboxPattern.test(har.response_body);
+}).map(har => {
+  return [har.url, Array.from(har.response_body.matchAll(workboxPattern)).map(m => m[0])];
 });
 
 return {
   serviceWorkers: Object.fromEntries(serviceWorkers),
   manifests: Object.fromEntries(manifests),
-  serviceWorkerInitiated: Object.fromEntries(serviceWorkerInitiated),
+  serviceWorkerInitiated: Object.keys(Object.fromEntries(serviceWorkerInitiated)),
   workboxInfo: Object.fromEntries(workboxInfo)
 };
