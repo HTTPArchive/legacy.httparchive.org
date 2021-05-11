@@ -84,6 +84,5 @@ return {
   serviceWorkers: Object.fromEntries(serviceWorkers),
   manifests: Object.fromEntries(manifests),
   serviceWorkerInitiated: Object.fromEntries(serviceWorkerInitiated),
-  workboxInfo: Object.fromEntries(workboxInfo),
-  initiatorMap
+  workboxInfo: Object.fromEntries(workboxInfo)
 };
