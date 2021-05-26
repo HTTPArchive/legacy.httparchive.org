@@ -170,27 +170,8 @@ return (() => {
   ];
 
   /** @type {ParseNodeOptions} */
-  const filter_options = {
-    include_only_prop_list: [
-      /^allow$/,
-      /^allowfullscreen$/,
-      /^allowpaymentrequest$/,
-      /^height$/,
-      /^loading$/,
-      /^name$/,
-      /^referrerpolicy$/,
-      /^sandbox$/,
-      /^src$/,
-      /^srcdoc$/,
-      /^width$/,
-      /^aria-.+$/,
-    ],
-
-    max_prop_length: 255,
-  };
-
   return {
-    iframes: parseNodes(iframes, filter_options),
+    iframes: parseNodes(iframes),
 
     loading_values: iframes_using_loading.map((iframe) => {
       const value = iframe.getAttribute("loading") || "";
