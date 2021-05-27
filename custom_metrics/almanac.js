@@ -592,6 +592,23 @@ return JSON.stringify({
     return parsed_videos;
   })(),
 
+  'iframes': (() => {
+    const iframes = document.querySelectorAll("iframe");
+    const iframes_using_loading = [
+      ...document.querySelectorAll("iframe[loading]"),
+    ];
+  
+    /** @type {ParseNodeOptions} */
+    return {
+      iframes: parseNodes(iframes),
+  
+      loading_values: iframes_using_loading.map((iframe) => {
+        const value = iframe.getAttribute("loading") || "";
+        return value.toLocaleLowerCase().replace(/\s+/gm, " ").trim();
+      }),
+    };
+  })(),
+
   'scripts': (() => {
     return parseNodes(document.scripts, {max_prop_length: 512});
   })(),
