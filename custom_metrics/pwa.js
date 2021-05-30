@@ -69,34 +69,26 @@ const manifests = getEntriesForURLs(manifestURLs).map(([url, body]) => {
 const serviceWorkerInitiatedURLs = new Set(Array.from(serviceWorkerURLs).flatMap(getURLsInitiatedBy));
 const serviceWorkerInitiated = getEntriesForURLs(serviceWorkerInitiatedURLs);
 
-const workboxPattern = /(?:workbox:[a-z\-]+:[\d.]+|workbox\.[a-zA-Z]+\.?[a-zA-Z]*)/g;
 // We should use serviceWorkerInitiatedURLs here, but SW detection has some false negatives.
-const workboxInfo = response_bodies.filter(har => {
-  return workboxPattern.test(har.response_body);
-}).map(har => {
-  return [har.url, Array.from(har.response_body.matchAll(workboxPattern)).map(m => m[0])];
-});
+function getInfoForPattern(regexPattern) {
+  return response_bodies.filter(har => {
+    return regexPattern.test(har.response_body);
+  }).map(har => {
+    return [har.url, Array.from(har.response_body.matchAll(regexPattern)).map(m => m[0])];
+  });
+}
+
+const workboxPattern = /(?:workbox:[a-z\-]+:[\d.]+|workbox\.[a-zA-Z]+\.?[a-zA-Z]*)/g;
+const workboxInfo = getInfoForPattern(workboxPattern);
 
 const importScriptsPattern = /importScripts\(.*\);/g;
-const importScriptsInfo = response_bodies.filter(har => {
-  return importScriptsPattern.test(har.response_body);
-}).map(har => {
-  return [har.url, Array.from(har.response_body.matchAll(importScriptsPattern)).map(m => m[0])];
-});
+const importScriptsInfo = getInfoForPattern(importScriptsPattern);
 
 const swEventListenersPattern = /addEventListener\(\s*[\'"](install|activate|fetch|push|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|message|messageerror|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)[\'"]/g;
-const swEventListenersInfo = response_bodies.filter(har => {
-  return swEventListenersPattern.test(har.response_body);
-}).map(har => {
-  return [har.url, Array.from(har.response_body.matchAll(swEventListenersPattern)).map(m => m[0])];
-});
+const swEventListenersInfo = getInfoForPattern(swEventListenersPattern);
 
 const swPropertiesPattern = /\.on(install|activate|fetch|push|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|message|messageerror|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)\s*=/g;
-const wPropertiesInfo = response_bodies.filter(har => {
-  return swEventListenersPattern.test(har.response_body);
-}).map(har => {
-  return [har.url, Array.from(har.response_body.matchAll(swPropertiesPattern)).map(m => m[0])];
-});
+const wPropertiesInfo = getInfoForPattern(swPropertiesPattern);
 
 return {
   serviceWorkers: Object.fromEntries(serviceWorkers),
