@@ -88,7 +88,7 @@ const swEventListenersPattern = /addEventListener\(\s*[\'"](install|activate|fet
 const swEventListenersInfo = getInfoForPattern(swEventListenersPattern);
 
 const swPropertiesPattern = /\.on(install|activate|fetch|push|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|message|messageerror|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)\s*=/g;
-const wPropertiesInfo = getInfoForPattern(swPropertiesPattern);
+const swPropertiesInfo = getInfoForPattern(swPropertiesPattern);
 
 return {
   serviceWorkers: Object.fromEntries(serviceWorkers),
@@ -97,5 +97,5 @@ return {
   workboxInfo: Object.fromEntries(workboxInfo),
   importScriptsInfo: Object.fromEntries(importScriptsInfo),
   swEventListenersInfo: Object.fromEntries(swEventListenersInfo),
-  wPropertiesInfo: Object.fromEntries(wPropertiesInfo)
+  swPropertiesInfo: Object.fromEntries(swPropertiesInfo)
 };
