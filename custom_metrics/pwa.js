@@ -77,9 +77,33 @@ const workboxInfo = response_bodies.filter(har => {
   return [har.url, Array.from(har.response_body.matchAll(workboxPattern)).map(m => m[0])];
 });
 
+const importScriptsPattern = /importScripts\(.*\);/g;
+const importScriptsInfo = response_bodies.filter(har => {
+  return importScriptsPattern.test(har.response_body);
+}).map(har => {
+  return [har.url, Array.from(har.response_body.matchAll(importScriptsPattern)).map(m => m[0])];
+});
+
+const swEventListenersPattern = /addEventListener\(\s*[\'"](install|activate|fetch|push|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|message|messageerror|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)[\'"]/g;
+const swEventListenersInfo = response_bodies.filter(har => {
+  return swEventListenersPattern.test(har.response_body);
+}).map(har => {
+  return [har.url, Array.from(har.response_body.matchAll(swEventListenersPattern)).map(m => m[0])];
+});
+
+const swPropertiesPattern = /\.on(install|activate|fetch|push|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|message|messageerror|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)\s*=/g;
+const wPropertiesInfo = response_bodies.filter(har => {
+  return swEventListenersPattern.test(har.response_body);
+}).map(har => {
+  return [har.url, Array.from(har.response_body.matchAll(swPropertiesPattern)).map(m => m[0])];
+});
+
 return {
   serviceWorkers: Object.fromEntries(serviceWorkers),
   manifests: Object.fromEntries(manifests),
   serviceWorkerInitiated: Object.keys(Object.fromEntries(serviceWorkerInitiated)),
-  workboxInfo: Object.fromEntries(workboxInfo)
+  workboxInfo: Object.fromEntries(workboxInfo),
+  importScriptsInfo: Object.fromEntries(importScriptsInfo),
+  swEventListenersInfo: Object.fromEntries(swEventListenersInfo),
+  wPropertiesInfo: Object.fromEntries(wPropertiesInfo)
 };
