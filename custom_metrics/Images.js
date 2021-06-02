@@ -2,19 +2,26 @@ var wptImages = function(win) {
   var images = [];
   if (win) {
     var doc = win.document;
-    var elements = doc.getElementsByTagName('*');
-    var re = /url\((http.*)\)/ig;
+    var elements = doc.getElementsByTagName("*");
     for (var i = 0; i < elements.length; i++) {
       var el = elements[i];
-      if (el.tagName == 'IMG') {
+      if (el.tagName == "IMG") {
         var url = el.currentSrc || el.src;
 
         // Only include HTTP(S) URLs i.e. skip dataURIs
-        if(url.indexOf("http") === 0) {
-          images.push({'url': url, 'width': el.width, 'height': el.height, 'naturalWidth': el.naturalWidth, 'naturalHeight': el.naturalHeight});
+        if (url.indexOf("http") === 0) {
+          images.push({
+            url: url,
+            width: el.width,
+            height: el.height,
+            naturalWidth: el.naturalWidth,
+            naturalHeight: el.naturalHeight,
+            loading: el.getAttribute("loading"),
+            "in-viewport": el.getBoundingClientRect().top < window.innerHeight,
+          });
         }
       }
-      if (el.tagName == 'IFRAME') {
+      if (el.tagName == "IFRAME") {
         try {
           var im = wptImages(el.contentWindow);
           if (im && im.length) {
