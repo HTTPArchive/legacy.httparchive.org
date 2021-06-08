@@ -75,7 +75,7 @@ function getInfoForPattern(regexPattern, extractMatchingGroupOnly) {
     return regexPattern.test(har.response_body);
   }).map(har => {
     return [har.url, Array.from(har.response_body.matchAll(regexPattern)).map(m => {
-      return extractMatchingGroupOnly ? m[1] : m[0]
+      return (extractMatchingGroupOnly && m.length > 0) ? m[1] : m[0]
     })];
   });
 }
@@ -83,8 +83,8 @@ function getInfoForPattern(regexPattern, extractMatchingGroupOnly) {
 const workboxPattern = /(?:workbox:[a-z\-]+:[\d.]+|workbox\.[a-zA-Z]+\.?[a-zA-Z]*)/g;
 const workboxInfo = getInfoForPattern(workboxPattern);
 
-const importScriptsPattern = /importScripts\(.*\);/g;
-const importScriptsInfo = getInfoForPattern(importScriptsPattern);
+const importScriptsPattern = /importScripts\(([^)]*)\)/g;
+const importScriptsInfo = getInfoForPattern(importScriptsPattern, true);
 
 const swEventListenersPattern = /addEventListener\(\s*[\'"](install|activate|fetch|push|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|message|messageerror|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)[\'"]/g;
 const swEventListenersInfo = getInfoForPattern(swEventListenersPattern, true);
