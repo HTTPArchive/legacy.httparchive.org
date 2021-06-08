@@ -70,11 +70,13 @@ const serviceWorkerInitiatedURLs = new Set(Array.from(serviceWorkerURLs).flatMap
 const serviceWorkerInitiated = getEntriesForURLs(serviceWorkerInitiatedURLs);
 
 // We should use serviceWorkerInitiatedURLs here, but SW detection has some false negatives.
-function getInfoForPattern(regexPattern) {
+function getInfoForPattern(regexPattern, extractMatchingGroupOnly) {
   return response_bodies.filter(har => {
     return regexPattern.test(har.response_body);
   }).map(har => {
-    return [har.url, Array.from(har.response_body.matchAll(regexPattern)).map(m => m[0])];
+    return [har.url, Array.from(har.response_body.matchAll(regexPattern)).map(m => {
+      return extractMatchingGroupOnly ? m[1] : m[0]
+    })];
   });
 }
 
@@ -85,10 +87,10 @@ const importScriptsPattern = /importScripts\(.*\);/g;
 const importScriptsInfo = getInfoForPattern(importScriptsPattern);
 
 const swEventListenersPattern = /addEventListener\(\s*[\'"](install|activate|fetch|push|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|message|messageerror|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)[\'"]/g;
-const swEventListenersInfo = getInfoForPattern(swEventListenersPattern);
+const swEventListenersInfo = getInfoForPattern(swEventListenersPattern, true);
 
 const swPropertiesPattern = /\.on(install|activate|fetch|push|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|message|messageerror|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)\s*=/g;
-const swPropertiesInfo = getInfoForPattern(swPropertiesPattern);
+const swPropertiesInfo = getInfoForPattern(swPropertiesPattern, true);
 
 const swMethodsPattern = /skipWaiting\(\)|navigationPreload.(enable|disable|setHeaderValue|getState)/g;
 const swMethodsInfo = getInfoForPattern(swMethodsPattern);
