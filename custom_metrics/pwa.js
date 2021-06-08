@@ -90,6 +90,12 @@ const swEventListenersInfo = getInfoForPattern(swEventListenersPattern);
 const swPropertiesPattern = /\.on(install|activate|fetch|push|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|message|messageerror|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)\s*=/g;
 const swPropertiesInfo = getInfoForPattern(swPropertiesPattern);
 
+const swMethodsPattern = /skipWaiting\(\)|navigationPreload.(enable|disable|setHeaderValue|getState)/g;
+const swMethodsInfo = getInfoForPattern(swMethodsPattern);
+
+const swObjectsPattern = /clients\.(get|matchAll|openWindow|claim)|client\.(postMessage|id|type|url)|caches\.(match|has|open|delete|keys)|cache\.(match|matchAll|add|addAll|put|keys)/g;
+const swObjectsInfo = getInfoForPattern(swObjectsPattern);
+
 return {
   serviceWorkers: Object.fromEntries(serviceWorkers),
   manifests: Object.fromEntries(manifests),
@@ -97,5 +103,7 @@ return {
   workboxInfo: Object.fromEntries(workboxInfo),
   importScriptsInfo: Object.fromEntries(importScriptsInfo),
   swEventListenersInfo: Object.fromEntries(swEventListenersInfo),
-  swPropertiesInfo: Object.fromEntries(swPropertiesInfo)
+  swPropertiesInfo: Object.fromEntries(swPropertiesInfo),
+  swMethodsInfo: Object.fromEntries(swMethodsInfo),
+  swObjectsInfo: Object.fromEntries(swObjectsInfo)
 };
