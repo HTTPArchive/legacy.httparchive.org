@@ -17,7 +17,8 @@ var wptImages = function(win) {
             naturalWidth: el.naturalWidth,
             naturalHeight: el.naturalHeight,
             loading: el.getAttribute("loading"),
-            "in-viewport": el.getBoundingClientRect().top < window.innerHeight,
+            decoding: el.getAttribute("decoding"),
+            inViewport: el.getBoundingClientRect().top < window.innerHeight,
           });
         }
       }
