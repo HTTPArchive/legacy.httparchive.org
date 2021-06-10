@@ -86,17 +86,26 @@ const workboxInfo = getInfoForPattern(workboxPattern);
 const importScriptsPattern = /importScripts\(([^)]*)\)/g;
 const importScriptsInfo = getInfoForPattern(importScriptsPattern, true);
 
-const swEventListenersPattern = /addEventListener\(\s*[\'"](install|activate|fetch|push|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|message|messageerror|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)[\'"]/g;
+const swEventListenersPattern = /addEventListener\(\s*[\'"](install|activate|push|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)[\'"]/g;
 const swEventListenersInfo = getInfoForPattern(swEventListenersPattern, true);
 
-const swPropertiesPattern = /\.on(install|activate|fetch|push|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|message|messageerror|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)\s*=/g;
+const swPropertiesPattern = /\.on(install|activate|push|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)\s*=/g;
 const swPropertiesInfo = getInfoForPattern(swPropertiesPattern, true);
 
-const swMethodsPattern = /skipWaiting\(\)|navigationPreload.(enable|disable|setHeaderValue|getState)/g;
+const swMethodsPattern = /skipWaiting\(\)/g;
 const swMethodsInfo = getInfoForPattern(swMethodsPattern);
 
 const swObjectsPattern = /clients\.(get|matchAll|openWindow|claim)|client\.(postMessage|id|type|url)|caches\.(match|has|open|delete|keys)|cache\.(match|matchAll|add|addAll|put|keys)/g;
 const swObjectsInfo = getInfoForPattern(swObjectsPattern);
+
+const swRegistrationPropertiesPattern = /navigationPreload\.(enable|disable|setHeaderValue|getState)|pushManager\.(getSubscription|permissionState|subscribe)|sync\.(register|getTags)/g;
+const swRegistrationPropertiesInfo = getInfoForPattern(swRegistrationPropertiesPattern);
+
+const windowEventListenersPattern = /addEventListener\(\s*[\'"](appinstalled|beforeinstallprompt)[\'"]/g;
+const windowEventListenersInfo = getInfoForPattern(windowEventListenersPattern, true);
+
+const windowPropertiesPattern = /\.on(appinstalled|beforeinstallprompt)\s*=/g;
+const windowPropertiesInfo = getInfoForPattern(windowPropertiesPattern, true);
 
 return {
   serviceWorkers: Object.fromEntries(serviceWorkers),
@@ -107,5 +116,8 @@ return {
   swEventListenersInfo: Object.fromEntries(swEventListenersInfo),
   swPropertiesInfo: Object.fromEntries(swPropertiesInfo),
   swMethodsInfo: Object.fromEntries(swMethodsInfo),
-  swObjectsInfo: Object.fromEntries(swObjectsInfo)
+  swObjectsInfo: Object.fromEntries(swObjectsInfo),
+  swRegistrationPropertiesInfo: Object.fromEntries(swRegistrationPropertiesInfo),
+  windowEventListenersInfo: Object.fromEntries(windowEventListenersInfo),
+  windowPropertiesInfo: Object.fromEntries(windowPropertiesInfo)
 };
