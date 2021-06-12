@@ -107,6 +107,10 @@ const windowEventListenersInfo = getInfoForPattern(windowEventListenersPattern, 
 const windowPropertiesPattern = /\.on(appinstalled|beforeinstallprompt)\s*=/g;
 const windowPropertiesInfo = getInfoForPattern(windowPropertiesPattern, true);
 
+function isObjectKeyEmpty(field) {
+  return field == null || field.length == 0;
+}
+
 return {
   serviceWorkers: Object.fromEntries(serviceWorkers),
   manifests: Object.fromEntries(manifests),
@@ -119,5 +123,7 @@ return {
   swObjectsInfo: Object.fromEntries(swObjectsInfo),
   swRegistrationPropertiesInfo: Object.fromEntries(swRegistrationPropertiesInfo),
   windowEventListenersInfo: Object.fromEntries(windowEventListenersInfo),
-  windowPropertiesInfo: Object.fromEntries(windowPropertiesInfo)
+  windowPropertiesInfo: Object.fromEntries(windowPropertiesInfo),
+  //Experimental field: Heuristic to detect if a site has a service worker even if the 'serviceWorkers' field is empty (false positives).
+  serviceWorkerHeuristic: !isObjectKeyEmpty(serviceWorkers) || !isObjectKeyEmpty(workboxInfo) || !isObjectKeyEmpty(importScriptsInfo) || !isObjectKeyEmpty(swEventListenersInfo) || !isObjectKeyEmpty(swMethodsInfo)
 };
