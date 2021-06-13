@@ -115,7 +115,7 @@ Example response:
 
 ## 10.5
 
-*DEPRECATED*
+*DEPRECATED*. [See wpt_bodies.js](https://github.com/HTTPArchive/legacy.httparchive.org/blob/master/custom_metrics/wpt_bodies.js)
 
 Extracts schema.org elements and finds all @context and @type usage.
 
@@ -135,7 +135,7 @@ Example response:
 
 ## seo-anchor-elements
 
-*DEPRECATED*
+*DEPRECATED*. [See wpt_bodies.js](https://github.com/HTTPArchive/legacy.httparchive.org/blob/master/custom_metrics/wpt_bodies.js)
 
 Finds the total number of internal, external and hash links.
 
