@@ -125,5 +125,5 @@ return {
   windowEventListenersInfo: Object.fromEntries(windowEventListenersInfo),
   windowPropertiesInfo: Object.fromEntries(windowPropertiesInfo),
   //Experimental field: Heuristic to detect if a site has a service worker even if the 'serviceWorkers' field is empty (false positives).
-  serviceWorkerHeuristic: !isObjectKeyEmpty(serviceWorkers) || !isObjectKeyEmpty(workboxInfo) || !isObjectKeyEmpty(importScriptsInfo) || !isObjectKeyEmpty(swEventListenersInfo) || !isObjectKeyEmpty(swMethodsInfo)
+  serviceWorkerHeuristic: !isObjectKeyEmpty(serviceWorkers) || !isObjectKeyEmpty(workboxInfo) || !isObjectKeyEmpty(swEventListenersInfo) || !isObjectKeyEmpty(swMethodsInfo)
 };
