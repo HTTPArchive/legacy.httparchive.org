@@ -1,4 +1,4 @@
-var wptImages = function(win) {
+var wptImages = function (win) {
   var images = [];
   if (win) {
     var doc = win.document;
@@ -18,7 +18,11 @@ var wptImages = function(win) {
             naturalHeight: el.naturalHeight,
             loading: el.getAttribute("loading"),
             decoding: el.getAttribute("decoding"),
-            inViewport: el.getBoundingClientRect().top < window.innerHeight,
+            inViewport:
+              el.getBoundingClientRect().bottom >= 0 &&
+              el.getBoundingClientRect().right >= 0 &&
+              el.getBoundingClientRect().top <= window.innerHeight &&
+              el.getBoundingClientRect().left <= window.innerWidth,
           });
         }
       }
@@ -28,10 +32,9 @@ var wptImages = function(win) {
           if (im && im.length) {
             images = images.concat(im);
           }
-        } catch(e) {}
+        } catch (e) {}
       }
-      if (images.length > 10000)
-        break;
+      if (images.length > 10000) break;
     }
   }
   return images;
