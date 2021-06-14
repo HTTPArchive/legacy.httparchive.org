@@ -704,3 +704,21 @@ Example response:
 ```json
 [5, 12, 11]
 ```
+
+# [Images.js](https://github.com/HTTPArchive/legacy.httparchive.org/blob/master/custom_metrics/Images.js) metrics
+
+A JSON array of `<img>` elements on the page.
+
+Sample response:
+
+```
+  {
+    "url": "https://placekitten.com/401/401",
+    "width": 401,
+    "height": 401,
+    "naturalWidth": 401,
+    "naturalHeight": 401,
+    "loading": "lazy",
+    "inViewport": true
+  }
+```
