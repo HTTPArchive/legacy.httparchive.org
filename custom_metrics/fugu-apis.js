@@ -68,7 +68,7 @@ const patterns = {
     where: "JavaScript",
   },
   "Pointer Lock (unadjustedMovement)": {
-    regEx: /unadjustedMovement\s*\:s*/g,
+    regEx: /unadjustedMovement\s*\:\s*/g,
     where: "JavaScript",
   },
   "WebHID": {
@@ -104,8 +104,7 @@ const patterns = {
     where: "JavaScript",
   },
   "Handwriting Recognition": {
-    regEx:
-      /navigator\.queryHandwritingRecognizerSupport\s*\(/g,
+    regEx: /navigator\.queryHandwritingRecognizerSupport\s*\(/g,
     where: "JavaScript",
   },
   "Compute Pressure": {
@@ -121,7 +120,7 @@ const patterns = {
     where: "JavaScript",
   },
   "Notification Triggers": {
-    regEx: /showTrigger\s*\:s*/g,
+    regEx: /showTrigger\s*\:\s*/g,
     where: "JavaScript",
   },
   "Local Font Access": {
@@ -145,7 +144,7 @@ const patterns = {
     where: "Web App Manifest",
   },
   "Web Share Target (Files)": {
-    regEx: /"enctype"\s*\:s*"multipart\/form\-data"/g,
+    regEx: /"enctype"\s*\:\s*"multipart\/form\-data"/g,
     where: "Web App Manifest",
   },
   "Shortcuts": {
@@ -214,15 +213,11 @@ responseBodies.forEach((har) => {
         .split(";")[0]
         .trim();
       if (result[key] && !result[key].includes(har.url)) {
-        if (
-          checkURLConditions(value.where, har.url, mimeType)
-        ) {
+        if (checkURLConditions(value.where, har.url, mimeType)) {
           result[key].push(har.url);
         }
       } else {
-        if (
-          checkURLConditions(value.where, har.url, mimeType)
-        ) {
+        if (checkURLConditions(value.where, har.url, mimeType)) {
           result[key] = [har.url];
         }
       }
