@@ -69,17 +69,61 @@ const manifests = getEntriesForURLs(manifestURLs).map(([url, body]) => {
 const serviceWorkerInitiatedURLs = new Set(Array.from(serviceWorkerURLs).flatMap(getURLsInitiatedBy));
 const serviceWorkerInitiated = getEntriesForURLs(serviceWorkerInitiatedURLs);
 
-const workboxPattern = /(?:workbox:[a-z\-]+:[\d.]+|workbox\.[a-zA-Z]+\.?[a-zA-Z]*)/g;
 // We should use serviceWorkerInitiatedURLs here, but SW detection has some false negatives.
-const workboxInfo = response_bodies.filter(har => {
-  return workboxPattern.test(har.response_body);
-}).map(har => {
-  return [har.url, Array.from(har.response_body.matchAll(workboxPattern)).map(m => m[0])];
-});
+function getInfoForPattern(regexPattern, extractMatchingGroupOnly) {
+  return response_bodies.filter(har => {
+    return regexPattern.test(har.response_body);
+  }).map(har => {
+    return [har.url, Array.from(har.response_body.matchAll(regexPattern)).map(m => {
+      return (extractMatchingGroupOnly && m.length > 0) ? m[1] : m[0]
+    })];
+  });
+}
+
+const workboxPattern = /(?:workbox:[a-z\-]+:[\d.]+|workbox\.[a-zA-Z]+\.?[a-zA-Z]*)/g;
+const workboxInfo = getInfoForPattern(workboxPattern);
+
+const importScriptsPattern = /importScripts\(([^)]*)\)/g;
+const importScriptsInfo = getInfoForPattern(importScriptsPattern, true);
+
+const swEventListenersPattern = /addEventListener\(\s*[\'"](install|activate|push|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)[\'"]/g;
+const swEventListenersInfo = getInfoForPattern(swEventListenersPattern, true);
+
+const swPropertiesPattern = /\.on(install|activate|push|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)\s*=/g;
+const swPropertiesInfo = getInfoForPattern(swPropertiesPattern, true);
+
+const swMethodsPattern = /skipWaiting\(\)/g;
+const swMethodsInfo = getInfoForPattern(swMethodsPattern);
+
+const swObjectsPattern = /clients\.(get|matchAll|openWindow|claim)|client\.(postMessage|id|type|url)|caches\.(match|has|open|delete|keys)|cache\.(match|matchAll|add|addAll|put|keys)/g;
+const swObjectsInfo = getInfoForPattern(swObjectsPattern);
+
+const swRegistrationPropertiesPattern = /navigationPreload\.(enable|disable|setHeaderValue|getState)|pushManager\.(getSubscription|permissionState|subscribe)|sync\.(register|getTags)/g;
+const swRegistrationPropertiesInfo = getInfoForPattern(swRegistrationPropertiesPattern);
+
+const windowEventListenersPattern = /addEventListener\(\s*[\'"](appinstalled|beforeinstallprompt)[\'"]/g;
+const windowEventListenersInfo = getInfoForPattern(windowEventListenersPattern, true);
+
+const windowPropertiesPattern = /\.on(appinstalled|beforeinstallprompt)\s*=/g;
+const windowPropertiesInfo = getInfoForPattern(windowPropertiesPattern, true);
+
+function isObjectKeyEmpty(field) {
+  return field == null || field.length == 0;
+}
 
 return {
   serviceWorkers: Object.fromEntries(serviceWorkers),
   manifests: Object.fromEntries(manifests),
   serviceWorkerInitiated: Object.keys(Object.fromEntries(serviceWorkerInitiated)),
-  workboxInfo: Object.fromEntries(workboxInfo)
+  workboxInfo: Object.fromEntries(workboxInfo),
+  importScriptsInfo: Object.fromEntries(importScriptsInfo),
+  swEventListenersInfo: Object.fromEntries(swEventListenersInfo),
+  swPropertiesInfo: Object.fromEntries(swPropertiesInfo),
+  swMethodsInfo: Object.fromEntries(swMethodsInfo),
+  swObjectsInfo: Object.fromEntries(swObjectsInfo),
+  swRegistrationPropertiesInfo: Object.fromEntries(swRegistrationPropertiesInfo),
+  windowEventListenersInfo: Object.fromEntries(windowEventListenersInfo),
+  windowPropertiesInfo: Object.fromEntries(windowPropertiesInfo),
+  //Experimental field: Heuristic to detect if a site has a service worker even if the 'serviceWorkers' field is empty (false positives).
+  serviceWorkerHeuristic: !isObjectKeyEmpty(serviceWorkers) || !isObjectKeyEmpty(workboxInfo) || !isObjectKeyEmpty(swEventListenersInfo) || !isObjectKeyEmpty(swMethodsInfo)
 };
