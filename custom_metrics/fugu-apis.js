@@ -4,155 +4,155 @@ const responseBodies = $WPT_BODIES;
 // https://docs.google.com/spreadsheets/d/1ndxh6sl0fSOLHFlMdSiLPqmGPMDVJqkJFYnQ0Hsmhwo/edit?usp=sharing.
 const patterns = {
   "Web Bluetooth": {
-    regEx: /navigator\.bluetooth\.requestDevice\(/g,
+    regEx: /navigator\.bluetooth\.requestDevice\s*\(/g,
     where: "JavaScript",
   },
   "Web USB": {
-    regEx: /navigator\.usb\.requestDevice\(/g,
+    regEx: /navigator\.usb\.requestDevice\s*\(/g,
     where: "JavaScript",
   },
   "Web Share": {
-    regEx: /navigator\.share\(/g,
+    regEx: /navigator\.share\s*\(/g,
     where: "JavaScript",
   },
   "Web Share (Files)": {
-    regEx: /navigator\.canShare\(/g,
+    regEx: /navigator\.canShare\s*\(/g,
     where: "JavaScript",
   },
   "Async Clipboard": {
-    regEx: /navigator\.clipboard\.writeText\(/g,
+    regEx: /navigator\.clipboard\.writeText\s*\(/g,
     where: "JavaScript",
   },
   "Async Clipboard (Images)": {
-    regEx: /navigator\.clipboard\.write\(/g,
+    regEx: /navigator\.clipboard\.write\s*\(/g,
     where: "JavaScript",
   },
   "Contact Picker": {
-    regEx: /navigator\.contacts\.select\(/g,
+    regEx: /navigator\.contacts\.select\s*\(/g,
     where: "JavaScript",
   },
   "getInstalledRelatedApps": {
-    regEx: /navigator\.getInstalledRelatedApps\(/g,
+    regEx: /navigator\.getInstalledRelatedApps\s*\(/g,
     where: "JavaScript",
   },
   "Compression Streams": {
-    regEx: /new CompressionStream\(/g,
+    regEx: /new CompressionStream\s*\(/g,
     where: "JavaScript",
   },
   "Periodic Background Sync": {
-    regEx: /periodicSync\.register\(/g,
+    regEx: /periodicSync\.register\s*\(/g,
     where: "JavaScript",
   },
   "Badging": {
-    regEx: /navigator\.setAppBadge\(/g,
+    regEx: /navigator\.setAppBadge\s*\(/g,
     where: "JavaScript",
   },
   "Shape Detection (Barcodes)": {
-    regEx: /new BarcodeDetector\(/g,
+    regEx: /new BarcodeDetector\s*\(/g,
     where: "JavaScript",
   },
   "Screen Wake Lock": {
-    regEx: /navigator\.wakeLock\.request\(/g,
+    regEx: /navigator\.wakeLock\.request\s*\(/g,
     where: "JavaScript",
   },
   "Content Index": {
-    regEx: /index\.getAll\(/g,
+    regEx: /index\.getAll\s*\(/g,
     where: "JavaScript",
   },
   "WebOTP": {
-    regEx: /navigator\.credentials\.get\(/g,
+    regEx: /navigator\.credentials\.get\s*\(/g,
     where: "JavaScript",
   },
   "File System Access": {
-    regEx: /showOpenFilePicker\(/g,
+    regEx: /showOpenFilePicker\s*\(/g,
     where: "JavaScript",
   },
   "Pointer Lock (unadjustedMovement)": {
-    regEx: /unadjustedMovement\:/g,
+    regEx: /unadjustedMovement\s*\:/g,
     where: "JavaScript",
   },
   "WebHID": {
-    regEx: /navigator\.hid\.requestDevice\(/g,
+    regEx: /navigator\.hid\.requestDevice\s*\(/g,
     where: "JavaScript",
   },
   "WebSerial": {
-    regEx: /navigator\.serial\.requestPort\(/g,
+    regEx: /navigator\.serial\.requestPort\s*\(/g,
     where: "JavaScript",
   },
   "WebNFC": {
-    regEx: /new NDEFReader\(/g,
+    regEx: /new NDEFReader\s*\(/g,
     where: "JavaScript",
   },
   "Run On Login": {
-    regEx: /navigator\.runOnOsLogin\.set\(/g,
+    regEx: /navigator\.runOnOsLogin\.set\s*\(/g,
     where: "JavaScript",
   },
   "WebCodecs": {
-    regEx: /new MediaStreamTrackProcessor\(/g,
+    regEx: /new MediaStreamTrackProcessor\s*\(/g,
     where: "JavaScript",
   },
   "Digital Goods": {
-    regEx: /getDigitalGoodsService\(/g,
+    regEx: /getDigitalGoodsService\s*\(/g,
     where: "JavaScript",
   },
   "Idle Detection": {
-    regEx: /new IdleDetector\(/g,
+    regEx: /new IdleDetector\s*\(/g,
     where: "JavaScript",
   },
   "Storage Foundation": {
-    regEx: /storageFoundation\.open\(/g,
+    regEx: /storageFoundation\.open\s*\(/g,
     where: "JavaScript",
   },
   "Handwriting Recognition": {
-    regEx: /navigator\.queryHandwritingRecognizerSupport\(/g,
+    regEx: /navigator\.queryHandwritingRecognizerSupport\s*\(/g,
     where: "JavaScript",
   },
   "Compute Pressure": {
-    regEx: /new ComputePressureObserver\(/g,
+    regEx: /new ComputePressureObserver\s*\(/g,
     where: "JavaScript",
   },
   "Ambient Light Sensor": {
-    regEx: /new AmbientLightSensor\(\)/g,
+    regEx: /new AmbientLightSensor\s*\(\)/g,
     where: "JavaScript",
   },
   "File Handling": {
-    regEx: /launchQueue\.setConsumer\(/g,
+    regEx: /launchQueue\.setConsumer\s*\(/g,
     where: "JavaScript",
   },
   "Notification Triggers": {
-    regEx: /showTrigger\:/g,
+    regEx: /showTrigger\s*\:/g,
     where: "JavaScript",
   },
   "Local Font Access": {
-    regEx: /navigator\.fonts\.query\(\);/g,
+    regEx: /navigator\.fonts\.query\s*\(\);/g,
     where: "JavaScript",
   },
   "Multi-Screen Window Placement": {
-    regEx: /getScreens\(\)/g,
+    regEx: /getScreens\s*\(\)/g,
     where: "JavaScript",
   },
   "WebSocketStream": {
-    regEx: /new WebSocketStream\(/g,
+    regEx: /new WebSocketStream\s*\(/g,
     where: "JavaScript",
   },
   "WebTransport": {
-    regEx: /new WebTransport\(/g,
+    regEx: /new WebTransport\s*\(/g,
     where: "JavaScript",
   },
   "Web Share Target": {
-    regEx: /"share_target"\:/g,
+    regEx: /"share_target"\s*\:/g,
     where: "Web App Manifest",
   },
   "Web Share Target (Files)": {
-    regEx: /"enctype"\: "multipart\/form\-data"/g,
+    regEx: /"enctype"\s*\:\s*"multipart\/form\-data"/g,
     where: "Web App Manifest",
   },
   "Shortcuts": {
-    regEx: /"shortcuts"\:/g,
+    regEx: /"shortcuts"\s*\:/g,
     where: "Web App Manifest",
   },
   "Declarative Link Capturing": {
-    regEx: /"capture_links"\:/g,
+    regEx: /"capture_links"\s*\:/g,
     where: "Web App Manifest",
   },
   "Tabbed Application Mode": {
