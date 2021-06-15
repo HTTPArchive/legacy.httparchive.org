@@ -70,10 +70,9 @@ return JSON.stringify({
     return tcData;
   })(),
 
-  // TODO: Fingerprinting libraries
-
   // Ads Transparency Spotlight Data Disclosure schema
   // Check `meta` tag cf. https://github.com/Ads-Transparency-Spotlight/documentation/blob/main/implement.md
+  // Only for top frame; can't access child frames (same-origin policy)
   // Test site: ?
   ads_transparency_spotlight: (() => {
     let ats_meta_tag = document.querySelector('meta[name="AdsMetadata"]');
@@ -106,6 +105,18 @@ return JSON.stringify({
   // GPC - test site: https://global-privacy-control.glitch.me/
   navigator_globalPrivacyControl: findStringInBodies('navigator.globalPrivacyControl'),
   globalPrivacyControl: findStringInBodies('globalPrivacyControl'),
+  // sensitive resources - accesses permissions policy
+  document_permissionsPolicy: findStringInBodies('document.permissionsPolicy'),
+  permissionsPolicy: findStringInBodies('permissionsPolicy'),
+  // user media (camera, microphone)
+  navigator_mediaDevices_getUserMedia: findStringInBodies('navigator.mediaDevices.getUserMedia'),
+  mediaDevices: findStringInBodies('mediaDevices'),
+  getUserMedia: findStringInBodies('getUserMedia'),
+  // geolocation
+  navigator_geolocation_getCurrentPosition: findStringInBodies('navigator.geolocation.getCurrentPosition'),
+  navigator_geolocation_watchPosition: findStringInBodies('navigator.geolocation.watchPosition'),
+  navigator_geolocation: findStringInBodies('navigator.geolocation'),
+  geolocation: findStringInBodies('geolocation'),
 
-  // TODO: sensitive resources
+  // Permissions Policy / Feature Policy on iframes --> already in `security.js` custom metrics
 });
