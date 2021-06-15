@@ -185,17 +185,19 @@ const checkURLConditions = (where, url, mimeType) => {
       (mimeType.toLowerCase().endsWith('script'))
   ) {
     return true;
-    // If the pattern has to occur in the Web App Manifest, make sure the file
-    // name includes either `.json` or `.webmanifest` and uses a MIME type that
-    // ends in "json"
-    // (https://w3c.github.io/manifest/#:~:text=file%20extension%3A%20.webmanifest%20or%20.json%3F).
-  } else if (
+  }
+  // If the pattern has to occur in the Web App Manifest, make sure the file
+  // name includes either `.json` or `.webmanifest` and uses a MIME type that
+  // ends in "json"
+  // (https://w3c.github.io/manifest/#:~:text=file%20extension%3A%20.webmanifest%20or%20.json%3F).  
+  if (
     (where === "Web App Manifest") &&
     (/\.webmanifest|\.json/.test(url)) &&
     (mimeType.toLowerCase().endsWith('json'))
   ) {
     return true;
   }
+  // Fall-through in all other cases.
   return false;
 };
 
