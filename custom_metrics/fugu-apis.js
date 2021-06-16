@@ -51,6 +51,14 @@ const patterns = {
     regEx: /new BarcodeDetector\s*\(/g,
     where: "JavaScript",
   },
+  "Shape Detection (Faces)": {
+    regEx: /new FaceDetector\s*\(/g,
+    where: "JavaScript",
+  },
+  "Shape Detection (Texts)": {
+    regEx: /new TextDetector\s*\(/g,
+    where: "JavaScript",
+  },
   "Screen Wake Lock": {
     regEx: /navigator\.wakeLock\.request\s*\(/g,
     where: "JavaScript",
@@ -109,6 +117,34 @@ const patterns = {
   },
   "Compute Pressure": {
     regEx: /new ComputePressureObserver\s*\(/g,
+    where: "JavaScript",
+  },
+  "Accelerometer": {
+    regEx: / new Accelerometer\s*\(/g,
+    where: "JavaScript",
+  },
+  "Gyroscope": {
+    regEx: /new Gyroscope\s*\(/g,
+    where: "JavaScript",
+  },
+  "Absolute Orientation Sensor": {
+    regEx: /new AbsoluteOrientationSensor\s*\(/g,
+    where: "JavaScript",
+  },
+  "Relative Orientation Sensor": {
+    regEx: /new RelativeOrientationSensor\s*\(/g,
+    where: "JavaScript",
+  },
+  "Gravity Sensor": {
+    regEx: /new GravitySensor\s*\(/g,
+    where: "JavaScript",
+  },
+  "Linear Acceleration Sensor": {
+    regEx: /new LinearAccelerationSensor\s*\(/g,
+    where: "JavaScript",
+  },
+  "Magnetometer": {
+    regEx: /new Magnetometer\s*\(/g,
     where: "JavaScript",
   },
   "Ambient Light Sensor": {
