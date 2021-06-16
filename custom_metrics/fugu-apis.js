@@ -3,11 +3,11 @@ const responseBodies = $WPT_BODIES;
 // Data created via a little helper spreadsheet:
 // https://docs.google.com/spreadsheets/d/1ndxh6sl0fSOLHFlMdSiLPqmGPMDVJqkJFYnQ0Hsmhwo/edit?usp=sharing.
 const patterns = {
-  "Web Bluetooth": {
+  "WebBluetooth": {
     regEx: /navigator\.bluetooth\.requestDevice\s*\(/g,
     where: "JavaScript",
   },
-  "Web USB": {
+  "WebUSB": {
     regEx: /navigator\.usb\.requestDevice\s*\(/g,
     where: "JavaScript",
   },
