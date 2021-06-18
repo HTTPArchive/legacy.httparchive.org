@@ -100,7 +100,7 @@ return JSON.stringify({
     } else {
       return null;
     }
-  }),
+  })(),
 
   // FLoC origin trial
   // Check `meta` tag cf. https://developer.chrome.com/blog/floc/ (complement with relevant header later on)
@@ -112,7 +112,7 @@ return JSON.stringify({
     } else {
       return null;
     }
-  }),
+  })(),
 
   // Check function/variable accesses through string searches (wrappers cannot be used, as the metrics are only collected at the end of the test)
   // FLoc - test site: https://floc.glitch.me/
