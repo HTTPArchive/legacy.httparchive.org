@@ -175,6 +175,10 @@ const patterns = {
     regEx: /new WebTransport\s*\(/g,
     where: "JavaScript",
   },
+  "Gamepad": {
+    regEx: /navigator\.getGamepads\s*\(/g,
+    where: "JavaScript",    
+  },
   "Web Share Target": {
     regEx: /"share_target"/g,
     where: "Web App Manifest",
