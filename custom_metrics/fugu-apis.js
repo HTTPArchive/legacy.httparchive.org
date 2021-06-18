@@ -175,6 +175,10 @@ const patterns = {
     regEx: /new WebTransport\s*\(/g,
     where: "JavaScript",
   },
+  "Gamepad": {
+    regEx: /navigator\.getGamepads\s*\(/g,
+    where: "JavaScript",    
+  },
   "Web Share Target": {
     regEx: /"share_target"/g,
     where: "Web App Manifest",
@@ -209,8 +213,11 @@ const patterns = {
   },
 };
 
-// To make sure we don't match on, e.g., blog posts that contain the patterns,
-// make sure that the file names fulfill certain conditions as a heuristic.
+// To avoid to match on, e.g., blog posts that contain the patterns,
+// ensure that the file names fulfill certain conditions as a heuristic.
+// Note that this leaves a slight risk of excluding inline `<script>` elements
+// using these APIs from being covered, but usage there is expected to be small
+// and we prefer to avoid the risk of false positives.
 const checkURLConditions = (where, url, mimeType) => {
   // If the pattern has to occur in JavaScript, make sure the file name
   // includes either `.js` or `.mjs` and uses a correct-ish MIME type
