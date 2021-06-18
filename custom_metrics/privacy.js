@@ -69,6 +69,25 @@ return JSON.stringify({
     }
     return tcData;
   })(),
+  iab_usp: (() => {
+    // IAB US Privacy User Signal Mechanism “USP API” is integrated on the page.
+    // https://github.com/InteractiveAdvertisingBureau/USPrivacy
+    // Test site: nfl.com
+    let uspData;
+    if (typeof __uspapi == 'function') {
+      // based on https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20CMP%20API%20v2.md#gettcdata
+      __uspapi('getUSPData', 1, (result, success) => {
+        if(success) {
+          uspData = result;
+        } else {
+          uspData = {"error": "Failed to retrieve USPData"};
+        }
+      });
+    } else {
+      uspData = null;
+    }
+    return uspData;
+  })(),
 
   // Ads Transparency Spotlight Data Disclosure schema
   // Check `meta` tag cf. https://github.com/Ads-Transparency-Spotlight/documentation/blob/main/implement.md
