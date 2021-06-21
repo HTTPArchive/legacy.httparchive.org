@@ -129,8 +129,11 @@ return JSON.stringify({
   permissionsPolicy: findStringInBodies('permissionsPolicy'),
   // user media (camera, microphone)
   navigator_mediaDevices_getUserMedia: findStringInBodies('navigator.mediaDevices.getUserMedia'),
-  mediaDevices: findStringInBodies('mediaDevices'),
   getUserMedia: findStringInBodies('getUserMedia'),
+  navigator_mediaDevices_getDisplayMedia: findStringInBodies('navigator.mediaDevices.getDisplayMedia'),
+  getDisplayMedia: findStringInBodies('getDisplayMedia'),
+  navigator_mediaDevices_enumerateDevices: findStringInBodies('navigator.mediaDevices.enumerateDevices'),
+  enumerateDevices: findStringInBodies('enumerateDevices'),
   // geolocation
   navigator_geolocation_getCurrentPosition: findStringInBodies('navigator.geolocation.getCurrentPosition'),
   navigator_geolocation_watchPosition: findStringInBodies('navigator.geolocation.watchPosition'),
