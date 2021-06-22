@@ -41,27 +41,66 @@ return JSON.stringify({
   })(),
 
   // Consent Management Platforms
-  iab_tcf_v1:
+  iab_tcf_v1: (() => {
     // IAB Transparency and Consent Framework version 1 is integrated on the page.
     // docs v1: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework
     // description of `__cmp`: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/CMP%20JS%20API%20v1.1%20Final.md#what-api-will-need-to-be-provided-by-the-cmp-
-    // Test site: ?
-    (typeof window.__cmp == 'function'),
+    let consentData;
+    if (typeof window.__cmp == 'function') {
+      // Standard command: 'getVendorConsents'
+      // cf. https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/CMP%20JS%20API%20v1.1%20Final.md#what-api-will-need-to-be-provided-by-the-cmp-
+      // Test site: ?
+      __cmp('getVendorConsents', null, (result, success) => {
+        if(success) {
+          consentData = result;
+          consentData.compliant_setup = true;
+        } else {
+          // special case for consentmanager ('CMP settings are used that are not compliant with the IAB TCF')
+          // see warning at the top of https://help.consentmanager.net/books/cmp/page/changes-to-the-iab-cmp-framework-js-api
+          // cf. https://help.consentmanager.net/books/cmp/page/javascript-api
+          // Test site: https://www.pokellector.com/
+          __cmp('noncompliant_getVendorConsents', null, (result, success) => {
+            if(success) {
+              consentData = result;
+              consentData.compliant_setup = false;
+            } else {
+              consentData = {"error": "Failed to retrieve consent data"};
+            }
+          });
+        }
+      });
+    } else {
+      consentData = null;
+    }
+    return consentData;
+  })(),
     // TODO: could improve to collect 'consent string' data (see next line), but I haven't been able to find a website that still uses v1 to test this
     // __cmp("getConsentData", null, function(v, success) { console.log(v); })
   iab_tcf_v2: (() => {
     // IAB Transparency and Consent Framework version 2 is integrated on the page.
     // docs v2: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2
     // description of `__tcfapi`: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20CMP%20API%20v2.md#how-does-the-cmp-provide-the-api
-    // Test site: rtl.de
     let tcData;
     if (typeof window.__tcfapi == 'function') {
       // based on https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20CMP%20API%20v2.md#gettcdata
+      // Test site: rtl.de
       __tcfapi('getTCData', 2, (result, success) => {
         if(success) {
           tcData = result;
+          tcData.compliant_setup = true;
         } else {
-          tcData = {"error": "Failed to retrieve TCData"};
+          // special case for consentmanager ('CMP settings are used that are not compliant with the IAB TCF')
+          // see warning at the top of https://help.consentmanager.net/books/cmp/page/changes-to-the-iab-cmp-framework-js-api
+          // cf. https://help.consentmanager.net/books/cmp/page/javascript-api
+          // Test site: ?
+          __tcfapi('noncompliant_getTCData', 2, (result, success) => {
+            if(success) {
+              tcData = result;
+              tcData.compliant_setup = false;
+            } else {
+              tcData = {"error": "Failed to retrieve TCData"};
+            }
+          });
         }
       });
     } else {
