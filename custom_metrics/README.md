@@ -2,7 +2,7 @@
 
 ## Adding a new custom metric
 
-HTTP Archive uses WebPageTest (WPT) to collect information about how web pages are built. WPT is able to run arbitrary JavaScript at the end of a test to collect specific data, known as custom metrics. See the [WPT custom metrics documentation](https://github.com/WPO-Foundation/webpagetest-docs/blob/master/user/custom_metrics.md) for more info.
+HTTP Archive uses WebPageTest (WPT) to collect information about how web pages are built. WPT is able to run arbitrary JavaScript at the end of a test to collect specific data, known as custom metrics. See the [WPT custom metrics documentation](https://docs.webpagetest.org/custom-metrics/) for more info.
 
 To add a new custom metric to HTTP Archive:
 
