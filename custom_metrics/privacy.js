@@ -54,36 +54,33 @@ return JSON.stringify({
    * https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/CMP%20JS%20API%20v1.1%20Final.md
    */
   iab_tcf_v1: (() => {
-    let consentData;
+    let consentData = {
+      present: typeof window.__cmp == 'function',
+      data: null,
+      compliant_setup: null,
+    };
     // description of `__cmp`: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/CMP%20JS%20API%20v1.1%20Final.md#what-api-will-need-to-be-provided-by-the-cmp-
-    if (typeof window.__cmp == 'function') {
+    if (consentData.present) {
       // Standard command: 'getVendorConsents'
       // cf. https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/CMP%20JS%20API%20v1.1%20Final.md#what-api-will-need-to-be-provided-by-the-cmp-
       // Test site: ?
-      __cmp('getVendorConsents', null, (result, success) => {
+      window.__cmp('getVendorConsents', null, (result, success) => {
         if (success) {
-          consentData = result;
+          consentData.data = result;
           consentData.compliant_setup = true;
         } else {
           // special case for consentmanager ('CMP settings are used that are not compliant with the IAB TCF')
           // see warning at the top of https://help.consentmanager.net/books/cmp/page/changes-to-the-iab-cmp-framework-js-api
           // cf. https://help.consentmanager.net/books/cmp/page/javascript-api
           // Test site: https://www.pokellector.com/
-          __cmp('noncompliant_getVendorConsents', null, (result, success) => {
+          window.__cmp('noncompliant_getVendorConsents', null, (result, success) => {
             if (success) {
-              consentData = result;
+              consentData.data = result;
               consentData.compliant_setup = false;
-            } else {
-              consentData = {error: 'Failed to retrieve consent data'};
             }
           });
         }
       });
-
-      // TODO: could improve to collect 'consent string' data (see next line), but I haven't been able to find a website that still uses v1 to test this
-      // __cmp("getConsentData", null, function(v, success) { console.log(v); })
-    } else {
-      consentData = null;
     }
     return consentData;
   })(),
@@ -95,31 +92,31 @@ return JSON.stringify({
    * Test site: https://www.rtl.de/
    */
   iab_tcf_v2: (() => {
-    let tcData;
+    let tcData = {
+      present: typeof window.__tcfapi == 'function',
+      data: null,
+      compliant_setup: null,
+    };
     // description of `__tcfapi`: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20CMP%20API%20v2.md#how-does-the-cmp-provide-the-api
-    if (typeof window.__tcfapi == 'function') {
+    if (tcData.present) {
       // based on https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20CMP%20API%20v2.md#gettcdata
-      __tcfapi('getTCData', 2, (result, success) => {
+      window.__tcfapi('getTCData', 2, (result, success) => {
         if (success) {
-          tcData = result;
+          tcData.data = result;
           tcData.compliant_setup = true;
         } else {
           // special case for consentmanager ('CMP settings are used that are not compliant with the IAB TCF')
           // see warning at the top of https://help.consentmanager.net/books/cmp/page/changes-to-the-iab-cmp-framework-js-api
           // cf. https://help.consentmanager.net/books/cmp/page/javascript-api
-          // Test site: ?
-          __tcfapi('noncompliant_getTCData', 2, (result, success) => {
+          // Test site: https://www.pokellector.com/
+          window.__tcfapi('noncompliant_getTCData', 2, (result, success) => {
             if (success) {
-              tcData = result;
+              tcData.data = result;
               tcData.compliant_setup = false;
-            } else {
-              tcData = {error: 'Failed to retrieve TCData'};
             }
           });
         }
       });
-    } else {
-      tcData = null;
     }
     return tcData;
   })(),
@@ -168,6 +165,7 @@ return JSON.stringify({
    * FLoC
    * Test site: https://floc-ot-meta.glitch.me/
    * Test site: https://floc.glitch.me/
+   * Test site: https://www.pokellector.com/
    *
    * @todo Check function/variable accesses through string searches (wrappers cannot be used, as the metrics are only collected at the end of the test)
    */
