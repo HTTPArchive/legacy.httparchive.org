@@ -253,8 +253,9 @@ const patterns = {
   'Notification Triggers': {
     regEx: /showTrigger\s*\:\s*new TimestampTrigger\s*\(/g,
     where: 'JavaScript',
-    supported: (async () => 'showTrigger' in Notification.prototype)(),
-    featureDetection: `(async () => 'showTrigger' in Notification.prototype)()`,
+    supported: (async () =>
+      'Notification' in self && 'showTrigger' in Notification.prototype)(),
+    featureDetection: `(async () => 'Notification' in self && 'showTrigger' in Notification.prototype)()`,
   },
   'Local Font Access': {
     regEx: /navigator\.fonts\.query\s*\(\)/g,
