@@ -262,11 +262,10 @@ const patterns = {
     supported: (async () => "launchQueue" in self)(),
     featureDetection: `(async () => 'launchQueue' in self)()`,
   },
-  "Notification Triggers": {
-    regEx: /showTrigger\s*\:\s*/g,
-    where: "JavaScript",
-    supported: (async () =>
-      "showTrigger" in Notification.prototype)(),
+  'Notification Triggers': {
+    regEx: /showTrigger\s*\:\s*new TimestampTrigger\s*\(/g,
+    where: 'JavaScript',
+    supported: (async () => 'showTrigger' in Notification.prototype)(),
     featureDetection: `(async () => 'showTrigger' in Notification.prototype)()`,
   },
   "Local Font Access": {
