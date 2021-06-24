@@ -6,8 +6,9 @@
     "doc": "docs"
   },
   "scripts": {
-    "custom-metrics": "node bin/library-detector.js && node bin/create-fugu.js",
-    "prepare": "npm run custom-metrics"
+    "custom-metrics": "node bin/library-detector.js",
+    "custom-metrics-fugu": "node bin/create-fugu.js",
+    "prepare": "npm run custom-metrics-fugu"
   },
   "repository": {
     "type": "git",
