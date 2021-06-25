@@ -216,6 +216,14 @@ return JSON.stringify({
     findStringInBodies('document.permissionsPolicy') ||
     findStringInBodies('permissionsPolicy'),
 
+  /**
+   * Feature policy 
+   * (previous name of Permission policy: https://www.w3.org/TR/permissions-policy-1/#introduction)
+   */
+  document_featurePolicy:
+    findStringInBodies('document.featurePolicy') ||
+    findStringInBodies('featurePolicy'),
+
   // Permissions Policy / Feature Policy on iframes already implemented in `security.js` custom metrics.
 
   /**
