@@ -227,6 +227,59 @@ return JSON.stringify({
   // Permissions Policy / Feature Policy on iframes already implemented in `security.js` custom metrics.
 
   /**
+   * Referrer Policy
+   * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
+   */
+  referrerPolicy: (() => {
+    let rp = {
+      entire_document_policy: null,
+      individual_requests: null,
+      link_relations: null
+    };
+    // Referrer policy set for entire document using `meta` tag
+    // Test site: https://www.cnet.com/
+    let referrer_meta_tag = document.querySelector(
+      'meta[name="referrer"]'
+    );
+    if (referrer_meta_tag) {
+      rp.entire_document_policy = referrer_meta_tag.content; // Get policy value
+    }
+    // Referrer policy set for individual requests with the `referrerpolicy` attribute
+    // Test site: https://www.brilio.net/
+    let referrerpolicy_attributes = document.querySelectorAll(
+      '[referrerpolicy]'
+    );
+    // Leave `individual_requests` at `null` if no attributes are found.
+    if (referrerpolicy_attributes.length > 0) {
+    // Build dictionary of occurrences of tag-value pairs.
+      rp.individual_requests = Object.fromEntries(
+        Array.from(referrerpolicy_attributes).map(
+          x => (x.tagName + '|' + x.getAttribute('referrerpolicy'))
+        ).reduce( // https://stackoverflow.com/a/57028486/7391782
+          (acc, e) => acc.set(e, (acc.get(e) || 0) + 1), new Map()
+        )
+      );
+    }
+    // Referrer policy set for a link using `noreferrer` link relation
+    // Test site: https://www.cnet.com/
+    let noreferrer_link_relations = document.querySelectorAll(
+      '[rel*="noreferrer"]'
+    );
+    // Leave `link_relations` at `null` if no attributes are found.
+    if (noreferrer_link_relations.length > 0) {
+      // Build dictionary of occurrences of tags.
+        rp.link_relations = Object.fromEntries(
+          Array.from(noreferrer_link_relations).map(
+            x => (x.tagName)
+          ).reduce( // https://stackoverflow.com/a/57028486/7391782
+            (acc, e) => acc.set(e, (acc.get(e) || 0) + 1), new Map()
+          )
+        );
+      }  
+    return rp;
+  })(),
+
+  /**
    * Media devices
    * https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices
    */
