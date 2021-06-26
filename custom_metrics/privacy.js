@@ -163,24 +163,13 @@ return JSON.stringify({
 
   /**
    * FLoC
-   * Test site: https://floc-ot-meta.glitch.me/
+   *
    * Test site: https://floc.glitch.me/
    * Test site: https://www.pokellector.com/
    *
    * @todo Check function/variable accesses through string searches (wrappers cannot be used, as the metrics are only collected at the end of the test)
    */
   floc: {
-    origin_trial: (() => {
-      // Check `meta` tag cf. https://developer.chrome.com/blog/floc/ (complement with relevant header later on)
-      let floc_meta_tag = document.querySelector(
-        'meta[http-equiv="origin-trial"]'
-      );
-      if (floc_meta_tag) {
-        return floc_meta_tag.content; // Get origin trial token, could be useful to check if multiple enrolled sites are from the same webmaster
-      } else {
-        return null;
-      }
-    })(),
     document_interestCohort:
       findStringInBodies('document.interestCohort') ||
       findStringInBodies('interestCohort'),
