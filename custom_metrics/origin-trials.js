@@ -1,4 +1,4 @@
-[origin_trials];
+//[origin_trials]
 /**
  * Origin Trials
  * https://github.com/GoogleChrome/OriginTrials
@@ -141,19 +141,17 @@ let requests = $WPT_REQUESTS;
 
 let meta_tags = document.querySelectorAll('meta[http-equiv="origin-trial"]');
 
-let headers = [];
-requests.forEach((request) => {
-  headers = headers.concat(
-    getParameterCaseInsensitive(request.response_headers, 'origin-trial')
-      .replaceAll(' ', '')
-      .split(',')
-  );
-});
-
 let tokens = [];
-
 meta_tags.forEach((tag) => tokens.push(tag.content));
-headers.forEach((header) => tokens.push(header));
+
+requests.forEach((request) => {
+  let header = getParameterCaseInsensitive(request.response_headers, 'origin-trial');
+  if (header) {
+    tokens = tokens.concat(
+      header.replaceAll(' ', '').split(',')
+    );
+  }
+});
 
 let unique_tokens = tokens.filter(
   (value, index, self) => self.indexOf(value) === index
