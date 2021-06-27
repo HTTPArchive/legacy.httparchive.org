@@ -210,4 +210,172 @@ return JSON.stringify({
   screen_reader_classes: captureAndLogError(() => {
     return document.querySelectorAll('.sr-only, .visually-hidden').length > 0;
   }),
+  form_control_a11y_tree: captureAndLogError(() => {
+    function doesMatchAny(string, regexps) {
+      let found = false;
+      for (const regexp of regexps) {
+        if (regexp.test(string)) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    const attributes_to_track = [
+      /^aria-.+$/,
+      /^type$/,
+      /^id$/,
+      /^name$/,
+      /^placeholder$/,
+      /^accept$/,
+      /^autocomplete$/,
+      /^autofocus$/,
+      /^capture$/,
+      /^max$/,
+      /^maxlength$/,
+      /^min$/,
+      /^minlength$/,
+      /^required$/,
+      /^readonly$/,
+      /^pattern$/,
+      /^multiple$/,
+      /^step$/,
+    ];
+    function addControlToStats(node, accumulator) {
+      const control_stats = {
+        type: node.node_info.nodeType.toLowerCase(),
+        attributes: {},
+        properties: {},
+        accessible_name: node.name.value || '',
+        accessible_name_sources: [],
+        role: node.role.value || '',
+      };
+
+      // Store all attribute information
+      for (let [key, value] of Object.entries(node.node_info.attributes || {})) {
+        key = key.toLowerCase();
+        if (!doesMatchAny(key, attributes_to_track)) {
+          continue;
+        }
+
+        control_stats.attributes[key] = value;
+      }
+
+      for (let property of node.properties) {
+        control_stats.properties[property.name] = property.value.value;
+      }
+
+      for (let source of node.name.sources || []) {
+        // Bubble up the final value. By default its nested inside
+        if (source.value) {
+          source.value = source.value.value;
+        }
+
+        accessible_name_sources.push(source);
+      }
+
+      accumulator.push(control_stats);
+    }
+
+    const allowed_control_types = [
+      'input',
+      'select',
+      'textarea',
+      'button',
+    ];
+
+    const stats_of_controls = [];
+    for (const node of $WPT_ACCESSIBILITY_TREE) {
+      const node_type = (node.node_info?.nodeType || '').toLowerCase();
+      if (!allowed_control_types.includes(node_type)) {
+        continue;
+      }
+
+      addControlToStats(node, controls);
+    }
+
+    return stats_of_controls;
+  }),
+  // If the radio or checkbox elements are inside a fieldset or legend
+  fieldset_radio_checkbox: captureAndLogError(() => {
+    let total_radio_in_fieldset = 0;
+    let total_checkbox_in_fieldset = 0;
+    const fieldset_stats = [];
+
+    const fieldset_elements = document.querySelectorAll('fieldset');
+    for (let fieldset of fieldsets) {
+      let has_legend = fieldset.querySelector('legend');
+      const total_radio = fieldset.querySelectorAll('input[type="radio"]').length
+      const total_checkbox = fieldset.querySelectorAll('input[type="checkbox"]').length
+
+      fieldset_stats.push({
+        has_legend,
+        total_radio,
+        total_checkbox,
+      });
+    }
+
+    return {
+      total_radio: document.querySelectorAll('input[type="radio"]').length,
+      total_checkbox: document.querySelectorAll('input[type="checkbox"]').length,
+      total_radio_in_fieldset,
+      total_checkbox_in_fieldset,
+
+      fieldsets: fieldset_stats,
+    }
+  }),
+  required_form_controls: captureAndLogError(() => {
+    function getVisibleLabel(element) {
+      // Explicit label
+      const id = (element.getAttribute('id') || '').trim();
+      if (id.length > 0) {
+        const element = document.querySelector(`label[for="${id}"]`);
+        if (element) {
+          return element.textContent.trim();
+        }
+      }
+
+      // Implicit label
+      if (element.parentElement && element.parentElement.tagName === 'LABEL') {
+        return element.parentElement.textContent.trim();
+      }
+
+      return null;
+    }
+
+    function hasRequiredAsterisk(element) {
+      const label = getVisibleLabel(element);
+      if (!label) {
+        return false;
+      }
+
+      if (label.substr(0, 1) === '*' || label.substr(-1, 1) === '*') {
+        return true;
+      }
+
+      return false;
+    }
+
+    const controls = document.querySelectorAll('input, select, textarea');
+    const required_stats = [];
+    for (const control of controls) {
+      const has_visible_required_asterisk = hasRequiredAsterisk(control);
+      const has_required = control.hasAttribute('required');
+      const has_aria_required = control.hasAttribute('aria-required');
+
+      // Only include stats for controls that are required in some fashion
+      if (!has_required && !has_aria_required && !has_visible_required_asterisk) {
+        continue;
+      }
+
+      required_stats.push({
+        has_visible_required_asterisk,
+        has_required,
+        has_aria_required,
+      });
+    }
+
+    return required_stats;
+  }),
 });
