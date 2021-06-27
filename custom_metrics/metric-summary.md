@@ -715,13 +715,13 @@ A JSON array of `<img>` elements on the page.
 Sample response:
 
 ```
-  {
-    "url": "https://placekitten.com/401/401",
-    "width": 401,
-    "height": 401,
-    "naturalWidth": 401,
-    "naturalHeight": 401,
-    "loading": "lazy",
-    "inViewport": true
-  }
+{
+  "url": "https://placekitten.com/401/401",
+  "width": 401,
+  "height": 401,
+  "naturalWidth": 401,
+  "naturalHeight": 401,
+  "loading": "lazy",
+  "inViewport": true
+}
 ```
