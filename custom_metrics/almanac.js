@@ -587,7 +587,16 @@ return JSON.stringify({
     };
     const parsed_videos = parseNodes(videos, filter_options);
 
+    // Count the number of video elements that have a track element
+    let total_videos_with_track_element = 0;
+    for (let video of videos) {
+      if (video.querySelector('track')) {
+        total_videos_with_track_element++;
+      }
+    }
+
     const parsed_tracks = parseNodes(tracks, {max_prop_length: 255});
+    parsed_videos.total_with_track = total_videos_with_track_element;
     parsed_videos.tracks = parsed_tracks;
     return parsed_videos;
   })(),
@@ -597,11 +606,11 @@ return JSON.stringify({
     const iframes_using_loading = [
       ...document.querySelectorAll("iframe[loading]"),
     ];
-  
+
     /** @type {ParseNodeOptions} */
     return {
       iframes: parseNodes(iframes),
-  
+
       loading_values: iframes_using_loading.map((iframe) => {
         const value = iframe.getAttribute("loading") || "";
         return value.toLocaleLowerCase().replace(/\s+/gm, " ").trim();
