@@ -601,6 +601,39 @@ return JSON.stringify({
     return parsed_videos;
   })(),
 
+  'audios': (() => {
+    const audios = document.querySelectorAll('audio');
+    const tracks = document.querySelectorAll('audio track');
+
+    const filter_options = {
+      include_only_prop_list: [
+        /^autoplay$/,
+        /^controls$/,
+        /^loop$/,
+        /^muted$/,
+        /^poster$/,
+        /^preload$/,
+        /^aria-.+$/,
+      ],
+      // Protect us from weird values
+      max_prop_length: 255,
+    };
+    const parsed_audios = parseNodes(audios, filter_options);
+
+    // Count the number of audio elements that have a track element
+    let total_audios_with_track_element = 0;
+    for (let audio of audios) {
+      if (audio.querySelector('track')) {
+        total_audios_with_track_element++;
+      }
+    }
+
+    const parsed_tracks = parseNodes(tracks, {max_prop_length: 255});
+    parsed_audios.total_with_track = total_audios_with_track_element;
+    parsed_audios.tracks = parsed_tracks;
+    return parsed_audios;
+  })(),
+
   'iframes': (() => {
     const iframes = document.querySelectorAll("iframe");
     const iframes_using_loading = [
