@@ -267,12 +267,21 @@ return JSON.stringify({
       }
 
       for (let source of node.name.sources || []) {
-        // Bubble up the final value. By default its nested inside
-        if (source.value) {
-          source.value = source.value.value;
+        // Only include sources that contributed a value
+        if (!source.value || !source.value.value) {
+          continue;
         }
 
-        accessible_name_sources.push(source);
+        // Only keep the relevant properties
+        const cleaned_source = {
+          type: source.type,
+          value: source.value.value,
+        };
+        if (source.attribute) {
+          cleaned_source.attribute = source.attribute;
+        }
+
+        control_stats.accessible_name_sources.push(cleaned_source);
       }
 
       accumulator.push(control_stats);
@@ -292,7 +301,7 @@ return JSON.stringify({
         continue;
       }
 
-      addControlToStats(node, controls);
+      addControlToStats(node, stats_of_controls);
     }
 
     return stats_of_controls;
@@ -304,10 +313,13 @@ return JSON.stringify({
     const fieldset_stats = [];
 
     const fieldset_elements = document.querySelectorAll('fieldset');
-    for (let fieldset of fieldsets) {
-      let has_legend = fieldset.querySelector('legend');
+    for (let fieldset of fieldset_elements) {
+      let has_legend = !!fieldset.querySelector('legend');
       const total_radio = fieldset.querySelectorAll('input[type="radio"]').length
       const total_checkbox = fieldset.querySelectorAll('input[type="checkbox"]').length
+
+      total_radio_in_fieldset += total_radio;
+      total_checkbox_in_fieldset += total_checkbox;
 
       fieldset_stats.push({
         has_legend,
