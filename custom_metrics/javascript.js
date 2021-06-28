@@ -54,12 +54,26 @@ return JSON.stringify({
         try {
             var requests = $WPT_REQUESTS;
             if (requests.length > 0) {
-                var types = requests.map(req => req.response_headers["Content-Type"])
+                return requests.map(req => req.response_headers['content-type']);
             }
             else {
-                return null
+                return requests.length
             }
 
+        } catch (e) {
+            return null;
+        }
+    })(),
+    'memory_usage': (() => {
+        /*  Returns the memory usage of a page - JS and dom elements only
+            Important - webpagetest needs flags to be test: 
+            --disable-web-security, --no-site-isolation */
+        try {
+            return new Promise((resolve) => {
+                performance.measureUserAgentSpecificMemory().then((value) => {
+                    resolve(JSON.stringify(value));
+                });
+            });
         } catch (e) {
             return null;
         }
