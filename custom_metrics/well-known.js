@@ -46,11 +46,26 @@ return Promise.all([
   parseResponse('/.well-known/apple-app-site-association'),
   // security
   parseResponse('/robots.txt', r => {
-
+    return r.text().then(text => {
+      let data = {"user-agents": [], "disallows": []};
+      for(let line of text.split("\n")) {
+        if (line.startsWith("User-agent: ")) {
+          data["user-agents"].push(line.substring(12));
+        } else if (line.startsWith("Disallow: ")) {
+          data["disallows"].push(line.substring(10));
+        }
+      }
+      return data;
+    });
   }),
   parseResponse('/.well-known/security.txt', r => {
     return r.text().then(text => {
       let data = {};
+      if (text.startsWith("-----BEGIN PGP SIGNED MESSAGE-----")) {
+        data["signed"] = true;
+      } else {
+        data["signed"] = false;
+      }
       for(let line of text.split("\n")) {
         if (line.startsWith("Canonical: ")) {
           data["canonical"] = line.substring(11);
