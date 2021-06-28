@@ -722,3 +722,5 @@ Sample response:
     "inViewport": true
   }
 ```
+
+# [structured_data.js](https://github.com/HTTPArchive/legacy.httparchive.org/blob/master/custom_metrics/structured_data.js) metrics
