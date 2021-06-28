@@ -49,7 +49,21 @@ return Promise.all([
 
   }),
   parseResponse('/.well-known/security.txt', r => {
-
+    return r.text().then(text => {
+      let data = {};
+      for(let line of text.split("\n")) {
+        if (line.startsWith("Canonical: ")) {
+          data["canonical"] = line.substring(11);
+        } else if (line.startsWith("Encryption: ")) {
+          data["encryption"] = line.substring(12);
+        } else if (line.startsWith("Expires: ")) {
+          data["expires"] = line.substring(9);
+        } else if (line.startsWith("Policy: ")) {
+          data["policy"] = line.substring(8);
+        }
+      }
+      return data;
+    });
   })
 ]).then((all_data) => {
   return JSON.stringify(all_data);
