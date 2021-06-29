@@ -83,28 +83,147 @@ try {
   _custom_metrics = {
     structured_data: (() => {
       try {
+        function dumpTagAttributes(tags) {
+          return tags.map((tag) => {
+            const attributes = tag.getAttributeNames();
+            const json_tag = {};
+            attributes.map((attribute) => {
+              json_tag[attribute] = tag.getAttribute(attribute);
+            });
+            return json_tag;
+          });
+        }
+
+        function getAttributeValues(document, attribute) {
+          return [...document.querySelectorAll("[" + attribute + "]")].map(
+            (element) => element.getAttribute(attribute)
+          );
+        }
+
         function gatherStructuredData(d) {
           let target = {
             jsonld_scripts: [],
-            raw_html: '',
-            meta_tags: []
+            raw_html: "",
+            present: {
+              json_ld: false,
+              microdata: false,
+              rdfa: false,
+              microformats2: false,
+              microformats_classic: false,
+              twitter: false,
+              facebook: false,
+              opengraph: false,
+            },
+            microdata_itemtypes: [],
+            rdfa_vocabs: [],
+            rdfa_prefixes: [],
+            rdfa_typeofs: [],
+            microformats2_types: [],
+            microformats_classic_types: [],
+            meta_tags: [],
+            link_tags: [],
+            twitter: [],
+            facebook: [],
+            opengraph: [],
           };
 
           // JSON-LD
-          target.jsonld_scripts = [...d.querySelectorAll('script[type="application/ld+json"i]')].map(script => script.innerHTML)
+          target.jsonld_scripts = [
+            ...d.querySelectorAll('script[type="application/ld+json"i]'),
+          ].map((script) => script.innerHTML);
+          target.present.json_ld = target.jsonld_scripts.length > 0;
 
           // Microdata, RDFa & Microformats
           target.raw_html = d.documentElement.outerHTML;
 
+          // Microdata
+          target.present.microdata =
+            d.querySelectorAll("[itemscope],[itemtype],[itemprop]").length > 0;
+          target.microdata_itemtypes = [
+            ...d.querySelectorAll("[itemtype]"),
+          ].map((element) => element.getAttribute("itemtype"));
+
+          // RDFa
+          target.present.rdfa =
+            d.querySelectorAll(
+              "[vocab],[typeof],[property],[resource],[prefix]"
+            ).length > 0;
+          target.rdfa_vocabs = getAttributeValues(d, "vocab");
+          target.rdfa_prefixes = getAttributeValues(d, "prefix");
+          target.rdfa_typeofs = getAttributeValues(d, "typeof");
+
+          // microformats2
+          [
+            "h-adr",
+            "h-card",
+            "h-entry",
+            "h-event",
+            "h-feed",
+            "h-geo",
+            "h-item",
+            "h-listing",
+            "h-product",
+            "h-recipe",
+            "h-resume",
+            "h-review",
+            "h-review-aggregate",
+          ].forEach((name) => {
+            let items = d.querySelectorAll('[class~="' + name + '" i]');
+            if (items.length > 0) {
+              target.present.microformats2 = true;
+              target.microformats2_types.push({
+                name: name,
+                count: items.length,
+              });
+            }
+          });
+
+          // Classic Microformats
+          [
+            "hAtom",
+            "hCalendar",
+            "hCard",
+            "hListing",
+            "hMedia",
+            "hProduct",
+            "hRecipe",
+            "hResume",
+            "hReview",
+            "hReview-aggregate",
+            "adr",
+            "geo",
+          ].forEach((name) => {
+            let items = d.querySelectorAll('[class~="' + name + '" i]');
+            if (items.length > 0) {
+              target.present.microformats_classic = true;
+              target.microformats_classic_types.push({
+                name: name,
+                count: items.length,
+              });
+            }
+          });
+
           // Dublin Core, Twitter, Facebook & OpenGraph
-          target.meta_tags = [...d.querySelectorAll('meta')].map(tag => {
-            const attributes = tag.getAttributeNames()
-            const json_tag = {}
-            attributes.map(attribute => {
-              json_tag[attribute] = tag.getAttribute(attribute)
-            })
-            return json_tag
-          })
+          target.meta_tags = dumpTagAttributes([...d.querySelectorAll("meta")]);
+          target.link_tags = dumpTagAttributes([...d.querySelectorAll("link")]);
+
+          // Twitter
+          target.twitter = dumpTagAttributes([
+            ...d.querySelectorAll('[name^="twitter:" i]'),
+          ]);
+          target.present.twitter = target.twitter.length > 0;
+
+          // Facebook
+          target.facebook = dumpTagAttributes([
+            ...d.querySelectorAll('[property^="fb:" i]'),
+          ]);
+          target.present.facebook = target.facebook.length > 0;
+
+          // OpenGraph
+          target.opengraph = dumpTagAttributes([
+            ...d.querySelectorAll('[property^="og:" i]'),
+          ]);
+          target.present.opengraph = target.opengraph.length > 0;
 
           return target;
         }
