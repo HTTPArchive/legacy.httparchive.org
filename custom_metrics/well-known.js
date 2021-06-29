@@ -16,26 +16,26 @@ function fetchWithTimeout(url) {
 
 function parseResponse(url, parser) {
   return fetchWithTimeout(url).then(request => {
-    let result = {'path': url};
+    let resultObj = {};
     if(!request.redirected && request.status === 200) {
-      result['found'] = true;
+      resultObj['found'] = true;
       if(parser) {
         let promise = parser(request);
         if (promise) {
           return promise.then(data => {
-            result["data"] = data;
-            return result;
+            resultObj['data'] = data;
+            return [url, resultObj];
           });
         } else {
-          result["error"] = "parser did not return a promise";
-          return result;
+          resultObj['error'] = 'parser did not return a promise';
+          return [url, resultObj];
         }
       } else {
-        return result;
+        return [url, resultObj];
       }
     } else {
-      result['found'] = false;
-      return result;
+      resultObj['found'] = false;
+      return [url, resultObj];
     }
   });
 }
@@ -47,12 +47,12 @@ return Promise.all([
   // security
   parseResponse('/robots.txt', r => {
     return r.text().then(text => {
-      let data = {"user-agents": [], "disallows": []};
-      for(let line of text.split("\n")) {
-        if (line.startsWith("User-agent: ")) {
-          data["user-agents"].push(line.substring(12));
-        } else if (line.startsWith("Disallow: ")) {
-          data["disallows"].push(line.substring(10));
+      let data = {'user-agents': [], 'disallows': []};
+      for(let line of text.split('\n')) {
+        if (line.startsWith('User-agent: ')) {
+          data['user-agents'].push(line.substring(12));
+        } else if (line.startsWith('Disallow: ')) {
+          data['disallows'].push(line.substring(10));
         }
       }
       return data;
@@ -60,28 +60,28 @@ return Promise.all([
   }),
   parseResponse('/.well-known/security.txt', r => {
     return r.text().then(text => {
-      let data = {};
+      let data = {
+        'signed': false
+      };
       if (text.startsWith("-----BEGIN PGP SIGNED MESSAGE-----")) {
-        data["signed"] = true;
-      } else {
-        data["signed"] = false;
+        data['signed'] = true;
       }
-      for(let line of text.split("\n")) {
-        if (line.startsWith("Canonical: ")) {
-          data["canonical"] = line.substring(11);
-        } else if (line.startsWith("Encryption: ")) {
-          data["encryption"] = line.substring(12);
-        } else if (line.startsWith("Expires: ")) {
-          data["expires"] = line.substring(9);
-        } else if (line.startsWith("Policy: ")) {
-          data["policy"] = line.substring(8);
+      for(let line of text.split('\n')) {
+        if (line.startsWith('Canonical: ')) {
+          data['canonical'] = line.substring(11);
+        } else if (line.startsWith('Encryption: ')) {
+          data['encryption'] = line.substring(12);
+        } else if (line.startsWith('Expires: ')) {
+          data['expires'] = line.substring(9);
+        } else if (line.startsWith('Policy: ')) {
+          data['policy'] = line.substring(8);
         }
       }
       return data;
     });
   })
 ]).then((all_data) => {
-  return JSON.stringify(all_data);
+  return JSON.stringify(Object.fromEntries(all_data));
 }).catch(error => {
   return JSON.stringify({message: error.message, error: error});
 });
