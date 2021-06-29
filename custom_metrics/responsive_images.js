@@ -16,65 +16,66 @@ return JSON.stringify({
 // return a Number of CSS pixels
 //
 function resolveLength( cssLengthString ) {
-	const testDiv = document.createElement('div');
+
+	let cleanup = false,
+	    myHTML;
+
+	if ( !document.documentElement ) {
+		myHTML = document.createElement( 'html' );
+		document.appendChild( myHTML );
+		cleanup = true;
+	}
+
+	const testDiv = document.createElement( 'div' );
 	testDiv.style.fontSize = 'initial';
 	testDiv.style.boxSizing = 'border-box';
-	document.body.appendChild( testDiv );
+	document.documentElement.appendChild( testDiv );
 	testDiv.style.width = cssLengthString;
 	const width = testDiv.getBoundingClientRect().width;
+
 	testDiv.remove();
+	if ( cleanup ) {
+		myHTML.remove();
+	}
+
 	return width;
 }
 
 // determine if the user agent will pick a <source> with a given type="${mimeTypeString}"
 // takes a String
-// returns a Promise that resolves to a Boolean
-function matchType( mimeTypeString ) {
-
+//
 // I was trying to do this the "right" way, but async code and promises got involved, and I give up and am going to hardcode
 // source: https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/common/mime_util/mime_util.cc;l=164;drc=c14f6f4b9c44fe479a8d004576b42723b2a5feb6;bpv=0;bpt=1
 
+function matchType( mimeTypeString ) {
+
 	const supportedTypes = [
-    "image/jpeg",
-    "image/pjpeg",
-    "image/jpg",
-    "image/webp",
-    "image/png",
-    "image/apng",
-    "image/gif",
-    "image/bmp",
-    "image/vnd.microsoft.icon",  // ico
-    "image/x-icon",              // ico
-    "image/x-xbitmap",           // xbm
-    "image/x-png",
-    "image/avif"
+		"image/jpeg",
+		"image/pjpeg",
+		"image/jpg",
+		"image/webp",
+		"image/png",
+		"image/apng",
+		"image/gif",
+		"image/bmp",
+		"image/vnd.microsoft.icon",  // ico
+		"image/x-icon",              // ico
+		"image/x-xbitmap",           // xbm
+		"image/x-png",
+		"image/avif" // enabled for both desktop and mobile now (2021-06-29), phew
 	];
 	
-	return supportedTypes.includes( mimeTypeString );
+	return supportedTypes.includes( mimeTypeString.toLowerCase() );
 
-// 
-// 	return new Promise( (resolve, reject) => {
-// 
-// 		const picture = document.createElement('picture'),
-// 		      source = document.createElement('source'),
-// 		      img = document.createElement('img'),
-// 		      whitePixel = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=";
-// 
-// 		img.addEventListener('load', () => {
-// 			const match = ( img.currentSrc === whitePixel );
-// 			picture.remove(); // not sure if this actually does anything... crossing fingers for garbage collection
-// 			resolve( match );
-// 		});
-// 
-// 		source.setAttribute('type', mimeTypeString );
-// 		source.setAttribute('srcset', whitePixel);
-// 		picture.appendChild( source );
-// 		picture.appendChild( img );
-// 
-// 	} );
-	
+}
 
-
+// the candidate <source> elements of a given <picture>
+// takes a <picture> Element
+// returns a plain ol' Array of <source> Elements
+function pictureSources( picture ) {
+	// all <source>s that come BEFORE the <img>
+	// https://twitter.com/zcorpan/status/1409778636153032706
+	return [ ...picture.querySelectorAll( 'source:not( img ~ source )' ) ];
 }
 
 // What are the srcset and sizes attributes currently in effect for a given <img>?
@@ -87,7 +88,7 @@ function winningSrcsetAndSizes( img ) {
 	if ( img.parentNode.tagName === "PICTURE" ) {
 
 		const picture = img.parentNode,
-		      sources = [ ...picture.querySelectorAll( 'source' ) ];
+		      sources = pictureSources( picture );
 
 		for ( const source of sources ) {
 
@@ -140,7 +141,7 @@ function totalNumberOfCandidates( img ) {
 
 	if ( img.parentNode.tagName === "PICTURE" ) {
 		const picture = img.parentNode,
-		      sources = [ ...picture.querySelectorAll( 'source' ) ];
+		      sources = pictureSources( picture );
 		sources.forEach( source => {
 			if ( source.hasAttribute( 'srcset' ) ) {
 				const parsedSrcset = parseSrcset( source.getAttribute( 'srcset' ) ).candidates;
@@ -171,7 +172,7 @@ function pictureFeatures( picture ) {
 		throw 'pictureFeatures() expected a <picture> Element as input but received something else'
 	}
 
-	const sources = [ ...picture.querySelectorAll( 'source' ) ];
+	const sources = pictureSources( picture );
 	sources.forEach( source => {
 		if ( source.hasAttribute( 'media' ) ) {
 			mediaSwitching = true;
@@ -246,6 +247,8 @@ function getImgData( img ) {
 		imgData.pictureMediaSwitching = pictureFeatures_.mediaSwitching;
 		imgData.pictureTypeSwitching = pictureFeatures_.typeSwitching;
 	}
+	
+	const { srcset, sizes } = winningSrcsetAndSizes( img );
 	
 	imgData.hasSrcset = Boolean( srcset );
 	imgData.hasSizes = Boolean( sizes );
