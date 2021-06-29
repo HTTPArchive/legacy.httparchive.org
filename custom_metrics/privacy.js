@@ -32,7 +32,7 @@ function findStringInBodies(string) {
 return JSON.stringify({
   /**
    * Privacy policies
-   * Wording sourced from: https://github.com/RUB-SysSec/we-value-your-privacy/blob/master/privacy_wording.json:
+   * Wording sourced from: https://github.com/RUB-SysSec/we-value-your-privacy/blob/master/privacy_wording.json
    * words = privacy_wording.map(country => country.words).filter((v, i, a) => a.indexOf(v) === i).flat().sort().join('|');
    *
    * Test site: https://www.theverge.com/
@@ -60,29 +60,32 @@ return JSON.stringify({
       compliant_setup: null,
     };
     // description of `__cmp`: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/CMP%20JS%20API%20v1.1%20Final.md#what-api-will-need-to-be-provided-by-the-cmp-
-    if (consentData.present) {
-      // Standard command: 'getVendorConsents'
-      // cf. https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/CMP%20JS%20API%20v1.1%20Final.md#what-api-will-need-to-be-provided-by-the-cmp-
-      // Test site: ?
-      window.__cmp('getVendorConsents', null, (result, success) => {
-        if (success) {
-          consentData.data = result;
-          consentData.compliant_setup = true;
-        } else {
-          // special case for consentmanager ('CMP settings are used that are not compliant with the IAB TCF')
-          // see warning at the top of https://help.consentmanager.net/books/cmp/page/changes-to-the-iab-cmp-framework-js-api
-          // cf. https://help.consentmanager.net/books/cmp/page/javascript-api
-          // Test site: https://www.pokellector.com/
-          window.__cmp('noncompliant_getVendorConsents', null, (result, success) => {
-            if (success) {
-              consentData.data = result;
-              consentData.compliant_setup = false;
-            }
-          });
-        }
-      });
+    try { 
+      if (consentData.present) {
+        // Standard command: 'getVendorConsents'
+        // cf. https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/CMP%20JS%20API%20v1.1%20Final.md#what-api-will-need-to-be-provided-by-the-cmp-
+        // Test site: ?
+        window.__cmp('getVendorConsents', null, (result, success) => {
+          if (success) {
+            consentData.data = result;
+            consentData.compliant_setup = true;
+          } else {
+            // special case for consentmanager ('CMP settings are used that are not compliant with the IAB TCF')
+            // see warning at the top of https://help.consentmanager.net/books/cmp/page/changes-to-the-iab-cmp-framework-js-api
+            // cf. https://help.consentmanager.net/books/cmp/page/javascript-api
+            // Test site: https://www.pokellector.com/
+            window.__cmp('noncompliant_getVendorConsents', null, (result, success) => {
+              if (success) {
+                consentData.data = result;
+                consentData.compliant_setup = false;
+              }
+            });
+          }
+        });
+      }
+    } finally {
+      return consentData;
     }
-    return consentData;
   })(),
 
   /**
@@ -98,27 +101,30 @@ return JSON.stringify({
       compliant_setup: null,
     };
     // description of `__tcfapi`: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20CMP%20API%20v2.md#how-does-the-cmp-provide-the-api
-    if (tcData.present) {
-      // based on https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20CMP%20API%20v2.md#gettcdata
-      window.__tcfapi('getTCData', 2, (result, success) => {
-        if (success) {
-          tcData.data = result;
-          tcData.compliant_setup = true;
-        } else {
-          // special case for consentmanager ('CMP settings are used that are not compliant with the IAB TCF')
-          // see warning at the top of https://help.consentmanager.net/books/cmp/page/changes-to-the-iab-cmp-framework-js-api
-          // cf. https://help.consentmanager.net/books/cmp/page/javascript-api
-          // Test site: https://www.pokellector.com/
-          window.__tcfapi('noncompliant_getTCData', 2, (result, success) => {
-            if (success) {
-              tcData.data = result;
-              tcData.compliant_setup = false;
-            }
-          });
-        }
-      });
+    try { 
+      if (tcData.present) {
+        // based on https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20CMP%20API%20v2.md#gettcdata
+        window.__tcfapi('getTCData', 2, (result, success) => {
+          if (success) {
+            tcData.data = result;
+            tcData.compliant_setup = true;
+          } else {
+            // special case for consentmanager ('CMP settings are used that are not compliant with the IAB TCF')
+            // see warning at the top of https://help.consentmanager.net/books/cmp/page/changes-to-the-iab-cmp-framework-js-api
+            // cf. https://help.consentmanager.net/books/cmp/page/javascript-api
+            // Test site: https://www.pokellector.com/
+            window.__tcfapi('noncompliant_getTCData', 2, (result, success) => {
+              if (success) {
+                tcData.data = result;
+                tcData.compliant_setup = false;
+              }
+            });
+          }
+        });
+      }
+    } finally {
+      return tcData;
     }
-    return tcData;
   })(),
 
   /**
@@ -132,14 +138,17 @@ return JSON.stringify({
       present: typeof window.__uspapi == 'function',
       privacy_string: null,
     };
-    if (uspData.present) {
-      window.__uspapi('getUSPData', 1, (result, success) => {
-        if (success) {
-          uspData.privacy_string = result;
-        }
-      });
+    try {
+      if (uspData.present) {
+        window.__uspapi('getUSPData', 1, (result, success) => {
+          if (success) {
+            uspData.privacy_string = result;
+          }
+        });
+      }
+    } finally {
+      return uspData;
     }
-    return uspData;
   })(),
 
   /**
