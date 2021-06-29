@@ -9,14 +9,21 @@
 const response_bodies = $WPT_BODIES;
 
 /**
- * @function matchInResponseBodies
+ * @function testPropertyStringInResponseBodies
+ * Test that a JS property string is accessed in response bodies
+ * (given that wrapping properties to log accesses is not possible as metrics run at the end)
+ * only in Document and Script resources (HTML/JS)
+ * inspired by https://github.com/HTTPArchive/legacy.httparchive.org/blob/master/custom_metrics/event-names.js
+ *
  * @param {string} pattern - Regex pattern to match in the response bodies.
  * @return {boolean} - True, if pattern was matched.
  */
-function matchInResponseBodies(pattern) {
+function testPropertyStringInResponseBodies(pattern) {
   try {
     let re = new RegExp(pattern);
-    return response_bodies.some((body) => {
+    return response_bodies.filter(
+      body => body.type === "Document" || body.type === "Script"
+    ).some((body) => {
       if (body.response_body) {
         return re.test(body.response_body);
       } else {
@@ -178,7 +185,7 @@ return JSON.stringify({
    * @todo Check function/variable accesses through string searches (wrappers cannot be used, as the metrics are only collected at the end of the test)
    */
   document_interestCohort:
-      matchInResponseBodies('document.+interestCohort'),
+      testPropertyStringInResponseBodies('document.+interestCohort'),
 
   /**
    * Do Not Track (DNT)
@@ -187,7 +194,7 @@ return JSON.stringify({
    * Test site: https://www.theverge.com/
    */
   navigator_doNotTrack:
-    matchInResponseBodies('navigator.+doNotTrack'),
+    testPropertyStringInResponseBodies('navigator.+doNotTrack'),
 
   /**
    * Global Privacy Control
@@ -196,7 +203,7 @@ return JSON.stringify({
    * Test site: https://global-privacy-control.glitch.me/
    */
   navigator_globalPrivacyControl:
-    matchInResponseBodies('navigator.+globalPrivacyControl'),
+    testPropertyStringInResponseBodies('navigator.+globalPrivacyControl'),
 
   // Sensitive resources
 
@@ -205,14 +212,14 @@ return JSON.stringify({
    * https://www.w3.org/TR/permissions-policy-1/#introspection
    */
   document_permissionsPolicy:
-    matchInResponseBodies('document.+permissionsPolicy'),
+    testPropertyStringInResponseBodies('document.+permissionsPolicy'),
 
   /**
    * Feature policy
    * (previous name of Permission policy: https://www.w3.org/TR/permissions-policy-1/#introduction)
    */
   document_featurePolicy:
-    matchInResponseBodies('document.+featurePolicy'),
+    testPropertyStringInResponseBodies('document.+featurePolicy'),
 
   // Permissions Policy / Feature Policy on iframes already implemented in `security.js` custom metrics.
 
@@ -280,11 +287,11 @@ return JSON.stringify({
    */
   media_devices: {
     navigator_mediaDevices_enumerateDevices:
-      matchInResponseBodies('navigator.+mediaDevices.+enumerateDevices'),
+      testPropertyStringInResponseBodies('navigator.+mediaDevices.+enumerateDevices'),
     navigator_mediaDevices_getUserMedia:
-      matchInResponseBodies('navigator.+mediaDevices.+getUserMedia'),
+      testPropertyStringInResponseBodies('navigator.+mediaDevices.+getUserMedia'),
     navigator_mediaDevices_getDisplayMedia:
-      matchInResponseBodies('navigator.+mediaDevices.+getDisplayMedia'),
+      testPropertyStringInResponseBodies('navigator.+mediaDevices.+getDisplayMedia'),
   },
 
   /**
@@ -293,8 +300,8 @@ return JSON.stringify({
    */
   geolocation: {
     navigator_geolocation_getCurrentPosition:
-      matchInResponseBodies('navigator.+geolocation.+getCurrentPosition'),
+      testPropertyStringInResponseBodies('navigator.+geolocation.+getCurrentPosition'),
     navigator_geolocation_watchPosition:
-      matchInResponseBodies('navigator.+geolocation.+watchPosition'),
+      testPropertyStringInResponseBodies('navigator.+geolocation.+watchPosition'),
   },
 });
