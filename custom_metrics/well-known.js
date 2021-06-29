@@ -44,6 +44,19 @@ return Promise.all([
   // ecommerce
   parseResponse('/.well-known/assetlinks.json'),
   parseResponse('/.well-known/apple-app-site-association'),
+  // privacy
+  parseResponse('/.well-known/gpc.json', r => {
+    return r.text().then(text => {
+      let data = {
+        'gpc': null
+      };
+      let gpc_data = JSON.parse(text);
+      if (typeof gpc_data.gpc == 'boolean') {
+        data.gpc = gpc_data.gpc;
+      }
+      return data;
+    });
+  }),
   // security
   parseResponse('/robots.txt', r => {
     return r.text().then(text => {
