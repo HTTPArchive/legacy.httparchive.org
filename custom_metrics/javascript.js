@@ -40,23 +40,6 @@ return JSON.stringify({
             return null;
         }
     })(),
-
-    webcomponents_shadowDOM: (() => {
-        // Returns the number of web components or shadow roots on a web page.
-        try {
-            var elements_with_hyphen = Array.from(document.getElementsByTagName("*")).filter(e => e.nodeName.includes('-'));
-            var shadow_roots = elements_with_hyphen.filter(e => e.shadowRoot)
-            var web_components = elements_with_hyphen.filter(e => customElements.get(e.nodeName.toLowerCase()));
-            let element_data = {
-                total_potential_web_components: elements_with_hyphen,
-                web_components: web_components,
-                shadow_roots: shadow_roots
-            }
-            return element_data;
-        } catch (e) {
-            return null;
-        }
-    })(),
     // Returns the content-types of requests.
     content_types: requests.map((req) => req.response_headers['content-type']),
 
