@@ -94,9 +94,9 @@ function addFile(&$hFiles, $filename, $url, $size) {
 			// If we see _requests.csv we assume the other 3 exist and format accordingly and
 			// we'll overwrite any previously saved results.
 			$hFiles[$epoch][$browser] = "$browser: pages (" .
-				formatDumpfileItem($epoch, $browser, str_replace("_requests.csv", "_pages", $url), $size, "pages", "mysql") . ", " .
+				//formatDumpfileItem($epoch, $browser, str_replace("_requests.csv", "_pages", $url), $size, "pages", "mysql") . ", " .
 				formatDumpfileItem($epoch, $browser, str_replace("_requests.csv", "_pages.csv", $url), $size, "pages", "CSV") . "), requests (" .
-				formatDumpfileItem($epoch, $browser, str_replace("_requests.csv", "_requests", $url), $size, "requests", "mysql") . ", " .
+				//formatDumpfileItem($epoch, $browser, str_replace("_requests.csv", "_requests", $url), $size, "requests", "mysql") . ", " .
 				formatDumpfileItem($epoch, $browser, $url, $size, "requests", "CSV") . ")";
 		}
         else if ( ! array_key_exists($browser, $hFiles[$epoch]) ) {
@@ -134,20 +134,18 @@ And checkout all the custom queries shared on <a href="https://discuss.httparchi
 </p>
 
 
-<h2>MySQL Dumps</h2>
+<h2>Data Dumps</h2>
 <p>
-The results from each crawl are saved as MySQL dump files in both MySQL format and CSV format.
+The results from each crawl are saved as dump files in CSV format.
 Dumps are made for both the desktop and mobile crawls.
-The dump files do <em>not</em> contain the commands to create the MySQL database and tables.
+The dump files do <em>not</em> contain the commands to create the database and tables.
 To restore a dump:
 </p>
 
 <ol class=indent>
   <li> Import the <a href="downloads/httparchive_schema.sql">schema</a> to create the tables.
 <br><code style="font-size: 0.8em;">cat httparchive_schema.sql | mysql -u MYSQL_USERNAME -p -h MYSQL_HOSTNAME MYSQL_DB</code>
-  <li> Import the desired dump file. Use this command for MySQL-formatted dumps:<br>
-<code style="font-size: 0.8em;">gunzip -c MYSQLDUMP_FILE.gz | mysql -u MYSQL_USERNAME -p -h MYSQL_HOSTNAME MYSQL_DB</code>
-<br>
+  <li> Import the desired dump file.<br>
 	For CSV-formatted dumps, gunzip the file and rename it to either <code>pages.csv</code> or <code>requests.csv</code>, then run this command:
 <br><code style="font-size: 0.8em;">mysqlimport --local --fields-optionally-enclosed-by="\"" --fields-terminated-by=, --user=MYSQL_USERNAME -p MYSQL_DB MYSQLDUMP_FILE.csv
 </code>
