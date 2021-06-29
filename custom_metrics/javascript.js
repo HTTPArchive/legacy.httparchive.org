@@ -49,7 +49,7 @@ return JSON.stringify({
     try {
       var elements_with_hyphen = Array.from(document.body.getElementsByTagName('*')).filter((e) => e.nodeName.includes('-'));
       return JSON.stringify({
-        total_potential_WCs: elements_with_hyphen.length,
+        total_potential_web_components: elements_with_hyphen.length,
         custom_elements: elements_with_hyphen.filter((e) => customElements.get(e.nodeName.toLowerCase())).length,
         shadow_roots: elements_with_hyphen.filter((e) => e.shadowRoot).length,
       });
@@ -86,7 +86,7 @@ return JSON.stringify({
     }
   })(),
 
-  script_properties: (() => {
+  script_tags: (() => {
     let script_tags = Array.from(document.querySelectorAll('script'));
 
     let script_data = {
@@ -103,5 +103,14 @@ return JSON.stringify({
     };
 
     return script_data;
+  })(),
+
+  noscript_tags: (() => {
+    let noscript_data = {
+      total: document.querySelectorAll('noscript').length,
+    };
+
+    return noscript_data;
   })()
+
 });
