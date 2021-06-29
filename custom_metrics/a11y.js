@@ -362,11 +362,7 @@ return JSON.stringify({
         return false;
       }
 
-      if (label.substr(0, 1) === '*' || label.substr(-1, 1) === '*') {
-        return true;
-      }
-
-      return false;
+      return label.startsWith('*') || label.endsWith('*');
     }
 
     const controls = document.querySelectorAll('input, select, textarea');
