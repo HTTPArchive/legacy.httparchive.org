@@ -93,16 +93,44 @@ return JSON.stringify({
   })(),
   // Count all video nodes
   'num_video_nodes': document.querySelectorAll('video').length,
-  // Returns a set of video node attribute names
-  'video_nodes_attributes': (() => {
-    var allAttributes = getNodesAttributes(document.querySelectorAll('video'));
-    var filter = ['autoplay', 'autoPictureInPicture', 'buffered', 'controls',
+
+  //gets the duration of all videos
+  'video_durations': (() =>{
+    return Array.from(document.querySelectorAll('video')).map(video => video.duration);
+  })(),
+
+    // Returns a set of video node attribute names, and the count on the page
+    'video_attributes_values_counts': Array.from(document.querySelectorAll('video')).reduce((stats, video) => {
+      const attrs = video.getAttributeNames();
+      var filter = ['autoplay', 'autoPictureInPicture', 'buffered', 'controls',
       'controlslist', 'crossorigin', 'use-credentials', 'currentTime',
       'disablePictureInPicture', 'disableRemotePlayback', 'duration',
       'height', 'intrinsicsize', 'loop', 'muted', 'playsinline', 'poster',
       'preload', 'src', 'width'];
-    return allAttributes.filter(el => filter.includes(el));
-  })(),
+      attrs.map(attr => attr.toLowerCase()).filter(attr => filter.includes(attr)).forEach(attr => {
+        const value = video.getAttribute(attr);
+        let stat = stats.find(stat => stat.attribute == attr && stat.value == value);
+        if (!stat) {
+          stat = {attribute: attr, value, count: 0};
+          stats.push(stat);
+        }
+        stat.count++;
+      });
+      return stats;
+    }, []),
+    //Returns the CSS display style for a video tag
+    //many mobile sites use display:none to 'hide' the video, but it still gets downloaded
+    'video_display_style' : Array.from(document.querySelectorAll('video')).map(video => {
+      return getComputedStyle(video, null).getPropertyValue('display');
+    }),
+    //returns an array of the number of source files per video tag.
+    'video_source_format_count': Array.from(document.querySelectorAll('video')).map(video => video.querySelectorAll('source').length),
+    //Returns all of the video types for each source file 
+    'video_source_format_type': Array.from(document.querySelectorAll('video')).map(video => {
+      return Array.from(video.querySelectorAll('source')).map(source => {
+        return source.getAttribute('type')
+      });
+    }),
   // Counts the number of pictures using source media min-resolution
   'num_picture_using_min_resolution': (() => {
     var pictures = document.querySelectorAll('picture');
