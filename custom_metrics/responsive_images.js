@@ -89,10 +89,6 @@ function winningSrcsetAndSizes( img ) {
 		const picture = img.parentNode,
 		      sources = [ ...picture.querySelectorAll( 'source' ) ];
 
-		if ( img.getAttribute('id') === 'type_switching' ) {
-			console.log( sources );
-		}
-
 		for ( const source of sources ) {
 
 			let mediaMatches = true,
@@ -104,10 +100,6 @@ function winningSrcsetAndSizes( img ) {
 
 			if ( source.hasAttribute( 'type' ) ) {
 				typeMatches = matchType( source.getAttribute( 'type' ) );
-			}
-
-			if ( img.getAttribute('id') === 'type_switching' ) {
-				console.log( { mediaMatches, typeMatches, type: matchType( source.getAttribute( 'type' ) ) } );
 			}
 
 			if ( mediaMatches && typeMatches ) {
@@ -255,10 +247,6 @@ function getImgData( img ) {
 		imgData.pictureTypeSwitching = pictureFeatures_.typeSwitching;
 	}
 	
-	const { srcset, sizes } = winningSrcsetAndSizes( img );
-	if ( img.getAttribute('id') === "type_switching" ) {
-		console.log( { srcset, sizes } );
-	}
 	imgData.hasSrcset = Boolean( srcset );
 	imgData.hasSizes = Boolean( sizes );
 	
