@@ -161,6 +161,7 @@ let origin_trials = [];
 
 unique_tokens.forEach((token) => {
   let origin_trial = validate(token);
+  origin_trial.token = token;
 
   origin_trials.push(origin_trial);
 });
