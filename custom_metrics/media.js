@@ -94,13 +94,13 @@ return JSON.stringify({
   // Count all video nodes
   'num_video_nodes': document.querySelectorAll('video').length,
 
-  //gets the duration of all videos loaded
+  //gets the duration of all videos
   'video_durations': (() =>{
     var nodes = document.querySelectorAll('video');
-    var videoDuration = new Set();
+    var videoDuration = [];
     for(var i=0, len=nodes.length;i<len;i++){
         var duration = nodes[i].duration;
-        videoDuration.add(duration);
+        videoDuration.push(duration);
       
     }
     return Array.from(videoDuration);
@@ -138,6 +138,13 @@ return JSON.stringify({
         return source.getAttribute('type')
       });
     }),
+  // Counts the number of pictures using source media min-resolution
+  'num_picture_using_min_resolution': (() => {
+    var pictures = document.querySelectorAll('picture');
+    return Array.from(pictures).filter(picture => {
+      return picture.querySelector('source[media*="min-resolution"]');
+    }).length;
+  })(),
   // Counts the number of pictures using source media orientation
   'num_picture_using_orientation': (() => {
     var pictures = document.querySelectorAll('picture');
