@@ -53,14 +53,10 @@ function validate(tokenElem) {
     validityElem = 'Token is too short';
     return;
   }
-  const payloadLength = new DataView(token.buffer, 65, 4).getInt32(
-    0,
-    /*littleEndian=*/ false
-  );
+  const payloadLength = new DataView(token.buffer, 65, 4).getInt32(0, /*littleEndian=*/ false);
   const payload = new Uint8Array(token.buffer, 69);
   if (payload.length !== payloadLength) {
-    validityElem =
-      'Token is ' + payload.length + ' bytes; expected ' + payloadLength;
+    validityElem = 'Token is ' + payload.length + ' bytes; expected ' + payloadLength;
     return;
   }
 
@@ -132,31 +128,25 @@ function validate(tokenElem) {
  * @returns {any} value
  */
 function getParameterCaseInsensitive(object, key) {
-  return object[
-    Object.keys(object).find((k) => k.toLowerCase() === key.toLowerCase())
-  ];
+  return object[Object.keys(object).find(k => k.toLowerCase() === key.toLowerCase())];
 }
 
 let requests = $WPT_REQUESTS;
 
 let meta_tags = Array.from(document.querySelectorAll('meta[http-equiv="origin-trial"]'));
 
-let tokens = meta_tags.map((tag) => tag.content);
+let tokens = meta_tags.map(tag => tag.content);
 
-requests.forEach((request) => {
+requests.forEach(request => {
   let header = getParameterCaseInsensitive(request.response_headers, 'origin-trial');
   if (header) {
-    tokens = tokens.concat(
-      header.replaceAll(' ', '').split(',')
-    );
+    tokens = tokens.concat(header.replaceAll(' ', '').split(','));
   }
 });
 
-let unique_tokens = tokens.filter(
-  (value, index, self) => self.indexOf(value) === index
-);
+let unique_tokens = tokens.filter((value, index, self) => self.indexOf(value) === index);
 
-let origin_trials = unique_tokens.map((token) => {
+let origin_trials = unique_tokens.map(token => {
   let origin_trial = validate(token);
   origin_trial.token = token;
 
