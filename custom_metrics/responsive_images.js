@@ -234,13 +234,62 @@ function imgFeatures( img ) {
 
 }
 
+
+// get the computed values of the CSS rules that size the <img>
+// note that these are computed values, so things like "100%" have already been resolved into px, boo
+// takes an <img> Element
+// returns an object with camelCased rule names as keys and strings representing serialized CSS values as values
+// 
+function computedSizingStyles( img ) {
+
+	const computedStyles = img.computedStyleMap();
+
+	return {
+		width: computedStyles.get('width').toString(),
+		height: computedStyles.get('height').toString(),
+		maxWidth: computedStyles.get('max-width').toString(),
+		maxHeight: computedStyles.get('max-height').toString(),
+		minWidth: computedStyles.get('max-width').toString(),
+		minHeight: computedStyles.get('max-height').toString()
+	}
+
+}
+
+// is the image intrinsically or extrinsically sized? (or both, via max or min-width constraints that only kick in sometimes)
+// takes object returned from computedSizingStyles( img )
+// returns { width, height } where width and height can be one of: "extrinsic", "intrinsic", or "both"
+function intrinsicOrExtrinsicDimensions( computedStyles ) {
+
+	let width;
+	if ( computedStyles.width === "auto" ) {
+		if ( computedStyles.maxWidth === "none" && computedStyles.minWidth === "none" ) {
+			width = "intrinsic";
+		} else {
+			width = "both";
+		}
+	} else {
+		width = "extrinsic";
+	}
+	let height;
+	if ( computedStyles.height === "auto" ) {
+		if ( computedStyles.maxHeight === "none" && computedStyles.minHeight === "none" ) {
+			height = "intrinsic";
+		} else {
+			height = "both";
+		}
+	} else {
+		height = "extrinsic";
+	}
+
+	return { width, height }
+
+}
+
+
 function getImgData( img ) {
 	
 	const imgData = imgFeatures( img );
 	imgData.totalCandidates = totalNumberOfCandidates( img );
-	
-	imgData.id = img.getAttribute( 'id' ); // TODO comment this out just for testing
-	// also todo find a good key!?
 	
 	if ( imgData.isInPicture ) {
 		const pictureFeatures_ = pictureFeatures( img.parentNode );
@@ -345,6 +394,21 @@ function getImgData( img ) {
 		imgData.approximateResourceWidth = Math.round( img.naturalWidth * imgData.currentSrcDensity );
 		imgData.approximateResourceHeight = Math.round( img.naturalHeight * imgData.currentSrcDensity );
 	}
+
+	// get the sizing styles applied to the img
+	// TODO do I want to return this, or nah?
+	imgData.computedSizingStyles = computedSizingStyles( img );
+	//const computedSizingStyles_ = computedSizingStyles( img );
+	
+	// is the image being extrinsically sized in either dimension? Or is it left to its intrinsic dimensions?
+	imgData.intrinsicOrExtrinsicSizing = intrinsicOrExtrinsicSizing( imgData.computedSizingStyles );
+	
+	// is this image reserving layout dimensions using the width and height attributes, despite being intrinsically sized in at least one dimension?
+	// https://twitter.com/jensimmons/status/1172922185570279425
+	imgData.reservedLayoutDimensions = (
+		imgData.hasWidthAndHeight &&
+		Object.keys( imgData.intrinsicOrExtrinsicSizing ).includes( 'intrinsic' )
+	);
 
 	return imgData;
 
