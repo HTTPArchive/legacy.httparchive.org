@@ -96,15 +96,8 @@ return JSON.stringify({
 
   //gets the duration of all videos
   'video_durations': (() =>{
-    var nodes = document.querySelectorAll('video');
-    var videoDuration = [];
-    for(var i=0, len=nodes.length;i<len;i++){
-        var duration = nodes[i].duration;
-        videoDuration.push(duration);
-      
-    }
-    return Array.from(videoDuration);
-})(),
+    return Array.from(document.querySelectorAll('video')).map(video => video.duration);
+  })(),
 
     // Returns a set of video node attribute names, and the count on the page
     'video_attributes_values_counts': Array.from(document.querySelectorAll('video')).reduce((stats, video) => {
