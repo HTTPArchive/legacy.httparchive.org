@@ -9,15 +9,20 @@
 const response_bodies = $WPT_BODIES;
 
 /**
- * @function findStringInBodies
+ * @function findPropertyStringInBodies
+ * Find string that indicate JS property accesses in response bodies
+ * (given that wrapping properties to log accesses is not possible as metrics run at the end)
+ * only in Document and Script resources (HTML/JS)
  * inspired by https://github.com/HTTPArchive/legacy.httparchive.org/blob/master/custom_metrics/event-names.js
  *
- * @param {string} string - String to look for in the response bodies.
+ * @param {string} string - String of a property to look for in the response bodies.
  * @return {boolean} - True, if string was found.
  */
-function findStringInBodies(string) {
+function findPropertyStringInBodies(string) {
   try {
-    return response_bodies.some((body) => {
+    return response_bodies.filter(
+      body => body.type === "Document" || body.type === "Script"
+    ).some((body) => {
       if (body.response_body) {
         return body.response_body.includes(string);
       } else {
@@ -180,8 +185,8 @@ return JSON.stringify({
    */
   floc: {
     document_interestCohort:
-      findStringInBodies('document.interestCohort') ||
-      findStringInBodies('interestCohort'),
+      findPropertyStringInBodies('document.interestCohort') ||
+      findPropertyStringInBodies('interestCohort'),
   },
 
   /**
@@ -191,8 +196,8 @@ return JSON.stringify({
    * Test site: https://www.theverge.com/
    */
   navigator_doNotTrack:
-    findStringInBodies('navigator.doNotTrack') ||
-    findStringInBodies('doNotTrack'),
+    findPropertyStringInBodies('navigator.doNotTrack') ||
+    findPropertyStringInBodies('doNotTrack'),
 
   /**
    * Global Privacy Control
@@ -201,8 +206,8 @@ return JSON.stringify({
    * Test site: https://global-privacy-control.glitch.me/
    */
   navigator_globalPrivacyControl:
-    findStringInBodies('navigator.globalPrivacyControl') ||
-    findStringInBodies('globalPrivacyControl'),
+    findPropertyStringInBodies('navigator.globalPrivacyControl') ||
+    findPropertyStringInBodies('globalPrivacyControl'),
 
   // Sensitive resources
 
@@ -211,16 +216,16 @@ return JSON.stringify({
    * https://www.w3.org/TR/permissions-policy-1/#introspection
    */
   document_permissionsPolicy:
-    findStringInBodies('document.permissionsPolicy') ||
-    findStringInBodies('permissionsPolicy'),
+    findPropertyStringInBodies('document.permissionsPolicy') ||
+    findPropertyStringInBodies('permissionsPolicy'),
 
   /**
    * Feature policy 
    * (previous name of Permission policy: https://www.w3.org/TR/permissions-policy-1/#introduction)
    */
   document_featurePolicy:
-    findStringInBodies('document.featurePolicy') ||
-    findStringInBodies('featurePolicy'),
+    findPropertyStringInBodies('document.featurePolicy') ||
+    findPropertyStringInBodies('featurePolicy'),
 
   // Permissions Policy / Feature Policy on iframes already implemented in `security.js` custom metrics.
 
@@ -288,20 +293,20 @@ return JSON.stringify({
    */
   media_devices: {
     navigator_mediaDevices_enumerateDevices:
-      findStringInBodies('navigator.mediaDevices.enumerateDevices') ||
-      findStringInBodies('navigator') ||
-      findStringInBodies('mediaDevices') ||
-      findStringInBodies('enumerateDevices'),
+      findPropertyStringInBodies('navigator.mediaDevices.enumerateDevices') ||
+      findPropertyStringInBodies('navigator') ||
+      findPropertyStringInBodies('mediaDevices') ||
+      findPropertyStringInBodies('enumerateDevices'),
     navigator_mediaDevices_getUserMedia:
-      findStringInBodies('navigator.mediaDevices.getUserMedia') ||
-      findStringInBodies('navigator') ||
-      findStringInBodies('mediaDevices') ||
-      findStringInBodies('getUserMedia'),
+      findPropertyStringInBodies('navigator.mediaDevices.getUserMedia') ||
+      findPropertyStringInBodies('navigator') ||
+      findPropertyStringInBodies('mediaDevices') ||
+      findPropertyStringInBodies('getUserMedia'),
     navigator_mediaDevices_getDisplayMedia:
-      findStringInBodies('navigator.mediaDevices.getDisplayMedia') ||
-      findStringInBodies('navigator') ||
-      findStringInBodies('mediaDevices') ||
-      findStringInBodies('getDisplayMedia'),
+      findPropertyStringInBodies('navigator.mediaDevices.getDisplayMedia') ||
+      findPropertyStringInBodies('navigator') ||
+      findPropertyStringInBodies('mediaDevices') ||
+      findPropertyStringInBodies('getDisplayMedia'),
   },
 
   /**
@@ -310,14 +315,14 @@ return JSON.stringify({
    */
   geolocation: {
     navigator_geolocation_getCurrentPosition:
-      findStringInBodies('navigator.geolocation.getCurrentPosition') ||
-      (findStringInBodies('navigator') &&
-        findStringInBodies('geolocation') &&
-        findStringInBodies('getCurrentPosition')),
+      findPropertyStringInBodies('navigator.geolocation.getCurrentPosition') ||
+      (findPropertyStringInBodies('navigator') &&
+        findPropertyStringInBodies('geolocation') &&
+        findPropertyStringInBodies('getCurrentPosition')),
     navigator_geolocation_watchPosition:
-      findStringInBodies('navigator.geolocation.watchPosition') ||
-      (findStringInBodies('navigator') &&
-        findStringInBodies('geolocation') &&
-        findStringInBodies('watchPosition')),
+      findPropertyStringInBodies('navigator.geolocation.watchPosition') ||
+      (findPropertyStringInBodies('navigator') &&
+        findPropertyStringInBodies('geolocation') &&
+        findPropertyStringInBodies('watchPosition')),
   },
 });
