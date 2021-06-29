@@ -76,7 +76,7 @@ return Promise.all([
       let data = {
         'signed': false
       };
-      if (text.startsWith("-----BEGIN PGP SIGNED MESSAGE-----")) {
+      if (text.startsWith('-----BEGIN PGP SIGNED MESSAGE-----')) {
         data['signed'] = true;
       }
       for(let line of text.split('\n')) {
