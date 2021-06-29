@@ -250,13 +250,18 @@ return JSON.stringify({
     // Leave `individual_requests` at `null` if no attributes are found.
     if (referrerpolicy_attributes.length > 0) {
     // Build dictionary of occurrences of tag-value pairs.
-      rp.individual_requests = Object.fromEntries(
-        Array.from(referrerpolicy_attributes).map(
-          x => (x.tagName + '|' + x.getAttribute('referrerpolicy'))
-        ).reduce( // https://stackoverflow.com/a/57028486/7391782
-          (acc, e) => acc.set(e, (acc.get(e) || 0) + 1), new Map()
-        )
-      );
+      rp.individual_requests = Array.from(referrerpolicy_attributes).map(
+          x => ({tagName: x.tagName, referrerpolicy: x.getAttribute('referrerpolicy')})
+        ).reduce( // https://stackoverflow.com/a/51935632/7391782
+          (acc, e) => {
+            const found = acc.find(a => a.tagName === e.tagName && a.referrerpolicy === e.referrerpolicy);
+            if (!found) {
+              acc.push({...e, count: 1});
+            } else {
+              found.count += 1;
+            }  
+            return acc;      
+        }, []);
     }
     // Referrer policy set for a link using `noreferrer` link relation
     // Test site: https://www.cnet.com/
