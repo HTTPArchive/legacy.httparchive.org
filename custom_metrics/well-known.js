@@ -60,12 +60,14 @@ return Promise.all([
   // security
   parseResponse('/robots.txt', r => {
     return r.text().then(text => {
-      let data = {'user-agents': [], 'disallows': []};
+      let data = {'disallows': {}};
+      let currUserAgent = null;
       for(let line of text.split('\n')) {
         if (line.startsWith('User-agent: ')) {
-          data['user-agents'].push(line.substring(12));
+          currUserAgent = line.substring(12);
+          data['disallows'][currUserAgent] = [];
         } else if (line.startsWith('Disallow: ')) {
-          data['disallows'].push(line.substring(10));
+          data['disallows'][currUserAgent].push(line.substring(10));
         }
       }
       return data;
