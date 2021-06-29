@@ -65,7 +65,9 @@ return Promise.all([
       for(let line of text.split('\n')) {
         if (line.startsWith('User-agent: ')) {
           currUserAgent = line.substring(12);
-          data['disallows'][currUserAgent] = [];
+          if (data['disallows'][currUserAgent] === undefined) {
+            data['disallows'][currUserAgent] = [];
+          }
         } else if (line.startsWith('Disallow: ')) {
           data['disallows'][currUserAgent].push(line.substring(10));
         }
