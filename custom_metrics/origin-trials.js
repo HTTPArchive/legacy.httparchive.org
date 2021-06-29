@@ -139,10 +139,9 @@ function getParameterCaseInsensitive(object, key) {
 
 let requests = $WPT_REQUESTS;
 
-let meta_tags = document.querySelectorAll('meta[http-equiv="origin-trial"]');
+let meta_tags = Array.from(document.querySelectorAll('meta[http-equiv="origin-trial"]'));
 
-let tokens = [];
-meta_tags.forEach((tag) => tokens.push(tag.content));
+let tokens = meta_tags.map((tag) => tag.content);
 
 requests.forEach((request) => {
   let header = getParameterCaseInsensitive(request.response_headers, 'origin-trial');
@@ -157,13 +156,11 @@ let unique_tokens = tokens.filter(
   (value, index, self) => self.indexOf(value) === index
 );
 
-let origin_trials = [];
-
-unique_tokens.forEach((token) => {
+let origin_trials = unique_tokens.map((token) => {
   let origin_trial = validate(token);
   origin_trial.token = token;
 
-  origin_trials.push(origin_trial);
+  return origin_trial;
 });
 
 return origin_trials;
