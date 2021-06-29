@@ -9,17 +9,16 @@
 const response_bodies = $WPT_BODIES;
 
 /**
- * @function findStringInBodies
- * inspired by https://github.com/HTTPArchive/legacy.httparchive.org/blob/master/custom_metrics/event-names.js
- *
- * @param {string} string - String to look for in the response bodies.
- * @return {boolean} - True, if string was found.
+ * @function matchInResponseBodies
+ * @param {string} pattern - Regex pattern to match in the response bodies.
+ * @return {boolean} - True, if pattern was matched.
  */
-function findStringInBodies(string) {
+function matchInResponseBodies(pattern) {
   try {
+    let re = new RegExp(pattern);
     return response_bodies.some((body) => {
       if (body.response_body) {
-        return body.response_body.includes(string);
+        return re.test(body.response_body);
       } else {
         return false;
       }
@@ -60,7 +59,7 @@ return JSON.stringify({
       compliant_setup: null,
     };
     // description of `__cmp`: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/CMP%20JS%20API%20v1.1%20Final.md#what-api-will-need-to-be-provided-by-the-cmp-
-    try { 
+    try {
       if (consentData.present) {
         // Standard command: 'getVendorConsents'
         // cf. https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/CMP%20JS%20API%20v1.1%20Final.md#what-api-will-need-to-be-provided-by-the-cmp-
@@ -101,7 +100,7 @@ return JSON.stringify({
       compliant_setup: null,
     };
     // description of `__tcfapi`: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20CMP%20API%20v2.md#how-does-the-cmp-provide-the-api
-    try { 
+    try {
       if (tcData.present) {
         // based on https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20CMP%20API%20v2.md#gettcdata
         window.__tcfapi('getTCData', 2, (result, success) => {
@@ -178,11 +177,8 @@ return JSON.stringify({
    *
    * @todo Check function/variable accesses through string searches (wrappers cannot be used, as the metrics are only collected at the end of the test)
    */
-  floc: {
-    document_interestCohort:
-      findStringInBodies('document.interestCohort') ||
-      findStringInBodies('interestCohort'),
-  },
+  document_interestCohort:
+      matchInResponseBodies('document.+interestCohort'),
 
   /**
    * Do Not Track (DNT)
@@ -191,8 +187,7 @@ return JSON.stringify({
    * Test site: https://www.theverge.com/
    */
   navigator_doNotTrack:
-    findStringInBodies('navigator.doNotTrack') ||
-    findStringInBodies('doNotTrack'),
+    matchInResponseBodies('navigator.+doNotTrack'),
 
   /**
    * Global Privacy Control
@@ -201,8 +196,7 @@ return JSON.stringify({
    * Test site: https://global-privacy-control.glitch.me/
    */
   navigator_globalPrivacyControl:
-    findStringInBodies('navigator.globalPrivacyControl') ||
-    findStringInBodies('globalPrivacyControl'),
+    matchInResponseBodies('navigator.+globalPrivacyControl'),
 
   // Sensitive resources
 
@@ -211,16 +205,14 @@ return JSON.stringify({
    * https://www.w3.org/TR/permissions-policy-1/#introspection
    */
   document_permissionsPolicy:
-    findStringInBodies('document.permissionsPolicy') ||
-    findStringInBodies('permissionsPolicy'),
+    matchInResponseBodies('document.+permissionsPolicy'),
 
   /**
-   * Feature policy 
+   * Feature policy
    * (previous name of Permission policy: https://www.w3.org/TR/permissions-policy-1/#introduction)
    */
   document_featurePolicy:
-    findStringInBodies('document.featurePolicy') ||
-    findStringInBodies('featurePolicy'),
+    matchInResponseBodies('document.+featurePolicy'),
 
   // Permissions Policy / Feature Policy on iframes already implemented in `security.js` custom metrics.
 
@@ -259,8 +251,8 @@ return JSON.stringify({
               acc.push({...e, count: 1});
             } else {
               found.count += 1;
-            }  
-            return acc;      
+            }
+            return acc;
         }, []);
     }
     // Referrer policy set for a link using `noreferrer` link relation
@@ -278,7 +270,7 @@ return JSON.stringify({
             (acc, e) => acc.set(e, (acc.get(e) || 0) + 1), new Map()
           )
         );
-      }  
+      }
     return rp;
   })(),
 
@@ -288,20 +280,11 @@ return JSON.stringify({
    */
   media_devices: {
     navigator_mediaDevices_enumerateDevices:
-      findStringInBodies('navigator.mediaDevices.enumerateDevices') ||
-      findStringInBodies('navigator') ||
-      findStringInBodies('mediaDevices') ||
-      findStringInBodies('enumerateDevices'),
+      matchInResponseBodies('navigator.+mediaDevices.+enumerateDevices'),
     navigator_mediaDevices_getUserMedia:
-      findStringInBodies('navigator.mediaDevices.getUserMedia') ||
-      findStringInBodies('navigator') ||
-      findStringInBodies('mediaDevices') ||
-      findStringInBodies('getUserMedia'),
+      matchInResponseBodies('navigator.+mediaDevices.+getUserMedia'),
     navigator_mediaDevices_getDisplayMedia:
-      findStringInBodies('navigator.mediaDevices.getDisplayMedia') ||
-      findStringInBodies('navigator') ||
-      findStringInBodies('mediaDevices') ||
-      findStringInBodies('getDisplayMedia'),
+      matchInResponseBodies('navigator.+mediaDevices.+getDisplayMedia'),
   },
 
   /**
@@ -310,14 +293,8 @@ return JSON.stringify({
    */
   geolocation: {
     navigator_geolocation_getCurrentPosition:
-      findStringInBodies('navigator.geolocation.getCurrentPosition') ||
-      (findStringInBodies('navigator') &&
-        findStringInBodies('geolocation') &&
-        findStringInBodies('getCurrentPosition')),
+      matchInResponseBodies('navigator.+geolocation.+getCurrentPosition'),
     navigator_geolocation_watchPosition:
-      findStringInBodies('navigator.geolocation.watchPosition') ||
-      (findStringInBodies('navigator') &&
-        findStringInBodies('geolocation') &&
-        findStringInBodies('watchPosition')),
+      matchInResponseBodies('navigator.+geolocation.+watchPosition'),
   },
 });
