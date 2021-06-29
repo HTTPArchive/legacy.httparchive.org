@@ -110,6 +110,7 @@ try {
               rdfa: false,
               microformats2: false,
               microformats_classic: false,
+              dublin_core: false,
               twitter: false,
               facebook: false,
               opengraph: false,
@@ -122,6 +123,7 @@ try {
             microformats_classic_types: [],
             meta_tags: [],
             link_tags: [],
+            dublin_core: [],
             twitter: [],
             facebook: [],
             opengraph: [],
@@ -206,6 +208,12 @@ try {
           // Dublin Core, Twitter, Facebook & OpenGraph
           target.meta_tags = dumpTagAttributes([...d.querySelectorAll("meta")]);
           target.link_tags = dumpTagAttributes([...d.querySelectorAll("link")]);
+
+          // Dublin Core
+          target.dublin_core = dumpTagAttributes([
+            ...d.querySelectorAll('meta[name^="dc" i]'),
+          ]);
+          target.present.dublin_core = target.dublin_core.length > 0;
 
           // Twitter
           target.twitter = dumpTagAttributes([
