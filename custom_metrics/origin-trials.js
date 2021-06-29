@@ -84,8 +84,8 @@ function validate(tokenElem) {
   }
 
   originElem = obj.origin;
-  subdomainElem = obj.isSubdomain ? 'Yes' : 'No';
-  thirdpartyElem = obj.isThirdParty ? 'Yes' : 'No';
+  subdomainElem = !!obj.isSubdomain;
+  thirdpartyElem = !!obj.isThirdParty;
   usageElem = obj.usage;
   featureElem = obj.feature;
   let expiry;
