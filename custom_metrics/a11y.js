@@ -92,6 +92,7 @@ return JSON.stringify({
         continue;
       }
 
+      total_elements_with_non_empty_alt++;
       const matches = alt.match(extension_regex);
       if (matches && matches[1]) {
         total_with_file_extension++;
@@ -100,6 +101,7 @@ return JSON.stringify({
     }
 
     return {
+      total_elements_with_alt: elements_with_alt_text.length,
       total_elements_with_non_empty_alt,
       total_with_file_extension,
       file_extensions: file_extension_collector,
