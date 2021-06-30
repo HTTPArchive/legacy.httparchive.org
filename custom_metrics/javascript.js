@@ -72,6 +72,7 @@ return JSON.stringify({
             nonce: script_tags.filter(tag => tag.nonce).length,
             referrerpolicy: script_tags.filter(tag => tag.referrerpolicy).length,
             src: script_tags.filter(tag => tag.src).length,
+            inline: script_tags.filter(tag => !tag.src).length,
             type_module: script_tags.filter(tag => tag.type == 'module').length,
             async_and_defer: script_tags.filter(tag => tag.async && tag.defer).length,
             defer_without_src: script_tags.filter(tag => tag.defer && !tag.src).length,
