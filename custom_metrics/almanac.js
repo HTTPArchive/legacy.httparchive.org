@@ -779,5 +779,5 @@ return JSON.stringify({
 
   'length_of_h1s': (() => {
     return [...document.querySelectorAll('h1')].map(node => node.innerText.length);
-  })(),
+  })()
 });
