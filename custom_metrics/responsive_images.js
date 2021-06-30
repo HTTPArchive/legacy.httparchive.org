@@ -70,12 +70,25 @@ function matchType( mimeTypeString ) {
 }
 
 // the candidate <source> elements of a given <picture>
-// takes a <picture> Element
+// takes an <img> Element
 // returns a plain ol' Array of <source> Elements
-function pictureSources( picture ) {
-	// all <source>s that come BEFORE the <img>
+function pictureSources( img ) {
+	// all <source>s that are direct children of the <picture> and come BEFORE the <img>
 	// https://twitter.com/zcorpan/status/1409778636153032706
-	return [ ...picture.querySelectorAll( 'source:not( img ~ source )' ) ];
+	if ( img.parentNode.tagName !== "PICTURE" ) {
+		throw 'pictureSources( img ) was fed an img that was not the direct child of a picture'
+	}
+	const picture = img.parentNode;
+	let candidates = [];
+	for ( let i = 0; i < picture.children.length; i++ ) {
+		if ( picture.children[ i ] === img ) {
+			break;
+		}
+		if ( picture.children[ i ].tagName === "SOURCE" ) {
+			candidates.push( picture.children[ i ] );
+		}
+	}
+	return candidates;
 }
 
 // What are the srcset and sizes attributes currently in effect for a given <img>?
@@ -88,7 +101,7 @@ function winningSrcsetAndSizes( img ) {
 	if ( img.parentNode.tagName === "PICTURE" ) {
 
 		const picture = img.parentNode,
-		      sources = pictureSources( picture );
+		      sources = pictureSources( img );
 
 		for ( const source of sources ) {
 
@@ -141,7 +154,7 @@ function totalNumberOfCandidates( img ) {
 
 	if ( img.parentNode.tagName === "PICTURE" ) {
 		const picture = img.parentNode,
-		      sources = pictureSources( picture );
+		      sources = pictureSources( img );
 		sources.forEach( source => {
 			if ( source.hasAttribute( 'srcset' ) ) {
 				const parsedSrcset = parseSrcset( source.getAttribute( 'srcset' ) ).candidates;
@@ -158,21 +171,21 @@ function totalNumberOfCandidates( img ) {
 }
 
 // Is a <picture> doing media and/or type switching?
-// takes <picture> Element
+// takes an <img> Element that's a direct descendant of a <picture>
 // returns {
 // 	mediaSwitching: Boolean,
 // 	typeSwitching: Boolean
 // }
-function pictureFeatures( picture ) {
+function pictureFeatures( img ) {
 
 	let mediaSwitching = false,
 	    typeSwitching = false;
 
-	if ( picture.tagName !== "PICTURE" ) {
-		throw 'pictureFeatures() expected a <picture> Element as input but received something else'
+	if ( img.parentNode.tagName !== "PICTURE" ) {
+		throw 'pictureFeatures() expected an <img> Element with a <picture> parent as input but received something else'
 	}
 
-	const sources = pictureSources( picture );
+	const sources = pictureSources( img );
 	sources.forEach( source => {
 		if ( source.hasAttribute( 'media' ) ) {
 			mediaSwitching = true;
@@ -294,7 +307,7 @@ function getImgData( img ) {
 	imgData.totalCandidates = totalNumberOfCandidates( img );
 	
 	if ( imgData.isInPicture ) {
-		const pictureFeatures_ = pictureFeatures( img.parentNode );
+		const pictureFeatures_ = pictureFeatures( img );
 		imgData.pictureMediaSwitching = pictureFeatures_.mediaSwitching;
 		imgData.pictureTypeSwitching = pictureFeatures_.typeSwitching;
 	}
