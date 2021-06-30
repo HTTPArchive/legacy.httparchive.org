@@ -1,6 +1,9 @@
 //[a11y]
 // Uncomment the previous line for testing on webpagetest.org
 
+// Create a reference to $WPT_ACCESSIBILITY_TREE. This makes it easier to replace or make any modifications to it in the future
+const WPT_ACCESSIBILITY_TREE = $WPT_ACCESSIBILITY_TREE;
+
 function incrementCollectorKey(collector, key) {
   if (!collector[key]) {
     collector[key] = 1;
@@ -211,37 +214,7 @@ return JSON.stringify({
     return document.querySelectorAll('.sr-only, .visually-hidden').length > 0;
   }),
   form_control_a11y_tree: captureAndLogError(() => {
-    function doesMatchAny(string, regexps) {
-      let found = false;
-      for (const regexp of regexps) {
-        if (regexp.test(string)) {
-          return true;
-        }
-      }
-
-      return false;
-    }
-
-    const attributes_to_track = [
-      /^aria-.+$/,
-      /^type$/,
-      /^id$/,
-      /^name$/,
-      /^placeholder$/,
-      /^accept$/,
-      /^autocomplete$/,
-      /^autofocus$/,
-      /^capture$/,
-      /^max$/,
-      /^maxlength$/,
-      /^min$/,
-      /^minlength$/,
-      /^required$/,
-      /^readonly$/,
-      /^pattern$/,
-      /^multiple$/,
-      /^step$/,
-    ];
+    const attributes_to_track_regex = /^(aria-.+|type|id|name|placeholder|accept|autocomplete|autofocus|capture|max|maxlength|min|minlength|required|readonly|pattern|multiple|step)$/i;
     function addControlToStats(node, accumulator) {
       const control_stats = {
         type: node.node_info.nodeType.toLowerCase(),
@@ -255,7 +228,7 @@ return JSON.stringify({
       // Store all attribute information
       for (let [key, value] of Object.entries(node.node_info.attributes || {})) {
         key = key.toLowerCase();
-        if (!doesMatchAny(key, attributes_to_track)) {
+        if (!attributes_to_track_regex.test(key)) {
           continue;
         }
 
@@ -295,7 +268,7 @@ return JSON.stringify({
     ];
 
     const stats_of_controls = [];
-    for (const node of $WPT_ACCESSIBILITY_TREE) {
+    for (const node of WPT_ACCESSIBILITY_TREE) {
       const node_type = (node.node_info?.nodeType || '').toLowerCase();
       if (!allowed_control_types.includes(node_type)) {
         continue;
