@@ -413,10 +413,54 @@ function getImgData( img ) {
 		imgData.approximateResourceHeight = Math.round( img.naturalHeight * imgData.currentSrcDensity );
 	}
 
+	const wptRequest = $WPT_REQUESTS.find( req => req.url === imgData.url );
+
+	// figure out the bytesize of the image resource
+	if ( window.PerformanceResourceTiming ) {
+		const performanceEntries = window.performance.getEntriesByName( imgData.url, 'resource' );
+		if ( performanceEntries[ 0 ] &&
+		     performanceEntries[ 0 ].decodedBodySize &&
+		     performanceEntries[ 0 ].decodedBodySize > 0 ) {
+			imgData.byteSize = performanceEntries[ 0 ].decodedBodySize;
+		} else {
+			// ok that was fun, but we probably didn't get a Timing-Allow-Origin header on cross-origin resources to allow us to do it. So, look at WebPageTest's data.
+			// first... if the browser won't tell us, maybe the server will
+			if (
+				wptRequest &&
+				wptRequest.response_headers &&
+				wptRequest.response_headers['content-length'] && 
+				parseInt( wptRequest.response_headers['content-length'] ) > 0 
+			) {
+				imgData.byteSize = parseInt( wptRequest.response_headers['content-length'] );
+			} else if (
+				// if the server didn't send a content-length (?), use WPT's transfer_size, which includes HTTP headers and is possibly encoded, but is the best we can do
+				wptRequest &&
+				wptRequest.transfer_size
+			) {
+				imgData.byteSize = parseInt( wptRequest.transfer_size );
+			}
+		}
+	}
+	
+	// figure out the approximate bits/pixel of the loaded resource!
+	if (
+		imgData.approximateResourceWidth && 
+		imgData.approximateResourceHeight && 
+		imgData.byteSize
+	) {
+		imgData.bitsPerPixel = ( imgData.byteSize * 8 ) / ( imgData.approximateResourceWidth * imgData.approximateResourceHeight );
+	}
+
+	// get the server-reported mime type of the image
+	if (
+		wptRequest &&
+		wptRequest.response_headers
+	) {
+		imgData.mimeType = wptRequest.response_headers['content-type'];
+	}
+
 	// get the sizing styles applied to the img
-	// TODO do I want to return this, or nah?
 	imgData.computedSizingStyles = computedSizingStyles( img );
-	//const computedSizingStyles_ = computedSizingStyles( img );
 	
 	// is the image being extrinsically sized in either dimension? Or is it left to its intrinsic dimensions?
 	imgData.intrinsicOrExtrinsicSizing = intrinsicOrExtrinsicSizing( imgData.computedSizingStyles );
