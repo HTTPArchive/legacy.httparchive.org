@@ -1,4 +1,4 @@
-[responsive-images]
+//[responsive-images]
 // Uncomment the previous line for testing on webpagetest.org
 
 return JSON.stringify({
@@ -957,4 +957,3 @@ function parseSrcset(input) {
 	} // (close parseDescriptors fn)
 
 }
-
