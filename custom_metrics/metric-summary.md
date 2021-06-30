@@ -219,6 +219,21 @@ Example response:
 }
 ```
 
+## link_protocols_used
+
+Lists all of the different protocols used in `<a href>` elements, along with their frequency
+
+Example response:
+
+```json
+{
+  "https": 2,
+  "http": 1,
+  "tel": 1,
+  "javascript": 1
+}
+```
+
 ## 06.47
 Detects if the first child of `<head>` is a Google Fonts `<link>`. `1` if true, `0` if false.
 

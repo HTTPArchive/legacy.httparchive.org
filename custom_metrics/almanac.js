@@ -424,6 +424,33 @@ return JSON.stringify({
 
     return inputNodes;
   })(),
+  'link_protocols_used': (() => {
+    const protocols_and_count = {};
+    const anchors = document.querySelectorAll('a[href]');
+    for (const anchor of anchors) {
+      try {
+        const url = new URL(anchor.href);
+
+        // Get the protocol and remove the :
+        const protocol = (url.protocol || '').toLowerCase().slice(0, -1);
+        if (!protocol) {
+          continue;
+        }
+
+        // Increase the counter
+        if (protocols_and_count[protocol]) {
+          protocols_and_count[protocol]++;
+        } else {
+          protocols_and_count[protocol] = 1;
+        }
+      } catch (e) {
+        // Not a valid URL. Skip over it
+        continue;
+      }
+    }
+
+    return protocols_and_count;
+  })(),
   // Find first child of <head>
   // Whether the first child of <head> is a Google Fonts <link>
   '06.47': (() => {
