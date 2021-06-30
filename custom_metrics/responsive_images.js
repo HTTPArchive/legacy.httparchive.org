@@ -249,8 +249,8 @@ function computedSizingStyles( img ) {
 		height: computedStyles.get('height').toString(),
 		maxWidth: computedStyles.get('max-width').toString(),
 		maxHeight: computedStyles.get('max-height').toString(),
-		minWidth: computedStyles.get('max-width').toString(),
-		minHeight: computedStyles.get('max-height').toString()
+		minWidth: computedStyles.get('min-width').toString(),
+		minHeight: computedStyles.get('min-height').toString()
 	}
 
 }
