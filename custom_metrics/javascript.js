@@ -78,7 +78,7 @@ return JSON.stringify({
             defer_without_src: script_tags.filter(tag => tag.defer && !tag.src).length,
             //deprecated attribute adoption
             charset: script_tags.filter(tag => tag.charset).length,
-            language: script_tags.filter(tag => tag.attributes['language']).length,
+            language: script_tags.filter(tag => tag.hasAttribute('language')).length
 
         };
 
