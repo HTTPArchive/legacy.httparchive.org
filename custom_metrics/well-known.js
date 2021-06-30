@@ -60,16 +60,29 @@ return Promise.all([
   // security
   parseResponse('/robots.txt', r => {
     return r.text().then(text => {
-      let data = {'disallows': {}};
+      let data = {'matched_disallows': {}};
+      let keywords = [
+        'login',
+        'log-in',
+        'signin',
+        'sign-in',
+        'admin',
+        'auth',
+        'sso',
+        'account'
+      ]
       let currUserAgent = null;
       for(let line of text.split('\n')) {
         if (line.startsWith('User-agent: ')) {
           currUserAgent = line.substring(12);
-          if (data['disallows'][currUserAgent] === undefined) {
-            data['disallows'][currUserAgent] = [];
+          if (data['matched_disallows'][currUserAgent] === undefined) {
+            data['matched_disallows'][currUserAgent] = [];
           }
         } else if (line.startsWith('Disallow: ')) {
-          data['disallows'][currUserAgent].push(line.substring(10));
+          let path = line.substring(10);
+          if (keywords.some(s => path.includes(s))) {
+            data['matched_disallows'][currUserAgent].push(path);
+          }
         }
       }
       return data;
