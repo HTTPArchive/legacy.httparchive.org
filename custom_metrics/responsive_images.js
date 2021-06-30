@@ -215,7 +215,8 @@ function srcsetFeatures( parsedSrcset ) {
 // 	hasAlt: Boolean,
 // 	isInPicture:  Boolean,
 // 	hasCustomDataAttributes: Boolean,
-// 	hasWidthAndHeight: Boolean
+// 	hasWidth: Boolean,
+// 	hasHeight: Boolean
 // }
 // we check for srcset and sizes use separately, in order to consider values supplied by the parent <picture> / <source> siblings
 // TODO consider loading (although there's already a metric for this?), decode,  crossorigin, referrerpolicy
@@ -226,10 +227,10 @@ function imgFeatures( img ) {
 		hasAlt: img.hasAttribute( 'alt' ),
 		isInPicture: img.parentNode.tagName === "PICTURE",
 		hasCustomDataAttributes: Object.keys( img.dataset ).length > 0,
-		hasWidthAndHeight: img.hasAttribute( 'width' ) &&
-		                   parseInt( img.getAttribute( 'width' ) ) > 0 &&
-		                   img.hasAttribute( 'height' ) &&
-		                   parseInt( img.getAttribute( 'height' ) ) > 0
+		hasWidth: img.hasAttribute( 'width' ) &&
+		          parseInt( img.getAttribute( 'width' ) ) > 0 &&
+		hasHeight: img.hasAttribute( 'height' ) &&
+		           parseInt( img.getAttribute( 'height' ) ) > 0
 	}
 
 }
@@ -406,7 +407,7 @@ function getImgData( img ) {
 	// is this image reserving layout dimensions using the width and height attributes, despite being intrinsically sized in at least one dimension?
 	// https://twitter.com/jensimmons/status/1172922185570279425
 	imgData.reservedLayoutDimensions = (
-		imgData.hasWidthAndHeight &&
+		imgData.hasWidth && imgData.hasHeight &&
 		Object.keys( imgData.intrinsicOrExtrinsicSizing ).includes( 'intrinsic' )
 	);
 
