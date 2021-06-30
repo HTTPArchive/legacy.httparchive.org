@@ -22,7 +22,8 @@ function validate(tokenElem) {
     thirdpartyElem,
     usageElem,
     featureElem,
-    expiryElem;
+    expiryElem,
+    origin_trial_metadata = {};
 
   const utf8Decoder = new TextDecoder('utf-8', {fatal: true});
 
@@ -32,8 +33,8 @@ function validate(tokenElem) {
     tokenStr = atob(tokenElem);
   } catch (e) {
     console.error(e);
-    validityElem = 'Invalid Base64';
-    return;
+    origin_trial_metadata.validityElem = 'Invalid Base64';
+    return origin_trial_metadata;
   }
   const token = new Uint8Array(tokenStr.length);
   for (let i = 0; i < token.length; i++) {
@@ -44,8 +45,8 @@ function validate(tokenElem) {
   const version = token[0];
   versionElem = '' + version;
   if (version !== 2 && version !== 3) {
-    validityElem = 'Unknown version';
-    return;
+    origin_trial_metadata.validityElem = 'Unknown version';
+    return origin_trial_metadata;
   }
 
   // Pull the fields out of the token.
@@ -56,8 +57,8 @@ function validate(tokenElem) {
   const payloadLength = new DataView(token.buffer, 65, 4).getInt32(0, /*littleEndian=*/ false);
   const payload = new Uint8Array(token.buffer, 69);
   if (payload.length !== payloadLength) {
-    validityElem = 'Token is ' + payload.length + ' bytes; expected ' + payloadLength;
-    return;
+    origin_trial_metadata.validityElem = 'Token is ' + payload.length + ' bytes; expected ' + payloadLength;
+    return origin_trial_metadata;
   }
 
   // The version + length + payload is signed.
@@ -69,18 +70,16 @@ function validate(tokenElem) {
   try {
     json = utf8Decoder.decode(payload);
   } catch (e) {
-    console.error(e);
-    validityElem = 'Invalid UTF-8';
-    return;
+    origin_trial_metadata.validityElem = 'Invalid UTF-8';
+    return origin_trial_metadata;
   }
 
   let obj;
   try {
     obj = JSON.parse(json);
   } catch (e) {
-    console.error(e);
-    validityElem = 'Invalid JSON';
-    return;
+    origin_trial_metadata.validityElem = 'Invalid JSON';
+    return origin_trial_metadata;
   }
 
   originElem = obj.origin;
@@ -92,23 +91,20 @@ function validate(tokenElem) {
   try {
     expiry = parseInt(obj.expiry);
   } catch (e) {
-    console.error(e);
-    validityElem = "Expiry value wasn't an integer";
-    expiryElem = obj.expiry;
-    return;
+    origin_trial_metadata.validityElem = "Expiry value wasn't an integer";
+    origin_trial_metadata.expiryElem = obj.expiry;
+    return origin_trial_metadata;
   }
 
   let expiryDate = new Date(expiry * 1000);
   expiryElem = expiryDate.toLocaleString();
   if (expiryDate < new Date()) {
-    validityElem = 'Expired';
-    return;
+    origin_trial_metadata.validityElem = 'Expired';
+    return origin_trial_metadata;
   }
 
-  validityElem = 'Valid';
-
-  let origin_trial_metadata = {
-    validityElem: validityElem,
+  origin_trial_metadata = {
+    validityElem: 'Valid',
     versionElem: versionElem,
     originElem: originElem,
     subdomainElem: subdomainElem,
@@ -144,7 +140,7 @@ requests.forEach(request => {
   }
 });
 
-let unique_tokens = tokens.filter((value, index, self) => self.indexOf(value) === index);
+let unique_tokens = Array.from(new Set(tokens));
 
 let origin_trials = unique_tokens.map(token => {
   let origin_trial = validate(token);
