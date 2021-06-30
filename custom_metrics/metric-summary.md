@@ -429,6 +429,8 @@ Example response:
 
 Stats of `<video>` and `<track>` elements.
 
+`total_with_track` contains the total number of `<video>` elements had at least one `<track>` element
+
 Example response:
 
 ```json
@@ -447,6 +449,7 @@ Example response:
     "poster": 1,
     "src": 1
   },
+  "total_with_track": 1,
   "tracks": {
     "total": 0,
     "nodes": [],
@@ -727,13 +730,13 @@ A JSON array of `<img>` elements on the page.
 Sample response:
 
 ```
-  {
-    "url": "https://placekitten.com/401/401",
-    "width": 401,
-    "height": 401,
-    "naturalWidth": 401,
-    "naturalHeight": 401,
-    "loading": "lazy",
-    "inViewport": true
-  }
+{
+  "url": "https://placekitten.com/401/401",
+  "width": 401,
+  "height": 401,
+  "naturalWidth": 401,
+  "naturalHeight": 401,
+  "loading": "lazy",
+  "inViewport": true
+}
 ```
