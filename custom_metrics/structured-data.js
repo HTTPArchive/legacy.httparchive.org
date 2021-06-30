@@ -86,12 +86,13 @@ try {
         function dumpTagAttributes(tags) {
           return tags.map((tag) => {
             const json_tag = {};
-            ["rel", "href", "name", "property", "content"].map((attribute) => {
-              const value = tag.getAttribute(attribute);
-              if (value) {
-                json_tag[attribute] = tag.getAttribute(attribute);
+            ["rel", "href", "name", "property", "content"].forEach(
+              (attribute) => {
+                if (tag.hasAttribute(attribute)) {
+                  json_tag[attribute] = tag.getAttribute(attribute);
+                }
               }
-            });
+            );
             return json_tag;
           });
         }
@@ -191,7 +192,6 @@ try {
             "hReview",
             "hReview-aggregate",
             "adr",
-            "geo",
           ].forEach((name) => {
             let items = d.querySelectorAll('[class~="' + name + '" i]');
             if (items.length > 0) {
@@ -202,6 +202,17 @@ try {
               });
             }
           });
+
+          const geoItems = d.querySelectorAll(
+            '[class~="geo" i] [class~="latitude" i]'
+          );
+          if (geoItems.length > 0) {
+            target.present.microformats_classic = true;
+            target.microformats_classic_types.push({
+              name: "geo",
+              count: geoItems.length,
+            });
+          }
 
           // Dublin Core, Twitter, Facebook & OpenGraph
           target.meta_tags = dumpTagAttributes([...d.querySelectorAll("meta")]);
