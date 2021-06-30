@@ -119,7 +119,8 @@ function winningSrcsetAndSizes( img ) {
 			if ( mediaMatches && typeMatches ) {
 				return {
 					srcset: source.getAttribute('srcset'),
-					sizes: source.getAttribute('sizes')
+					sizes: source.getAttribute('sizes'),
+					isFromSource: true
 				};
 			}
 		}
@@ -128,7 +129,8 @@ function winningSrcsetAndSizes( img ) {
 	
 	return {
 		srcset: img.getAttribute('srcset'),
-		sizes: img.getAttribute('sizes')
+		sizes: img.getAttribute('sizes'),
+		isFromSource: false
 	};
 
 }
@@ -312,7 +314,7 @@ function getImgData( img ) {
 		imgData.pictureTypeSwitching = pictureFeatures_.typeSwitching;
 	}
 	
-	const { srcset, sizes } = winningSrcsetAndSizes( img );
+	const { srcset, sizes, isFromSource } = winningSrcsetAndSizes( img );
 	
 	imgData.hasSrcset = Boolean( srcset );
 	imgData.hasSizes = Boolean( sizes );
@@ -334,6 +336,7 @@ function getImgData( img ) {
 		if ( imgData.hasSrc &&
 		     img.getAttribute( 'src' ) !== '' && 
 		     !( srcsetCandidates.filter( c => c.d === 1 ).length > 0 ) &&
+		     !isFromSource &&
 		     !( imgData.srcsetHasWDescriptors ) ) {
 			srcsetCandidates.push( {
 				url: img.getAttribute( 'src' )
