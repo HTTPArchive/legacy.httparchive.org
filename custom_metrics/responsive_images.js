@@ -290,6 +290,7 @@ function intrinsicOrExtrinsicSizing( computedStyles ) {
 function getImgData( img ) {
 	
 	const imgData = imgFeatures( img );
+	imgData.url = img.currentSrc || img.src;
 	imgData.totalCandidates = totalNumberOfCandidates( img );
 	
 	if ( imgData.isInPicture ) {
