@@ -85,10 +85,12 @@ try {
       try {
         function dumpTagAttributes(tags) {
           return tags.map((tag) => {
-            const attributes = tag.getAttributeNames();
             const json_tag = {};
-            attributes.map((attribute) => {
-              json_tag[attribute] = tag.getAttribute(attribute);
+            ["rel", "href", "name", "property", "content"].map((attribute) => {
+              const value = tag.getAttribute(attribute);
+              if (value) {
+                json_tag[attribute] = tag.getAttribute(attribute);
+              }
             });
             return json_tag;
           });
@@ -103,7 +105,6 @@ try {
         function gatherStructuredData(d) {
           let target = {
             jsonld_scripts: [],
-            raw_html: "",
             present: {
               json_ld: false,
               microdata: false,
@@ -134,9 +135,6 @@ try {
             ...d.querySelectorAll('script[type="application/ld+json"i]'),
           ].map((script) => script.innerHTML);
           target.present.json_ld = target.jsonld_scripts.length > 0;
-
-          // Microdata, RDFa & Microformats
-          target.raw_html = d.documentElement.outerHTML;
 
           // Microdata
           target.present.microdata =
@@ -217,19 +215,19 @@ try {
 
           // Twitter
           target.twitter = dumpTagAttributes([
-            ...d.querySelectorAll('[name^="twitter:" i]'),
+            ...d.querySelectorAll('meta[name^="twitter:" i]'),
           ]);
           target.present.twitter = target.twitter.length > 0;
 
           // Facebook
           target.facebook = dumpTagAttributes([
-            ...d.querySelectorAll('[property^="fb:" i]'),
+            ...d.querySelectorAll('meta[property^="fb:" i]'),
           ]);
           target.present.facebook = target.facebook.length > 0;
 
           // OpenGraph
           target.opengraph = dumpTagAttributes([
-            ...d.querySelectorAll('[property^="og:" i]'),
+            ...d.querySelectorAll('meta[property^="og:" i]'),
           ]);
           target.present.opengraph = target.opengraph.length > 0;
 
