@@ -51,8 +51,8 @@ function validate(tokenElem) {
 
   // Pull the fields out of the token.
   if (token.length < 69) {
-    validityElem = 'Token is too short';
-    return;
+    origin_trial_metadata.validityElem = 'Token is too short';
+    return origin_trial_metadata;
   }
   const payloadLength = new DataView(token.buffer, 65, 4).getInt32(0, /*littleEndian=*/ false);
   const payload = new Uint8Array(token.buffer, 69);
