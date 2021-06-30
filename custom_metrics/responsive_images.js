@@ -425,7 +425,7 @@ function getImgData( img ) {
 	// https://twitter.com/jensimmons/status/1172922185570279425
 	imgData.reservedLayoutDimensions = (
 		imgData.hasWidth && imgData.hasHeight &&
-		Object.keys( imgData.intrinsicOrExtrinsicSizing ).includes( 'intrinsic' )
+		Object.values( imgData.intrinsicOrExtrinsicSizing ).includes( 'intrinsic' )
 	);
 
 	return imgData;
