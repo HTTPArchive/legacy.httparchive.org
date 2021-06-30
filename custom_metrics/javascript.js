@@ -40,8 +40,24 @@ return JSON.stringify({
             return null;
         }
     })(),
-    // Returns the content-types of requests.
-    content_types: requests.map((req) => req.response_headers['content-type']),
+
+    web_component_specs: (() => {
+
+        var getNodeName = (el) => el.nodeName.toLowerCase()
+        var elements_with_hyphen = Array.from(document.getElementsByTagName("*")).filter(e => e.nodeName.includes('-'));
+        var unique_elements_with_hyphen = [...new Set(elements_with_hyphen.map(e => e.nodeName))].map(element => { return elements_with_hyphen.find(e => e.nodeName === element) });
+        var web_components = unique_elements_with_hyphen.filter(e => customElements.get(e.nodeName.toLowerCase()));
+
+        // Checking which web comp spec is used by found web_components (template, shadow_dom, custom_elements)
+        var shadow_roots = web_components.filter(e => e.shadowRoot)
+        var template = web_components.filter(e => Array.from(e.children).some(r => r.nodeName.toLowerCase() === 'template'))
+        var web_component_specs = {
+            'custom_elements': web_components.map(getNodeName),
+            'shadow_roots': shadow_roots.map(getNodeName),
+            'template': template.map(getNodeName)
+        }
+        return web_component_specs
+    }),
 
     script_tags: (() => {
         let script_tags = Array.from(document.querySelectorAll('script'));
@@ -57,6 +73,10 @@ return JSON.stringify({
             referrerpolicy: script_tags.filter(tag => tag.referrerpolicy).length,
             src: script_tags.filter(tag => tag.src).length,
             type_module: script_tags.filter(tag => tag.type == 'module').length,
+            //deprecated attribute adoption
+            charset: script_tags.filter(tag => tag.charset).length,
+            language: script_tags.filter(tag => tag.attributes['language']).length,
+
         };
 
         return script_data;
