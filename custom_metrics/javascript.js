@@ -73,6 +73,8 @@ return JSON.stringify({
             referrerpolicy: script_tags.filter(tag => tag.referrerpolicy).length,
             src: script_tags.filter(tag => tag.src).length,
             type_module: script_tags.filter(tag => tag.type == 'module').length,
+            async_and_defer: script_tags.filter(tag => tag.async && tag.defer).length,
+            defer_without_src: script_tags.filter(tag => tag.defer && !tag.src).length,
             //deprecated attribute adoption
             charset: script_tags.filter(tag => tag.charset).length,
             language: script_tags.filter(tag => tag.attributes['language']).length,
