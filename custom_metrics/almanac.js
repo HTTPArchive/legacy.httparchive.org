@@ -710,30 +710,5 @@ return JSON.stringify({
 
   'length_of_h1s': (() => {
     return [...document.querySelectorAll('h1')].map(node => node.innerText.length);
-  })(),
-
-  'lcp_elem_stats': (() => {
-    return new Promise((resolve) => {
-      new PerformanceObserver((entryList) => {
-        const lcpCandidates = entryList.getEntries();
-        const naiveLcpEntry = lcpCandidates[lcpCandidates.length - 1];
-        resolve(naiveLcpEntry);
-      }).observe({ type: "layout-shift", buffered: true });
-    }).then(({ startTime, element, url, size, loadTime, renderTime }) => {
-      let attributes = [];
-      for (let index = 0; index < element.attributes.length; index++) {
-        const ele = element.attributes.item(index);
-        attributes[index] = { name: ele.name, value: ele.value };
-      }
-      return {
-        startTime,
-        nodeName: element.nodeName,
-        url,
-        size,
-        loadTime,
-        renderTime,
-        attributes,
-      };
-    });
-  })(),
+  })()
 });
