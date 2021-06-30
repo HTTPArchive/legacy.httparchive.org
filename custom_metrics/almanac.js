@@ -424,6 +424,33 @@ return JSON.stringify({
 
     return inputNodes;
   })(),
+  'link_protocols_used': (() => {
+    const protocols_and_count = {};
+    const anchors = document.querySelectorAll('a[href]');
+    for (const anchor of anchors) {
+      try {
+        const url = new URL(anchor.href);
+
+        // Get the protocol and remove the :
+        const protocol = (url.protocol || '').toLowerCase().slice(0, -1);
+        if (!protocol) {
+          continue;
+        }
+
+        // Increase the counter
+        if (protocols_and_count[protocol]) {
+          protocols_and_count[protocol]++;
+        } else {
+          protocols_and_count[protocol] = 1;
+        }
+      } catch (e) {
+        // Not a valid URL. Skip over it
+        continue;
+      }
+    }
+
+    return protocols_and_count;
+  })(),
   // Find first child of <head>
   // Whether the first child of <head> is a Google Fonts <link>
   '06.47': (() => {
@@ -587,9 +614,51 @@ return JSON.stringify({
     };
     const parsed_videos = parseNodes(videos, filter_options);
 
+    // Count the number of video elements that have a track element
+    let total_videos_with_track_element = 0;
+    for (let video of videos) {
+      if (video.querySelector('track')) {
+        total_videos_with_track_element++;
+      }
+    }
+
     const parsed_tracks = parseNodes(tracks, {max_prop_length: 255});
+    parsed_videos.total_with_track = total_videos_with_track_element;
     parsed_videos.tracks = parsed_tracks;
     return parsed_videos;
+  })(),
+
+  'audios': (() => {
+    const audios = document.querySelectorAll('audio');
+    const tracks = document.querySelectorAll('audio track');
+
+    const filter_options = {
+      include_only_prop_list: [
+        /^autoplay$/,
+        /^controls$/,
+        /^loop$/,
+        /^muted$/,
+        /^poster$/,
+        /^preload$/,
+        /^aria-.+$/,
+      ],
+      // Protect us from weird values
+      max_prop_length: 255,
+    };
+    const parsed_audios = parseNodes(audios, filter_options);
+
+    // Count the number of audio elements that have a track element
+    let total_audios_with_track_element = 0;
+    for (let audio of audios) {
+      if (audio.querySelector('track')) {
+        total_audios_with_track_element++;
+      }
+    }
+
+    const parsed_tracks = parseNodes(tracks, {max_prop_length: 255});
+    parsed_audios.total_with_track = total_audios_with_track_element;
+    parsed_audios.tracks = parsed_tracks;
+    return parsed_audios;
   })(),
 
   'iframes': (() => {
@@ -597,11 +666,11 @@ return JSON.stringify({
     const iframes_using_loading = [
       ...document.querySelectorAll("iframe[loading]"),
     ];
-  
+
     /** @type {ParseNodeOptions} */
     return {
       iframes: parseNodes(iframes),
-  
+
       loading_values: iframes_using_loading.map((iframe) => {
         const value = iframe.getAttribute("loading") || "";
         return value.toLocaleLowerCase().replace(/\s+/gm, " ").trim();
