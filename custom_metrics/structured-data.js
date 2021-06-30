@@ -123,8 +123,6 @@ try {
             rdfa_typeofs: [],
             microformats2_types: [],
             microformats_classic_types: [],
-            meta_tags: [],
-            link_tags: [],
             dublin_core: [],
             twitter: [],
             facebook: [],
@@ -213,10 +211,6 @@ try {
               count: geoItems.length,
             });
           }
-
-          // Dublin Core, Twitter, Facebook & OpenGraph
-          target.meta_tags = dumpTagAttributes([...d.querySelectorAll("meta")]);
-          target.link_tags = dumpTagAttributes([...d.querySelectorAll("link")]);
 
           // Dublin Core
           target.dublin_core = dumpTagAttributes([
