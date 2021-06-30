@@ -1,4 +1,4 @@
-//[responsive-images]
+// [responsive-images]
 // Uncomment the previous line for testing on webpagetest.org
 
 return JSON.stringify({
@@ -308,6 +308,25 @@ function getImgData( img ) {
 	imgData.url = img.currentSrc || img.src;
 	imgData.totalCandidates = totalNumberOfCandidates( img );
 	
+	if (imgData.hasHeight) {
+		imgData.heightAttribute = img.getAttribute('height');
+	}
+	if (imgData.hasWidth) {
+		imgData.widthAttribute = img.getAttribute('width');
+	}
+	if (imgData.hasAlt) {
+		imgData.altAttribute = img.getAttribute('alt');
+	}
+	if (imgData.hasCustomDataAttributes) {
+		imgData.customDataAttributes = Object.keys( img.dataset );
+	}
+	
+	// duplicates metrics captured in images.js, but these could ease additional analysis in combination with everything else we're capturing...
+	imgData.clientWidth = parseInt( img.clientWidth );
+	imgData.clientHeight = parseInt( img.clientHeight );
+	imgData.naturalWidth = parseInt( img.naturalWidth );
+	imgData.naturalHeight = parseInt( img.naturalHeight );
+	
 	if ( imgData.isInPicture ) {
 		const pictureFeatures_ = pictureFeatures( img );
 		imgData.pictureMediaSwitching = pictureFeatures_.mediaSwitching;
@@ -350,22 +369,23 @@ function getImgData( img ) {
 	if ( imgData.hasSizes ) {
 
 		const parsedSizes = parseSizes( sizes );
-		imgData.sizesWidth = resolveLength( parsedSizes.size );
+		imgData.sizesCSSLength = parsedSizes.size;
+		imgData.sizesWidth = resolveLength( imgData.sizesCSSLength );
 		imgData.sizesParseError = parsedSizes.parseError;
 		imgData.sizesWasImplicit = false;
 
 	} else if ( imgData.srcsetHasWDescriptors ) { // if you use srcset with w descriptors, but do not include a sizes attribute, the default value of sizes = 100vw is used
 
 		imgData.sizesWasImplicit = true;
+		imgData.sizesCSSLength = '100vw';
 		imgData.sizesWidth = resolveLength( '100vw' );
 
 	}
 
-	// if we have a sizes width (either implicit or explicit), check it against the actual width of the image, and capture the error
+	// if we have a sizes width (either implicit or explicit), check it against the actual layout width of the image, and capture the error
 	if ( imgData.sizesWidth ) {
-		imgData.layoutWidth = img.clientWidth;
-		imgData.sizesAbsoluteError = imgData.sizesWidth - imgData.layoutWidth;
-		imgData.sizesRelativeError = imgData.sizesAbsoluteError / imgData.layoutWidth;
+		imgData.sizesAbsoluteError = imgData.sizesWidth - imgData.clientWidth;
+		imgData.sizesRelativeError = imgData.sizesAbsoluteError / imgData.clientWidth;
 	}
 
 	// determine the effective densities of the srcset resources
@@ -388,6 +408,13 @@ function getImgData( img ) {
 	if ( srcsetCandidates ) {
 		imgData.srcsetCandidateDensities = srcsetCandidates.map( 
 			i => i.density
+		)
+	}
+	
+	// report w descriptor breakpoints, if any
+	if ( srcsetCandidates && imgData.srcsetHasWDescriptors ) {
+		imgData.srcsetWDescriptorValues = srcsetCandidates.map( 
+			i => i.w
 		)
 	}
 
