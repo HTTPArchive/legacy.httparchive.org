@@ -276,7 +276,7 @@ function intrinsicOrExtrinsicSizing( computedStyles ) {
 
 	let width;
 	if ( computedStyles.width === "auto" ) {
-		if ( computedStyles.maxWidth === "none" && computedStyles.minWidth === "none" ) {
+		if ( computedStyles.maxWidth === "none" && computedStyles.minWidth === "auto" ) {
 			width = "intrinsic";
 		} else {
 			width = "both";
@@ -286,7 +286,7 @@ function intrinsicOrExtrinsicSizing( computedStyles ) {
 	}
 	let height;
 	if ( computedStyles.height === "auto" ) {
-		if ( computedStyles.maxHeight === "none" && computedStyles.minHeight === "none" ) {
+		if ( computedStyles.maxHeight === "none" && computedStyles.minHeight === "auto" ) {
 			height = "intrinsic";
 		} else {
 			height = "both";
