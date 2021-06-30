@@ -228,7 +228,7 @@ function imgFeatures( img ) {
 		isInPicture: img.parentNode.tagName === "PICTURE",
 		hasCustomDataAttributes: Object.keys( img.dataset ).length > 0,
 		hasWidth: img.hasAttribute( 'width' ) &&
-		          parseInt( img.getAttribute( 'width' ) ) > 0 &&
+		          parseInt( img.getAttribute( 'width' ) ) > 0,
 		hasHeight: img.hasAttribute( 'height' ) &&
 		           parseInt( img.getAttribute( 'height' ) ) > 0
 	}
@@ -259,7 +259,7 @@ function computedSizingStyles( img ) {
 // is the image intrinsically or extrinsically sized? (or both, via max or min-width constraints that only kick in sometimes)
 // takes object returned from computedSizingStyles( img )
 // returns { width, height } where width and height can be one of: "extrinsic", "intrinsic", or "both"
-function intrinsicOrExtrinsicDimensions( computedStyles ) {
+function intrinsicOrExtrinsicSizing( computedStyles ) {
 
 	let width;
 	if ( computedStyles.width === "auto" ) {
