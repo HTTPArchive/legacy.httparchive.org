@@ -6,7 +6,7 @@ const serviceWorkerRegistrationPattern = /navigator\.serviceWorker\.register\(['
 const serviceWorkerURLs = response_bodies.filter(har => {
   return serviceWorkerRegistrationPattern.test(har.response_body);
 }).map(har => {
-  const base = new URL(har.url).origin;
+  const base = new URL(location.href).origin;
   const serviceWorkerPath = har.response_body.match(serviceWorkerRegistrationPattern)[1];
   return new URL(serviceWorkerPath, base).href;
 }).reduce((set, url) => {
