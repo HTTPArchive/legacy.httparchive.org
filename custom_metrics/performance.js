@@ -1,5 +1,7 @@
 //[performance]
 
+const response_bodies = $WPT_BODIES;
+
 function getLcpElement() {
     return new Promise((resolve) => {
         new PerformanceObserver((entryList) => {
@@ -27,8 +29,16 @@ function getLcpElement() {
     });
 }
 
+function getWebVitalsJS() {
+    const webVitalsJSPattern = /webVitals[\s\S]+8999999999999[\s\S]+1e12[\s\S]+(largest-contentful-paint|first-input|layout-shift)/m;
+    return response_bodies.filter(har => {
+        return webVitalsJSPattern.test(har.response_body);
+    }).map(har => har.url);
+}
+
 return Promise.all([getLcpElement()]).then(lcp_elem_stats => {
     return {
-        lcp_elem_stats
+        lcp_elem_stats,
+        web_vitals_js: getWebVitalsJS()
     };
 });
