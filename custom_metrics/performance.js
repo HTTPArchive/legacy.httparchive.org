@@ -30,7 +30,7 @@ function getLcpElement() {
 }
 
 function getWebVitalsJS() {
-    const webVitalsJSPattern = /webVitals[\s\S]+8999999999999[\s\S]+1e12[\s\S]+(largest-contentful-paint|first-input|layout-shift)/m;
+    const webVitalsJSPattern = /(8999999999999[\s\S]+1e12[\s\S]+(largest-contentful-paint|first-input|layout-shift)|(largest-contentful-paint|first-input|layout-shift)[\s\S]+8999999999999[\s\S]+1e12)/m;
     return response_bodies.filter(har => {
         return webVitalsJSPattern.test(har.response_body);
     }).map(har => har.url);
