@@ -54,7 +54,10 @@ return new Promise((resolve) => {
 
   const imgs = wptImages(window);
 
-  for (let i = 0; i < imgs.length; i++) {
-    observer.observe(imgs[i]);
+  if (imgs.length == 0) {
+    return resolve([]);
+  }
+  for (let img of imgs) {
+    observer.observe(img);
   }
 });
