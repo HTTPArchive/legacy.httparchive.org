@@ -1,43 +1,60 @@
-var wptImages = function (win) {
-  var images = [];
-  if (win) {
-    var doc = win.document;
-    var elements = doc.getElementsByTagName("*");
-    for (var i = 0; i < elements.length; i++) {
-      var el = elements[i];
-      if (el.tagName == "IMG") {
-        var url = el.currentSrc || el.src;
+return new Promise((resolve) => {
+  let observer = new IntersectionObserver((entries, observer) => {
+    observer.disconnect();
+    const images = entries.map((e) => {
+      const el = e.target;
+      let url = el.currentSrc || el.src;
 
-        // Only include HTTP(S) URLs i.e. skip dataURIs
-        if (url.indexOf("http") === 0) {
-          images.push({
-            url: url,
-            width: el.width,
-            height: el.height,
-            naturalWidth: el.naturalWidth,
-            naturalHeight: el.naturalHeight,
-            loading: el.getAttribute("loading"),
-            decoding: el.getAttribute("decoding"),
-            inViewport:
-              el.getBoundingClientRect().bottom >= 0 &&
-              el.getBoundingClientRect().right >= 0 &&
-              el.getBoundingClientRect().top <= window.innerHeight &&
-              el.getBoundingClientRect().left <= window.innerWidth,
-          });
+      // Only include HTTP(S) URLs i.e. skip dataURIs
+      if (url.indexOf("http") === 0) {
+        return {
+          url: url,
+          width: el.width,
+          height: el.height,
+          naturalWidth: el.naturalWidth,
+          naturalHeight: el.naturalHeight,
+          loading: el.getAttribute("loading"),
+          decoding: el.getAttribute("decoding"),
+          inViewport: e.isIntersecting,
+        };
+      }
+    });
+
+    return resolve(JSON.stringify(images));
+  });
+
+  const wptImages = (win) => {
+    let images = [];
+    if (win) {
+      const doc = win.document;
+      const elements = doc.getElementsByTagName("*");
+
+      for (let i = 0; i < elements.length; i++) {
+        const el = elements[i];
+        if (el.tagName == "IMG") {
+          images.push(el);
+        }
+        if (el.tagName == "IFRAME") {
+          try {
+            const im = wptImages(el.contentWindow);
+            if (im && im.length) {
+              images = images.concat(im);
+            }
+          } catch (e) {}
+        }
+
+        if (images.length > 10000) {
+          break;
         }
       }
-      if (el.tagName == "IFRAME") {
-        try {
-          var im = wptImages(el.contentWindow);
-          if (im && im.length) {
-            images = images.concat(im);
-          }
-        } catch (e) {}
-      }
-      if (images.length > 10000) break;
     }
-  }
-  return images;
-};
 
-return JSON.stringify(wptImages(window));
+    return images;
+  };
+
+  const imgs = wptImages(window);
+
+  for (let i = 0; i < imgs.length; i++) {
+    observer.observe(imgs[i]);
+  }
+});
