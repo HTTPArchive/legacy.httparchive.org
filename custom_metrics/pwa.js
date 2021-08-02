@@ -1,13 +1,13 @@
 //[pwa]
 const response_bodies = $WPT_BODIES;
 const requests = $WPT_REQUESTS;
-const serviceWorkerRegistrationPattern = /navigator\.serviceWorker\.register\(['"]([^"']+)/m;
+const serviceWorkerRegistrationStrictPattern = /navigator\.serviceWorker\.register\(['"]([^"']+)/m;
 
 const serviceWorkerURLs = response_bodies.filter(har => {
-  return serviceWorkerRegistrationPattern.test(har.response_body);
+  return serviceWorkerRegistrationStrictPattern.test(har.response_body);
 }).map(har => {
   const base = new URL(location.href).origin;
-  const serviceWorkerPath = har.response_body.match(serviceWorkerRegistrationPattern)[1];
+  const serviceWorkerPath = har.response_body.match(serviceWorkerRegistrationStrictPattern)[1];
   return new URL(serviceWorkerPath, base).href;
 }).reduce((set, url) => {
   set.add(url);
@@ -80,13 +80,18 @@ function getInfoForPattern(regexPattern, extractMatchingGroupOnly) {
   });
 }
 
+// Unlike serviceWorkerRegistrationStrictPattern that only matches SW registration scripts that contain URLs,
+// serviceWorkerRegistrationLaxPattern matches any call to the SW registration script (e.g. passing a variable, etc).
+const serviceWorkerRegistrationLaxPattern = /navigator\.serviceWorker\.register\(([^)]*)\)/g;
+const serviceWorkerInfo = getInfoForPattern(serviceWorkerRegistrationLaxPattern, true);
+
 const workboxPattern = /(?:workbox:[a-z\-]+:[\d.]+|workbox\.[a-zA-Z]+\.?[a-zA-Z]*)/g;
 const workboxInfo = getInfoForPattern(workboxPattern);
 
 const importScriptsPattern = /importScripts\(([^)]*)\)/g;
 const importScriptsInfo = getInfoForPattern(importScriptsPattern, true);
 
-const swEventListenersPattern = /addEventListener\(\s*[\'"](install|activate|push|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)[\'"]/g;
+const swEventListenersPattern = /addEventListener\(\s*[\'"](install|activate|push|fetch|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)[\'"]/g;
 const swEventListenersInfo = getInfoForPattern(swEventListenersPattern, true);
 
 const swPropertiesPattern = /\.on(install|activate|push|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)\s*=/g;
@@ -124,6 +129,7 @@ return {
   swRegistrationPropertiesInfo: Object.fromEntries(swRegistrationPropertiesInfo),
   windowEventListenersInfo: Object.fromEntries(windowEventListenersInfo),
   windowPropertiesInfo: Object.fromEntries(windowPropertiesInfo),
+  serviceWorkerInfo: Object.fromEntries(serviceWorkerInfo),
   //Experimental field: Heuristic to detect if a site has a service worker even if the 'serviceWorkers' field is empty (false positives).
-  serviceWorkerHeuristic: !isObjectKeyEmpty(serviceWorkers) || !isObjectKeyEmpty(workboxInfo) || !isObjectKeyEmpty(swEventListenersInfo) || !isObjectKeyEmpty(swMethodsInfo)
+  serviceWorkerHeuristic: !isObjectKeyEmpty(serviceWorkers) || !isObjectKeyEmpty(serviceWorkerInfo) || !isObjectKeyEmpty(workboxInfo) || !isObjectKeyEmpty(swEventListenersInfo) || !isObjectKeyEmpty(swMethodsInfo)
 };
