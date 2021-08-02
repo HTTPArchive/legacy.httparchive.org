@@ -112,6 +112,24 @@ const windowEventListenersInfo = getInfoForPattern(windowEventListenersPattern, 
 const windowPropertiesPattern = /\.on(appinstalled|beforeinstallprompt)\s*=/g;
 const windowPropertiesInfo = getInfoForPattern(windowPropertiesPattern, true);
 
+// the sw heuristics returns true if a strong service worker indicator (serviceWorkers) exists, or if at least two weak indicators are present.
+function calculateServiceWorkerHeuristic() {
+  return !isObjectKeyEmpty(serviceWorkers) || containsEnoughWeakMethods();
+}
+
+// returns true if the number of "weak" methods to identify service workers is >= 2.
+function containsEnoughWeakMethods() {
+
+  var weakMethodCount = 0;
+
+  weakMethodCount+= isObjectKeyEmpty(serviceWorkerRegistrationInfo) ? 0 : 1;
+  weakMethodCount+= isObjectKeyEmpty(workboxInfo) ? 0 : 1;
+  weakMethodCount+= isObjectKeyEmpty(swEventListenersInfo) ? 0 : 1;
+  weakMethodCount+= isObjectKeyEmpty(swMethodsInfo) ? 0 : 1;
+
+  return weakMethodCount >= 2;
+}
+
 function isObjectKeyEmpty(field) {
   return field == null || field.length == 0;
 }
@@ -131,5 +149,5 @@ return {
   windowPropertiesInfo: Object.fromEntries(windowPropertiesInfo),
   serviceWorkerRegistrationInfo: Object.fromEntries(serviceWorkerRegistrationInfo),
   //Experimental field: Heuristic to detect if a site has a service worker even if the 'serviceWorkers' field is empty (false positives).
-  serviceWorkerHeuristic: !isObjectKeyEmpty(serviceWorkers) || !isObjectKeyEmpty(serviceWorkerRegistrationInfo) || !isObjectKeyEmpty(workboxInfo) || !isObjectKeyEmpty(swEventListenersInfo) || !isObjectKeyEmpty(swMethodsInfo)
+  serviceWorkerHeuristic: calculateServiceWorkerHeuristic()
 };
