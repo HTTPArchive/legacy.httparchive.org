@@ -83,7 +83,7 @@ function getInfoForPattern(regexPattern, extractMatchingGroupOnly) {
 // Unlike serviceWorkerStrictRegistrationPattern that only matches SW registration scripts that contain URLs,
 // serviceWorkerLaxRegistrationPattern matches any call to the SW registration script (e.g. passing a variable, etc).
 const serviceWorkerLaxRegistrationPattern = /navigator\.serviceWorker\.register\(([^)]*)\)/g;
-const serviceWorkerInfo = getInfoForPattern(serviceWorkerLaxRegistrationPattern, true);
+const serviceWorkerRegistrationInfo = getInfoForPattern(serviceWorkerLaxRegistrationPattern, true);
 
 const workboxPattern = /(?:workbox:[a-z\-]+:[\d.]+|workbox\.[a-zA-Z]+\.?[a-zA-Z]*)/g;
 const workboxInfo = getInfoForPattern(workboxPattern);
@@ -129,7 +129,7 @@ return {
   swRegistrationPropertiesInfo: Object.fromEntries(swRegistrationPropertiesInfo),
   windowEventListenersInfo: Object.fromEntries(windowEventListenersInfo),
   windowPropertiesInfo: Object.fromEntries(windowPropertiesInfo),
-  serviceWorkerInfo: Object.fromEntries(serviceWorkerInfo),
+  serviceWorkerRegistrationInfo: Object.fromEntries(serviceWorkerRegistrationInfo),
   //Experimental field: Heuristic to detect if a site has a service worker even if the 'serviceWorkers' field is empty (false positives).
-  serviceWorkerHeuristic: !isObjectKeyEmpty(serviceWorkers) || !isObjectKeyEmpty(serviceWorkerInfo) || !isObjectKeyEmpty(workboxInfo) || !isObjectKeyEmpty(swEventListenersInfo) || !isObjectKeyEmpty(swMethodsInfo)
+  serviceWorkerHeuristic: !isObjectKeyEmpty(serviceWorkers) || !isObjectKeyEmpty(serviceWorkerRegistrationInfo) || !isObjectKeyEmpty(workboxInfo) || !isObjectKeyEmpty(swEventListenersInfo) || !isObjectKeyEmpty(swMethodsInfo)
 };
