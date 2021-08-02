@@ -1,13 +1,13 @@
 //[pwa]
 const response_bodies = $WPT_BODIES;
 const requests = $WPT_REQUESTS;
-const serviceWorkerRegistrationStrictPattern = /navigator\.serviceWorker\.register\(['"]([^"']+)/m;
+const serviceWorkerStrictRegistrationPattern = /navigator\.serviceWorker\.register\(['"]([^"']+)/m;
 
 const serviceWorkerURLs = response_bodies.filter(har => {
-  return serviceWorkerRegistrationStrictPattern.test(har.response_body);
+  return serviceWorkerStrictRegistrationPattern.test(har.response_body);
 }).map(har => {
   const base = new URL(location.href).origin;
-  const serviceWorkerPath = har.response_body.match(serviceWorkerRegistrationStrictPattern)[1];
+  const serviceWorkerPath = har.response_body.match(serviceWorkerStrictRegistrationPattern)[1];
   return new URL(serviceWorkerPath, base).href;
 }).reduce((set, url) => {
   set.add(url);
@@ -80,10 +80,10 @@ function getInfoForPattern(regexPattern, extractMatchingGroupOnly) {
   });
 }
 
-// Unlike serviceWorkerRegistrationStrictPattern that only matches SW registration scripts that contain URLs,
-// serviceWorkerRegistrationLaxPattern matches any call to the SW registration script (e.g. passing a variable, etc).
-const serviceWorkerRegistrationLaxPattern = /navigator\.serviceWorker\.register\(([^)]*)\)/g;
-const serviceWorkerInfo = getInfoForPattern(serviceWorkerRegistrationLaxPattern, true);
+// Unlike serviceWorkerStrictRegistrationPattern that only matches SW registration scripts that contain URLs,
+// serviceWorkerLaxRegistrationPattern matches any call to the SW registration script (e.g. passing a variable, etc).
+const serviceWorkerLaxRegistrationPattern = /navigator\.serviceWorker\.register\(([^)]*)\)/g;
+const serviceWorkerInfo = getInfoForPattern(serviceWorkerLaxRegistrationPattern, true);
 
 const workboxPattern = /(?:workbox:[a-z\-]+:[\d.]+|workbox\.[a-zA-Z]+\.?[a-zA-Z]*)/g;
 const workboxInfo = getInfoForPattern(workboxPattern);
