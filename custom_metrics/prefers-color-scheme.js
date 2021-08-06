@@ -3,6 +3,12 @@
 const PREFERS_COLOR_SCHEME_REGEXP =
   /@media\s+\(\s*prefers-color-scheme\s*:\s*(?:dark|light)\s*\)\s*\{[^\}]*\}/gms;
 
+// Checks in three passes:
+// 1. The CSS rules of same-origin and inlined stylesheets in `try {}`.
+// 2. The CSS rules of cross-origin stylesheets in `catch {}`.
+// 3. The `link[media]` attribute of conditionally loaded stylesheets in the
+//    ternary expression if steps 1. and step 2. both return `false`.
+
 return {
   // Get all stylesheets.
   prefersColorScheme:
@@ -14,15 +20,25 @@ return {
           return PREFERS_COLOR_SCHEME_REGEXP.test(
             // …any of the individual CSS rules.
             Array.from(stylesheet.cssRules)
+              // Accessing `.cssText` throws for cross-origin stylesheets.
               .map((cssRule) => cssRule.cssText)
-              .join("\n")
+              .join('\n'),
           )
             ? true
             : false;
         } catch {
           // Because of CORS, we can't access the cross-origin stylesheets' CSS
-          // rules, so purposely potentially under-report as `false`.
-          return false;
+          // rules and may end up with an exception here, but we can fall back
+          // to parsing the $WPT_BODIES array.
+          return (
+            $WPT_BODIES
+              // For all stylesheets…
+              .filter((request) => request.type === 'Stylesheet')
+              // …check if the `prefers-color-scheme` RegExp matches…
+              .map((request) =>
+                PREFERS_COLOR_SCHEME_REGEXP.test(request.response_body || ''),
+              )
+          );
         }
       })
       // If even just one of the stylesheets matches, return `true`.
@@ -31,7 +47,7 @@ return {
     // stylesheet `link`s load conditionally based on `prefers-color-scheme`.
     Array.from(
       document.querySelectorAll(
-        'link[rel="stylesheet"][media*="prefers-color-scheme"]'
-      )
+        'link[rel="stylesheet"][media*="prefers-color-scheme"]',
+      ),
     ).length > 0,
 };
