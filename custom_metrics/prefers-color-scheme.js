@@ -7,7 +7,7 @@ const PREFERS_COLOR_SCHEME_REGEXP =
 // 1. The CSS rules of same-origin and inlined stylesheets in `try {}`.
 // 2. The CSS rules of cross-origin stylesheets in `catch {}`.
 // 3. The `link[media]` attribute of conditionally loaded stylesheets in the
-//    ternary expression if steps 1. and step 2. both return `false`.
+//    ternary expression if step 1. and step 2. both return `false`.
 
 return {
   // Get all stylesheets.
