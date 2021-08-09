@@ -2,6 +2,8 @@
 
 const PREFERS_COLOR_SCHEME_REGEXP =
   /@media\s+\(\s*prefers-color-scheme\s*:\s*(?:dark|light)\s*\)\s*\{[^\}]*\}/gms;
+  
+const bodies = $WPT_BODIES;
 
 // Checks in three passes:
 // 1. The CSS rules of same-origin and inlined stylesheets in `try {}`.
@@ -31,9 +33,8 @@ return {
           // rules and may end up with an exception here, but we can fall back
           // to parsing the $WPT_BODIES array.
           return (
-            $WPT_BODIES
               // For all stylesheets…
-              .filter((request) => request.type === 'Stylesheet')
+              bodies.filter((request) => request.type === 'Stylesheet')
               // …check if the `prefers-color-scheme` RegExp matches…
               .map((request) =>
                 PREFERS_COLOR_SCHEME_REGEXP.test(request.response_body || ''),
