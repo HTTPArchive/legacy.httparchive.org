@@ -47,9 +47,14 @@ return JSON.stringify({
     // …check if the `prefers-color-scheme` RegExp matches…
     // If even just one of the stylesheets matches, return `true`.
     bodies.some((request) => {
-      return request.type === 'Stylesheet' && PREFERS_COLOR_SCHEME_REGEXP.test(request.response_body || '')
+      return (
+        request.type === 'Stylesheet' &&
+        PREFERS_COLOR_SCHEME_REGEXP.test(request.response_body || '')
+      );
     }) ||
     // If none of the stylesheets match, alternatively check if any of the
     // stylesheet `link`s load conditionally based on `prefers-color-scheme`.
-    document.querySelectorAll('link[rel="stylesheet"][media*="prefers-color-scheme"]').length > 0,
+    document.querySelectorAll(
+      'link[rel="stylesheet"][media*="prefers-color-scheme"]',
+    ).length > 0,
 });
