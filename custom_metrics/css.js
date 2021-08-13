@@ -44,19 +44,12 @@ return JSON.stringify({
   //    ternary expression if step 1. returns `false`.
   prefersColorScheme:
     // For all stylesheets…
-    bodies
-      .filter((request) => request.type === 'Stylesheet')
-      // …check if the `prefers-color-scheme` RegExp matches…
-      .map((request) =>
-        PREFERS_COLOR_SCHEME_REGEXP.test(request.response_body || ''),
-      )
-      // If even just one of the stylesheets matches, return `true`.
-      .filter((usesPrefersColorScheme) => usesPrefersColorScheme).length > 0 ||
+    // …check if the `prefers-color-scheme` RegExp matches…
+    // If even just one of the stylesheets matches, return `true`.
+    bodies.some((request) => {
+      return request.type === 'Stylesheet' && PREFERS_COLOR_SCHEME_REGEXP.test(request.response_body || '')
+    }) ||
     // If none of the stylesheets match, alternatively check if any of the
     // stylesheet `link`s load conditionally based on `prefers-color-scheme`.
-    Array.from(
-      document.querySelectorAll(
-        'link[rel="stylesheet"][media*="prefers-color-scheme"]',
-      ),
-    ).length > 0,
+    document.querySelectorAll('link[rel="stylesheet"][media*="prefers-color-scheme"]').length > 0,
 });
