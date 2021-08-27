@@ -1,13 +1,13 @@
 //[pwa]
 const response_bodies = $WPT_BODIES;
 const requests = $WPT_REQUESTS;
-const serviceWorkerRegistrationPattern = /navigator\.serviceWorker\.register\(['"]([^"']+)/m;
+const serviceWorkerStrictRegistrationPattern = /navigator\.serviceWorker\.register\(['"]([^"']+)/m;
 
 const serviceWorkerURLs = response_bodies.filter(har => {
-  return serviceWorkerRegistrationPattern.test(har.response_body);
+  return serviceWorkerStrictRegistrationPattern.test(har.response_body);
 }).map(har => {
-  const base = new URL(har.url).origin;
-  const serviceWorkerPath = har.response_body.match(serviceWorkerRegistrationPattern)[1];
+  const base = new URL(location.href).origin;
+  const serviceWorkerPath = har.response_body.match(serviceWorkerStrictRegistrationPattern)[1];
   return new URL(serviceWorkerPath, base).href;
 }).reduce((set, url) => {
   set.add(url);
@@ -80,13 +80,18 @@ function getInfoForPattern(regexPattern, extractMatchingGroupOnly) {
   });
 }
 
+// Unlike serviceWorkerStrictRegistrationPattern that only matches SW registration scripts that contain URLs,
+// serviceWorkerLaxRegistrationPattern matches any call to the SW registration script (e.g. passing a variable, etc).
+const serviceWorkerLaxRegistrationPattern = /navigator\.serviceWorker\.register\(([^)]*)\)/g;
+const serviceWorkerRegistrationInfo = getInfoForPattern(serviceWorkerLaxRegistrationPattern, true);
+
 const workboxPattern = /(?:workbox:[a-z\-]+:[\d.]+|workbox\.[a-zA-Z]+\.?[a-zA-Z]*)/g;
 const workboxInfo = getInfoForPattern(workboxPattern);
 
 const importScriptsPattern = /importScripts\(([^)]*)\)/g;
 const importScriptsInfo = getInfoForPattern(importScriptsPattern, true);
 
-const swEventListenersPattern = /addEventListener\(\s*[\'"](install|activate|push|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)[\'"]/g;
+const swEventListenersPattern = /addEventListener\(\s*[\'"](install|activate|push|fetch|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)[\'"]/g;
 const swEventListenersInfo = getInfoForPattern(swEventListenersPattern, true);
 
 const swPropertiesPattern = /\.on(install|activate|push|notificationclick|notificationclose|sync|canmakepayment|paymentrequest|periodicsync|backgroundfetchsuccess|backgroundfetchfailure|backgroundfetchabort|backgroundfetchclick)\s*=/g;
@@ -107,6 +112,24 @@ const windowEventListenersInfo = getInfoForPattern(windowEventListenersPattern, 
 const windowPropertiesPattern = /\.on(appinstalled|beforeinstallprompt)\s*=/g;
 const windowPropertiesInfo = getInfoForPattern(windowPropertiesPattern, true);
 
+// the sw heuristics returns true if a strong service worker indicator (serviceWorkers) exists, or if at least two weak indicators are present.
+function calculateServiceWorkerHeuristic() {
+  return !isObjectKeyEmpty(serviceWorkers) || containsEnoughWeakMethods();
+}
+
+// returns true if the number of "weak" methods to identify service workers is >= 2.
+function containsEnoughWeakMethods() {
+
+  var weakMethodCount = 0;
+
+  weakMethodCount+= isObjectKeyEmpty(serviceWorkerRegistrationInfo) ? 0 : 1;
+  weakMethodCount+= isObjectKeyEmpty(workboxInfo) ? 0 : 1;
+  weakMethodCount+= isObjectKeyEmpty(swEventListenersInfo) ? 0 : 1;
+  weakMethodCount+= isObjectKeyEmpty(swMethodsInfo) ? 0 : 1;
+
+  return weakMethodCount >= 2;
+}
+
 function isObjectKeyEmpty(field) {
   return field == null || field.length == 0;
 }
@@ -124,6 +147,7 @@ return {
   swRegistrationPropertiesInfo: Object.fromEntries(swRegistrationPropertiesInfo),
   windowEventListenersInfo: Object.fromEntries(windowEventListenersInfo),
   windowPropertiesInfo: Object.fromEntries(windowPropertiesInfo),
+  serviceWorkerRegistrationInfo: Object.fromEntries(serviceWorkerRegistrationInfo),
   //Experimental field: Heuristic to detect if a site has a service worker even if the 'serviceWorkers' field is empty (false positives).
-  serviceWorkerHeuristic: !isObjectKeyEmpty(serviceWorkers) || !isObjectKeyEmpty(workboxInfo) || !isObjectKeyEmpty(swEventListenersInfo) || !isObjectKeyEmpty(swMethodsInfo)
+  serviceWorkerHeuristic: calculateServiceWorkerHeuristic()
 };
