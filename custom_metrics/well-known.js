@@ -15,7 +15,8 @@ function fetchWithTimeout(url) {
 }
 
 function parseResponse(url, parser) {
-  return fetchWithTimeout(url).then(request => {
+  return fetchWithTimeout(url)
+  .then(request => {
     let resultObj = {};
     if(!request.redirected && request.status === 200) {
       resultObj['found'] = true;
@@ -41,6 +42,9 @@ function parseResponse(url, parser) {
       resultObj['found'] = false;
       return [url, resultObj];
     }
+  })
+  .catch(error => {
+    return [url, {'error': error.message}];
   });
 }
 
