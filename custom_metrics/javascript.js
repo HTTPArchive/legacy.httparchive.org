@@ -57,7 +57,7 @@ return JSON.stringify({
             'template': template.map(getNodeName)
         }
         return web_component_specs
-    }),
+    })(),
 
     script_tags: (() => {
         let script_tags = Array.from(document.querySelectorAll('script'));
