@@ -219,6 +219,21 @@ Example response:
 }
 ```
 
+## link_protocols_used
+
+Lists all of the different protocols used in `<a href>` elements, along with their frequency
+
+Example response:
+
+```json
+{
+  "https": 2,
+  "http": 1,
+  "tel": 1,
+  "javascript": 1
+}
+```
+
 ## 06.47
 Detects if the first child of `<head>` is a Google Fonts `<link>`. `1` if true, `0` if false.
 
@@ -414,6 +429,8 @@ Example response:
 
 Stats of `<video>` and `<track>` elements.
 
+`total_with_track` contains the total number of `<video>` elements had at least one `<track>` element
+
 Example response:
 
 ```json
@@ -432,6 +449,7 @@ Example response:
     "poster": 1,
     "src": 1
   },
+  "total_with_track": 1,
   "tracks": {
     "total": 0,
     "nodes": [],
@@ -712,13 +730,13 @@ A JSON array of `<img>` elements on the page.
 Sample response:
 
 ```
-  {
-    "url": "https://placekitten.com/401/401",
-    "width": 401,
-    "height": 401,
-    "naturalWidth": 401,
-    "naturalHeight": 401,
-    "loading": "lazy",
-    "inViewport": true
-  }
+{
+  "url": "https://placekitten.com/401/401",
+  "width": 401,
+  "height": 401,
+  "naturalWidth": 401,
+  "naturalHeight": 401,
+  "loading": "lazy",
+  "inViewport": true
+}
 ```
