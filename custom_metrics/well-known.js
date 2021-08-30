@@ -15,16 +15,21 @@ function fetchWithTimeout(url) {
 }
 
 function parseResponse(url, parser) {
-  return fetchWithTimeout(url).then(request => {
+  return fetchWithTimeout(url)
+  .then(request => {
     let resultObj = {};
     if(!request.redirected && request.status === 200) {
       resultObj['found'] = true;
       if(parser) {
         let promise = parser(request);
         if (promise) {
-          return promise.then(data => {
+          return promise
+          .then(data => {
             resultObj['data'] = data;
             return [url, resultObj];
+          })
+          .catch(error => {
+            return [url, {'error': error.message}];
           });
         } else {
           resultObj['error'] = 'parser did not return a promise';
@@ -37,6 +42,9 @@ function parseResponse(url, parser) {
       resultObj['found'] = false;
       return [url, resultObj];
     }
+  })
+  .catch(error => {
+    return [url, {'error': error.message}];
   });
 }
 
@@ -73,14 +81,14 @@ return Promise.all([
       ]
       let currUserAgent = null;
       for(let line of text.split('\n')) {
-        if (line.startsWith('User-agent: ')) {
+        if (line.toLowerCase().startsWith('user-agent: ')) {
           currUserAgent = line.substring(12);
-          if (data['matched_disallows'][currUserAgent] === undefined) {
-            data['matched_disallows'][currUserAgent] = [];
-          }
-        } else if (line.startsWith('Disallow: ')) {
+        } else if (line.toLowerCase().startsWith('disallow: ')) {
           let path = line.substring(10);
           if (keywords.some(s => path.includes(s))) {
+            if (data['matched_disallows'][currUserAgent] === undefined) {
+              data['matched_disallows'][currUserAgent] = [];
+            }
             data['matched_disallows'][currUserAgent].push(path);
           }
         }
