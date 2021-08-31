@@ -391,6 +391,24 @@ const patterns = {
     documentation: 'https://web.dev/webgpu',
     blinkFeatureID: 3888,
   },
+  'VirtualKeyboard': {
+    regEx: /navigator\.virtualKeyboard\.show\s*\(/g,
+    where: 'JavaScript',
+    supported: (async () => 'virtualKeyboard' in navigator)(),
+    featureDetection: `(async () => 'virtualKeyboard' in navigator)()`,
+    documentation:
+      'https://github.com/MicrosoftEdge/MSEdgeExplainers/blob/main/VirtualKeyboardAPI/explainer.md',
+    blinkFeatureID: undefined,
+  },
+  'Ink': {
+    regEx: /navigator\.ink\.requestPresenter\s*\(/g,
+    where: 'JavaScript',
+    supported: (async () => 'ink' in navigator)(),
+    featureDetection: `(async () => 'ink' in navigator)()`,
+    documentation:
+      'https://blogs.windows.com/msedgedev/2021/08/18/enhancing-inking-on-the-web/',
+    blinkFeatureID: undefined,
+  },
   'Window Controls Overlay': {
     regEx: /"window\-controls\-overlay"/g,
     where: 'Web App Manifest',
