@@ -400,6 +400,14 @@ const patterns = {
       'https://github.com/MicrosoftEdge/MSEdgeExplainers/blob/main/VirtualKeyboardAPI/explainer.md',
     blinkFeatureID: undefined,
   },
+  'EyeDropper': {
+    regEx: /new\s+EyeDropper\s*\(\)/g,
+    where: 'JavaScript',
+    supported: (async () => 'EyeDropper' in window)(),
+    featureDetection: `(async () => 'EyeDropper' in window)()`,
+    documentation: 'https://github.com/WICG/eyedropper-api/blob/main/README.md',
+    blinkFeatureID: undefined,
+  },
   'Ink': {
     regEx: /navigator\.ink\.requestPresenter\s*\(/g,
     where: 'JavaScript',
