@@ -392,7 +392,7 @@ const patterns = {
     blinkFeatureID: 3888,
   },
   'VirtualKeyboard': {
-    regEx: /navigator\.virtualKeyboard\.show\s*\(/g,
+    regEx: /navigator\.virtualKeyboard/g,
     where: 'JavaScript',
     supported: (async () => 'virtualKeyboard' in navigator)(),
     featureDetection: `(async () => 'virtualKeyboard' in navigator)()`,
@@ -403,8 +403,8 @@ const patterns = {
   'EyeDropper': {
     regEx: /new\s+EyeDropper\s*\(\)/g,
     where: 'JavaScript',
-    supported: (async () => 'EyeDropper' in window)(),
-    featureDetection: `(async () => 'EyeDropper' in window)()`,
+    supported: (async () => 'EyeDropper' in self)(),
+    featureDetection: `(async () => 'EyeDropper' in self)()`,
     documentation: 'https://github.com/WICG/eyedropper-api/blob/main/README.md',
     blinkFeatureID: undefined,
   },
