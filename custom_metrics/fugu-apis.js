@@ -408,6 +408,15 @@ const patterns = {
     documentation: 'https://github.com/WICG/eyedropper-api/blob/main/README.md',
     blinkFeatureID: undefined,
   },
+  'Device Posture': {
+    regEx: /navigator\.devicePosture/g,
+    where: 'JavaScript',
+    supported: (async () => 'devicePosture' in navigator)(),
+    featureDetection: `(async () => 'devicePosture' in navigator)()`,
+    documentation:
+      'https://github.com/w3c/device-posture/blob/gh-pages/README.md',
+    blinkFeatureID: undefined,
+  },
   'Ink': {
     regEx: /navigator\.ink\.requestPresenter\s*\(/g,
     where: 'JavaScript',
