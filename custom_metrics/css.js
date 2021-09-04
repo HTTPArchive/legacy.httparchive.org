@@ -2,7 +2,7 @@
 // Uncomment the previous line for testing on webpagetest.org
 
 const PREFERS_COLOR_SCHEME_REGEXP =
-  /(@media\s*\(\s*prefers-color-scheme\s*:\s*(?:dark|light)\s*\)\s*\{[^\}]*\}|window.matchMedia\([\'"]\s*\(prefers-color-scheme\s*:\s*(?:dark|light)\)[\'"])/gms;
+  /(@media\s*\(\s*prefers-color-scheme\s*:\s*(?:dark|light)\s*\)\s*\{[^\}]*\}|window.matchMedia\([\'"]\s*\(prefers-color-scheme\s*:\s*(?:dark|light)\)[\'"])\)/gms;
 
 const bodies = $WPT_BODIES;
 
