@@ -3,6 +3,7 @@
 
 const PREFERS_COLOR_SCHEME_REGEXP =
   /(@media\s*\(\s*prefers-color-scheme\s*:\s*(?:dark|light)\s*\)\s*\{[^\}]*\}|window.matchMedia\([\'"]\s*\(prefers-color-scheme\s*:\s*(?:dark|light)\)[\'"])\)/gms;
+  /(?:@media\s*\(\s*prefers-color-scheme\s*:\s*(?:dark|light)\s*\)\s*\{[^\}]*\}|matchMedia\s*\(\s*['"]\s*\(\s*prefers-color-scheme\s*:\s*(?:dark|light)\s*\)\s*['"]\s*\))/gms;
 
 const bodies = $WPT_BODIES;
 
@@ -44,7 +45,9 @@ return JSON.stringify({
   //    ternary expression if step 1. returns `false`.
   prefersColorScheme:
     bodies.some((request) => {
-      return (PREFERS_COLOR_SCHEME_REGEXP.test(request.response_body || '')
+      return (
+        (request.type === 'Stylesheet' || request.type === 'Script') &&
+        PREFERS_COLOR_SCHEME_REGEXP.test(request.response_body || '')
       );
     }) ||
     // If none of the response bodies match, alternatively check if any of the
