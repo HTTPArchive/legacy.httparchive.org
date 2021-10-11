@@ -35,3 +35,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_JAVASCRIPT_ES: true
           VALIDATE_ALL_CODEBASE: true
+          FILTER_REGEX_INCLUDE: custom_metrics
