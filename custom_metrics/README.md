@@ -46,3 +46,14 @@ To see the custom metric results, select a run, first click on "Details", and th
 ![image](https://user-images.githubusercontent.com/1120896/88727208-24beaa80-d0fd-11ea-8ae1-57df2c8505e4.png)
 
 For complex metrics like [almanac.js](./almanac.js) you can more easily explore the results by copy/pasting the JSON into your browser console.
+
+## Linting
+
+On opening a Pull Request we will do some basic linting of JavaScript using [ESLint](https://eslint.org/) throughn the GitHub Super Linter.
+
+You can run this locally with the following commands:
+
+```sh
+docker pull github/super-linter:latest
+docker run -e RUN_LOCAL=true -e VALIDATE_JAVASCRIPT_ES=true -e USE_FIND_ALGORITHM=true -v $PWD/custom_metrics:/tmp/lint github/super-linter
+```
