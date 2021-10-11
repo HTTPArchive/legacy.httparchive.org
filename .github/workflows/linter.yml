@@ -20,7 +20,7 @@ jobs:
         with:
           # Full git history is needed to get a proper list of changed files within `super-linter`
           fetch-depth: 0
-      - name: Set VALIDATE_ALL_CODEBASE variable to false
+      # - name: Set VALIDATE_ALL_CODEBASE variable to false
         # Only run the full workflow for manual runs or if upgrading the super linter
         # if: |
         #     github.event_name != 'workflow_dispatch' &&
