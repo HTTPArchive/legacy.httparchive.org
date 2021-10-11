@@ -110,48 +110,57 @@ try { // whole process is placed in a try/catch so we can log uncaught errors
     // forms
     'form': (() => {   
       try {   
-        let result = {target: {}, method: {}, inputs: []};
+        let result = { target: {}, method: {}, elements: [] };
 
-        var nodes = [...document.querySelectorAll('form')];
-
+        var nodes = [...document.querySelectorAll("form")];
+        
         result.total = nodes.length;
-
+        
         nodes.forEach((n) => {
           let target = n.getAttribute("target");
-
+        
           if (target) {
-              if (result.target[target])
-                result.target[target]++;
-              else 
-                result.target[target] = 1;
+            if (result.target[target]) result.target[target]++;
+            else result.target[target] = 1;
           }
-
+        
           let method = n.getAttribute("method");
-
+        
           if (method) {
-              if (result.method[method])
-                result.method[method]++;
-              else 
-                result.method[method] = 1;
+            if (result.method[method]) result.method[method]++;
+            else result.method[method] = 1;
           }
-          
-          var inputs = {types: {}}
-
-          var elements = [...n.querySelectorAll('input')];
-
+        
+          var inputs = { tagNames: {}, types: {} };
+        
+          var elements = [
+            ...n.querySelectorAll(
+              "input, label, select, textarea, button, fieldset, legend, datalist, output, option, optgroup"
+            ),
+          ];
+        
           elements.forEach((m) => {
+            let tagName = m.tagName.toLowerCase();
+            
+            if (inputs.tagNames[tagName]) {
+              inputs.tagNames[tagName]++;
+            } else {
+              inputs.tagNames[tagName] = 1;
+            }
+            
             let type = m.getAttribute("type");
-
+        
             if (type) {
-                if (inputs.types[type])
-                  inputs.types[type]++;
-                else 
-                  inputs.types[type] = 1;
+              if (inputs.types[type]) {
+                inputs.types[type]++;
+              } else {
+                inputs.types[type] = 1;
+              }
             }
           });
-
-          result.inputs.push({...inputs, total: elements.length});
-        });
+        
+          result.elements.push({ ...inputs, total: elements.length });
+        });              
 
         return result;
       }
