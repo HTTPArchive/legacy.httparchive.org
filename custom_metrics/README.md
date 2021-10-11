@@ -49,7 +49,7 @@ For complex metrics like [almanac.js](./almanac.js) you can more easily explore 
 
 ## Linting
 
-On opening a Pull Request we will do some basic linting of JavaScript using [ESLint](https://eslint.org/) throughn the GitHub Super Linter.
+On opening a Pull Request we will do some basic linting of JavaScript using [ESLint](https://eslint.org/) through the [GitHub Super-Linter](https://github.com/github/super-linter).
 
 You can run this locally with the following commands:
 
