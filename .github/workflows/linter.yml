@@ -34,4 +34,5 @@ jobs:
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_JAVASCRIPT_ES: true
-          FILTER_REGEX_INCLUDE: custom_metrics
+          VALIDATE_YAML: true
+          FILTER_REGEX_INCLUDE: "custom_metrics|.github"
