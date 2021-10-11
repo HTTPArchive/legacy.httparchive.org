@@ -27,13 +27,20 @@ jobs:
         #     startsWith(github.event.pull_request.title,'Bump github/super-linter') != true
         # run: |
         #   echo "VALIDATE_ALL_CODEBASE=false" >> $GITHUB_ENV
-      - name: Lint Code Base
+      - name: Lint Code Base JS
         uses: github/super-linter@v4.8.1
         #uses: docker://github/super-linter:v4.7.1
         env:
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_JAVASCRIPT_ES: true
+          # Restrict JS to custom_merics folder as some of the other files are PHP
+          FILTER_REGEX_INCLUDE: custom_metrics
+      - name: Lint Code Base non-JS
+        uses: github/super-linter@v4.8.1
+        #uses: docker://github/super-linter:v4.7.1
+        env:
+          DEFAULT_BRANCH: master
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_MARKDOWN: true
           VALIDATE_YAML: true
-          FILTER_REGEX_INCLUDE: "(custom_metrics|.github)"

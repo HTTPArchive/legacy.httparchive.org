@@ -32,7 +32,8 @@ In order to understand what each of these tables contain, you can click on the t
 
 
 Some of the types of tables you'll find useful when getting started are:
-### httparchive.runs Tables:
+
+### httparchive.runs Tables
 * yyyy_mm_dd_pages and yyyy_mm_dd_pages_mobile:
     * Each row contains details about a single page including timings, # of requests, types of requests and sizes.
     * Information about the page load such # of domains, redirects, errors, https requests, etc.
@@ -46,7 +47,7 @@ Some of the types of tables you'll find useful when getting started are:
     * Contains some response headers for each object.
     * These tables are very large (yyyy_mm_dd_requests is 47GB as of Aug 2017).
     
-### httparchive.har Tables:
+### httparchive.har Tables
 
 The HTTP Archive stores detailed information about each page load in [HAR (HTTP Archive) files](https://en.wikipedia.org/wiki/.har). Each HAR file is JSON formatted and contains detailed performance data about a web page.  The [specification for this format](https://w3c.github.io/web-performance/specs/HAR/Overview.html) is produced by the Web Performance Working Group of the W3C. The HTTP Archive splits each HAR files into multiple BigQuery tables, which are described below.
 
