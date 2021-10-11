@@ -37,7 +37,8 @@ To test a custom metric, for example [`doctype.js`](https://github.com/HTTPArchi
 
 Note that all WPT custom metrics must have `[metricName]` at the start of the script. This is excluded in the HTTP Archive code and generated automatically based on the file name, so you will need to manually ensure that it's set.
 
-If you include the `debug=1` parameter on the WPT home page, for example https://webpagetest.org?debug=1, the test results will include a raw debug log from the agent including the devtools commands to run the custom metrics (and any handled exceptions). The log ouput can be found in the main results page to the left of the waterfall. For each run there will be a link for the "debug log" (next to the timeline and trace links).
+If you include the `debug=1` parameter on the WPT home page, for example [https://webpagetest.org?debug=1](https://webpagetest.org?debug=1), the test results will include a raw debug log from the agent including the devtools commands to run the custom metrics (and any handled exceptions).
+The log ouput can be found in the main results page to the left of the waterfall. For each run there will be a link for the "debug log" (next to the timeline and trace links).
 
 To see the custom metric results, select a run, first click on "Details", and then on the "Custom Metrics" link in the top right corner:
 

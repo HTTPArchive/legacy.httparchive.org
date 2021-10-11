@@ -729,7 +729,7 @@ A JSON array of `<img>` elements on the page.
 
 Sample response:
 
-```
+```json
 {
   "url": "https://placekitten.com/401/401",
   "width": 401,
