@@ -60,12 +60,12 @@ const BY_USERAGENT_TYPES = {
 
 const parseRecords = (text)=>{
 
-    const cleanLines = (r)=>r.replace(/#.*$/gmi, '').trim().toLowerCase();
+    const cleanLines = (r)=>r.replace(/\s+#.*$/gm, '').trim().toLowerCase();
     const splitOnLines = (r)=>r.split(/[\r\n]+/g).filter((e)=>e.length > 0);
     const lines = splitOnLines(cleanLines(text));
 
-    rec_types = Object.keys(RECORD_COUNT_TYPES).join('|');
-    const regex = new RegExp(`(${rec_types})(?=:)`,'gi');
+    const rec_types = Object.keys(RECORD_COUNT_TYPES).join('|');
+    const regex = new RegExp(`(${rec_types})(?=\\s*:)`,'gi');
 
     const records = [].map.call(lines, line=>{
 
@@ -73,7 +73,7 @@ const parseRecords = (text)=>{
 
         if (rec_match) {
             return {
-                record_type: rec_match[0],
+                record_type: rec_match[0].trim(),
                 record_value: line.slice(line.indexOf(':') + 1).trim()
             };
         }
@@ -83,7 +83,8 @@ const parseRecords = (text)=>{
             record_value: line
         };
 
-    });
+    }
+    );
 
     return records;
 }
@@ -94,12 +95,12 @@ return fetchWithTimeout('/robots.txt')
     result.redirected = !!r.redirected;
     result.status = r.status;  
     return r.text().then(t => {
-      
+    
       // Overall Metrics
       result.size = t.length;
       result.size_kib = t.length / 1024;
       result.over_google_limit = result.size_kib > 500;
-      result.comment_count = t.match(/#.*$/gm)?.length ?? 0;
+      result.comment_count = t.match(/\s+#.*$/gm)?.length ?? 0;
       result.record_counts = {};
 
       // Parse Records to clean objects
