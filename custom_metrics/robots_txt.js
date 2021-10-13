@@ -60,7 +60,7 @@ const BY_USERAGENT_TYPES = {
 
 const parseRecords = (text)=>{
 
-    const cleanLines = (r)=>r.replace(/\s+#.*$/gm, '').trim().toLowerCase();
+    const cleanLines = (r)=>r.replace(/(\s+|^\s*)#.*$/gm, '').trim().toLowerCase();
     const splitOnLines = (r)=>r.split(/[\r\n]+/g).filter((e)=>e.length > 0);
     const lines = splitOnLines(cleanLines(text));
 
@@ -100,7 +100,7 @@ return fetchWithTimeout('/robots.txt')
       result.size = t.length;
       result.size_kib = t.length / 1024;
       result.over_google_limit = result.size_kib > 500;
-      result.comment_count = t.match(/\s+#.*$/gm)?.length ?? 0;
+      result.comment_count = t.match(/(\s+|^\s*)#.*$/gm)?.length ?? 0;
       result.record_counts = {};
 
       // Parse Records to clean objects
