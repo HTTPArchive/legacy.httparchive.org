@@ -994,7 +994,7 @@ function prettyType($mimeType, $ext) {
 function getFormat($prettyType, $mimeType, $ext) {
 	if ( "image" === $prettyType ) {
 		// Order by most popular first.
-		foreach( array("jpg", "png", "gif", "webp", "svg", "ico") as $type) {
+		foreach( array("jpg", "png", "gif", "webp", "svg", "ico", "avif") as $type) {
 			if ( false !== strpos($mimeType, $type) || $ext === $type ) {
 				return $type;
 			}
