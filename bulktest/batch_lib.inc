@@ -963,7 +963,7 @@ function prettyType($mimeType, $ext) {
 	else if ( "eot" === $ext || "ttf" === $ext || "woff" === $ext || "woff2" === $ext || "otf" === $ext ) {
 		return "font";
 	}
-	else if ( "png" === $ext || "gif" === $ext || "jpg" === $ext || "jpeg" === $ext || "webp" === $ext || "ico" === $ext || "svg" === $ext ) {
+	else if ( "png" === $ext || "gif" === $ext || "jpg" === $ext || "jpeg" === $ext || "webp" === $ext || "ico" === $ext || "svg" === $ext || "avif" === $ext ) {
 		return "image";
 	}
 	else if ( "css" === $ext ) {
