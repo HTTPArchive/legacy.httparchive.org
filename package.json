@@ -21,6 +21,6 @@
   "devDependencies": {
     "fs-promise": "^2.0.2",
     "fugu-api-data": "^1.4.4",
-    "node-fetch": "~1.6.3"
+    "node-fetch": "~2.6.1"
   }
 }
