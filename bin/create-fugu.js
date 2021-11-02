@@ -10,7 +10,7 @@ const responseBodies = $WPT_BODIES;
 // Note that this leaves a slight risk of excluding inline \`<script>\` elements
 // using these APIs from being covered, but usage there is expected to be small
 // and we prefer to avoid the risk of false positives.
-const checkURLConditions = (where, url, mimeType) => {
+const checkURLConditions = (where, url, mimeType, responseBody) => {
   // If the pattern has to occur in JavaScript, make sure the file name
   // includes either \`.js\` or \`.mjs\` and uses a correct-ish MIME type
   // (https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types#textjavascript).
@@ -22,13 +22,15 @@ const checkURLConditions = (where, url, mimeType) => {
     return true;
   }
   // If the pattern has to occur in the Web App Manifest, make sure the file
-  // name includes either \`.json\` or \`.webmanifest\` and uses a MIME type that
+  // name includes either \`.json\` or \`.webmanifest\`, uses a MIME type that
   // ends in "json"
-  // (https://w3c.github.io/manifest/#:~:text=file%20extension%3A%20.webmanifest%20or%20.json%3F).
+  // (https://w3c.github.io/manifest/#:~:text=file%20extension%3A%20.webmanifest%20or%20.json%3F),
+  // and includes at least \`"start_url"\`.
   if (
     where === "Web App Manifest" &&
-    /\.webmanifest|\.json/.test(url) &&
-    mimeType.toLowerCase().endsWith("json")
+    /\\.webmanifest|\\.json/.test(url) &&
+    mimeType.toLowerCase().endsWith("json") &&
+    /"start_url"/.test(responseBody)
   ) {
     return true;
   }
@@ -48,11 +50,11 @@ responseBodies.forEach((har) => {
         .split(";")[0]
         .trim();
       if (result[key] && !result[key].includes(har.url)) {
-        if (checkURLConditions(value.where, har.url, mimeType)) {
+        if (checkURLConditions(value.where, har.url, mimeType, har.response_body)) {
           result[key].push(har.url);
         }
       } else {
-        if (checkURLConditions(value.where, har.url, mimeType)) {
+        if (checkURLConditions(value.where, har.url, mimeType, har.response_body)) {
           result[key] = [har.url];
         }
       }
