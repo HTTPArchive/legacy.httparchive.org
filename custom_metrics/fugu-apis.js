@@ -20,7 +20,7 @@ const patterns = {
     blinkFeatureID: 3022,
   },
   'Push': {
-    regEx: /pushManager\.subscribe\s*\(/g,
+    regEx: /\.pushManager\.subscribe\s*\(/g,
     where: 'JavaScript',
     supported: (async () =>
       'serviceWorker' in navigator &&
@@ -33,11 +33,8 @@ const patterns = {
   'Add to Home Screen': {
     regEx: /["']beforeinstallprompt["']|\.onbeforeinstallprompt/g,
     where: 'JavaScript',
-    supported: (async () =>
-      'relList' in HTMLLinkElement.prototype &&
-      document.createElement('link').relList.supports('manifest') &&
-      'onbeforeinstallprompt' in self)(),
-    featureDetection: `(async () => 'relList' in HTMLLinkElement.prototype && document.createElement('link').relList.supports('manifest') && 'onbeforeinstallprompt' in self)()`,
+    supported: (async () => 'BeforeInstallPromptEvent' in self)(),
+    featureDetection: `(async () => 'BeforeInstallPromptEvent' in self)()`,
     documentation:
       'https://developer.mozilla.org/en-US/docs/Web/API/BeforeInstallPromptEvent',
     blinkFeatureID: 1436,
