@@ -137,6 +137,15 @@ const patterns = {
     documentation: 'https://web.dev/registering-a-web-based-payment-app/',
     blinkFeatureID: 2397,
   },
+  'WebMIDI': {
+    regEx: /navigator\.requestMIDIAccess\s*\(\)/g,
+    where: 'JavaScript',
+    supported: (async () => 'requestMIDIAccess' in navigator)(),
+    featureDetection: `(async () => 'requestMIDIAccess' in navigator)()`,
+    documentation:
+      'https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API',
+    blinkFeatureID: 2029,
+  },
   'WebBluetooth': {
     regEx: /navigator\.bluetooth\.requestDevice\s*\(/g,
     where: 'JavaScript',
