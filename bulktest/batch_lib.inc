@@ -963,7 +963,7 @@ function prettyType($mimeType, $ext) {
 	else if ( "eot" === $ext || "ttf" === $ext || "woff" === $ext || "woff2" === $ext || "otf" === $ext ) {
 		return "font";
 	}
-	else if ( "png" === $ext || "gif" === $ext || "jpg" === $ext || "jpeg" === $ext || "webp" === $ext || "ico" === $ext || "svg" === $ext ) {
+	else if ( "png" === $ext || "gif" === $ext || "jpg" === $ext || "jpeg" === $ext || "webp" === $ext || "ico" === $ext || "svg" === $ext || "avif" === $ext || "jxl" === $ext || "heic" === $ext || "heif" === $ext ) {
 		return "image";
 	}
 	else if ( "css" === $ext ) {
@@ -994,7 +994,7 @@ function prettyType($mimeType, $ext) {
 function getFormat($prettyType, $mimeType, $ext) {
 	if ( "image" === $prettyType ) {
 		// Order by most popular first.
-		foreach( array("jpg", "png", "gif", "webp", "svg", "ico") as $type) {
+		foreach( array("jpg", "png", "gif", "webp", "svg", "ico", "avif", "jxl", "heic", "heif") as $type) {
 			if ( false !== strpos($mimeType, $type) || $ext === $type ) {
 				return $type;
 			}
