@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "fs-promise": "^2.0.2",
-    "fugu-api-data": "^1.4.4",
+    "fugu-api-data": "^1.5.3",
     "node-fetch": "~2.6.1"
   }
 }

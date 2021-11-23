@@ -1,6 +1,151 @@
 // [fugu-apis]
 
 const patterns = {
+  'Service Worker': {
+    regEx: /navigator\.serviceWorker\.register\s*\(/g,
+    where: 'JavaScript',
+    supported: (async () => 'serviceWorker' in navigator)(),
+    featureDetection: `(async () => 'serviceWorker' in navigator)()`,
+    documentation:
+      'https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API',
+    blinkFeatureID: 990,
+  },
+  'Cache Storage': {
+    regEx: /caches\.open\s*\(/g,
+    where: 'JavaScript',
+    supported: (async () => 'serviceWorker' in navigator && 'caches' in self)(),
+    featureDetection: `(async () => 'serviceWorker' in navigator && 'caches' in self)()`,
+    documentation:
+      'https://developer.mozilla.org/en-US/docs/Web/API/CacheStorage',
+    blinkFeatureID: 3022,
+  },
+  'Push': {
+    regEx: /\.pushManager\.subscribe\s*\(/g,
+    where: 'JavaScript',
+    supported: (async () =>
+      'serviceWorker' in navigator &&
+      'pushManager' in
+        ((await navigator.serviceWorker?.ready) || self.registration))(),
+    featureDetection: `(async () => 'serviceWorker' in navigator && 'pushManager' in (await navigator.serviceWorker?.ready || self.registration))()`,
+    documentation: 'https://developer.mozilla.org/en-US/docs/Web/API/Push_API',
+    blinkFeatureID: 769,
+  },
+  'Add to Home Screen': {
+    regEx: /["']beforeinstallprompt["']|\.onbeforeinstallprompt/g,
+    where: 'JavaScript',
+    supported: (async () => 'BeforeInstallPromptEvent' in self)(),
+    featureDetection: `(async () => 'BeforeInstallPromptEvent' in self)()`,
+    documentation:
+      'https://developer.mozilla.org/en-US/docs/Web/API/BeforeInstallPromptEvent',
+    blinkFeatureID: 1436,
+  },
+  'Background Sync': {
+    regEx: /\.sync\.register\s*\(["']/g,
+    where: 'JavaScript',
+    supported: (async () =>
+      'serviceWorker' in navigator &&
+      'sync' in
+        ((await navigator.serviceWorker?.ready) || self.registration))(),
+    featureDetection: `(async () => 'serviceWorker' in navigator && 'sync' in (await navigator.serviceWorker?.ready || self.registration))()`,
+    documentation:
+      'https://developer.mozilla.org/en-US/docs/Web/API/Background_Synchronization_API',
+    blinkFeatureID: 745,
+  },
+  'Background Fetch': {
+    regEx: /\.backgroundFetch\.fetch\s*\(["']/g,
+    where: 'JavaScript',
+    supported: (async () => 'BackgroundFetchManager' in self)(),
+    featureDetection: `(async () => 'BackgroundFetchManager' in self)()`,
+    documentation:
+      'https://developer.mozilla.org/en-US/docs/Web/API/Background_Fetch_API',
+    blinkFeatureID: 2549,
+  },
+  'Navigation Preload': {
+    regEx: /\.navigationPreload\.enable\s*\(\)/g,
+    where: 'JavaScript',
+    supported: (async () =>
+      'serviceWorker' in navigator &&
+      'navigationPreload' in
+        ((await navigator.serviceWorker?.ready) || self.registration))(),
+    featureDetection: `(async () => 'serviceWorker' in navigator && 'navigationPreload' in (await navigator.serviceWorker?.ready || self.registration))()`,
+    documentation:
+      'https://developer.mozilla.org/en-US/docs/Web/API/NavigationPreloadManager',
+    blinkFeatureID: 1803,
+  },
+  'Storage Estimation': {
+    regEx: /navigator\.storage\.estimate\s*\(\)/g,
+    where: 'JavaScript',
+    supported: (async () =>
+      'storage' in navigator && 'estimate' in navigator.storage)(),
+    featureDetection: `(async () => 'storage' in navigator && 'estimate' in navigator.storage)()`,
+    documentation:
+      'https://developer.mozilla.org/en-US/docs/Web/API/StorageManager/estimate',
+    blinkFeatureID: 1371,
+  },
+  'Persistent Storage': {
+    regEx: /navigator\.storage\.persist\s*\(\)/g,
+    where: 'JavaScript',
+    supported: (async () =>
+      'storage' in navigator && 'persist' in navigator.storage)(),
+    featureDetection: `(async () => 'storage' in navigator && 'persist' in navigator.storage)()`,
+    documentation:
+      'https://developer.mozilla.org/en-US/docs/Web/API/StorageManager/persist',
+    blinkFeatureID: 1369,
+  },
+  'Media Session': {
+    regEx:
+      /navigator\.mediaSession\.setActionHandler|navigator\.mediaSession\.metadata/g,
+    where: 'JavaScript',
+    supported: (async () => 'mediaSession' in navigator)(),
+    featureDetection: `(async () => 'mediaSession' in navigator)()`,
+    documentation:
+      'https://developer.mozilla.org/en-US/docs/Web/API/Media_Session_API',
+    blinkFeatureID: 1792,
+  },
+  'Media Capabilities': {
+    regEx: /navigator\.mediaCapabilities\.decodingInfo\s*\(/g,
+    where: 'JavaScript',
+    supported: (async () => 'mediaCapabilities' in navigator)(),
+    featureDetection: `(async () => 'mediaCapabilities' in navigator)()`,
+    documentation:
+      'https://developer.mozilla.org/en-US/docs/Web/API/Media_Capabilities_API',
+    blinkFeatureID: 2239,
+  },
+  'Device Memory': {
+    regEx: /navigator\.deviceMemory/g,
+    where: 'JavaScript',
+    supported: (async () => 'deviceMemory' in navigator)(),
+    featureDetection: `(async () => 'deviceMemory' in navigator)()`,
+    documentation:
+      'https://developer.mozilla.org/en-US/docs/Web/API/Device_Memory_API',
+    blinkFeatureID: 2121,
+  },
+  'Payment Request': {
+    regEx: /new\s+PaymentRequest\s*\(/g,
+    where: 'JavaScript',
+    supported: (async () => 'PaymentRequest' in self)(),
+    featureDetection: `(async () => 'PaymentRequest' in self)()`,
+    documentation:
+      'https://developer.mozilla.org/en-US/docs/Web/API/Payment_Request_API',
+    blinkFeatureID: 2894,
+  },
+  'Payment Handler': {
+    regEx: /\.paymentManager\.instruments\.set\s*\(/g,
+    where: 'JavaScript',
+    supported: (async () => 'PaymentInstruments' in self)(),
+    featureDetection: `(async () => 'PaymentInstruments' in self)()`,
+    documentation: 'https://web.dev/registering-a-web-based-payment-app/',
+    blinkFeatureID: 2397,
+  },
+  'WebMIDI': {
+    regEx: /navigator\.requestMIDIAccess\s*\(\)/g,
+    where: 'JavaScript',
+    supported: (async () => 'requestMIDIAccess' in navigator)(),
+    featureDetection: `(async () => 'requestMIDIAccess' in navigator)()`,
+    documentation:
+      'https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API',
+    blinkFeatureID: 2029,
+  },
   'WebBluetooth': {
     regEx: /navigator\.bluetooth\.requestDevice\s*\(/g,
     where: 'JavaScript',
@@ -78,11 +223,8 @@ const patterns = {
   'Periodic Background Sync': {
     regEx: /periodicSync\.register\s*\(/g,
     where: 'JavaScript',
-    supported: (async () =>
-      'serviceWorker' in navigator &&
-      'periodicSync' in
-        ((await navigator.serviceWorker?.ready) || self.registration))(),
-    featureDetection: `(async () => 'serviceWorker' in navigator && 'periodicSync' in (await navigator.serviceWorker?.ready || self.registration))()`,
+    supported: (async () => 'PeriodicSyncManager' in self)(),
+    featureDetection: `(async () => 'PeriodicSyncManager' in self)()`,
     documentation: 'https://web.dev/periodic-background-sync/',
     blinkFeatureID: 2931,
   },
