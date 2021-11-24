@@ -138,7 +138,7 @@ const patterns = {
     blinkFeatureID: 2397,
   },
   'WebMIDI': {
-    regEx: /navigator\.requestMIDIAccess\s*\(\)/g,
+    regEx: /navigator\.requestMIDIAccess\s*\(/g,
     where: 'JavaScript',
     supported: (async () => 'requestMIDIAccess' in navigator)(),
     featureDetection: `(async () => 'requestMIDIAccess' in navigator)()`,
@@ -631,6 +631,14 @@ const patterns = {
     featureDetection: `(async () => undefined)()`,
     documentation: 'https://web.dev/url-protocol-handler/',
     blinkFeatureID: 3884,
+  },
+  'Launch Handler': {
+    regEx: /"launch_handler"/g,
+    where: 'Web App Manifest',
+    supported: (async () => undefined)(),
+    featureDetection: `(async () => undefined)()`,
+    documentation: 'https://web.dev/launch-handler/',
+    blinkFeatureID: undefined,
   },
 };
 
