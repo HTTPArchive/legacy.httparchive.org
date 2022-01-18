@@ -138,7 +138,7 @@ const patterns = {
     blinkFeatureID: 2397,
   },
   'WebMIDI': {
-    regEx: /navigator\.requestMIDIAccess\s*\(\)/g,
+    regEx: /navigator\.requestMIDIAccess\s*\(/g,
     where: 'JavaScript',
     supported: (async () => 'requestMIDIAccess' in navigator)(),
     featureDetection: `(async () => 'requestMIDIAccess' in navigator)()`,
@@ -468,14 +468,6 @@ const patterns = {
     documentation: 'https://web.dev/generic-sensor/',
     blinkFeatureID: 1901,
   },
-  'File Handling': {
-    regEx: /launchQueue\.setConsumer\s*\(/g,
-    where: 'JavaScript',
-    supported: (async () => 'launchQueue' in self)(),
-    featureDetection: `(async () => 'launchQueue' in self)()`,
-    documentation: 'https://web.dev/file-handling/',
-    blinkFeatureID: 3875,
-  },
   'Notification Triggers': {
     regEx: /showTrigger\s*\:\s*new\s+TimestampTrigger\s*\(/g,
     where: 'JavaScript',
@@ -631,6 +623,24 @@ const patterns = {
     featureDetection: `(async () => undefined)()`,
     documentation: 'https://web.dev/url-protocol-handler/',
     blinkFeatureID: 3884,
+  },
+  'File Handling': {
+    regEx: /"file_handlers"/g,
+    where: 'Web App Manifest',
+    supported: (async () =>
+      'launchQueue' in self && 'files' in LaunchParams.prototype)(),
+    featureDetection: `(async () => 'launchQueue' in self && 'files' in LaunchParams.prototype)()`,
+    documentation: 'https://web.dev/file-handling/',
+    blinkFeatureID: 3875,
+  },
+  'Launch Handler': {
+    regEx: /"launch_handler"/g,
+    where: 'Web App Manifest',
+    supported: (async () =>
+      'launchQueue' in self && 'targetURL' in LaunchParams.prototype)(),
+    featureDetection: `(async () => 'launchQueue' in self && 'targetURL' in LaunchParams.prototype)()`,
+    documentation: 'https://web.dev/launch-handler/',
+    blinkFeatureID: undefined,
   },
 };
 
