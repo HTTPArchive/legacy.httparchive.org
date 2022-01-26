@@ -30,6 +30,15 @@ const patterns = {
     documentation: 'https://developer.mozilla.org/en-US/docs/Web/API/Push_API',
     blinkFeatureID: 769,
   },
+  'HapticsDevice': {
+    regEx: /\.haptics\.play\s*\(/g,
+    where: 'JavaScript',
+    supported: (async () => 'HapticsDevice' in window)(),
+    featureDetection: `(async () => 'HapticsDevice' in window)()`,
+    documentation:
+      'https://github.com/MicrosoftEdge/MSEdgeExplainers/blob/main/HapticsDevice/explainer.md',
+    blinkFeatureID: undefined,
+  },
   'Add to Home Screen': {
     regEx: /["']beforeinstallprompt["']|\.onbeforeinstallprompt/g,
     where: 'JavaScript',
