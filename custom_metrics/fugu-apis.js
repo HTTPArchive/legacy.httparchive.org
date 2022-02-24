@@ -33,8 +33,8 @@ const patterns = {
   'HapticsDevice': {
     regEx: /\.haptics\.play\s*\(/g,
     where: 'JavaScript',
-    supported: (async () => 'HapticsDevice' in window)(),
-    featureDetection: `(async () => 'HapticsDevice' in window)()`,
+    supported: (async () => 'HapticsDevice' in self)(),
+    featureDetection: `(async () => 'HapticsDevice' in self)()`,
     documentation:
       'https://github.com/MicrosoftEdge/MSEdgeExplainers/blob/main/HapticsDevice/explainer.md',
     blinkFeatureID: undefined,
