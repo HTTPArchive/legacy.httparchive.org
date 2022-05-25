@@ -1,4 +1,5 @@
 # Custom metrics
+# (THIS REPO IS NO LONGER MAINTAINED. SEE [HTTPArchive/custom-metrics](https://github.com/HTTPArchive/custom-metrics))
 
 ## Adding a new custom metric
 
